@@ -7,5 +7,4 @@ import com.ks1dotnet.jewelrystore.entity.Employee;
 
 @Repository
 public interface IEmployeeRepository extends JpaRepository<Employee, Integer>{
-
 }

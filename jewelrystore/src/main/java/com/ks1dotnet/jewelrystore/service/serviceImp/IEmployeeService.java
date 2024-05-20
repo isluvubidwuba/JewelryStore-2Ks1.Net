@@ -7,7 +7,7 @@ import com.ks1dotnet.jewelrystore.entity.Employee;
 public interface IEmployeeService {
 
     public List<Employee> findAll();
-    public Employee saveEmployee(Employee employee);
-    public boolean deleteById(int id);
-
+    public Employee save(Employee employee);
+    public Employee findById(Integer id);
+    
 }

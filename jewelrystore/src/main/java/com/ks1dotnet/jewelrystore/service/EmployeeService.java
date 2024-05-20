@@ -20,13 +20,15 @@ public class EmployeeService implements IEmployeeService {
     }
 
     @Override
-    public Employee saveEmployee(Employee employee) {
-        return iEmployeeRepository.save(employee);
+    public Employee save(Employee employee) {
+       return iEmployeeRepository.save(employee);
     }
 
-    @Override
-    public boolean deleteById(int id) {
-        return true;
-    }
+   @Override
+   public Employee findById(Integer id) {
+      return iEmployeeRepository.findById(id).orElse(null);
+   }
+
+   
 
 }
