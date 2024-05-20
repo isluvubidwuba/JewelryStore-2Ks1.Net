@@ -25,7 +25,7 @@ public class Employee {
 
     @Column(name = "last_name")
     private String lastName;
-    
+
     @Column(name = "pin_code")
     private String pinCode;
 
