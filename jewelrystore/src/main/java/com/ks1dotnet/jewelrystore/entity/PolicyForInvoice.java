@@ -10,15 +10,15 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "policy_for_invoice")
-public class policy_for_invoice {
+public class PolicyForInvoice {
     @Id
     private int id;
 
     @ManyToOne
     @JoinColumn(name = "id_invoice_type")
-    private invoice_type invoice_type;
+    private InvoiceType invoiceType;
 
     @ManyToOne
     @JoinColumn(name = "id_rate_policy")
-    private exchange_rate_policy exchange_rate_policy;
+    private ExchangeRatePolicy exchangeRatePolicy;
 }

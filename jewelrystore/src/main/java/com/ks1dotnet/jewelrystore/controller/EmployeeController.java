@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ks1dotnet.jewelrystore.entity.employee;
+import com.ks1dotnet.jewelrystore.entity.Employee;
 import com.ks1dotnet.jewelrystore.payload.responseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IEmployeeService;
 
@@ -26,7 +26,7 @@ public class EmployeeController {
     @GetMapping("/list")
     private ResponseEntity<?> findAll() {
         responseData responseData = new responseData();
-        List<employee> listEmpl = iEmployeeService.findAll();
+        List<Employee> listEmpl = iEmployeeService.findAll();
         responseData.setData(listEmpl);
         // for (employee e : listEmpl) {
         // System.out.println(e);
@@ -36,10 +36,10 @@ public class EmployeeController {
     }
 
     @PostMapping("/signup")
-    private ResponseEntity<?> login(@RequestBody employee emp) {
+    private ResponseEntity<?> login(@RequestBody Employee emp) {
         responseData responseData = new responseData();
         try {
-            employee employee = iEmployeeService.findById(emp.getId());
+            Employee employee = iEmployeeService.findById(emp.getId());
 
             if (employee == null) {
                 responseData.setDesc("SignUp fail. Not found employee");

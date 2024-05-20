@@ -12,7 +12,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "exchange_rate_policy")
-public class exchange_rate_policy {
+public class ExchangeRatePolicy {
     @Id
     private String id;
     private String description_policy;
@@ -20,6 +20,6 @@ public class exchange_rate_policy {
     private boolean status;
     private Date last_modified;
 
-    @OneToMany(mappedBy = "exchange_rate_policy")
-    Set<policy_for_invoice> list_policy_for_invoice;
+    @OneToMany(mappedBy = "exchangeRatePolicy")
+    Set<PolicyForInvoice> listPolicyForInvoice;
 }

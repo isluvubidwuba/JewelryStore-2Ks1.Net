@@ -14,7 +14,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "material")
-public class material {
+public class Material {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -24,5 +24,5 @@ public class material {
     private Date last_modified;
 
     @OneToMany(mappedBy = "material")
-    Set<material_of_product> list_material_of_product;
+    Set<MaterialOfProduct> listMaterialOfProduct;
 }

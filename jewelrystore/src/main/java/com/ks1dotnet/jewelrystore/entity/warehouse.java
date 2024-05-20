@@ -12,7 +12,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "warehouse")
-public class warehouse {
+public class WareHouse {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -22,9 +22,9 @@ public class warehouse {
 
     @ManyToOne
     @JoinColumn(name = "id_product")
-    private product product;
+    private Product product;
 
     @ManyToOne
     @JoinColumn(name = "id_product_category")
-    private product_category product_category;
+    private ProductCategory productCategory;
 }

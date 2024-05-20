@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.ks1dotnet.jewelrystore.entity.employee;
+import com.ks1dotnet.jewelrystore.entity.Employee;
 import com.ks1dotnet.jewelrystore.repository.IEmployeeRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IEmployeeService;
 
@@ -15,17 +15,17 @@ public class EmployeeService implements IEmployeeService {
     private IEmployeeRepository iEmployeeRepository;
 
     @Override
-    public List<employee> findAll() {
+    public List<Employee> findAll() {
         return iEmployeeRepository.findAll();
     }
 
     @Override
-    public employee findById(int id) {
+    public Employee findById(int id) {
         return iEmployeeRepository.findById(id).orElse(null);
     }
 
     @Override
-    public employee findByPinCode(String pin_code) {
+    public Employee findByPinCode(String pin_code) {
         // TODO Auto-generated method stub
         return iEmployeeRepository.findByPinCode(pin_code);
     }

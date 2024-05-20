@@ -13,7 +13,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "promotion")
-public class promotion {
+public class Promotion {
     @Id
     private String id;
     private int name;
@@ -22,14 +22,14 @@ public class promotion {
 
     @ManyToOne
     @JoinColumn(name = "id_voucher_type")
-    private voucher_type voucher_type;
+    private VoucherType voucherType;
 
     @OneToMany(mappedBy = "promotion")
-    Set<for_product> list_for_product;
+    Set<ForProduct> listForProduct;
 
     @OneToMany(mappedBy = "promotion")
-    Set<voucher_on_invoice> list_voucher_on_invoice;
+    Set<VoucherOnInvoice> listVoucherOnInvoice;
 
     @OneToMany(mappedBy = "promotion")
-    Set<voucher_on_invoice_detail> list_voucher_on_invoice_detail;
+    Set<VoucherOnInvoiceDetail> listVoucherOnInvoiceDetail;
 }

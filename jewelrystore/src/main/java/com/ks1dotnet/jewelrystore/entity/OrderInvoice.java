@@ -16,7 +16,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "order_invoice")
-public class order_invoice {
+public class OrderInvoice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -27,19 +27,19 @@ public class order_invoice {
 
     @ManyToOne
     @JoinColumn(name = "id_user")
-    private user_info user_info;
+    private UserInfo userInfo;
 
     @ManyToOne
     @JoinColumn(name = "id_employee")
-    private employee employee;
+    private Employee employee;
 
     @ManyToOne
     @JoinColumn(name = "id_invoice_type")
-    private invoice_type invoice_type;
+    private InvoiceType invoiceType;
 
-    @OneToMany(mappedBy = "order_invoice")
-    Set<voucher_on_invoice> list_voucher_on_invoice;
+    @OneToMany(mappedBy = "orderInvoice")
+    Set<VoucherOnInvoice> listVoucherOnInvoice;
 
-    @OneToMany(mappedBy = "order_invoice")
-    Set<order_invoice_detail> list_order_invoice_detail;
+    @OneToMany(mappedBy = "orderInvoice")
+    Set<OrderInvoiceDetail> listOrderInvoiceDetail;
 }

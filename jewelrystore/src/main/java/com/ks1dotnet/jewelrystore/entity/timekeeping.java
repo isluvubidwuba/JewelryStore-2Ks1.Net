@@ -12,7 +12,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "timekeeping")
-public class timekeeping {
+public class Timekeeping {
     @Id
     private int id;
     private Date check_in;
@@ -22,6 +22,6 @@ public class timekeeping {
 
     @ManyToOne
     @JoinColumn(name = "id_assign_shift")
-    private assign_shift_for_staff assign_shift_for_staff;
+    private AssignShiftForStaff assignShiftForStaff;
 
 }

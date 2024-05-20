@@ -11,17 +11,17 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "for_customer")
-public class for_customer {
+@Table(name = "for_product")
+public class ForProduct {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @ManyToOne
-    @JoinColumn(name = "id_voucher_type", insertable = false, updatable = false)
-    private voucher_type voucher_type;
+    @JoinColumn(name = "id_promotion")
+    private Promotion promotion;
 
     @ManyToOne
-    @JoinColumn(name = "id_customer_type", insertable = false, updatable = false)
-    private customer_type customer_type;
+    @JoinColumn(name = "id_product")
+    private Product product;
 }

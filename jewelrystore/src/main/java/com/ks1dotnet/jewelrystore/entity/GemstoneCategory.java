@@ -12,20 +12,13 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "voucher_type")
-public class voucher_type {
+@Table(name = "gemstone_category")
+public class GemstoneCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private int type;
+    private String name;
 
-    @OneToMany(mappedBy = "voucher_type")
-    Set<promotion> list_promotions;
-
-    @OneToMany(mappedBy = "voucher_type")
-    Set<for_customer> list_for_customer;
-
-    @OneToMany(mappedBy = "voucher_type")
-    Set<for_product_type> list_for_product_type;
-
+    @OneToMany(mappedBy = "gemstoneCategory")
+    Set<GemstoneOfProduct> listGemstoneOfProduct;
 }

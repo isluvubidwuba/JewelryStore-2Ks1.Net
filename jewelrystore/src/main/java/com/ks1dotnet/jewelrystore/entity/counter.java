@@ -13,18 +13,18 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "counter")
-public class counter {
+public class Counter {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
 
     @OneToMany(mappedBy = "counter")
-    Set<assign_counters_for_staff> ListAssignCountersForStaff;
+    Set<AssignCountersForStaff> ListAssignCountersForStaff;
 
     @OneToMany(mappedBy = "counter")
-    Set<product> list_product;
+    Set<Product> listProduct;
 
     @OneToMany(mappedBy = "counter")
-    Set<order_invoice_detail> list_order_invoice_detail;
+    Set<OrderInvoiceDetail> listOrderInvoiceDetail;
 }

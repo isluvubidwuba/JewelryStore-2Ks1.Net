@@ -11,17 +11,17 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "assign_counters_for_staff")
-public class assign_counters_for_staff {
+@Table(name = "voucher_on_invoice_detail")
+public class VoucherOnInvoiceDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @ManyToOne
-    @JoinColumn(name = "id_counter")
-    private counter counter;
+    @JoinColumn(name = "id_promotion")
+    private Promotion promotion;
 
     @ManyToOne
-    @JoinColumn(name = "id_assign")
-    private assign_shift_for_staff assign_shift_for_staff;
+    @JoinColumn(name = "id_invoice_detail")
+    private OrderInvoiceDetail orderInvoiceDetail;
 }

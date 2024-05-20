@@ -11,17 +11,17 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "voucher_on_invoice")
-public class voucher_on_invoice {
+@Table(name = "for_product_type")
+public class ForProductType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private int Id;
 
     @ManyToOne
-    @JoinColumn(name = "id_promotion")
-    private promotion promotion;
+    @JoinColumn(name = "id_voucher_type")
+    private VoucherType voucherType;
 
     @ManyToOne
-    @JoinColumn(name = "id_invoice")
-    private order_invoice order_invoice;
+    @JoinColumn(name = "id_product_category")
+    private ProductCategory productCategory;
 }

@@ -16,7 +16,7 @@ import lombok.Data;
 @Entity
 @Data
 @Table(name = "employee")
-public class employee {
+public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -27,11 +27,11 @@ public class employee {
 
     @ManyToOne
     @JoinColumn(name = "id_role")
-    private role role;
+    private Role role;
 
     @OneToMany(mappedBy = "employee")
-    Set<assign_shift_for_staff> ListAssignShiftForStaff;
+    Set<AssignShiftForStaff> ListAssignShiftForStaff;
 
     @OneToMany(mappedBy = "employee")
-    Set<order_invoice> list_order_invoice;
+    Set<OrderInvoice> listOrderInvoice;
 }

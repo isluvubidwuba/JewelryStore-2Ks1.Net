@@ -1,5 +1,6 @@
 package com.ks1dotnet.jewelrystore.entity;
 
+import java.util.Date;
 import java.util.Set;
 
 import jakarta.persistence.Entity;
@@ -14,17 +15,20 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "material_of_product")
-public class material_of_product {
+@Table(name = "assign_shift_for_staff")
+public class AssignShiftForStaff {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private float weight;
+    private Date date;
 
     @ManyToOne
-    @JoinColumn(name = "id_material")
-    private material material;
+    @JoinColumn(name = "id_employee")
+    private Employee employee;
 
-    @OneToMany(mappedBy = "material_of_product")
-    Set<product> list_product;
+    @OneToMany(mappedBy = "assignShiftForStaff")
+    Set<Timekeeping> listTimekeeping;
+
+    @OneToMany(mappedBy = "assignShiftForStaff")
+    Set<AssignCountersForStaff> listAssignCountersForStaff;
 }

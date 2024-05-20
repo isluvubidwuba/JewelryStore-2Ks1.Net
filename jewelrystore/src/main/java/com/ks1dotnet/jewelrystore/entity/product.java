@@ -13,7 +13,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "product")
-public class product {
+public class Product {
     @Id
     private String id;
     private String name;
@@ -22,26 +22,26 @@ public class product {
 
     @ManyToOne
     @JoinColumn(name = "id_material_of_product")
-    private material_of_product material_of_product;
+    private MaterialOfProduct materialOfProduct;
 
     @ManyToOne
     @JoinColumn(name = "id_gemstone_of_product")
-    private gemstone_of_product gemstone_of_product;
+    private GemstoneOfProduct gemstoneOfProduct;
 
     @ManyToOne
     @JoinColumn(name = "id_product_category")
-    private product_category product_category;
+    private ProductCategory productCategory;
 
     @ManyToOne
     @JoinColumn(name = "id_counter")
-    private counter counter;
+    private Counter counter;
 
     @OneToMany(mappedBy = "product")
-    Set<for_product> list_for_product;
+    Set<ForProduct> listForProduct;
 
     @OneToMany(mappedBy = "product")
-    Set<warehouse> list_warehouse;
+    Set<WareHouse> listWareHouse;
 
     @OneToMany(mappedBy = "product")
-    Set<order_invoice_detail> list_order_invoice_detail;
+    Set<OrderInvoiceDetail> listOrderInvoiceDetail;
 }

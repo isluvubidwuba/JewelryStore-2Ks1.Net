@@ -14,24 +14,25 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "user_info")
-public class user_info {
-
+@Table(name = "gemstone_of_product")
+public class GemstoneOfProduct {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private String full_name;
-    private String phone_number;
-    private String email;
-    private String address;
+
+    private String color;
+    private String clarity;
+    private float carat;
+    private double price;
 
     @ManyToOne
-    @JoinColumn(name = "id_role")
-    private role role;
+    @JoinColumn(name = "id_gemstone_type")
+    private GemstoneType gemstoneType;
 
-    @OneToMany(mappedBy = "user_info")
-    Set<earn_points> list_earn_points;
+    @ManyToOne
+    @JoinColumn(name = "id_gemstone_category")
+    private GemstoneCategory gemstoneCategory;
 
-    @OneToMany(mappedBy = "user_info")
-    Set<order_invoice> list_order_invoice;
+    @OneToMany(mappedBy = "gemstoneOfProduct")
+    Set<Product> listProduct;
 }

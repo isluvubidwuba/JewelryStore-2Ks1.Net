@@ -12,20 +12,17 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "product_category")
-public class product_category {
+@Table(name = "invoice_type")
+public class InvoiceType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
 
-    @OneToMany(mappedBy = "product_category")
-    Set<for_product_type> list_for_product_type;
+    @OneToMany(mappedBy = "invoiceType")
+    Set<PolicyForInvoice> listPolicyForInvoice;
 
-    @OneToMany(mappedBy = "product_category")
-    Set<product> list_product;
-
-    @OneToMany(mappedBy = "product_category")
-    Set<warehouse> list_warehouse;
+    @OneToMany(mappedBy = "invoiceType")
+    Set<OrderInvoice> listOrderInvoice;
 
 }
