@@ -2,6 +2,7 @@ package com.ks1dotnet.jewelrystore.entity;
 
 import java.util.Set;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,9 +21,13 @@ public class UserInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private String full_name;
-    private String phone_number;
+    @Column(name = "full_name")
+    private String fullName;
+    @Column(name = "phone_number")
+    private String phoneNumber;
+    @Column(name = "email")
     private String email;
+    @Column(name = "address")
     private String address;
 
     @ManyToOne

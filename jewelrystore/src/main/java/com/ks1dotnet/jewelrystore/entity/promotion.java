@@ -2,6 +2,7 @@ package com.ks1dotnet.jewelrystore.entity;
 
 import java.util.Set;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -16,8 +17,11 @@ import lombok.Data;
 public class Promotion {
     @Id
     private String id;
+    @Column(name = "name")
     private int name;
+    @Column(name = "value")
     private double value;
+    @Column(name = "status")
     private boolean status;
 
     @ManyToOne

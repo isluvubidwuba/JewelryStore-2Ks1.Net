@@ -2,6 +2,7 @@ package com.ks1dotnet.jewelrystore.entity;
 
 import java.util.Set;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -17,8 +18,10 @@ public class CustomerType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Column(name = "type")
     private int type;
-    private int point_condition;
+    @Column(name = "point_condition")
+    private int pointCondition;
 
     @OneToMany(mappedBy = "customerType")
     Set<ForCustomer> listForCustomer;
