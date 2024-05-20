@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.ks1dotnet.jewelrystore.entity.Employee;
 
-public interface IEmployeeService {
+public interface IAuthenticationService {
     public List<Employee> findAll();
 
     public Employee findById(int id);

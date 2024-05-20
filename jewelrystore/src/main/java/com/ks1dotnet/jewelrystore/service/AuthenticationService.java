@@ -6,28 +6,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ks1dotnet.jewelrystore.entity.Employee;
-import com.ks1dotnet.jewelrystore.repository.IEmployeeRepository;
-import com.ks1dotnet.jewelrystore.service.serviceImp.IEmployeeService;
+import com.ks1dotnet.jewelrystore.repository.IAuthenticationRepository;
+import com.ks1dotnet.jewelrystore.service.serviceImp.IAuthenticationService;
 
 @Service
-public class EmployeeService implements IEmployeeService {
+public class AuthenticationService implements IAuthenticationService {
     @Autowired
-    private IEmployeeRepository iEmployeeRepository;
+    private IAuthenticationRepository iAuthenticationRepository;
 
     @Override
     public List<Employee> findAll() {
-        return iEmployeeRepository.findAll();
+        return iAuthenticationRepository.findAll();
     }
 
     @Override
     public Employee findById(int id) {
-        return iEmployeeRepository.findById(id).orElse(null);
+        return iAuthenticationRepository.findById(id).orElse(null);
     }
 
     @Override
     public Employee findByPinCode(String pin_code) {
         // TODO Auto-generated method stub
-        return iEmployeeRepository.findByPinCode(pin_code);
+        return iAuthenticationRepository.findByPinCode(pin_code);
     }
 
 }

@@ -1,6 +1,5 @@
-document.addEventListener("DOMContentLoaded", () => {
-  fetchGoldPrices();
-});
+// Call the function to fetch gold prices when the page loads
+document.addEventListener("DOMContentLoaded", fetchGoldPrices);
 
 function fetchGoldPrices() {
   fetch("http://localhost:8080/proxy")
@@ -12,19 +11,27 @@ function fetchGoldPrices() {
       // Lấy giá trị của thuộc tính "updated"
       const updated = xmlDoc.querySelector("ratelist").getAttribute("updated");
 
-      const container = document.getElementById("tables");
-      let tableHTML = "<table><tr><th>Type</th><th>Buy</th><th>Sell</th></tr>";
+      const tbody = document.getElementById("tbody-table-price");
+      const updatedInfo = document.getElementById("day-update");
+
+      // Clear existing rows
+      tbody.innerHTML = "";
 
       items.forEach((item) => {
         const type = item.getAttribute("type");
         const buy = item.getAttribute("buy");
         const sell = item.getAttribute("sell");
-        tableHTML += `<tr><td>${type}</td><td>${buy}</td><td>${sell}</td></tr>`;
+        const row = `
+          <tr>
+            <td class="w-1/3 text-left py-3 px-4">${type}</td>
+            <td class="w-1/3 text-left py-3 px-4">${buy}</td>
+            <td class="text-left py-3 px-4">${sell}</td>
+          </tr>
+        `;
+        tbody.innerHTML += row;
       });
 
-      tableHTML += "</table>";
-      const updatedInfo = `<h1>Updated: ${updated}</h1>`;
-      container.innerHTML = updatedInfo + tableHTML;
+      updatedInfo.innerHTML = updated;
     })
     .catch((error) => console.error("Error fetching gold prices:", error));
 }

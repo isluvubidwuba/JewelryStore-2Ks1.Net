@@ -14,23 +14,23 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ks1dotnet.jewelrystore.entity.Employee;
 import com.ks1dotnet.jewelrystore.payload.responseData;
-import com.ks1dotnet.jewelrystore.service.serviceImp.IEmployeeService;
+import com.ks1dotnet.jewelrystore.service.serviceImp.IAuthenticationService;
 
 @RestController
-@RequestMapping("/employee")
+@RequestMapping("/authentication")
 @CrossOrigin("*")
-public class EmployeeController {
+public class AuthenticationController {
     @Autowired
-    private IEmployeeService iEmployeeService;
+    private IAuthenticationService iAuthenticationService;
 
     @GetMapping("/list")
     private ResponseEntity<?> findAll() {
         responseData responseData = new responseData();
-        List<Employee> listEmpl = iEmployeeService.findAll();
+        List<Employee> listEmpl = iAuthenticationService.findAll();
         responseData.setData(listEmpl);
         // for (employee e : listEmpl) {
         // System.out.println(e);
-        System.out.println(iEmployeeService.findByPinCode("12"));
+        System.out.println(iAuthenticationService.findByPinCode("12"));
         // }
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
@@ -39,7 +39,7 @@ public class EmployeeController {
     private ResponseEntity<?> login(@RequestBody Employee emp) {
         responseData responseData = new responseData();
         try {
-            Employee employee = iEmployeeService.findById(emp.getId());
+            Employee employee = iAuthenticationService.findById(emp.getId());
 
             if (employee == null) {
                 responseData.setDesc("SignUp fail. Not found employee");

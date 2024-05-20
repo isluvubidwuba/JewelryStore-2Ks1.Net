@@ -15,16 +15,17 @@
 
           // Example: send a POST request to your server (you need to configure the server URL)
           $.ajax({
-            url: "http://localhost:8080/employee/signup",
+            url: "http://localhost:8080/authentication/signup",
             type: "POST",
             contentType: "application/json",
             data: JSON.stringify({ id: id, pinCode: pincode }),
             success: function (data) {
-              if (data.message === "Login successful") {
+              if (data.desc === "SignUp successful") {
                 // Redirect to another page on successful login
                 window.location.href = "DashboardAdmin.html";
+                alert(data.desc);
               } else {
-                alert("Login failed: " + data.message);
+                alert(data.desc);
               }
             },
             error: function (error) {

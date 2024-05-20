@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.ks1dotnet.jewelrystore.entity.Employee;
 
 @Repository
-public interface IEmployeeRepository extends JpaRepository<Employee, Integer> {
+public interface IAuthenticationRepository extends JpaRepository<Employee, Integer> {
     public Employee findByPinCode(String pin_code);
 }
