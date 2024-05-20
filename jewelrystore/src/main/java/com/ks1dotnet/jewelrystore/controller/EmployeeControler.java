@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,7 +28,7 @@ public class EmployeeControler {
     @GetMapping("/list")
     private ResponseEntity<?> findAll() {
         responseData responseData = new responseData();
-        List<Employee> listEmpl = iEmployeeService.findAll();
+        List<Employee> listEmpl = iEmployeeService.getHomePageEmployee(0);
         responseData.setData(listEmpl);
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
@@ -56,6 +57,9 @@ public class EmployeeControler {
             employee2.setLastName(employee.getLastName());
             employee2.setRole(employee.getRole());
             employee2.setStatus(employee.isStatus());
+            employee2.setPhoneNumber(employee.getPhoneNumber());
+            employee2.setEmail(employee.getEmail());
+            employee2.setAddress(employee.getAddress());
 
             Employee updateEmployee = iEmployeeService.save(employee2);
             responseData responseData = new responseData(201, "Update Employee Successful", updateEmployee);
@@ -66,7 +70,7 @@ public class EmployeeControler {
         }
     }
 
-    @GetMapping("/delete/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<responseData> deleteEmployee(@PathVariable Integer id) {
         try {
             Employee employee = iEmployeeService.findById(id);
@@ -77,13 +81,15 @@ public class EmployeeControler {
 
             employee.setStatus(false);
             Employee updatedEmployee = iEmployeeService.save(employee);
-            responseData responseData = new responseData(200, "Employee deleted successfully (status set to false)", updatedEmployee);
+            responseData responseData = new responseData(200, "Employee deleted successfully", updatedEmployee);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
         } catch (Exception e) {
             responseData responseData = new responseData(400, "Error deleting employee: " + e.getMessage(), null);
             return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
         }
     }
+
+
 
 
 }

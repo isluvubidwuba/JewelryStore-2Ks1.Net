@@ -1,13 +1,18 @@
 package com.ks1dotnet.jewelrystore.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties.Pageable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.ks1dotnet.jewelrystore.entity.Employee;
 import com.ks1dotnet.jewelrystore.repository.IEmployeeRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IEmployeeService;
+
 
 @Service
 public class EmployeeService implements IEmployeeService {
@@ -28,6 +33,19 @@ public class EmployeeService implements IEmployeeService {
    public Employee findById(Integer id) {
       return iEmployeeRepository.findById(id).orElse(null);
    }
+
+   @Override
+   public List<Employee> getHomePageEmployee(int page) {
+      List<Employee> listEmployees = new ArrayList<>();
+      PageRequest pageRequest = PageRequest.of(page, 7);
+      Page<Employee> listData = iEmployeeRepository.findAll(pageRequest);
+      for(Employee e : listData){
+         listEmployees.add(e);
+      }
+      return listEmployees;
+   }
+
+  
 
    
 

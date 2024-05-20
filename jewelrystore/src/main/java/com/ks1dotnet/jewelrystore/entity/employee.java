@@ -29,6 +29,15 @@ public class Employee {
     @Column(name = "status")
     private boolean status;
 
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
+    @Column(name = "email")
+    private String email;
+
+    @Column(name = "address")
+    private String address;
+
     @ManyToOne
     @JoinColumn(name = "id_role")
     private Role role;
