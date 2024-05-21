@@ -56,7 +56,8 @@ public class EmployeeControler {
             @RequestParam String phoneNumber,
             @RequestParam String email,
             @RequestParam String address,
-            @RequestParam int roleId) {
+            @RequestParam int roleId,
+            @RequestParam boolean status) {
         try {
             Employee employee = new Employee();
             employee.setFirstName(firstName);
@@ -65,10 +66,9 @@ public class EmployeeControler {
             employee.setPhoneNumber(phoneNumber);
             employee.setEmail(email);
             employee.setAddress(address);
-
             // Assume roleService is a service to fetch the role by ID
             employee.setRole(iRoleService.findById(roleId));
-
+            employee.setStatus(status);
             iEmployeeService.save(employee);
             return new ResponseEntity<>("Employee created successfully", HttpStatus.CREATED);
         } catch (Exception e) {

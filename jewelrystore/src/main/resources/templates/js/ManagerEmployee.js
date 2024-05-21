@@ -1,4 +1,3 @@
-
 $(document).ready(function () {
     // Fetch roles and populate the dropdown
     function fetchRoles(selectElementId) {
@@ -42,8 +41,6 @@ $(document).ready(function () {
                     tableBody.append(row);
                 });
 
-
-
                 // Add event handlers for edit and delete actions
                 $('.editEmployeeBtn').click(function () {
                     var employee = $(this).data('employee');
@@ -51,6 +48,9 @@ $(document).ready(function () {
                     $('#firstName').val(employee.firstName);
                     $('#lastName').val(employee.lastName);
                     $('#role').val(employee.role ? employee.role.id : '');
+                    $('#phoneNumber').val(employee.phoneNumber);
+                    $('#email').val(employee.email);
+                    $('#address').val(employee.address);
                     $('#status').val('Active'); // Display 'Active'
                     $('#updateEmployeeModal').removeClass('hidden');
                 });
@@ -66,16 +66,16 @@ $(document).ready(function () {
                         id: $('#employeeId').val(),
                         firstName: $('#firstName').val(),
                         lastName: $('#lastName').val(),
-                        role: {
-                            id: $('#role').val()
-                        },
-                        status: true // Always set status to 'Active'
+                        roleId: $('#role').val(),
+                        status: true, // Always set status to 'Active',
+                        phoneNumber: $('#phoneNumber').val(),
+                        email: $('#email').val(),
+                        address: $('#address').val()
                     };
                     $.ajax({
                         url: 'http://localhost:8080/employee/update',
                         method: 'POST',
-                        contentType: 'application/json',
-                        data: JSON.stringify(formData),
+                        data: formData,
                         success: function (response) {
                             alert('Employee updated successfully!');
                             location.reload();
@@ -134,17 +134,13 @@ $(document).ready(function () {
             phoneNumber: $('#phoneNumber').val(),
             email: $('#email').val(),
             address: $('#address').val(),
-            role: {
-                id: $('#insertRole').val()
-            },
+            roleId: $('#insertRole').val(),
             status: true // Always set status to 'Active'
-
         };
         $.ajax({
             url: 'http://localhost:8080/employee/insert',
             method: 'PUT',
-            contentType: 'application/json',
-            data: JSON.stringify(formData),
+            data: formData,
             success: function (response) {
                 alert('Employee inserted successfully!');
                 $('#insertEmployeeModal').addClass('hidden');

@@ -121,10 +121,10 @@
 
     <div class="w-full h-screen overflow-x-hidden border-t flex flex-col">
       <main class="w-full flex-grow p-6">
-        <h1 class="text-3xl text-black pb-6">Manager Employee </h1>
-        <div class="mb-4 flex  items-center mt-4">
-          <h1 class="text-3xl text-black pb-6 justify-start">Manager Employee </h1>
-          <button id="insertEmployeeBtn" class="bg-green-500 text-white px-4 py-2 rounded mx-2 mb-2">Insert
+        <div class="mb-4 grid grid-cols-2 items-center mt-4">
+          <h1 class="text-3xl text-black pb-6 justify-start col-span-1">Manager Employee</h1>
+          <button id="insertEmployeeBtn"
+            class="bg-green-500 text-white px-4 py-2 rounded mx-2 mb-2 col-span-1 self-end justify-self-end">Insert
             Employee</button>
         </div>
 
@@ -158,9 +158,8 @@
           </table>
         </div>
         <!-- Các nút chuyển trang, insert -->
-        <div class="mb-4 flex justify-between items-center mt-4">
+        <div class="mb-4 flex justify-center items-center mt-4">
           <button id="prevPageBtn" class="bg-blue-500 text-white px-4 py-2 rounded mx-2">Previous</button>
-
           <button id="nextPageBtn" class="bg-blue-500 text-white px-4 py-2 rounded mx-2">Next</button>
         </div>
       </main>
