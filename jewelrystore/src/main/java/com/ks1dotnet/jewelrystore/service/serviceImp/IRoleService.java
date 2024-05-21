@@ -6,4 +6,6 @@ import com.ks1dotnet.jewelrystore.entity.Role;
 
 public interface IRoleService {
     public List<Role> findAll();
+
+    public Role findById(int roleId);
 }

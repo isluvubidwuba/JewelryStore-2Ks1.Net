@@ -1,3 +1,4 @@
+
 $(document).ready(function () {
     // Fetch roles and populate the dropdown
     function fetchRoles(selectElementId) {
@@ -18,20 +19,19 @@ $(document).ready(function () {
         });
     }
 
-
     // Fetch employees and populate the table
     function fetchEmployees() {
         $.ajax({
             url: 'http://localhost:8080/employee/list',
             method: 'GET',
             success: function (response) {
-                var data = response.data;
+                var data = response.data.paginatedEmployees.content;
                 var tableBody = $('#employeeTableBody');
                 tableBody.empty();
                 data.filter(function (employee) { return employee.status; }).forEach(function (employee) {
                     var row = '<tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">' +
                         '<th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">' + employee.id + '</th>' +
-                        '<td class="px-6 py-4">' + (employee.firstName + " " + employee.lastName)+ '</td>' +
+                        '<td class="px-6 py-4">' + (employee.firstName + " " + employee.lastName) + '</td>' +
                         '<td class="px-6 py-4">' + (employee.role ? employee.role.name : '') + '</td>' +
                         '<td class="px-6 py-4">Active</td>' +
                         '<td class="px-6 py-4">' +
@@ -41,6 +41,8 @@ $(document).ready(function () {
                         '</tr>';
                     tableBody.append(row);
                 });
+
+
 
                 // Add event handlers for edit and delete actions
                 $('.editEmployeeBtn').click(function () {
@@ -138,10 +140,9 @@ $(document).ready(function () {
             status: true // Always set status to 'Active'
 
         };
-        console.log(formData);
         $.ajax({
             url: 'http://localhost:8080/employee/insert',
-            method: 'POST',
+            method: 'PUT',
             contentType: 'application/json',
             data: JSON.stringify(formData),
             success: function (response) {
@@ -153,6 +154,20 @@ $(document).ready(function () {
                 console.log('Error inserting employee:', error);
             }
         });
+    });
+
+    // Sự kiện cho nút Previous
+    $('#prevPageBtn').click(function () {
+        if (currentPage > 0) {
+            currentPage--;
+            fetchEmployees();
+        }
+    });
+
+    // Sự kiện cho nút Next
+    $('#nextPageBtn').click(function () {
+        currentPage++;
+        fetchEmployees();
     });
 
     // Fetch roles first, then fetch employees
