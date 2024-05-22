@@ -1,5 +1,6 @@
 package com.ks1dotnet.jewelrystore.service.serviceImp;
 
-public interface IGemStoneCategoryService {
+import com.ks1dotnet.jewelrystore.dto.GemStoneCategoryDTO;
 
+public interface IGemStoneCategoryService extends ICRUDService<GemStoneCategoryDTO, Integer> {
 }

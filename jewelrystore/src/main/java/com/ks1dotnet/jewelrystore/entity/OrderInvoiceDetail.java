@@ -19,11 +19,11 @@ import lombok.Data;
 public class OrderInvoiceDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
     @Column(name = "price")
-    private double price;
+    private Double price;
     @Column(name = "price_material_at_time")
-    private double priceMaterialAtTime;
+    private Double priceMaterialAtTime;
     @Column(name = "quantity")
     private int quantity;
     @Column(name = "total_price")

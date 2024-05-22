@@ -3,6 +3,8 @@ package com.ks1dotnet.jewelrystore.entity;
 import java.util.Date;
 import java.util.Set;
 
+import com.ks1dotnet.jewelrystore.dto.MaterialDTO;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,7 +20,7 @@ import lombok.Data;
 public class Material {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
     @Column(name = "name")
     private String name;
     @Column(name = "purity")
@@ -30,4 +32,16 @@ public class Material {
 
     @OneToMany(mappedBy = "material")
     Set<MaterialOfProduct> listMaterialOfProduct;
+
+    public MaterialDTO getDTO() {
+        return new MaterialDTO(this.id, this.name, this.purity, this.priceAtTime, this.lastModified);
+    }
+
+    public Material(MaterialDTO t) {
+        this.id = t.getId();
+        this.name = t.getName();
+        this.purity = t.getPurity();
+        this.priceAtTime = t.getPriceAtTime();
+        this.lastModified = t.getLastModified();
+    }
 }

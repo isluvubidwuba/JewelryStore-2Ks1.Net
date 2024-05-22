@@ -16,10 +16,10 @@ import lombok.Data;
 public class ExchangeRatePolicy {
     @Id
     private String id;
-    @Column (name = "description_policy")
+    @Column(name = "description_policy")
     private String description_policy;
     @Column(name = "rate")
-    private float rate;
+    private Float rate;
     @Column(name = "status")
     private boolean status;
     @Column(name = "last_modified")

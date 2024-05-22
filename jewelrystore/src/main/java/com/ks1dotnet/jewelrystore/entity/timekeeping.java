@@ -15,7 +15,7 @@ import lombok.Data;
 @Table(name = "timekeeping")
 public class Timekeeping {
     @Id
-    private int id;
+    private Integer id;
     @Column(name = "check_in")
     private Date checkIn;
     @Column(name = "check_out")

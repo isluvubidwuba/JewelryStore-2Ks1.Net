@@ -12,7 +12,7 @@ import lombok.Data;
 @Table(name = "policy_for_invoice")
 public class PolicyForInvoice {
     @Id
-    private int id;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "id_invoice_type")

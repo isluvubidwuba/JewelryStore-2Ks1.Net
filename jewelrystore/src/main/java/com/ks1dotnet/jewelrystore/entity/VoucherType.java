@@ -17,9 +17,9 @@ import lombok.Data;
 public class VoucherType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
     @Column(name = "type")
-    private int type;
+    private Integer type;
 
     @OneToMany(mappedBy = "voucherType")
     Set<Promotion> listPromotion;

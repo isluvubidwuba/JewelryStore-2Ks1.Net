@@ -20,7 +20,7 @@ import lombok.Data;
 public class OrderInvoice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
     @Column(name = "date")
     private Date date;
     @Column(name = "total_price_raw")

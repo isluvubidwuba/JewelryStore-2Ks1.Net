@@ -16,9 +16,9 @@ import lombok.Data;
 public class EarnPoints {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
     @Column(name = "point")
-    private int point;
+    private Integer point;
 
     @ManyToOne
     @JoinColumn(name = "id_customer_info")

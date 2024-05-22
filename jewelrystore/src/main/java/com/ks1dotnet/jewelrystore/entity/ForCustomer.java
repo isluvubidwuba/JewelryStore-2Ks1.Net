@@ -15,7 +15,7 @@ import lombok.Data;
 public class ForCustomer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "id_voucher_type", insertable = false, updatable = false)
