@@ -1,6 +1,8 @@
 package com.ks1dotnet.jewelrystore.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -53,14 +55,19 @@ public class PromotionController {
             @RequestParam String name, @RequestParam int idVoucherType,
             @RequestParam double value, @RequestParam boolean status) {
         responseData responseData = new responseData();
+        Map<String, Object> data = new HashMap<>();
+
         boolean isSuccess = iPromotionService.updatePromotion(file, id, name, idVoucherType, value, status);
 
         if (isSuccess) {
-            responseData.setDesc("Update successfull ");
+            data.put("id", id);
+            data.put("image", file.getOriginalFilename());
+            responseData.setDesc("Update successful");
+            responseData.setData(data);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
         } else {
             responseData.setStatus(500);
-            responseData.setDesc("Update fail. Internal Server Error");
+            responseData.setDesc("Update failed. Internal Server Error");
             return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

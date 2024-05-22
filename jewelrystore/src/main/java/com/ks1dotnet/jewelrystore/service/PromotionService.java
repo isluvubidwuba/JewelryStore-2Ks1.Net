@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -105,16 +106,21 @@ public class PromotionService implements IPromotionService {
     @Override
     public boolean updatePromotion(MultipartFile file, int id, String name, int idVoucherType, double value,
             boolean status) {
+        Optional<Promotion> promotionOptional = iPromotionRepository.findById(id);
         boolean isUpdateSuccess = false;
         boolean isSaveFileSuccess = iFileService.savefile(file);
-        if (isSaveFileSuccess) {
+        if (promotionOptional.isPresent()) {
             Promotion promotion = new Promotion();
             promotion.setId(id);
             promotion.setName(name);
             promotion.setVoucherType(iVoucherTypeService.getVoucherById(idVoucherType));
             promotion.setValue(value);
             promotion.setStatus(status);
-            promotion.setImage(file.getOriginalFilename());
+            if (isSaveFileSuccess) {
+                promotion.setImage(file.getOriginalFilename());
+            } else {
+                promotion.setImage(promotionOptional.get().getImage());
+            }
             iPromotionRepository.save(promotion);
             isUpdateSuccess = true;
         }

@@ -5,7 +5,32 @@ $(document).ready(function () {
   fetchVouchersForCreate();
   setupModalToggles();
   submitForm();
+  submitUpdateForm(); // Call the function to handle update form submission
 });
+// load components
+function loadComponents() {
+  const components = [
+    { id: "sidebar-placeholder", url: "components/sidebar.html" },
+    { id: "header-placeholder", url: "components/header.html" },
+    {
+      id: "pagination-placeholder",
+      url: "components/pagination-promotion.html",
+    },
+    { id: "modal-placeholder", url: "components/modal-insert-promotion.html" },
+  ];
+
+  components.forEach((component) => {
+    $("#" + component.id).load(component.url, function (response, status, xhr) {
+      if (status === "error") {
+        console.error(
+          "Error loading the component:",
+          xhr.status,
+          xhr.statusText
+        );
+      }
+    });
+  });
+}
 
 // fetch promotion by page
 function fetchPromotions(page = 0) {
@@ -30,11 +55,11 @@ function fetchPromotions(page = 0) {
 
           const promotionCard = `
             <div class="max-w-xs h-67 flex flex-col justify-between bg-white dark:bg-gray-800 rounded-lg border border-gray-400 mb-6 py-5 px-4 mx-4">
-              <div>
-                <h4 class="focus:outline-none text-gray-800 dark:text-gray-100 font-bold mb-3">${promotion.name}</h4>
-                <p class="focus:outline-none text-gray-800 dark:text-gray-100 text-sm">Giá trị: ${promotion.value}%</p>
-                <img src="${linkPromotion}/files/${promotion.image}" alt="${promotion.name}" class="w-full h-auto mt-3 rounded">
-              </div>
+            <div>
+            <h4 class="focus:outline-none text-gray-800 dark:text-gray-100 font-bold mb-3">${promotion.name}</h4>
+            <p class="focus:outline-none text-gray-800 dark:text-gray-100 text-sm">Giá trị: ${promotion.value}%</p>
+            <img id="promotion-image-${promotion.id}" src="${linkPromotion}/files/${promotion.image}" alt="${promotion.name}" class="w-full h-auto mt-3 rounded">
+          </div>
               <div>
                 <div class="flex items-center justify-between text-gray-800">
                   <p class="focus:outline-none text-sm dark:text-gray-100 ${statusColor}">${statusText}</p>
@@ -56,7 +81,6 @@ function fetchPromotions(page = 0) {
     },
   });
 }
-
 function updatePagination(totalPages, currentPage) {
   let pagination = $(".pagination");
   pagination.empty();
@@ -120,53 +144,8 @@ function updatePagination(totalPages, currentPage) {
   }
 }
 
-function loadComponents() {
-  const components = [
-    { id: "sidebar-placeholder", url: "components/sidebar.html" },
-    { id: "header-placeholder", url: "components/header.html" },
-    {
-      id: "pagination-placeholder",
-      url: "components/pagination-promotion.html",
-    },
-    { id: "modal-placeholder", url: "components/modal-insert-promotion.html" },
-  ];
-
-  components.forEach((component) => {
-    $("#" + component.id).load(component.url, function (response, status, xhr) {
-      if (status === "error") {
-        console.error(
-          "Error loading the component:",
-          xhr.status,
-          xhr.statusText
-        );
-      }
-    });
-  });
-}
-
-function fetchVouchersForCreate() {
-  $.ajax({
-    url: "http://localhost:8080/voucher/list",
-    method: "GET",
-    success: function (response) {
-      $("#idVoucherType").empty(); // Clear existing options in the dropdown
-      $("#idVoucherType").append("<option selected>Select category</option>"); // Add default option
-
-      if (response && response.data) {
-        // Check if response data is available
-        response.data.forEach(function (voucher) {
-          // Loop through each voucher and append to the dropdown
-          const option = `<option value="${voucher.id}">${voucher.type}</option>`;
-          $("#idVoucherType").append(option);
-        });
-      }
-    },
-    error: function (error) {
-      console.error("Error fetching vouchers:", error);
-    },
-  });
-}
-
+// start update
+// get in4 about promotion detal
 function fetchPromotionDetails(promotionId) {
   $.ajax({
     url: "http://localhost:8080/promotion/getById",
@@ -176,6 +155,7 @@ function fetchPromotionDetails(promotionId) {
     success: function (response) {
       var promotion = response.data;
 
+      $("#update-id").val(promotion.id); // Điền thông tin vào các trường của modal
       $("#update-name").val(promotion.name); // Điền thông tin vào các trường của modal
       $("#update-value").val(promotion.value);
       fetchVouchers(promotion.idVoucherType).then(function () {
@@ -191,7 +171,7 @@ function fetchPromotionDetails(promotionId) {
     },
   });
 }
-
+//load voucher choiced
 function fetchVouchers(selectedVoucherType) {
   return $.ajax({
     url: "http://localhost:8080/voucher/list",
@@ -221,6 +201,113 @@ function fetchVouchers(selectedVoucherType) {
   });
 }
 
+//open modal
+function setupEventListeners() {
+  $(document).on("click", ".promotion-click", function () {
+    var promotionId = $(this).data("id");
+    fetchPromotionDetails(promotionId);
+  });
+
+  $(document).on("click", "#updateModalClose", function () {
+    closeModal();
+  });
+}
+
+function submitUpdateForm() {
+  $(document).on("click", "#submit-update", function (event) {
+    event.preventDefault();
+
+    // Flag to track if all fields are filled
+    let allFieldsFilled = true;
+
+    // Validate all required fields
+    $("#form-update")
+      .find(
+        "input[type='text'], input[type='number'], input[type='file'], textarea, select"
+      )
+      .each(function () {
+        if ($(this).val() === "") {
+          allFieldsFilled = false;
+          return false; // Break out of the loop if any field is empty
+        }
+      });
+
+    // If all fields are filled, proceed with AJAX request
+    if (allFieldsFilled) {
+      var formData = new FormData($("#form-update")[0]); // Sử dụng id của biểu mẫu
+
+      $.ajax({
+        url: "http://localhost:8080/promotion/update",
+        type: "POST",
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (response) {
+          $("#form-update")
+            .find(
+              "input[type='text'], input[type='number'], input[type='file'], textarea, select"
+            )
+            .val(""); // Đặt các trường input, textarea và select thành trống sau khi thành công
+          $("#form-update").find("select").prop("selectedIndex", 0); // Đặt lại trạng thái của các select
+          $("#crud-update-modal").addClass("hidden");
+          console.log(response);
+          handleUpdatePromotionResponse(response);
+          alert(response.desc);
+        },
+        error: function (xhr, status, error) {
+          alert("An error occurred while submitting the form.");
+          console.log(xhr.responseText);
+        },
+      });
+    } else {
+      alert("You must fill all fields.");
+    }
+  });
+}
+// Function to update the promotion image dynamically
+function updatePromotionImage(promotionId, newImageUrl) {
+  $(`#promotion-image-${promotionId}`).attr("src", newImageUrl);
+}
+
+// Example usage: call this function when you receive the response after updating the promotion
+function handleUpdatePromotionResponse(response) {
+  if (response && response.data) {
+    const { id, image } = response.data; // Get id and image from response.data
+    const newImageUrl = `http://localhost:8080/promotion/files/${image}`;
+    updatePromotionImage(id, newImageUrl);
+  }
+}
+
+//close modal update
+function closeModal() {
+  $("#crud-update-modal").removeClass("flex").addClass("hidden");
+}
+
+//related create promotion
+//load all voucher
+function fetchVouchersForCreate() {
+  $.ajax({
+    url: "http://localhost:8080/voucher/list",
+    method: "GET",
+    success: function (response) {
+      $("#idVoucherType").empty(); // Clear existing options in the dropdown
+      $("#idVoucherType").append("<option selected>Select category</option>"); // Add default option
+
+      if (response && response.data) {
+        // Check if response data is available
+        response.data.forEach(function (voucher) {
+          // Loop through each voucher and append to the dropdown
+          const option = `<option value="${voucher.id}">${voucher.type}</option>`;
+          $("#idVoucherType").append(option);
+        });
+      }
+    },
+    error: function (error) {
+      console.error("Error fetching vouchers:", error);
+    },
+  });
+}
+//open close modal
 function setupModalToggles() {
   $(document).on("click", "#modalToggle", function () {
     $("#crud-modal").removeClass("hidden");
@@ -230,7 +317,7 @@ function setupModalToggles() {
     $("#crud-modal").addClass("hidden");
   });
 }
-
+//submit form create
 function submitForm() {
   $(document).on("click", "#submit-insert", function (event) {
     event.preventDefault();
@@ -280,19 +367,4 @@ function submitForm() {
       alert("You must fill all fields.");
     }
   });
-}
-
-function setupEventListeners() {
-  $(document).on("click", ".promotion-click", function () {
-    var promotionId = $(this).data("id");
-    fetchPromotionDetails(promotionId);
-  });
-
-  $(document).on("click", "#updateModalClose", function () {
-    closeModal();
-  });
-}
-
-function closeModal() {
-  $("#crud-update-modal").removeClass("flex").addClass("hidden");
 }
