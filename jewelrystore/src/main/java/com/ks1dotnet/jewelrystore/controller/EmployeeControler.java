@@ -1,9 +1,8 @@
 package com.ks1dotnet.jewelrystore.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -12,16 +11,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.ks1dotnet.jewelrystore.entity.Employee;
-import com.ks1dotnet.jewelrystore.payload.PagedEmployeeResponse;
 import com.ks1dotnet.jewelrystore.payload.responseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IEmployeeService;
-import com.ks1dotnet.jewelrystore.service.serviceImp.IRoleService;
+import com.ks1dotnet.jewelrystore.service.serviceImp.IFileService;
 
 @RestController
 @RequestMapping("/employee")
@@ -29,27 +28,22 @@ import com.ks1dotnet.jewelrystore.service.serviceImp.IRoleService;
 public class EmployeeControler {
     @Autowired
     private IEmployeeService iEmployeeService;
+    
     @Autowired
-    private IRoleService iRoleService;
+    private IFileService iFileService;
 
     @GetMapping("/list")
-    private ResponseEntity<?> findAll(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "15") int size) {
+    private ResponseEntity<?> getHomePageEmployee(
+            @RequestParam int page) {
 
-        List<Employee> listEmpl = iEmployeeService.findAll();
-        Page<Employee> employees = iEmployeeService.getPaginatedEntities(page, size);
-        PagedEmployeeResponse pagedEmployeeResponse = new PagedEmployeeResponse(listEmpl, employees);
         responseData responseData = new responseData();
-        responseData.setData(pagedEmployeeResponse);
-        responseData.setStatus(HttpStatus.OK.value());
-        responseData.setDesc("Success");
-
+        responseData.setData(iEmployeeService.getHomePageEmployee(page));
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
 
-    @PutMapping("/insert")
-    public ResponseEntity<String> insertEmployee(
+    @PostMapping("/insert")
+    public ResponseEntity<?> insertEmployee(
+            @RequestParam MultipartFile file,
             @RequestParam String firstName,
             @RequestParam String lastName,
             @RequestParam String pinCode,
@@ -58,26 +52,25 @@ public class EmployeeControler {
             @RequestParam String address,
             @RequestParam int roleId,
             @RequestParam boolean status) {
-        try {
-            Employee employee = new Employee();
-            employee.setFirstName(firstName);
-            employee.setLastName(lastName);
-            employee.setPinCode(pinCode);
-            employee.setPhoneNumber(phoneNumber);
-            employee.setEmail(email);
-            employee.setAddress(address);
-            // Assume roleService is a service to fetch the role by ID
-            employee.setRole(iRoleService.findById(roleId));
-            employee.setStatus(status);
-            iEmployeeService.save(employee);
+
+        responseData responseData = new responseData();
+        boolean isSuccess = iEmployeeService.insertEmployee(file, firstName, lastName, pinCode, phoneNumber, email,
+                address, roleId);
+
+        if (isSuccess) {
+            responseData.setDesc("Insert successfull");
+            return new ResponseEntity<>(responseData, HttpStatus.OK);
+        } else {
+            responseData.setData(500);
+            responseData.setDesc("Insert fail. Internal Server Error");
             return new ResponseEntity<>("Employee created successfully", HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Error creating employee: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
+
     }
 
     @PostMapping("/update")
     public ResponseEntity<?> updateEmployee(
+            @RequestParam MultipartFile file,
             @RequestParam int id,
             @RequestParam String firstName,
             @RequestParam String lastName,
@@ -86,46 +79,44 @@ public class EmployeeControler {
             @RequestParam String phoneNumber,
             @RequestParam String email,
             @RequestParam String address) {
-        try {
-            Employee employee2 = iEmployeeService.findById(id);
-            if (employee2 == null) {
-                responseData responseData = new responseData(404, "Employee not found", null);
-                return new ResponseEntity<>(responseData, HttpStatus.NOT_FOUND);
-            }
-            employee2.setFirstName(firstName);
-            employee2.setLastName(lastName);
-            employee2.setRole(iRoleService.findById(roleId)); // Assume roleService is a service to fetch the role by ID
-            employee2.setStatus(status);
-            employee2.setPhoneNumber(phoneNumber);
-            employee2.setEmail(email);
-            employee2.setAddress(address);
-
-            Employee updateEmployee = iEmployeeService.save(employee2);
-            responseData responseData = new responseData(201, "Update Employee Successful", updateEmployee);
+        responseData responseData = new responseData();
+        boolean isSuccess = iEmployeeService.updateEmployee(file, id,firstName, lastName, lastName, phoneNumber, email,
+                address, status, roleId);
+        if (isSuccess) {
+            responseData.setDesc("Update Successful");
             return new ResponseEntity<>(responseData, HttpStatus.OK);
-        } catch (Exception e) {
-            responseData responseData = new responseData(400, "Error updating employee: " + e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+        } else {
+            responseData.setStatus(500);
+            responseData.setDesc("Update fail. Internal Server Error");
+            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<responseData> deleteEmployee(@PathVariable Integer id) {
+        responseData responseData = new responseData();
         try {
             Employee employee = iEmployeeService.findById(id);
-            if (employee == null) {
-                responseData responseData = new responseData(404, "Employee not found", null);
-                return new ResponseEntity<>(responseData, HttpStatus.NOT_FOUND);
-            }
-
             employee.setStatus(false);
-            Employee updatedEmployee = iEmployeeService.save(employee);
-            responseData responseData = new responseData(200, "Employee deleted successfully", updatedEmployee);
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
+            Employee updateEmployee = iEmployeeService.save(employee);
+            responseData.setDesc("Delete successfull");
+            responseData.setData(updateEmployee);
         } catch (Exception e) {
-            responseData responseData = new responseData(400, "Error deleting employee: " + e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+            responseData.setStatus(500);
+            responseData.setDesc("Delete fail. Internal Server Error");
+            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        return new ResponseEntity<>(responseData, HttpStatus.OK);
+    }
+
+    @GetMapping("/files/{filename:.+}")
+    @ResponseBody
+    public ResponseEntity<?> getFile(@PathVariable String filename) {
+        Resource resource = iFileService.loadFile(filename);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
     }
 
 }

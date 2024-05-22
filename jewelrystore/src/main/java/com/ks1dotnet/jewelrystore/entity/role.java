@@ -2,6 +2,8 @@ package com.ks1dotnet.jewelrystore.entity;
 
 import java.util.Set;
 
+import com.ks1dotnet.jewelrystore.dto.RoleDTO;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,5 +25,9 @@ public class Role {
 
     @OneToMany(mappedBy = "role")
     Set<Employee> listEmployee;
+
+    public RoleDTO getDTO(){
+        return new RoleDTO(id, name);
+    }
 
 }

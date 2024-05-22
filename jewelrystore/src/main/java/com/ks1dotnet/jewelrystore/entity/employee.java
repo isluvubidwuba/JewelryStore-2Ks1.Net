@@ -2,6 +2,8 @@ package com.ks1dotnet.jewelrystore.entity;
 
 import java.util.Set;
 
+import com.ks1dotnet.jewelrystore.dto.EmployeeDTO;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -39,6 +41,9 @@ public class Employee {
     @Column(name = "address")
     private String address;
 
+    @Column(name = "image")
+    private String image;
+
     @ManyToOne
     @JoinColumn(name = "id_role")
     private Role role;
@@ -48,4 +53,8 @@ public class Employee {
 
     @OneToMany(mappedBy = "employee")
     Set<OrderInvoice> listOrderInvoice;
+
+    public EmployeeDTO getDTO(){
+        return new EmployeeDTO(id, firstName, lastName, pinCode, status, phoneNumber, email, address, role.getDTO());
+    }
 }
