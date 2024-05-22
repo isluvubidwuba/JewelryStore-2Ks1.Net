@@ -19,7 +19,7 @@ public class VoucherType {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @Column(name = "type")
-    private int type;
+    private String type;
 
     @OneToMany(mappedBy = "voucherType")
     Set<Promotion> listPromotion;

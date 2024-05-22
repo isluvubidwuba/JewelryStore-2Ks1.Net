@@ -27,6 +27,7 @@ public class AuthenticationController {
     private ResponseEntity<?> findAll() {
         responseData responseData = new responseData();
         List<Employee> listEmpl = iAuthenticationService.findAll();
+        Employee e = new Employee();
         responseData.setData(listEmpl);
         // for (employee e : listEmpl) {
         // System.out.println(e);

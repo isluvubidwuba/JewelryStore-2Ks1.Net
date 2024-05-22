@@ -1,7 +1,9 @@
 package com.ks1dotnet.jewelrystore.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -28,7 +30,7 @@ public class PromotionService implements IPromotionService {
 
     @Override
     public List<Promotion> findAll() {
-        return iPromotionRepository.findByStatus(true);
+        return iPromotionRepository.findAll();
     }
 
     @Override
@@ -80,6 +82,24 @@ public class PromotionService implements IPromotionService {
         }
 
         return promotionDTOs;
+    }
+
+    @Override
+    public Map<String, Object> getHomePagePromotion2(int page) {
+        Map<String, Object> response = new HashMap<>();
+        List<PromotionDTO> promotionDTOs = new ArrayList<>();
+        PageRequest pageRequest = PageRequest.of(page, 8);
+        Page<Promotion> listData = iPromotionRepository.findAll(pageRequest);
+
+        for (Promotion p : listData) {
+            promotionDTOs.add(p.getDTO());
+        }
+
+        response.put("promotions", promotionDTOs);
+        response.put("totalPages", listData.getTotalPages());
+        response.put("currentPage", page);
+
+        return response;
     }
 
     @Override

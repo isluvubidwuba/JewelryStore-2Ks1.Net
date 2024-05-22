@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 import com.ks1dotnet.jewelrystore.entity.Promotion;
 import com.ks1dotnet.jewelrystore.payload.responseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IFileService;
@@ -43,7 +44,7 @@ public class PromotionController {
     @GetMapping("/getHomePagePromotion")
     private ResponseEntity<?> getHomePagePromotion(@RequestParam int page) {
         responseData responseData = new responseData();
-        responseData.setData(iPromotionService.getHomePagePromotion(page));
+        responseData.setData(iPromotionService.getHomePagePromotion2(page));
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
 
@@ -60,6 +61,21 @@ public class PromotionController {
         } else {
             responseData.setStatus(500);
             responseData.setDesc("Update fail. Internal Server Error");
+            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/getById")
+    private ResponseEntity<?> getById(@RequestParam int id) {
+        responseData responseData = new responseData();
+        Promotion promotion = iPromotionService.findById(id);
+        if (promotion != null) {
+            responseData.setDesc("Find successfull ");
+            responseData.setData(promotion.getDTO());
+            return new ResponseEntity<>(responseData, HttpStatus.OK);
+        } else {
+            responseData.setStatus(500);
+            responseData.setDesc("Find fail. Internal Server Error");
             return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

@@ -2,6 +2,8 @@ package com.ks1dotnet.jewelrystore.entity;
 
 import java.util.Set;
 
+import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -42,4 +44,9 @@ public class Promotion {
 
     @OneToMany(mappedBy = "promotion")
     Set<VoucherOnInvoiceDetail> listVoucherOnInvoiceDetail;
+
+    public PromotionDTO getDTO() {
+        return new PromotionDTO(this.id, this.name, this.value, this.voucherType.getId(), this.status, this.image);
+    }
+
 }
