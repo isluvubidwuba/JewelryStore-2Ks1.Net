@@ -62,7 +62,7 @@ public class EmployeeService implements IEmployeeService {
 
    @Override
    public boolean insertEmployee(MultipartFile file, String firstName, String lastName, String pinCode,
-         String phoneNumber, String email, String address, int roleId) {
+         String phoneNumber, String email, String address, int roleId , boolean status) {
       boolean isInsertSuccess = false;
       boolean isSaveFileSuccess = iFileService.savefile(file);
       if (isSaveFileSuccess) {
@@ -73,6 +73,7 @@ public class EmployeeService implements IEmployeeService {
          employee.setPhoneNumber(phoneNumber);
          employee.setEmail(email);
          employee.setAddress(address);
+         employee.setStatus(status);
          employee.setRole(iRoleService.findById(roleId));
          employee.setImage(file.getOriginalFilename());
          iEmployeeRepository.save(employee);

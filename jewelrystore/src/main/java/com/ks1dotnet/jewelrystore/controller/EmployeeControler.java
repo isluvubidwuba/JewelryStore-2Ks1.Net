@@ -67,7 +67,7 @@ public class EmployeeControler {
 
         responseData responseData = new responseData();
         boolean isSuccess = iEmployeeService.insertEmployee(file, firstName, lastName, pinCode, phoneNumber, email,
-                address, roleId);
+                address, roleId, status);
 
         if (isSuccess) {
             responseData.setDesc("Insert successfull");

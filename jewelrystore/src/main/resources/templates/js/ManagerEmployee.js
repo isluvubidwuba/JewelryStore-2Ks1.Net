@@ -3,6 +3,7 @@ $(document).ready(function () {
     var totalPages = 0;
 
     loadRoles();
+    loadRoleInsert()
     fetchEmployees(currentPage); // Fetch initial page
 
     // Fetch employees list and render it
@@ -114,7 +115,7 @@ $(document).ready(function () {
                     $("#status").val(employee.status.toString());
                     // Display the current image
                     if (employee.image) {
-                        $("#currentImage").attr("src", `http://localhost:8080/employee/file/${employee.image}`).show();
+                        $("#currentImage").attr("src", `http://localhost:8080/employee/files/${employee.image}`).show();
                     } else {
                         $("#currentImage").hide();
                     }
@@ -136,24 +137,7 @@ $(document).ready(function () {
     $("#updateEmployeeForm").on("submit", function (event) {
         event.preventDefault();
 
-        var formData = new FormData();
-        formData.append("id", $("#employeeId").val());
-        formData.append("firstName", $("#firstName").val());
-        formData.append("lastName", $("#lastName").val());
-        formData.append("phoneNumber", $("#phoneNumber").val());
-        formData.append("email", $("#email").val());
-        formData.append("address", $("#address").val());
-        formData.append("roleId", $("#role").val());
-        formData.append("status", $("#status").val() === "true");
-        var fileInput = $("#file")[0];
-        if (fileInput.files.length > 0) {
-            formData.append("file", fileInput.files[0]);
-        }
-
-        // Log the formData values
-        for (var pair of formData.entries()) {
-            console.log(pair[0] + ': ' + pair[1]);
-        }
+        var formData = new FormData($("#updateEmployeeForm")[0]);
 
         $.ajax({
             url: "http://localhost:8080/employee/update",
@@ -177,5 +161,61 @@ $(document).ready(function () {
     // Close modal
     $("#closeModalBtn").click(function () {
         $("#updateEmployeeModal").addClass("hidden");
+    });
+
+
+
+
+    // Fetch roles and populate the role dropdown for insert modal
+    function loadRoleInsert() {
+        $.ajax({
+            url: `http://localhost:8080/role/list`,
+            method: "GET",
+            success: function (response) {
+                if (response && response.data) {
+                    $('#insertRole').empty(); // Clear existing options
+                    response.data.forEach(role => {
+                        $('#insertRole').append(new Option(role.name, role.id));
+                    });
+                }
+            },
+            error: function (error) {
+                console.error('Error fetching roles:', error);
+            }
+        });
+    }
+
+    // Handle click event on insert button to show the insert modal
+    $("#insertEmployeeBtn").click(function () {
+        $("#insertEmployeeModal").removeClass("hidden");
+    });
+
+    // Handle form submit for inserting new employee
+    $("#insertEmployeeForm").on("submit", function (event) {
+        event.preventDefault();
+
+        var formData = new FormData($("#insertEmployeeForm")[0]);
+        $.ajax({
+            url: "http://localhost:8080/employee/insert",
+            type: "POST",
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                alert(response.desc);
+                if (response.status !== 500) {
+                    $("#insertEmployeeModal").addClass("hidden");
+                    fetchEmployees(currentPage); // Reload current page after insert
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("Insert fail. Internal Server Error");
+            }
+        });
+    });
+
+    // Close insert modal
+    $("#closeInsertModalBtn").click(function () {
+        $("#insertEmployeeModal").addClass("hidden");
     });
 });

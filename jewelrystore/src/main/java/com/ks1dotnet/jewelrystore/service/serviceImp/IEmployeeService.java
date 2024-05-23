@@ -20,7 +20,7 @@ public interface IEmployeeService {
         public Map<String, Object> getHomePageEmployee(int page);
 
         public boolean insertEmployee(MultipartFile file, String firstName, String lastName, String pinCode,
-                        String phoneNumber, String email, String address, int roleId);
+                        String phoneNumber, String email, String address, int roleId, boolean status);
 
         public EmployeeDTO updateEmployee(MultipartFile file, int id, String firstName, String lastName, String pinCode,
                         String phoneNumber, String email, String address, boolean status, int roleId);
