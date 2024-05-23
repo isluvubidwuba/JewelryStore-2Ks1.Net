@@ -55,6 +55,6 @@ public class Employee {
     Set<OrderInvoice> listOrderInvoice;
 
     public EmployeeDTO getDTO(){
-        return new EmployeeDTO(id, firstName, lastName, pinCode, status, phoneNumber, email, address, role.getDTO());
+        return new EmployeeDTO(id, firstName, lastName, pinCode, status, phoneNumber, email, address, role.getDTO(), image);
     }
 }

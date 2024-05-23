@@ -6,4 +6,5 @@ public interface IFileService {
     boolean savefile(MultipartFile file);
 
     Resource loadFile(String fileName);
+    
 }

@@ -17,4 +17,5 @@ public class EmployeeDTO {
     private String email;
     private String address;
     private RoleDTO role;
+    private String image;
 }

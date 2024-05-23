@@ -1,5 +1,8 @@
 package com.ks1dotnet.jewelrystore.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ks1dotnet.jewelrystore.dto.EmployeeDTO;
 import com.ks1dotnet.jewelrystore.entity.Employee;
 import com.ks1dotnet.jewelrystore.payload.responseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IEmployeeService;
@@ -28,16 +32,24 @@ import com.ks1dotnet.jewelrystore.service.serviceImp.IFileService;
 public class EmployeeControler {
     @Autowired
     private IEmployeeService iEmployeeService;
-    
+
     @Autowired
     private IFileService iFileService;
 
-    @GetMapping("/list")
+    @GetMapping("/listpage")
     private ResponseEntity<?> getHomePageEmployee(
             @RequestParam int page) {
-
+        System.out.println("Requested page: " + page);
         responseData responseData = new responseData();
         responseData.setData(iEmployeeService.getHomePageEmployee(page));
+        return new ResponseEntity<>(responseData, HttpStatus.OK);
+    }
+
+    @GetMapping("/listemployee/{id}")
+    private ResponseEntity<?> findEmployee(
+            @PathVariable int id) {
+        responseData responseData = new responseData();
+        responseData.setData(iEmployeeService.listEmployee(id).getDTO());
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
 
@@ -80,17 +92,18 @@ public class EmployeeControler {
             @RequestParam String email,
             @RequestParam String address) {
         responseData responseData = new responseData();
-        boolean isSuccess = iEmployeeService.updateEmployee(file, id,firstName, lastName, lastName, phoneNumber, email,
-                address, status, roleId);
-        if (isSuccess) {
-            responseData.setDesc("Update Successful");
+
+        EmployeeDTO employeeDTO = iEmployeeService.updateEmployee(file, id, firstName, lastName, lastName, phoneNumber,
+                email, address, status, roleId);
+        if (employeeDTO != null) {
+            responseData.setDesc("Update successful");
+            responseData.setData(employeeDTO);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
         } else {
             responseData.setStatus(500);
-            responseData.setDesc("Update fail. Internal Server Error");
+            responseData.setDesc("Update failed. Internal Server Error");
             return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
     @DeleteMapping("/delete/{id}")
