@@ -16,3 +16,6 @@ spring:
 
 fileUpload:
   rootPath: C:\Users\Acer\Desktop\UploadImage
+server:
+  error:
+    path: /error

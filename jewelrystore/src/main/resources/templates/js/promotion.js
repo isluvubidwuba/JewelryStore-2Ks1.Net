@@ -54,15 +54,15 @@ function fetchPromotions(page = 0) {
             : "text-red-500";
 
           const promotionCard = `
-            <div class="max-w-xs h-67 flex flex-col justify-between bg-white dark:bg-gray-800 rounded-lg border border-gray-400 mb-6 py-5 px-4 mx-4">
-            <div>
-            <h4 class="focus:outline-none text-gray-800 dark:text-gray-100 font-bold mb-3">${promotion.name}</h4>
-            <p class="focus:outline-none text-gray-800 dark:text-gray-100 text-sm">Giá trị: ${promotion.value}%</p>
-            <img id="promotion-image-${promotion.id}" src="${linkPromotion}/files/${promotion.image}" alt="${promotion.name}" class="w-full h-auto mt-3 rounded">
-          </div>
+            <div id="promotion-card-${promotion.id}" class="max-w-xs h-67 flex flex-col justify-between bg-white dark:bg-gray-800 rounded-lg border border-gray-400 mb-6 py-5 px-4 mx-4">
+              <div>
+                <h4 class="promotion-name focus:outline-none text-gray-800 dark:text-gray-100 font-bold mb-3">${promotion.name}</h4>
+                <p class="promotion-value focus:outline-none text-gray-800 dark:text-gray-100 text-sm">Giá trị: ${promotion.value}%</p>
+                <img id="promotion-image" src="${linkPromotion}/files/${promotion.image}" alt="${promotion.name}" class="promotion-image w-full h-auto mt-3 rounded">
+              </div>
               <div>
                 <div class="flex items-center justify-between text-gray-800">
-                  <p class="focus:outline-none text-sm dark:text-gray-100 ${statusColor}">${statusText}</p>
+                  <p class="promotion-status focus:outline-none text-sm dark:text-gray-100 ${statusColor}">${statusText}</p>
                   <div class="promotion-click w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center" data-id="${promotion.id}">
                     <img src="https://tuk-cdn.s3.amazonaws.com/can-uploader/single_card_with_title_and_description-svg1.svg" alt="icon" />
                   </div>
@@ -212,6 +212,39 @@ function setupEventListeners() {
     closeModal();
   });
 }
+//update promotion
+
+function updatePromotionDetails(promotion) {
+  const promotionCard = $(`#promotion-card-${promotion.id}`);
+
+  // Update name
+  promotionCard.find(".promotion-name").text(promotion.name);
+
+  // Update value
+  promotionCard.find(".promotion-value").text(`Giá trị: ${promotion.value}%`);
+
+  // Update status
+  const statusText = promotion.status ? "Đang hoạt động" : "Không hoạt động";
+  const statusColor = promotion.status ? "text-green-500" : "text-red-500";
+  promotionCard
+    .find(".promotion-status")
+    .text(statusText)
+    .attr(
+      "class",
+      `focus:outline-none text-sm dark:text-gray-100 ${statusColor}`
+    );
+
+  // Update image
+  const newImageUrl = `http://localhost:8080/promotion/files/${promotion.image}`;
+  promotionCard.find(".promotion-image").attr("src", newImageUrl);
+}
+
+//call this function when receive the response after updating the promotion
+function handleUpdatePromotionResponse(response) {
+  if (response && response.data) {
+    updatePromotionDetails(response.data);
+  }
+}
 
 function submitUpdateForm() {
   $(document).on("click", "#submit-update", function (event) {
@@ -250,7 +283,6 @@ function submitUpdateForm() {
             .val(""); // Đặt các trường input, textarea và select thành trống sau khi thành công
           $("#form-update").find("select").prop("selectedIndex", 0); // Đặt lại trạng thái của các select
           $("#crud-update-modal").addClass("hidden");
-          console.log(response);
           handleUpdatePromotionResponse(response);
           alert(response.desc);
         },
@@ -263,19 +295,6 @@ function submitUpdateForm() {
       alert("You must fill all fields.");
     }
   });
-}
-// Function to update the promotion image dynamically
-function updatePromotionImage(promotionId, newImageUrl) {
-  $(`#promotion-image-${promotionId}`).attr("src", newImageUrl);
-}
-
-// Example usage: call this function when you receive the response after updating the promotion
-function handleUpdatePromotionResponse(response) {
-  if (response && response.data) {
-    const { id, image } = response.data; // Get id and image from response.data
-    const newImageUrl = `http://localhost:8080/promotion/files/${image}`;
-    updatePromotionImage(id, newImageUrl);
-  }
 }
 
 //close modal update

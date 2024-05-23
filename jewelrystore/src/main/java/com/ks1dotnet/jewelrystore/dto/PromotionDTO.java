@@ -16,5 +16,4 @@ public class PromotionDTO {
     private int idVoucherType;
     private boolean status;
     private String image;
-
 }

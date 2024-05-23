@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -57,13 +55,11 @@ public class PromotionController {
         responseData responseData = new responseData();
         Map<String, Object> data = new HashMap<>();
 
-        boolean isSuccess = iPromotionService.updatePromotion(file, id, name, idVoucherType, value, status);
+        PromotionDTO promotionDTO = iPromotionService.updatePromotion(file, id, name, idVoucherType, value, status);
 
-        if (isSuccess) {
-            data.put("id", id);
-            data.put("image", file.getOriginalFilename());
+        if (promotionDTO != null) {
             responseData.setDesc("Update successful");
-            responseData.setData(data);
+            responseData.setData(promotionDTO);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
         } else {
             responseData.setStatus(500);

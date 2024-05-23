@@ -23,7 +23,7 @@ public interface IPromotionService {
                         double value,
                         boolean status);
 
-        public boolean updatePromotion(MultipartFile file, int id,
+        public PromotionDTO updatePromotion(MultipartFile file, int id,
                         String name,
                         int idVoucherType,
                         double value,

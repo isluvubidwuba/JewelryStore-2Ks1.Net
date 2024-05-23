@@ -104,11 +104,11 @@ public class PromotionService implements IPromotionService {
     }
 
     @Override
-    public boolean updatePromotion(MultipartFile file, int id, String name, int idVoucherType, double value,
+    public PromotionDTO updatePromotion(MultipartFile file, int id, String name, int idVoucherType, double value,
             boolean status) {
         Optional<Promotion> promotionOptional = iPromotionRepository.findById(id);
-        boolean isUpdateSuccess = false;
         boolean isSaveFileSuccess = iFileService.savefile(file);
+        PromotionDTO promotionDTO = new PromotionDTO();
         if (promotionOptional.isPresent()) {
             Promotion promotion = new Promotion();
             promotion.setId(id);
@@ -122,8 +122,8 @@ public class PromotionService implements IPromotionService {
                 promotion.setImage(promotionOptional.get().getImage());
             }
             iPromotionRepository.save(promotion);
-            isUpdateSuccess = true;
+            promotionDTO = promotion.getDTO();
         }
-        return isUpdateSuccess;
+        return promotionDTO;
     }
 }
