@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.ks1dotnet.jewelrystore.dto.GemStoneCategoryDTO;
 import com.ks1dotnet.jewelrystore.entity.GemStoneCategory;
-import com.ks1dotnet.jewelrystore.payload.responseData;
+import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
+import com.ks1dotnet.jewelrystore.exception.BadRequestException;
+import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IGemStoneCategoryRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IGemStoneCategoryService;
 
@@ -18,104 +21,55 @@ public class GemStoneCategoryService implements IGemStoneCategoryService {
     private IGemStoneCategoryRepository iGemStoneCategoryRepository;
 
     @Override
-    public responseData findAll() {
+    public ResponseData findAll() {
         try {
             List<GemStoneCategoryDTO> listDTO = new ArrayList<>();
             for (GemStoneCategory gemStoneCategory : iGemStoneCategoryRepository.findAll()) {
                 listDTO.add(gemStoneCategory.getDTO());
             }
-            return new responseData(200, "Find all gem stone sucessfully", listDTO);
+            return new ResponseData(HttpStatus.OK, "Find all gem stone category successfully", listDTO);
         } catch (Exception e) {
-            return new responseData(401, "Find all gem stone error: " + e.getMessage(), null);
+            throw new RuntimeException("Find all gem stone categories error");
         }
     }
 
     @Override
-    public responseData findById(Integer id) {
-        try {
-            GemStoneCategory gsc = iGemStoneCategoryRepository.findById(id).orElse(null);
-            if (gsc == null)
-                return null;
-            return new responseData(200, "Find gem stone category successfully", gsc.getDTO());
-        } catch (Exception e) {
-            System.out.println("GemStone find by id error: " + e.getMessage());
-            return new responseData(0, null, e);
-        }
+    public ResponseData findById(Integer id) {
+        GemStoneCategory gsc = iGemStoneCategoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Gem stone category not found with id: " + id));
+        return new ResponseData(HttpStatus.OK, "Find gem stone category successfully", gsc.getDTO());
     }
 
     @Override
-    public responseData save(GemStoneCategoryDTO t) {
+    public ResponseData insert(GemStoneCategoryDTO t) {
         try {
+            if (t.getId() != 0 && iGemStoneCategoryRepository.existsById(t.getId()))
+                throw new BadRequestException("Can not create gem stone category that already exsist failed!");
             iGemStoneCategoryRepository.save(new GemStoneCategory(t));
-            return t;
+            return new ResponseData(HttpStatus.CREATED, "Create gem stone category successfully", t);
         } catch (Exception e) {
-            System.out.println("GemStone save error: " + e.getMessage());
-            return null;
+            throw new BadRequestException("Create gem stone category failed");
         }
     }
 
     @Override
-    public responseData saveAndFlush(GemStoneCategoryDTO t) {
+    public ResponseData update(GemStoneCategoryDTO t) {
         try {
-            iGemStoneCategoryRepository.saveAndFlush(new GemStoneCategory(t));
-            return t;
+            if (t.getId() == 0 && !iGemStoneCategoryRepository.existsById(t.getId()))
+                throw new BadRequestException("Can not update gem stone category that not exsist failed!");
+            iGemStoneCategoryRepository.save(new GemStoneCategory(t));
+            return new ResponseData(HttpStatus.OK, "Update gem stone category successfully", t);
         } catch (Exception e) {
-            System.out.println("GemStone save error: " + e.getMessage());
-            return null;
+            throw new BadRequestException("Update gem stone category failed");
         }
     }
 
     @Override
-    public responseData saveAll(Iterable<GemStoneCategoryDTO> t) {
-        List<GemStoneCategory> list = new ArrayList<>();
-        for (GemStoneCategoryDTO gemStoneCategoryDTO : t) {
-            list.add(new GemStoneCategory(gemStoneCategoryDTO));
-        }
-        try {
-            List<GemStoneCategoryDTO> listDTO = new ArrayList<>();
-            for (GemStoneCategory gemStoneCategory : iGemStoneCategoryRepository.saveAll(list)) {
-                listDTO.add(gemStoneCategory.getDTO());
-            }
-            return listDTO;
-        } catch (Exception e) {
-            System.out.println("GemStones saveAll error: " + e.getMessage());
-            return null;
-        }
-    }
-
-    @Override
-    public responseData saveAllAndFlush(Iterable<GemStoneCategoryDTO> t) {
-        List<GemStoneCategory> list = new ArrayList<>();
-        for (GemStoneCategoryDTO gemStoneCategoryDTO : t) {
-            list.add(new GemStoneCategory(gemStoneCategoryDTO));
-        }
-        try {
-            List<GemStoneCategoryDTO> listDTO = new ArrayList<>();
-            for (GemStoneCategory gemStoneCategory : iGemStoneCategoryRepository
-                    .saveAllAndFlush(list)) {
-                listDTO.add(gemStoneCategory.getDTO());
-            }
-            return listDTO;
-        } catch (Exception e) {
-            System.out.println("GemStones saveAllandFLush error: " + e.getMessage());
-            return null;
-        }
-    }
-
-    @Override
-    public responseData existsById(Integer id) {
-        return iGemStoneCategoryRepository.existsById(id);
-    }
-
-    @Override
-    public responseData deleteById(Integer id) {
-        try {
-            iGemStoneCategoryRepository.deleteById(id);
-            return true;
-        } catch (Exception e) {
-            System.out.println("GemStones delete by id error: " + e.getMessage());
-            return false;
-        }
+    public ResponseData existsById(Integer id) {
+        boolean exists = iGemStoneCategoryRepository.existsById(id);
+        return new ResponseData(exists ? HttpStatus.OK : HttpStatus.NOT_FOUND,
+                exists ? "Gem stone category exists!" : "Gem stone category not found!",
+                exists);
     }
 
 }

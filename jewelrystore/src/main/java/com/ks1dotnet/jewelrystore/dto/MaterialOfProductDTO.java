@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MaterialOfProductDTO {
-    private int id;
-    private float weight;
+    private Integer id;
+    private Float weight;
     private MaterialDTO materialDTO;
 
 }

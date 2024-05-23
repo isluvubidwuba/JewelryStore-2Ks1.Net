@@ -4,10 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.ks1dotnet.jewelrystore.dto.MaterialDTO;
 import com.ks1dotnet.jewelrystore.entity.Material;
+import com.ks1dotnet.jewelrystore.exception.BadRequestException;
+import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
+import com.ks1dotnet.jewelrystore.exception.RunTimeExceptionV1;
+import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IMaterialRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IMaterialService;
 
@@ -18,104 +23,55 @@ public class MaterialService implements IMaterialService {
     private IMaterialRepository iMaterialRepository;
 
     @Override
-    public List<MaterialDTO> findAll() {
+    public ResponseData findAll() {
         try {
             List<MaterialDTO> listDTO = new ArrayList<>();
             for (Material Material : iMaterialRepository.findAll()) {
                 listDTO.add(Material.getDTO());
             }
-            return listDTO;
+            return new ResponseData(HttpStatus.OK, "Find all material successfully", listDTO);
         } catch (Exception e) {
-            System.out.println("Material find all error: " + e.getMessage());
-            return null;
+            throw new RunTimeExceptionV1("Find all material error");
         }
     }
 
     @Override
-    public MaterialDTO findById(Integer id) {
-        try {
-            Material gsp = iMaterialRepository.findById(id).orElse(null);
-            if (gsp == null)
-                return null;
-            return gsp.getDTO();
-        } catch (Exception e) {
-            System.out.println("Material find by id error: " + e.getMessage());
-            return null;
-        }
+    public ResponseData findById(Integer id) {
+        Material gsc = iMaterialRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("material not found with id: " + id));
+        return new ResponseData(HttpStatus.OK, "Find material successfully", gsc.getDTO());
     }
 
     @Override
-    public MaterialDTO save(MaterialDTO t) {
+    public ResponseData insert(MaterialDTO t) {
         try {
+            if (t.getId() != 0 && iMaterialRepository.existsById(t.getId()))
+                throw new BadRequestException("Can not create material that already exsist failed!");
             iMaterialRepository.save(new Material(t));
-            return t;
+            return new ResponseData(HttpStatus.CREATED, "Create material successfully", t);
         } catch (Exception e) {
-            System.out.println("Material save error: " + e.getMessage());
-            return null;
+            throw new BadRequestException("Create material failed");
         }
     }
 
     @Override
-    public MaterialDTO saveAndFlush(MaterialDTO t) {
+    public ResponseData update(MaterialDTO t) {
         try {
-            iMaterialRepository.saveAndFlush(new Material(t));
-            return t;
+            if (t.getId() == 0 && !iMaterialRepository.existsById(t.getId()))
+                throw new BadRequestException("Can not update material that not exsist failed!");
+            iMaterialRepository.save(new Material(t));
+            return new ResponseData(HttpStatus.OK, "Update material successfully", t);
         } catch (Exception e) {
-            System.out.println("Material save error: " + e.getMessage());
-            return null;
+            throw new BadRequestException("Update material failed");
         }
     }
 
     @Override
-    public List<MaterialDTO> saveAll(Iterable<MaterialDTO> t) {
-        List<Material> list = new ArrayList<>();
-        for (MaterialDTO MaterialDTO : t) {
-            list.add(new Material(MaterialDTO));
-        }
-        try {
-            List<MaterialDTO> listDTO = new ArrayList<>();
-            for (Material Material : iMaterialRepository.saveAll(list)) {
-                listDTO.add(Material.getDTO());
-            }
-            return listDTO;
-        } catch (Exception e) {
-            System.out.println("Material saveAll error: " + e.getMessage());
-            return null;
-        }
-    }
-
-    @Override
-    public List<MaterialDTO> saveAllAndFlush(Iterable<MaterialDTO> t) {
-        List<Material> list = new ArrayList<>();
-        for (MaterialDTO MaterialDTO : t) {
-            list.add(new Material(MaterialDTO));
-        }
-        try {
-            List<MaterialDTO> listDTO = new ArrayList<>();
-            for (Material Material : iMaterialRepository.saveAllAndFlush(list)) {
-                listDTO.add(Material.getDTO());
-            }
-            return listDTO;
-        } catch (Exception e) {
-            System.out.println("Material saveAll error: " + e.getMessage());
-            return null;
-        }
-    }
-
-    @Override
-    public boolean existsById(Integer id) {
-        return iMaterialRepository.existsById(id);
-    }
-
-    @Override
-    public boolean deleteById(Integer id) {
-        try {
-            iMaterialRepository.deleteById(id);
-            return true;
-        } catch (Exception e) {
-            System.out.println("Material delete by id error: " + e.getMessage());
-            return false;
-        }
+    public ResponseData existsById(Integer id) {
+        boolean exists = iMaterialRepository.existsById(id);
+        return new ResponseData(exists ? HttpStatus.OK : HttpStatus.NOT_FOUND,
+                exists ? "material exists!" : "material not found!",
+                exists);
     }
 
 }

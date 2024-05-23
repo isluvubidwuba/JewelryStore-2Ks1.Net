@@ -6,6 +6,8 @@ import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -23,6 +25,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "product")
 public class Product {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
     @Column(name = "name")
     private String name;

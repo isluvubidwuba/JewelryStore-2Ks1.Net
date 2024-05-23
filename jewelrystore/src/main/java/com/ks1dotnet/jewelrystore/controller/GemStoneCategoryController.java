@@ -1,18 +1,17 @@
 package com.ks1dotnet.jewelrystore.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ks1dotnet.jewelrystore.dto.GemStoneCategoryDTO;
-import com.ks1dotnet.jewelrystore.payload.responseData;
+import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IGemStoneCategoryService;
 
 @RestController
@@ -24,26 +23,25 @@ public class GemStoneCategoryController {
 
     @GetMapping
     public ResponseEntity<?> getById(@RequestParam int id) {
-        try {
-            GemStoneCategoryDTO gc = iGemStoneCategoryService.findById(id);
-            return new ResponseEntity<>(new responseData(201, "Get gem stone category successfully", gc),
-                    HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(new responseData(401, "Get gem stone category error: " + e.getMessage(), null),
-                    HttpStatus.BAD_REQUEST);
-        }
+        ResponseData response = iGemStoneCategoryService.findById(id);
+        return new ResponseEntity<>(response, response.getStatus());
     }
 
     @GetMapping("all")
     public ResponseEntity<?> getAll() {
-        try {
-            List<GemStoneCategoryDTO> listGc = iGemStoneCategoryService.findAll();
-            return new ResponseEntity<>(new responseData(201, "Get list gem stone category successfully", listGc),
-                    HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(new responseData(400, "Get list gem stone category error", null),
-                    HttpStatus.BAD_REQUEST);
-        }
+        ResponseData response = iGemStoneCategoryService.findAll();
+        return new ResponseEntity<>(response, response.getStatus());
     }
 
+    @PostMapping("/update")
+    public ResponseEntity<?> update(@RequestBody GemStoneCategoryDTO t) {
+        ResponseData response = iGemStoneCategoryService.update(t);
+        return new ResponseEntity<>(response, response.getStatus());
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<?> create(@RequestBody GemStoneCategoryDTO t) {
+        ResponseData response = iGemStoneCategoryService.insert(t);
+        return new ResponseEntity<>(response, response.getStatus());
+    }
 }

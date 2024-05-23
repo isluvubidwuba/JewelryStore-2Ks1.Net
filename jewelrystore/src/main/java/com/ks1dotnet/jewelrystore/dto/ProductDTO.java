@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 public class ProductDTO {
     private String id;
     private String name;
-    private double fee;
+    private Double fee;
     private boolean status;
     private MaterialOfProductDTO materialOfProductDTO;
     private ProductCategoryDTO productCategoryDTO;

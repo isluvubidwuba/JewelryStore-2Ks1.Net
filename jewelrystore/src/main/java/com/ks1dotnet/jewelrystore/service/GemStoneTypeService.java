@@ -4,10 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.ks1dotnet.jewelrystore.dto.GemStoneTypeDTO;
 import com.ks1dotnet.jewelrystore.entity.GemStoneType;
+import com.ks1dotnet.jewelrystore.exception.BadRequestException;
+import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
+import com.ks1dotnet.jewelrystore.exception.RunTimeExceptionV1;
+import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IGemStoneTypeRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IGemStoneTypeService;
 
@@ -17,104 +22,55 @@ public class GemStoneTypeService implements IGemStoneTypeService {
     private IGemStoneTypeRepository iGemStoneTypeRepository;
 
     @Override
-    public List<GemStoneTypeDTO> findAll() {
+    public ResponseData findAll() {
         try {
             List<GemStoneTypeDTO> listDTO = new ArrayList<>();
             for (GemStoneType GemStoneType : iGemStoneTypeRepository.findAll()) {
                 listDTO.add(GemStoneType.getDTO());
             }
-            return listDTO;
+            return new ResponseData(HttpStatus.OK, "Find all gem stone type successfully", listDTO);
         } catch (Exception e) {
-            System.out.println("GemStone type find all error: " + e.getMessage());
-            return null;
+            throw new RunTimeExceptionV1("Find all gem stone type error");
         }
     }
 
     @Override
-    public GemStoneTypeDTO findById(Integer id) {
-        try {
-            GemStoneType gst = iGemStoneTypeRepository.findById(id).orElse(null);
-            if (gst == null)
-                return null;
-            return gst.getDTO();
-        } catch (Exception e) {
-            System.out.println("GemStone type find by id error: " + e.getMessage());
-            return null;
-        }
+    public ResponseData findById(Integer id) {
+        GemStoneType gsc = iGemStoneTypeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Gem stone type not found with id" + id));
+        return new ResponseData(HttpStatus.OK, "Find gem stone type successfully", gsc.getDTO());
     }
 
     @Override
-    public GemStoneTypeDTO save(GemStoneTypeDTO t) {
+    public ResponseData insert(GemStoneTypeDTO t) {
         try {
+            if (t.getId() != 0 && iGemStoneTypeRepository.existsById(t.getId()))
+                throw new BadRequestException("Can not create gem stone type that already exsist failed!");
             iGemStoneTypeRepository.save(new GemStoneType(t));
-            return t;
+            return new ResponseData(HttpStatus.CREATED, "Create gem stone type successfully", t);
         } catch (Exception e) {
-            System.out.println("GemStone type save error: " + e.getMessage());
-            return null;
+            throw new BadRequestException("Create gem stone type failed");
         }
     }
 
     @Override
-    public GemStoneTypeDTO saveAndFlush(GemStoneTypeDTO t) {
+    public ResponseData update(GemStoneTypeDTO t) {
         try {
-            iGemStoneTypeRepository.saveAndFlush(new GemStoneType(t));
-            return t;
+            if (t.getId() == 0 && !iGemStoneTypeRepository.existsById(t.getId()))
+                throw new BadRequestException("Can not update gem stone type that not exsist failed!");
+            iGemStoneTypeRepository.save(new GemStoneType(t));
+            return new ResponseData(HttpStatus.OK, "Update gem stone type successfully", t);
         } catch (Exception e) {
-            System.out.println("GemStone type save error: " + e.getMessage());
-            return null;
+            throw new BadRequestException("Update gem stone type failed");
         }
     }
 
     @Override
-    public List<GemStoneTypeDTO> saveAll(Iterable<GemStoneTypeDTO> t) {
-        List<GemStoneType> list = new ArrayList<>();
-        for (GemStoneTypeDTO GemStoneTypeDTO : t) {
-            list.add(new GemStoneType(GemStoneTypeDTO));
-        }
-        try {
-            List<GemStoneTypeDTO> listDTO = new ArrayList<>();
-            for (GemStoneType GemStoneType : iGemStoneTypeRepository.saveAll(list)) {
-                listDTO.add(GemStoneType.getDTO());
-            }
-            return listDTO;
-        } catch (Exception e) {
-            System.out.println("GemStones type saveAll error: " + e.getMessage());
-            return null;
-        }
-    }
-
-    @Override
-    public List<GemStoneTypeDTO> saveAllAndFlush(Iterable<GemStoneTypeDTO> t) {
-        List<GemStoneType> list = new ArrayList<>();
-        for (GemStoneTypeDTO GemStoneTypeDTO : t) {
-            list.add(new GemStoneType(GemStoneTypeDTO));
-        }
-        try {
-            List<GemStoneTypeDTO> listDTO = new ArrayList<>();
-            for (GemStoneType GemStoneType : iGemStoneTypeRepository.saveAllAndFlush(list)) {
-                listDTO.add(GemStoneType.getDTO());
-            }
-            return listDTO;
-        } catch (Exception e) {
-            System.out.println("GemStones type saveAll error: " + e.getMessage());
-            return null;
-        }
-    }
-
-    @Override
-    public boolean existsById(Integer id) {
-        return iGemStoneTypeRepository.existsById(id);
-    }
-
-    @Override
-    public boolean deleteById(Integer id) {
-        try {
-            iGemStoneTypeRepository.deleteById(id);
-            return true;
-        } catch (Exception e) {
-            System.out.println("GemStones type delete by id error: " + e.getMessage());
-            return false;
-        }
+    public ResponseData existsById(Integer id) {
+        boolean exists = iGemStoneTypeRepository.existsById(id);
+        return new ResponseData(exists ? HttpStatus.OK : HttpStatus.NOT_FOUND,
+                exists ? "Gem stone type exists!" : "Gem stone type not found!",
+                exists);
     }
 
 }

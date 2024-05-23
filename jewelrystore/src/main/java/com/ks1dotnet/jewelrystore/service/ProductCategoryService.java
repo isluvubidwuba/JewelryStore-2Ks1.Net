@@ -4,10 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.ks1dotnet.jewelrystore.dto.ProductCategoryDTO;
 import com.ks1dotnet.jewelrystore.entity.ProductCategory;
+import com.ks1dotnet.jewelrystore.exception.BadRequestException;
+import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
+import com.ks1dotnet.jewelrystore.exception.RunTimeExceptionV1;
+import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IProductCategoryRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IProductCategoryService;
 
@@ -17,103 +22,55 @@ public class ProductCategoryService implements IProductCategoryService {
     private IProductCategoryRepository iProductCategoryRepository;
 
     @Override
-    public List<ProductCategoryDTO> findAll() {
+    public ResponseData findAll() {
         try {
             List<ProductCategoryDTO> listDTO = new ArrayList<>();
             for (ProductCategory ProductCategory : iProductCategoryRepository.findAll()) {
                 listDTO.add(ProductCategory.getDTO());
             }
-            return listDTO;
+            return new ResponseData(HttpStatus.OK, "Find all product category successfully", listDTO);
         } catch (Exception e) {
-            System.out.println("Product category find all error: " + e.getMessage());
-            return null;
+            throw new RunTimeExceptionV1("Find all product category error");
         }
     }
 
     @Override
-    public ProductCategoryDTO findById(Integer id) {
-        try {
-            ProductCategory gsp = iProductCategoryRepository.findById(id).orElse(null);
-            if (gsp == null)
-                return null;
-            return gsp.getDTO();
-        } catch (Exception e) {
-            System.out.println("Product category find by id error: " + e.getMessage());
-            return null;
-        }
+    public ResponseData findById(Integer id) {
+        ProductCategory gsc = iProductCategoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product category not found with id: " + id));
+        return new ResponseData(HttpStatus.OK, "Find Product category successfully", gsc.getDTO());
     }
 
     @Override
-    public ProductCategoryDTO save(ProductCategoryDTO t) {
+    public ResponseData insert(ProductCategoryDTO t) {
         try {
+            if (t.getId() != 0 && iProductCategoryRepository.existsById(t.getId()))
+                throw new BadRequestException("Can not create product category that already exsist failed!");
             iProductCategoryRepository.save(new ProductCategory(t));
-            return t;
+            return new ResponseData(HttpStatus.CREATED, "Create product category successfully", t);
         } catch (Exception e) {
-            System.out.println("Product category save error: " + e.getMessage());
-            return null;
+            throw new BadRequestException("Create product category failed");
         }
     }
 
     @Override
-    public ProductCategoryDTO saveAndFlush(ProductCategoryDTO t) {
+    public ResponseData update(ProductCategoryDTO t) {
         try {
-            iProductCategoryRepository.saveAndFlush(new ProductCategory(t));
-            return t;
+            if (t.getId() == 0 && !iProductCategoryRepository.existsById(t.getId()))
+                throw new BadRequestException("Can not update product category that not exsist failed!");
+            iProductCategoryRepository.save(new ProductCategory(t));
+            return new ResponseData(HttpStatus.OK, "Update product category successfully", t);
         } catch (Exception e) {
-            System.out.println("Product category save error: " + e.getMessage());
-            return null;
+            throw new BadRequestException("Update product category failed");
         }
     }
 
     @Override
-    public List<ProductCategoryDTO> saveAll(Iterable<ProductCategoryDTO> t) {
-        List<ProductCategory> list = new ArrayList<>();
-        for (ProductCategoryDTO ProductCategoryDTO : t) {
-            list.add(new ProductCategory(ProductCategoryDTO));
-        }
-        try {
-            List<ProductCategoryDTO> listDTO = new ArrayList<>();
-            for (ProductCategory ProductCategory : iProductCategoryRepository.saveAll(list)) {
-                listDTO.add(ProductCategory.getDTO());
-            }
-            return listDTO;
-        } catch (Exception e) {
-            System.out.println("Product category saveAll error: " + e.getMessage());
-            return null;
-        }
+    public ResponseData existsById(Integer id) {
+        boolean exists = iProductCategoryRepository.existsById(id);
+        return new ResponseData(exists ? HttpStatus.OK : HttpStatus.NOT_FOUND,
+                exists ? "Product category exists!" : "Product category not found!",
+                exists);
     }
 
-    @Override
-    public List<ProductCategoryDTO> saveAllAndFlush(Iterable<ProductCategoryDTO> t) {
-        List<ProductCategory> list = new ArrayList<>();
-        for (ProductCategoryDTO ProductCategoryDTO : t) {
-            list.add(new ProductCategory(ProductCategoryDTO));
-        }
-        try {
-            List<ProductCategoryDTO> listDTO = new ArrayList<>();
-            for (ProductCategory ProductCategory : iProductCategoryRepository.saveAllAndFlush(list)) {
-                listDTO.add(ProductCategory.getDTO());
-            }
-            return listDTO;
-        } catch (Exception e) {
-            System.out.println("Product category saveAll error: " + e.getMessage());
-            return null;
-        }
-    }
-
-    @Override
-    public boolean existsById(Integer id) {
-        return iProductCategoryRepository.existsById(id);
-    }
-
-    @Override
-    public boolean deleteById(Integer id) {
-        try {
-            iProductCategoryRepository.deleteById(id);
-            return true;
-        } catch (Exception e) {
-            System.out.println("Product category delete by id error: " + e.getMessage());
-            return false;
-        }
-    }
 }

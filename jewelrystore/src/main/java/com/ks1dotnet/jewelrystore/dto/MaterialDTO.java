@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MaterialDTO {
-    private int id;
+    private Integer id;
     private String name;
     private String purity;
-    private double priceAtTime;
+    private Double priceAtTime;
     private Date lastModified;
 }
