@@ -225,14 +225,16 @@ function updatePromotionDetails(promotion) {
 
   // Update status
   const statusText = promotion.status ? "Đang hoạt động" : "Không hoạt động";
-  const statusColor = promotion.status ? "text-green-500" : "text-red-500";
-  promotionCard
-    .find(".promotion-status")
-    .text(statusText)
-    .attr(
-      "class",
-      `focus:outline-none text-sm dark:text-gray-100 ${statusColor}`
-    );
+  const statusColorClass = promotion.status ? "text-green-500" : "text-red-500";
+  const promotionStatusElement = promotionCard.find(".promotion-status");
+
+  promotionStatusElement.text(statusText);
+
+  // Remove all existing classes and add the necessary classes
+  promotionStatusElement.attr(
+    "class",
+    `promotion-status focus:outline-none text-sm dark:text-gray-100 ${statusColorClass}`
+  );
 
   // Update image
   const newImageUrl = `http://localhost:8080/promotion/files/${promotion.image}`;
@@ -255,9 +257,7 @@ function submitUpdateForm() {
 
     // Validate all required fields
     $("#form-update")
-      .find(
-        "input[type='text'], input[type='number'], input[type='file'], textarea, select"
-      )
+      .find("input[type='text'], input[type='number'], textarea, select")
       .each(function () {
         if ($(this).val() === "") {
           allFieldsFilled = false;

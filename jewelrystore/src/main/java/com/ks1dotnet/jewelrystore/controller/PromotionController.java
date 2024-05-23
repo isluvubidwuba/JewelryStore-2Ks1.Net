@@ -53,8 +53,6 @@ public class PromotionController {
             @RequestParam String name, @RequestParam int idVoucherType,
             @RequestParam double value, @RequestParam boolean status) {
         responseData responseData = new responseData();
-        Map<String, Object> data = new HashMap<>();
-
         PromotionDTO promotionDTO = iPromotionService.updatePromotion(file, id, name, idVoucherType, value, status);
 
         if (promotionDTO != null) {
