@@ -49,7 +49,7 @@ public class EmployeeControler {
 
     @GetMapping("/listemployee/{id}")
     private ResponseEntity<?> findEmployee(
-            @PathVariable int id) {
+            @PathVariable String id) {
         responseData responseData = new responseData();
         responseData.setData(iEmployeeService.listEmployee(id).getDTO());
         return new ResponseEntity<>(responseData, HttpStatus.OK);
@@ -85,7 +85,7 @@ public class EmployeeControler {
     @PostMapping("/update")
     public ResponseEntity<?> updateEmployee(
             @RequestParam MultipartFile file,
-            @RequestParam int id,
+            @RequestParam String id,
             @RequestParam String firstName,
             @RequestParam String lastName,
             @RequestParam int roleId,
@@ -109,7 +109,7 @@ public class EmployeeControler {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<responseData> deleteEmployee(@PathVariable Integer id) {
+    public ResponseEntity<responseData> deleteEmployee(@PathVariable String id) {
         responseData responseData = new responseData();
         try {
             Employee employee = iEmployeeService.findById(id);

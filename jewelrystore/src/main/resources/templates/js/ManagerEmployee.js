@@ -3,7 +3,7 @@ $(document).ready(function () {
     var totalPages = 0;
 
     loadRoles();
-    loadRoleInsert()
+    loadRoleInsert();
     fetchEmployees(currentPage); // Fetch initial page
 
     // Fetch employees list and render it
@@ -20,7 +20,6 @@ $(document).ready(function () {
         });
     }
 
-
     // Process response and render employees
     function processEmployeeResponse(response) {
         emptyTableBody();
@@ -30,12 +29,11 @@ $(document).ready(function () {
             totalPages = tp;
             currentPage = cp;
 
-
             employees.forEach(function (employee) {
                 const employeeRow = createEmployeeRow(employee);
                 $("#employeeTableBody").append(employeeRow);
             });
-
+            console.log(totalPages, currentPage)
             updatePaginationControls(totalPages, currentPage);
         }
     }
@@ -70,8 +68,14 @@ $(document).ready(function () {
 
     // Update pagination controls (Previous and Next buttons)
     function updatePaginationControls(totalPages, currentPage) {
-        $('#prevPageBtn').prop('disabled', currentPage <= 0);
-        $('#nextPageBtn').prop('disabled', currentPage >= totalPages - 1);
+        $('#paginationControls').empty();
+        for (let i = 0; i < totalPages; i++) {
+            const button = $('<button class="pagination-button">').text(i + 1).data('page', i);
+            if (i === currentPage) {
+                button.prop('disabled', true).addClass('active');
+            }
+            $('#paginationControls').append(button);
+        }
     }
 
     // Handle click event for previous page button
@@ -179,9 +183,6 @@ $(document).ready(function () {
         $("#updateEmployeeModal").addClass("hidden");
     });
 
-
-
-
     // Fetch roles and populate the role dropdown for insert modal
     function loadRoleInsert() {
         $.ajax({
@@ -241,7 +242,6 @@ $(document).ready(function () {
         $("#insertEmployeeForm")[0].reset(); // Clear all form fields
     }
 
-
     // Handle click event on delete button to delete an employee
     $('#employeeTableBody').on('click', '.deleteBtn', function () {
         const id = $(this).data('id');
@@ -267,7 +267,6 @@ $(document).ready(function () {
         });
     }
 
-
     function fetchAndProcessSearchEmployees(criteria, query, page = 0) {
         // Gửi yêu cầu tìm kiếm dựa trên tiêu chí và giá trị tìm kiếm
         $.ajax({
@@ -281,16 +280,14 @@ $(document).ready(function () {
             },
             success: function (response) {
                 // Xử lý phản hồi và hiển thị nhân viên
-                console.log(response)
-                processEmployeeResponse(response);
+                console.log(response);
+                processEmployeeResponse(response); // Gọi hàm xử lý phản hồi với dữ liệu tìm kiếm
             },
             error: function (error) {
                 console.error('Error fetching search results:', error);
             }
         });
     }
-
-
 
     // Handle pagination click event
     $(document).on('click', '.pagination-button', function () {
@@ -316,7 +313,9 @@ $(document).ready(function () {
         var criteria = $('#selected-criteria').text();
         var query = $('#search-input').val();
 
-        fetchAndProcessSearchEmployees(criteria, query);
+        // Đặt lại trang hiện tại về 0 khi thực hiện tìm kiếm mới
+        currentPage = 0;
+        fetchAndProcessSearchEmployees(criteria, query, currentPage);
     });
 
     // Toggle dropdown menu
@@ -330,5 +329,4 @@ $(document).ready(function () {
             $('#dropdown').addClass('hidden');
         }
     });
-
 });

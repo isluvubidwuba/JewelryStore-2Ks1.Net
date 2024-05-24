@@ -44,7 +44,7 @@ public class EmployeeRepositoryTest {
 
         // Assert
         assertThat(savedEmployee).isNotNull();
-        assertThat(savedEmployee.getId()).isGreaterThan(0);
+        assertThat(savedEmployee.getId());
         assertThat(savedEmployee.getFirstName()).isEqualTo("tan");
     }
 

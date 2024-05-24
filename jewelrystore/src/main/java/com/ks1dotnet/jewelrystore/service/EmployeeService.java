@@ -41,7 +41,7 @@ public class EmployeeService implements IEmployeeService {
    }
 
    @Override
-   public Employee findById(Integer id) {
+   public Employee findById(String id) {
       return iEmployeeRepository.findById(id).orElse(null);
    }
 
@@ -66,8 +66,10 @@ public class EmployeeService implements IEmployeeService {
          String phoneNumber, String email, String address, int roleId, boolean status) {
       boolean isInsertSuccess = false;
       boolean isSaveFileSuccess = iFileService.savefile(file);
+
       if (isSaveFileSuccess) {
          Employee employee = new Employee();
+         employee.setId(generateUniqueEmployeeId());
          employee.setFirstName(firstName);
          employee.setLastName(lastName);
          employee.setPinCode(pinCode);
@@ -83,8 +85,24 @@ public class EmployeeService implements IEmployeeService {
       return isInsertSuccess;
    }
 
+   public String generateUniqueEmployeeId() {
+      String idPrefix = "SE";
+      String uniqueId;
+      do {
+         StringBuilder sb = new StringBuilder();
+         sb.append(idPrefix);
+         for (int i = 0; i < 8; i++) {
+            int randomDigit = (int) (Math.random() * 10);
+            sb.append(randomDigit);
+         }
+         uniqueId = sb.toString();
+      } while (iEmployeeRepository.existsById(uniqueId)); // Giả sử bạn có phương thức kiểm tra ID trùng lặp
+
+      return uniqueId;
+   }
+
    @Override
-   public EmployeeDTO updateEmployee(MultipartFile file, int id, String firstName, String lastName, String pinCode,
+   public EmployeeDTO updateEmployee(MultipartFile file, String id, String firstName, String lastName, String pinCode,
          String phoneNumber, String email, String address, boolean status, int roleId) {
       boolean isSaveFileSuccess = iFileService.savefile(file);
       Optional<Employee> employee = iEmployeeRepository.findById(id);
@@ -113,7 +131,7 @@ public class EmployeeService implements IEmployeeService {
    }
 
    @Override
-   public Employee listEmployee(int id) {
+   public Employee listEmployee(String id) {
       return iEmployeeRepository.findById(id).orElse(null);
    }
 
@@ -125,7 +143,7 @@ public class EmployeeService implements IEmployeeService {
 
       switch (criteria.toLowerCase()) {
          case "id":
-            Optional<Employee> employeeOpt = iEmployeeRepository.findById(Integer.parseInt(query));
+            Optional<Employee> employeeOpt = iEmployeeRepository.findById(query);
             if (employeeOpt.isPresent()) {
                List<Employee> employeeList = Collections.singletonList(employeeOpt.get());
                employeePage = new PageImpl<>(employeeList, pageRequest, 1);
@@ -135,12 +153,8 @@ public class EmployeeService implements IEmployeeService {
             break;
 
          case "name":
-            List<Employee> employeesByName = new ArrayList<>();
-            Page<Employee> lastNamePage = iEmployeeRepository.findByLastNameContainingIgnoreCase(query, pageRequest);
-            Page<Employee> firstNamePage = iEmployeeRepository.findByFirstNameContainingIgnoreCase(query, pageRequest);
-            employeesByName.addAll(lastNamePage.getContent());
-            employeesByName.addAll(firstNamePage.getContent());
-            employeePage = new PageImpl<>(employeesByName, pageRequest, employeesByName.size());
+            employeePage = iEmployeeRepository.findByLastNameContainingIgnoreCaseOrFirstNameContainingIgnoreCase(query,
+                  query, pageRequest);
             break;
 
          case "role":

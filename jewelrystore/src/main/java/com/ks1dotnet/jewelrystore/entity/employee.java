@@ -18,8 +18,8 @@ import lombok.*;
 @Table(name = "employee")
 public class Employee {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private String id;
+
     @Column(name = "first_name")
     private String firstName;
 

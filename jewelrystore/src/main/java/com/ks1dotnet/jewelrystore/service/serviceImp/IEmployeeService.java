@@ -14,7 +14,7 @@ public interface IEmployeeService {
 
         public Employee save(Employee employee);
 
-        public Employee findById(Integer id);
+        public Employee findById(String id);
 
         // List<Employee> getHomePageEmployee(int page);
         public Map<String, Object> getHomePageEmployee(int page);
@@ -22,10 +22,10 @@ public interface IEmployeeService {
         public boolean insertEmployee(MultipartFile file, String firstName, String lastName, String pinCode,
                         String phoneNumber, String email, String address, int roleId, boolean status);
 
-        public EmployeeDTO updateEmployee(MultipartFile file, int id, String firstName, String lastName, String pinCode,
+        public EmployeeDTO updateEmployee(MultipartFile file, String id, String firstName, String lastName, String pinCode,
                         String phoneNumber, String email, String address, boolean status, int roleId);
 
-        public Employee listEmployee(int id);
+        public Employee listEmployee(String id);
 
         public Map<String, Object> findByCriteria(String criteria, String query, int page);
 
