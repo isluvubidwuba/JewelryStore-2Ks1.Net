@@ -26,8 +26,8 @@ public class UserInfo {
     private String address;
 
     @ManyToOne
-    @JoinColumn(name = "role_user_info")
-    private RoleUserInfo roleUserInfo;
+    @JoinColumn(name = "id_role")
+    private Role role;
 
     @OneToMany(mappedBy = "userInfo")
     Set<EarnPoints> listEarnPoints;

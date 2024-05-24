@@ -23,6 +23,10 @@ public class Role {
     @OneToMany(mappedBy = "role")
     Set<Employee> listEmployee;
 
+
+    @OneToMany(mappedBy = "role")
+    Set<UserInfo> listUserInfo;
+
     public RoleDTO getDTO(){
         return new RoleDTO(id, name);
     }
