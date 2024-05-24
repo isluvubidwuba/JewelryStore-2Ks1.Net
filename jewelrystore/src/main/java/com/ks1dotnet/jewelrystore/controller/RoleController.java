@@ -1,5 +1,6 @@
 package com.ks1dotnet.jewelrystore.controller;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +19,15 @@ import com.ks1dotnet.jewelrystore.service.serviceImp.IRoleService;
 @RequestMapping("/role")
 @CrossOrigin("*")
 public class RoleController {
+
     @Autowired
-    private IRoleService iRoleService; 
+    private IRoleService iRoleService;
 
     @GetMapping("/list")
     private ResponseEntity<?> findAll() {
         responseData responseData = new responseData();
-        List<Role> listRole = iRoleService.findAll();
+        List<Integer> roleIds = Arrays.asList(1, 2, 3);
+        List<Role> listRole = iRoleService.findByIds(roleIds);
         responseData.setData(listRole);
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }

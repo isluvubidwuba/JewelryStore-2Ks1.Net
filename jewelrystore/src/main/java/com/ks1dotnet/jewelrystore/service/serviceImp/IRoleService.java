@@ -8,4 +8,6 @@ public interface IRoleService {
     public List<Role> findAll();
 
     public Role findById(int roleId);
+
+    public List<Role> findByIds(List<Integer> roleIds);
 }
