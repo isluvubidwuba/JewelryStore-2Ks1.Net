@@ -24,7 +24,7 @@ public class EmployeeRepositoryTest {
 
     @BeforeEach
     public void setUp() {
-        Role role = new Role(1, "ADMIN", null, null);
+        Role role = new Role();
         employee = Employee.builder()
                 .firstName("tan")
                 .lastName("Nguyen")

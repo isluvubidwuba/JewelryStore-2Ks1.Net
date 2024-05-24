@@ -21,9 +21,6 @@ public class Role {
     private String name;
 
     @OneToMany(mappedBy = "role")
-    Set<UserInfo> listUserInfo;
-
-    @OneToMany(mappedBy = "role")
     Set<Employee> listEmployee;
 
     public RoleDTO getDTO(){
