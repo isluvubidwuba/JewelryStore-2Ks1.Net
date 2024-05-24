@@ -27,6 +27,8 @@ public interface IEmployeeService {
 
         public Employee listEmployee(int id);
 
+        public Map<String, Object> findByCriteria(String criteria, String query, int page);
+
         // private int id;
         // private String firstName;
         // private String lastName;

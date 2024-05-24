@@ -72,61 +72,7 @@
     <!-- Desktop Header -->
     <div id="header-placeholder"></div>
 
-    <!-- Mobile Header & Nav -->
-    <header x-data="{ isOpen: false }" class="w-full bg-sidebar py-5 px-6 sm:hidden">
-      <div class="flex items-center justify-between">
-        <a href="index.html" class="text-white text-3xl font-semibold uppercase hover:text-gray-300">Admin</a>
-        <button @click="isOpen = !isOpen" class="text-white text-3xl focus:outline-none">
-          <i x-show="!isOpen" class="fas fa-bars"></i>
-          <i x-show="isOpen" class="fas fa-times"></i>
-        </button>
-      </div>
-
-      <!-- Dropdown Nav -->
-      <nav :class="isOpen ? 'flex': 'hidden'" class="flex flex-col pt-4">
-        <a href="index.html" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
-          <i class="fas fa-tachometer-alt mr-3"></i>
-          Dashboard
-        </a>
-        <a href="../templates/ManagerEmployee.html"
-          class="flex items-center active-nav-link text-white py-2 pl-4 nav-item">
-          <i class="fas fa-sticky-note mr-3"></i>
-          Manager Employee
-        </a>
-        <a href="tables.html" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
-          <i class="fas fa-table mr-3"></i>
-          Tables
-        </a>
-        <a href="forms.html" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
-          <i class="fas fa-align-left mr-3"></i>
-          Forms
-        </a>
-        <a href="tabs.html" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
-          <i class="fas fa-tablet-alt mr-3"></i>
-          Tabbed Content
-        </a>
-        <a href="calendar.html" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
-          <i class="fas fa-calendar mr-3"></i>
-          Calendar
-        </a>
-        <a href="#" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
-          <i class="fas fa-cogs mr-3"></i>
-          Support
-        </a>
-        <a href="#" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
-          <i class="fas fa-user mr-3"></i>
-          My Account
-        </a>
-        <a href="#" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
-          <i class="fas fa-sign-out-alt mr-3"></i>
-          Sign Out
-        </a>
-        <button
-          class="w-full bg-white cta-btn font-semibold py-2 mt-3 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-300 flex items-center justify-center">
-          <i class="fas fa-arrow-circle-up mr-3"></i> Upgrade to Pro!
-        </button>
-      </nav>
-    </header>
+    
 
     <div class="w-full h-screen overflow-x-hidden border-t flex flex-col">
       <main class="w-full flex-grow p-6">
@@ -136,6 +82,67 @@
             class="bg-green-500 text-white px-4 py-2 rounded mx-2 mb-2 col-span-1 self-end justify-self-end">Insert
             Employee</button>
         </div>
+
+
+        <form class="max-w-lg mx-auto">
+          <div class="flex relative">
+            <label for="search-dropdown"
+              class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
+            <button id="dropdown-button" data-dropdown-toggle="dropdown"
+              class="flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 rounded-l-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700 dark:text-white dark:border-gray-600"
+              type="button">
+              Search by <span id="selected-criteria" class="ml-1">ID</span>
+              <svg class="w-2.5 h-2.5 ml-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 10 6">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="m1 1 4 4 4-4" />
+              </svg>
+            </button>
+            
+            <div id="dropdown"
+              class="absolute z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
+              <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdown-button">
+                <li>
+                  <button type="button"
+                    class="dropdown-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                    data-criteria="ID">ID</button>
+                </li>
+                <li>
+                  <button type="button"
+                    class="dropdown-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                    data-criteria="Name">Name</button>
+                </li>
+                <li>
+                  <button type="button"
+                    class="dropdown-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                    data-criteria="Role">Role</button>
+                </li>
+                <li>
+                  <button type="button"
+                    class="dropdown-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                    data-criteria="Status">Status</button>
+                </li>
+              </ul>
+            </div>
+            <input type="search" id="search-input"
+              class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-r-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500"
+              placeholder="Search..." required />
+            
+              <button type="submit"
+              class="top-0 right-0 p-2.5 text-sm font-medium text-white bg-blue-700 rounded-r-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+              <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 20 20">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+              </svg>
+              <span class="sr-only">Search</span>
+            </button>
+          </div>
+        </form>
+
+
+
+
 
         <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
           <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
@@ -155,8 +162,8 @@
           </table>
         </div>
         <div class="mb-4 flex justify-center items-center mt-4">
-          <button id="prevPageBtn" class="bg-blue-500 text-white px-4 py-2 rounded mx-2">Previous</button>
-          <button id="nextPageBtn" class="bg-blue-500 text-white px-4 py-2 rounded mx-2">Next</button>
+          <button id="prevPageBtn" class="bg-blue-500 text-white px-6 py-2 rounded mx-2">Prev</button>
+          <button id="nextPageBtn" class="bg-blue-500 text-white px-6 py-2 rounded mx-2">Next</button>
         </div>
 
         <!-- Update modal employee -->
@@ -170,46 +177,56 @@
               <form id="updateEmployeeForm">
                 <input type="hidden" id="employeeId" name="id">
 
-                <div class="mb-4">
-                  <label for="firstName" class="block text-gray-700">First Name</label>
-                  <input type="text" id="firstName" name="firstName" class="w-full px-3 py-2 border rounded" readonly>
+                <div class="mb-4 flex space-x-4">
+                  <div class="w-1/2">
+                    <label for="firstName" class="block text-gray-700">First Name</label>
+                    <input type="text" id="firstName" name="firstName" class="w-full px-3 py-2 border rounded" readonly>
+                  </div>
+                  <div class="w-1/2">
+                    <label for="lastName" class="block text-gray-700">Last Name</label>
+                    <input type="text" id="lastName" name="lastName" class="w-full px-3 py-2 border rounded" readonly>
+                  </div>
                 </div>
-                <div class="mb-4">
-                  <label for="lastName" class="block text-gray-700">Last Name</label>
-                  <input type="text" id="lastName" name="lastName" class="w-full px-3 py-2 border rounded" readonly>
-                </div>
+
                 <div class="mb-4">
                   <label for="phoneNumber" class="block text-gray-700">Phone Number</label>
                   <input type="text" id="phoneNumber" name="phoneNumber" class="w-full px-3 py-2 border rounded"
                     readonly>
                 </div>
+
                 <div class="mb-4">
                   <label for="email" class="block text-gray-700">Email</label>
                   <input type="text" id="email" name="email" class="w-full px-3 py-2 border rounded" readonly>
                 </div>
+
                 <div class="mb-4">
                   <label for="address" class="block text-gray-700">Address</label>
                   <input type="text" id="address" name="address" class="w-full px-3 py-2 border rounded" readonly>
                 </div>
-                <div class="mb-4">
-                  <label for="role" class="block text-gray-700">Role</label>
-                  <select id="role" name="roleId" class="w-full px-3 py-2 border rounded">
-                    <!-- sẽ dùng Jquery để gọi ra danh sách role -->
-                  </select>
+
+                <div class="mb-4 flex space-x-4">
+                  <div class="w-1/2">
+                    <label for="role" class="block text-gray-700">Role</label>
+                    <select id="role" name="roleId" class="w-full px-3 py-2 border rounded">
+                      <!-- sẽ dùng Jquery để gọi ra danh sách role -->
+                    </select>
+                  </div>
+                  <div class="w-1/2">
+                    <label for="status" class="block text-gray-700">Status</label>
+                    <select id="status" name="status" class="w-full px-3 py-2 border rounded">
+                      <option value="true">Active</option>
+                      <option value="false">Inactive</option>
+                    </select>
+                  </div>
                 </div>
-                <div class="mb-4">
-                  <label for="status" class="block text-gray-700">Status</label>
-                  <select id="status" name="status" class="w-full px-3 py-2 border rounded">
-                    <option value="true">Active</option>
-                    <option value="false">Inactive</option>
-                  </select>
-                </div>
+
                 <div class="mb-4">
                   <label for="file" class="block text-gray-700">Select Image</label>
                   <input type="file" id="file" name="file" class="w-full px-3 py-2 border rounded" accept="image/*">
                   <img id="currentImage" src="" alt="Current Image" class="mt-2"
                     style="display: none; max-width: 100px;">
                 </div>
+
                 <div class="flex justify-end">
                   <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Update</button>
                 </div>
@@ -217,6 +234,7 @@
             </div>
           </div>
         </div>
+
 
         <!-- insert Form -->
         <!-- Insert Employee Modal -->
@@ -228,48 +246,59 @@
             </div>
             <div class="p-4">
               <form id="insertEmployeeForm">
-                <div class="mb-4">
-                  <label for="insertFirstName" class="block text-gray-700">First Name</label>
-                  <input type="text" id="insertFirstName" name="firstName" class="w-full px-3 py-2 border rounded">
+                <div class="mb-4 flex space-x-4">
+                  <div class="w-1/2">
+                    <label for="insertFirstName" class="block text-gray-700">First Name</label>
+                    <input type="text" id="insertFirstName" name="firstName" class="w-full px-3 py-2 border rounded">
+                  </div>
+                  <div class="w-1/2">
+                    <label for="insertLastName" class="block text-gray-700">Last Name</label>
+                    <input type="text" id="insertLastName" name="lastName" class="w-full px-3 py-2 border rounded">
+                  </div>
                 </div>
-                <div class="mb-4">
-                  <label for="insertLastName" class="block text-gray-700">Last Name</label>
-                  <input type="text" id="insertLastName" name="lastName" class="w-full px-3 py-2 border rounded">
-                </div>
+
                 <div class="mb-4">
                   <label for="insertPhoneNumber" class="block text-gray-700">Phone Number</label>
                   <input type="text" id="insertPhoneNumber" name="phoneNumber" class="w-full px-3 py-2 border rounded">
                 </div>
+
                 <div class="mb-4">
                   <label for="insertEmail" class="block text-gray-700">Email</label>
                   <input type="text" id="insertEmail" name="email" class="w-full px-3 py-2 border rounded">
                 </div>
+
                 <div class="mb-4">
                   <label for="insertAddress" class="block text-gray-700">Address</label>
                   <input type="text" id="insertAddress" name="address" class="w-full px-3 py-2 border rounded">
                 </div>
+
                 <div class="mb-4">
                   <label for="insertPincode" class="block text-gray-700">Pincode</label>
                   <input type="text" id="insertPincode" name="pinCode" class="w-full px-3 py-2 border rounded">
                 </div>
-                <div class="mb-4">
-                  <label for="insertRole" class="block text-gray-700">Role</label>
-                  <select id="insertRole" name="roleId" class="w-full px-3 py-2 border rounded">
-                    <!-- Roles will be populated here -->
-                  </select>
+
+                <div class="mb-4 flex space-x-4">
+                  <div class="w-1/2">
+                    <label for="insertRole" class="block text-gray-700">Role</label>
+                    <select id="insertRole" name="roleId" class="w-full px-3 py-2 border rounded">
+                      <!-- Roles will be populated here -->
+                    </select>
+                  </div>
+                  <div class="w-1/2">
+                    <label for="insertStatus" class="block text-gray-700">Status</label>
+                    <select id="insertStatus" name="status" class="w-full px-3 py-2 border rounded">
+                      <option value="true">Active</option>
+                      <option value="false">Inactive</option>
+                    </select>
+                  </div>
                 </div>
-                <div class="mb-4">
-                  <label for="insertStatus" class="block text-gray-700">Status</label>
-                  <select id="insertStatus" name="status" class="w-full px-3 py-2 border rounded">
-                    <option value="true">Active</option>
-                    <option value="false">Inactive</option>
-                  </select>
-                </div>
+
                 <div class="mb-4">
                   <label for="insertFile" class="block text-gray-700">Select Image</label>
                   <input type="file" id="insertFile" name="file" class="w-full px-3 py-2 border rounded"
                     accept="image/*">
                 </div>
+
                 <div class="flex justify-end">
                   <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Insert</button>
                 </div>
@@ -277,6 +306,7 @@
             </div>
           </div>
         </div>
+
 
 
 

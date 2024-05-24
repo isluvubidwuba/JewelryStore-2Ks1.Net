@@ -20,6 +20,7 @@ $(document).ready(function () {
         });
     }
 
+
     // Process response and render employees
     function processEmployeeResponse(response) {
         emptyTableBody();
@@ -28,6 +29,7 @@ $(document).ready(function () {
             const { employees, totalPages: tp, currentPage: cp } = response.data;
             totalPages = tp;
             currentPage = cp;
+
 
             employees.forEach(function (employee) {
                 const employeeRow = createEmployeeRow(employee);
@@ -60,7 +62,7 @@ $(document).ready(function () {
                 <td class="px-6 py-4 ${statusColor}">${statusText}</td>
                 <td class="px-6 py-4">
                     <button class="editBtn bg-blue-500 text-white px-4 py-2 rounded" data-id="${employee.id}">Edit</button>
-                    <button class="deleteBtn bg-red-500 text-white px-4 py-2 rounded">Delete</button>
+                    <button class="deleteBtn bg-red-500 text-white px-4 py-2 rounded" data-id="${employee.id}">Delete</button>
                 </td>
             </tr>
         `;
@@ -71,6 +73,20 @@ $(document).ready(function () {
         $('#prevPageBtn').prop('disabled', currentPage <= 0);
         $('#nextPageBtn').prop('disabled', currentPage >= totalPages - 1);
     }
+
+    // Handle click event for previous page button
+    $('#prevPageBtn').on('click', function () {
+        if (currentPage > 0) {
+            fetchEmployees(--currentPage);
+        }
+    });
+
+    // Handle click event for next page button
+    $('#nextPageBtn').on('click', function () {
+        if (currentPage < totalPages - 1) {
+            fetchEmployees(++currentPage);
+        }
+    });
 
     // Fetch roles and populate the role dropdown
     function loadRoles() {
@@ -205,6 +221,7 @@ $(document).ready(function () {
                 alert(response.desc);
                 if (response.status !== 500) {
                     $("#insertEmployeeModal").addClass("hidden");
+                    resetInsertForm();
                     fetchEmployees(currentPage); // Reload current page after insert
                 }
             },
@@ -218,4 +235,100 @@ $(document).ready(function () {
     $("#closeInsertModalBtn").click(function () {
         $("#insertEmployeeModal").addClass("hidden");
     });
+
+    // Function to clear the insert employee form
+    function resetInsertForm() {
+        $("#insertEmployeeForm")[0].reset(); // Clear all form fields
+    }
+
+
+    // Handle click event on delete button to delete an employee
+    $('#employeeTableBody').on('click', '.deleteBtn', function () {
+        const id = $(this).data('id');
+        if (confirm('Are you sure you want to delete this employee?')) {
+            deleteEmployee(id);
+        }
+    });
+
+    // Delete employee function
+    function deleteEmployee(id) {
+        $.ajax({
+            url: `http://localhost:8080/employee/delete/${id}`,
+            type: "DELETE",
+            success: function (response) {
+                alert(response.desc);
+                if (response.status !== 500) {
+                    fetchEmployees(currentPage); // Reload current page after delete
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("Delete fail. Internal Server Error");
+            }
+        });
+    }
+
+
+    function fetchAndProcessSearchEmployees(criteria, query, page = 0) {
+        // Gửi yêu cầu tìm kiếm dựa trên tiêu chí và giá trị tìm kiếm
+        $.ajax({
+            url: 'http://localhost:8080/employee/search',
+            method: 'POST',
+            contentType: 'application/x-www-form-urlencoded',
+            data: {
+                criteria: criteria,
+                query: query,
+                page: page
+            },
+            success: function (response) {
+                // Xử lý phản hồi và hiển thị nhân viên
+                console.log(response)
+                processEmployeeResponse(response);
+            },
+            error: function (error) {
+                console.error('Error fetching search results:', error);
+            }
+        });
+    }
+
+
+
+    // Handle pagination click event
+    $(document).on('click', '.pagination-button', function () {
+        var criteria = $('#selected-criteria').text();
+        var query = $('#search-input').val();
+        var page = $(this).data('page');
+
+        fetchAndProcessSearchEmployees(criteria, query, page);
+    });
+
+    // Khi người dùng chọn một tiêu chí tìm kiếm
+    $('.dropdown-item').on('click', function () {
+        var criteria = $(this).data('criteria');
+        $('#selected-criteria').text(criteria);
+        $('#dropdown').addClass('hidden');
+        $('#search-input').attr('placeholder', 'Search by ' + criteria);
+    });
+
+    // Khi người dùng gửi form tìm kiếm
+    $('form').on('submit', function (event) {
+        event.preventDefault();
+
+        var criteria = $('#selected-criteria').text();
+        var query = $('#search-input').val();
+
+        fetchAndProcessSearchEmployees(criteria, query);
+    });
+
+    // Toggle dropdown menu
+    $('#dropdown-button').on('click', function () {
+        $('#dropdown').toggleClass('hidden');
+    });
+
+    // Close dropdown when clicking outside
+    $(document).on('click', function (event) {
+        if (!$(event.target).closest('#dropdown-button').length && !$(event.target).closest('#dropdown').length) {
+            $('#dropdown').addClass('hidden');
+        }
+    });
+
 });

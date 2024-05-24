@@ -1,6 +1,7 @@
 package com.ks1dotnet.jewelrystore.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,13 +48,12 @@ public class EmployeeService implements IEmployeeService {
    @Override
    public Map<String, Object> getHomePageEmployee(int page) {
       Map<String, Object> response = new HashMap<>();
-      PageRequest pageRequest = PageRequest.of(page, 15);
+      PageRequest pageRequest = PageRequest.of(page, 5);
       List<EmployeeDTO> employeeDTOs = new ArrayList<>();
       Page<Employee> listData = iEmployeeRepository.findAll(pageRequest);
 
       for (Employee e : listData) {
          employeeDTOs.add(e.getDTO());
-
       }
       response.put("employees", employeeDTOs);
       response.put("totalPages", listData.getTotalPages());
@@ -62,7 +63,7 @@ public class EmployeeService implements IEmployeeService {
 
    @Override
    public boolean insertEmployee(MultipartFile file, String firstName, String lastName, String pinCode,
-         String phoneNumber, String email, String address, int roleId , boolean status) {
+         String phoneNumber, String email, String address, int roleId, boolean status) {
       boolean isInsertSuccess = false;
       boolean isSaveFileSuccess = iFileService.savefile(file);
       if (isSaveFileSuccess) {
@@ -102,7 +103,7 @@ public class EmployeeService implements IEmployeeService {
          employee1.setRole(iRoleService.findById(roleId));
          if (isSaveFileSuccess) {
             employee1.setImage(file.getOriginalFilename());
-         }else{
+         } else {
             employee1.setImage(employee.get().getImage());
          }
          iEmployeeRepository.save(employee1);
@@ -114,6 +115,56 @@ public class EmployeeService implements IEmployeeService {
    @Override
    public Employee listEmployee(int id) {
       return iEmployeeRepository.findById(id).orElse(null);
+   }
+
+   @Override
+   public Map<String, Object> findByCriteria(String criteria, String query, int page) {
+      Map<String, Object> response = new HashMap<>();
+      PageRequest pageRequest = PageRequest.of(page, 5); // Size cố định là 5
+      Page<Employee> employeePage;
+
+      switch (criteria.toLowerCase()) {
+         case "id":
+            Optional<Employee> employeeOpt = iEmployeeRepository.findById(Integer.parseInt(query));
+            if (employeeOpt.isPresent()) {
+               List<Employee> employeeList = Collections.singletonList(employeeOpt.get());
+               employeePage = new PageImpl<>(employeeList, pageRequest, 1);
+            } else {
+               employeePage = new PageImpl<>(Collections.emptyList(), pageRequest, 0);
+            }
+            break;
+
+         case "name":
+            List<Employee> employeesByName = new ArrayList<>();
+            Page<Employee> lastNamePage = iEmployeeRepository.findByLastNameContainingIgnoreCase(query, pageRequest);
+            Page<Employee> firstNamePage = iEmployeeRepository.findByFirstNameContainingIgnoreCase(query, pageRequest);
+            employeesByName.addAll(lastNamePage.getContent());
+            employeesByName.addAll(firstNamePage.getContent());
+            employeePage = new PageImpl<>(employeesByName, pageRequest, employeesByName.size());
+            break;
+
+         case "role":
+            employeePage = iEmployeeRepository.findByRoleNameContainingIgnoreCase(query, pageRequest);
+            break;
+
+         case "status":
+            Boolean status = "active".equalsIgnoreCase(query) ? true : false;
+            employeePage = iEmployeeRepository.findByStatus(status, pageRequest);
+            break;
+
+         default:
+            throw new IllegalArgumentException("Invalid search criteria: " + criteria);
+      }
+
+      List<EmployeeDTO> employeeDTOs = new ArrayList<>();
+      for (Employee employee : employeePage) {
+         employeeDTOs.add(employee.getDTO());
+      }
+
+      response.put("employees", employeeDTOs);
+      response.put("totalPages", employeePage.getTotalPages());
+      response.put("currentPage", page);
+      return response;
    }
 
 }

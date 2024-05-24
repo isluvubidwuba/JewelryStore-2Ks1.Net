@@ -1,8 +1,10 @@
 package com.ks1dotnet.jewelrystore.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.hibernate.query.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -130,6 +132,18 @@ public class EmployeeControler {
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
                 .body(resource);
+    }
+
+    @PostMapping("/search")
+    public ResponseEntity<?> searchEmployees(
+            @RequestParam("criteria") String criteria,
+            @RequestParam("query") String query,
+            @RequestParam("page") int page) {
+                responseData responseData = new responseData();
+        Map<String, Object> response = iEmployeeService.findByCriteria(criteria, query, page);
+        responseData.setData(response);
+        System.out.println(responseData);
+        return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
 
 }
