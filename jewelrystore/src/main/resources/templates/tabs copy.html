@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tailwind Admin Template</title>
+    <meta name="author" content="David Grzyb" />
+    <meta name="description" content="" />
+
+    <!-- Tailwind -->
+    <link href="build/tailwind.css" rel="stylesheet" />
+
+    <script src="./js/DashboardAdmin.js"></script>
+
+    <style>
+      @import url("https://fonts.googleapis.com/css?family=Karla:400,700&display=swap");
+      .font-family-karla {
+        font-family: karla;
+      }
+      .bg-sidebar {
+        background: #3d68ff;
+      }
+      .cta-btn {
+        color: #3d68ff;
+      }
+      .upgrade-btn {
+        background: #1947ee;
+      }
+      .upgrade-btn:hover {
+        background: #0038fd;
+      }
+      .active-nav-link {
+        background: #1947ee;
+      }
+      .nav-item:hover {
+        background: #1947ee;
+      }
+      .account-link:hover {
+        background: #3d68ff;
+      }
+    </style>
+  </head>
+  <div class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-blue-600 text-white p-4">
+      <h1 class="text-lg font-bold">Policy Management Dashboard</h1>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow p-4">
+      <!-- Dashboard Overview -->
+      <section class="mb-4">
+        <div class="flex justify-between items-center">
+          <h2 class="text-xl font-semibold">Overview</h2>
+          <button class="bg-green-500 text-white py-2 px-4 rounded">
+            Add New Policy
+          </button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+          <div class="bg-white p-4 shadow rounded">
+            <h3 class="font-bold">Total Policies</h3>
+            <p>20</p>
+          </div>
+          <div class="bg-white p-4 shadow rounded">
+            <h3 class="font-bold">Active Policies</h3>
+            <p>15</p>
+          </div>
+          <div class="bg-white p-4 shadow rounded">
+            <h3 class="font-bold">Inactive Policies</h3>
+            <p>5</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Policy List -->
+      <section class="mb-4">
+        <div class="flex justify-between items-center">
+          <h2 class="text-xl font-semibold">Policy List</h2>
+          <input
+            type="text"
+            class="border p-2 rounded"
+            placeholder="Search..."
+          />
+        </div>
+        <div class="bg-white p-4 shadow rounded mt-2 overflow-x-auto">
+          <table class="min-w-full">
+            <thead>
+              <tr>
+                <th class="border-b py-2 px-4">Invoice Type</th>
+                <th class="border-b py-2 px-4">Policy ID</th>
+                <th class="border-b py-2 px-4">Description</th>
+                <th class="border-b py-2 px-4">Rate</th>
+                <th class="border-b py-2 px-4">Status</th>
+                <th class="border-b py-2 px-4">Last Modified</th>
+                <th class="border-b py-2 px-4">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="border-b py-2 px-4">Retail Sale</td>
+                <td class="border-b py-2 px-4">ERP_STD</td>
+                <td class="border-b py-2 px-4">
+                  Standard Exchange Rate Policy
+                </td>
+                <td class="border-b py-2 px-4">1.10</td>
+                <td class="border-b py-2 px-4 text-green-500">Active</td>
+                <td class="border-b py-2 px-4">2024-05-01</td>
+                <td class="border-b py-2 px-4">
+                  <button class="text-blue-500">Edit</button>
+                  <button class="text-red-500">Delete</button>
+                </td>
+              </tr>
+              <!-- More rows -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div class="bg-white p-4 shadow rounded mt-2 max-w-lg mx-auto">
+    <h2 class="text-xl font-semibold mb-4">Create/Update Policy</h2>
+    <form>
+      <div class="mb-4">
+        <label class="block text-gray-700">Invoice Type</label>
+        <select class="mt-1 p-2 border rounded w-full">
+          <option>Retail Sale</option>
+          <option>Wholesale</option>
+          <option>Return</option>
+          <option>Promotion</option>
+        </select>
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-700">Policy ID</label>
+        <input
+          type="text"
+          class="mt-1 p-2 border rounded w-full"
+          placeholder="ERP_XXX"
+        />
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-700">Description</label>
+        <textarea
+          class="mt-1 p-2 border rounded w-full"
+          placeholder="Enter policy description"
+        ></textarea>
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-700">Rate</label>
+        <input
+          type="number"
+          step="0.01"
+          class="mt-1 p-2 border rounded w-full"
+          placeholder="1.00"
+        />
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-700">Status</label>
+        <select class="mt-1 p-2 border rounded w-full">
+          <option>Active</option>
+          <option>Inactive</option>
+        </select>
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-700">Last Modified</label>
+        <input type="date" class="mt-1 p-2 border rounded w-full" />
+      </div>
+      <button class="bg-blue-600 text-white py-2 px-4 rounded">Save</button>
+    </form>
+  </div>
+</html>
