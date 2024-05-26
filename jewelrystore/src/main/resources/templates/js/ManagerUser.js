@@ -5,7 +5,7 @@ $(document).ready(function () {
 
 function fetchRoles() {
     $.ajax({
-        url: 'http://localhost:8080/role/list', // Thay thế bằng endpoint API của bạn
+        url: 'http://localhost:8080/role/list',
         method: 'GET',
         success: function (response) {
             if (response.status === 200) {
@@ -27,20 +27,28 @@ function initTabs(roles) {
 
     bindTabClickEvents();
     const firstRole = roles[0].name;
-    switchTab(firstRole); // Đặt tab mặc định là role đầu tiên có sẵn
+    switchTab(firstRole);
     if (firstRole === 'CUSTOMER') {
-        fetchCustomers(0); // Fetch customers for the first page if the default tab is CUSTOMER
+        fetchCustomers(0);
     } else if (firstRole === 'SUPPLIER') {
-        fetchSuppliers(0); // Fetch suppliers for the first page if the default tab is SUPPLIER
+        fetchSuppliers(0);
     }
 
-    // Append the Add Role button after the tabs have been created
     $('#role-tabs').append('<li><button id="add-role-button" class="tab-button bg-white inline-block py-2 px-4 font-semibold hover:bg-blue-500 hover:text-white transition duration-300">+</button></li>');
     $('#add-role-button').on('click', function () {
         $('#addRoleModal').removeClass('hidden');
     });
+
+    populateRoleSelect(roles);
 }
 
+function populateRoleSelect(roles) {
+    const roleSelect = $('#update-role');
+    roleSelect.empty();
+    roles.forEach(role => {
+        roleSelect.append(`<option value="${role.id}">${role.name}</option>`);
+    });
+}
 
 function setupModalToggle() {
     $('#close-modal').on('click', function () {
@@ -49,22 +57,30 @@ function setupModalToggle() {
 
     $('#add-role-form').on('submit', function (e) {
         e.preventDefault();
-        const roleName = $('#role-name').val();
         $.ajax({
             url: 'http://localhost:8080/role/insert',
             method: 'POST',
             contentType: 'application/x-www-form-urlencoded',
-            data: { roleName: roleName },
+            data: $(this).serialize(),
             success: function (response) {
-                alert(response); // Hiển thị thông báo từ server
+                alert(response);
                 $('#addRoleModal').addClass('hidden');
-                fetchRoles(); // Cập nhật danh sách roles sau khi thêm mới
+                fetchRoles();
             },
             error: function (error) {
                 console.error('Error adding role:', error);
                 alert('Error adding role!');
             }
         });
+    });
+
+    $('#close-update-modal').on('click', function () {
+        $('#updateUserModal').addClass('hidden');
+    });
+
+    $('#update-user-form').off('submit').on('submit', function (e) { // Use .off('submit') to prevent multiple bindings
+        e.preventDefault();
+        updateUser();
     });
 }
 
@@ -82,12 +98,12 @@ function createTabContent(role) {
                   <thead>
                     <tr>
                       <th class="py-2 px-4 border-b">ID</th>
+                      <th class="py-2 px-4 border-b">Image</th>
                       <th class="py-2 px-4 border-b">Full Name</th>
                       <th class="py-2 px-4 border-b">Phone Number</th>
                       <th class="py-2 px-4 border-b">Email</th>
                       <th class="py-2 px-4 border-b">Address</th>
-                      <th class="py-2 px-4 border-b">Role</th>
-                      <th class="py-2 px-4 border-b">Image</th>
+                      <th class="py-2 px-4 border-b">Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -107,12 +123,12 @@ function createTabContent(role) {
                   <thead>
                     <tr>
                       <th class="py-2 px-4 border-b">ID</th>
+                      <th class="py-2 px-4 border-b">Image</th>
                       <th class="py-2 px-4 border-b">Full Name</th>
                       <th class="py-2 px-4 border-b">Phone Number</th>
                       <th class="py-2 px-4 border-b">Email</th>
                       <th class="py-2 px-4 border-b">Address</th>
-                      <th class="py-2 px-4 border-b">Role</th>
-                      <th class="py-2 px-4 border-b">Image</th>
+                      <th class="py-2 px-4 border-b">Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -137,9 +153,9 @@ function bindTabClickEvents() {
         const role = $(this).data('role');
         switchTab(role);
         if (role === 'CUSTOMER') {
-            fetchCustomers(0); // Fetch customers for the first page
+            fetchCustomers(0);
         } else if (role === 'SUPPLIER') {
-            fetchSuppliers(0); // Fetch suppliers for the first page
+            fetchSuppliers(0);
         }
     });
 }
@@ -157,12 +173,12 @@ function setActiveTab(role) {
 
 function fetchCustomers(page) {
     $.ajax({
-        url: `http://localhost:8080/userinfo/listcustomer?page=${page}`, // Thay thế bằng endpoint API của bạn
+        url: `http://localhost:8080/userinfo/listcustomer?page=${page}`,
         method: 'GET',
         success: function (response) {
             if (response.status === 200) {
                 const { customers, totalPages, currentPage } = response.data;
-                populateCustomerTable(customers);
+                populateCustomerTable(customers, currentPage);
                 updatePagination(currentPage, totalPages);
             }
         },
@@ -174,12 +190,12 @@ function fetchCustomers(page) {
 
 function fetchSuppliers(page) {
     $.ajax({
-        url: `http://localhost:8080/userinfo/listsupplier?page=${page}`, // Thay thế bằng endpoint API của bạn
+        url: `http://localhost:8080/userinfo/listsupplier?page=${page}`,
         method: 'GET',
         success: function (response) {
             if (response.status === 200) {
                 const { customers: suppliers, totalPages, currentPage } = response.data;
-                populateSupplierTable(suppliers);
+                populateSupplierTable(suppliers, currentPage);
                 updatePaginationSupplier(currentPage, totalPages);
             }
         },
@@ -189,38 +205,44 @@ function fetchSuppliers(page) {
     });
 }
 
-function populateCustomerTable(customers) {
+function populateCustomerTable(customers, currentPage) {
     const tableBody = $('#customer-table tbody');
     tableBody.empty();
+    let count = currentPage * 5 + 1;
     customers.forEach(customer => {
         const row = `<tr class = "text-center">
-                    <td class="py-2 px-4 border-b">${customer.id}</td>
+                    <td class="py-2 px-4 border-b">${count++}</td>
+                    <td class="py-2 px-4 border-b"><img src="http://localhost:8080/employee/files/${customer.image}" alt="${customer.fullName}" class="h-10 w-10"></td>
                     <td class="py-2 px-4 border-b">${customer.fullName}</td>
                     <td class="py-2 px-4 border-b">${customer.phoneNumber}</td>
                     <td class="py-2 px-4 border-b">${customer.email}</td>
                     <td class="py-2 px-4 border-b">${customer.address}</td>
-                    <td class="py-2 px-4 border-b">${customer.role.name}</td>
-                    <td class="py-2 px-4 border-b"><img src="http://localhost:8080/employee/files/${customer.image}" alt="${customer.fullName}" class="h-10 w-10"></td>
+                    <td class="py-2 px-4 border-b"><button class="edit-btn" data-id="${customer.id}"><i class="fas fa-edit"></i></button></td>
                   </tr>`;
         tableBody.append(row);
     });
+
+    setupEditButtons();
 }
 
-function populateSupplierTable(suppliers) {
+function populateSupplierTable(suppliers, currentPage) {
     const tableBody = $('#supplier-table tbody');
     tableBody.empty();
+    let count = currentPage * 5 + 1;
     suppliers.forEach(supplier => {
         const row = `<tr class = "text-center">
-                    <td class="py-2 px-4 border-b">${supplier.id}</td>
+                    <td class="py-2 px-4 border-b">${count++}</td>
+                    <td class="py-2 px-4 border-b"><img src="http://localhost:8080/employee/files/${supplier.image}" alt="${supplier.fullName}" class="h-10 w-10"></td>
                     <td class="py-2 px-4 border-b">${supplier.fullName}</td>
                     <td class="py-2 px-4 border-b">${supplier.phoneNumber}</td>
                     <td class="py-2 px-4 border-b">${supplier.email}</td>
                     <td class="py-2 px-4 border-b">${supplier.address}</td>
-                    <td class="py-2 px-4 border-b">${supplier.role.name}</td>
-                    <td class="py-2 px-4 border-b"><img src="http://localhost:8080/employee/files/${supplier.image}" alt="${supplier.fullName}" class="h-10 w-10"></td>
+                    <td class="py-2 px-4 border-b"><button class="edit-btn" data-id="${supplier.id}"><i class="fas fa-edit"></i></button></td>
                   </tr>`;
         tableBody.append(row);
     });
+
+    setupEditButtons();
 }
 
 function updatePagination(currentPage, totalPages) {
@@ -247,6 +269,66 @@ function updatePaginationSupplier(currentPage, totalPages) {
     $('#next-page-supplier').off('click').on('click', function () {
         if (currentPage < totalPages - 1) {
             fetchSuppliers(currentPage + 1);
+        }
+    });
+}
+
+function setupEditButtons() {
+    $('.edit-btn').off('click').on('click', function () {
+        const id = $(this).data('id');
+        fetchUserInfo(id);
+        $('#updateUserModal').removeClass('hidden');
+    });
+
+    $('#close-update-modal').off('click').on('click', function () {
+        $('#updateUserModal').addClass('hidden');
+    });
+
+    $('#update-user-form').off('submit').on('submit', function (e) { // Use .off('submit') to prevent multiple bindings
+        e.preventDefault();
+        updateUser();
+    });
+}
+
+function fetchUserInfo(id) {
+    $.ajax({
+        url: `http://localhost:8080/userinfo/${id}`,
+        method: 'GET',
+        success: function (response) {
+            if (response.status === 200) {
+                const user = response.data;
+                $('#update-id').val(user.id);
+                $('#update-fullname').val(user.fullName);
+                $('#update-phone').val(user.phoneNumber);
+                $('#update-email').val(user.email);
+                $('#update-address').val(user.address);
+                $('#update-role').val(user.role.id);
+            }
+        },
+        error: function (error) {
+            console.error('Error fetching user info:', error);
+        }
+    });
+}
+
+function updateUser() {
+    var formData = new FormData($("#update-user-form")[0]);
+    $.ajax({
+        url: 'http://localhost:8080/userinfo/update',
+        method: 'POST',
+        processData: false,
+        contentType: false,
+        data: formData,
+        success: function (response) {
+            if (response.status === 200) {
+                alert('User updated successfully!');
+                $('#updateUserModal').addClass('hidden');
+                fetchCustomers(0);
+            }
+        },
+        error: function (error) {
+            console.error('Error updating user:', error);
+            alert('Error updating user!');
         }
     });
 }

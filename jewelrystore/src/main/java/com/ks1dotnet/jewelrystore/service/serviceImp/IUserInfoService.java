@@ -33,4 +33,6 @@ public interface IUserInfoService {
 
         public Map<String, Object> findByCriteriaCustomer(String criteria, String query, int page);
 
+        public UserInfo getUserInfo(int id);
+
 }

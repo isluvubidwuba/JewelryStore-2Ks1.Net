@@ -240,5 +240,10 @@ public class UserInfoService implements IUserInfoService {
         return response;
     }
 
+    @Override
+    public UserInfo getUserInfo(int id) {
+        return iUserInfoRepository.findById(id).orElse(null);
+    }
+
    
 }

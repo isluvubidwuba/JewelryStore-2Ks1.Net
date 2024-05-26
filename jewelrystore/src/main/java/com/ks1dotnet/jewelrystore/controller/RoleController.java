@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ks1dotnet.jewelrystore.dto.RoleDTO;
-import com.ks1dotnet.jewelrystore.entity.Role;
 import com.ks1dotnet.jewelrystore.payload.responseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IRoleService;
 
@@ -31,6 +30,8 @@ public class RoleController {
         responseData.setData(listRoleDTO);
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
+
+    
 
     @PostMapping("/insert")
     public ResponseEntity<?> insertRole(@RequestParam String roleName) {
