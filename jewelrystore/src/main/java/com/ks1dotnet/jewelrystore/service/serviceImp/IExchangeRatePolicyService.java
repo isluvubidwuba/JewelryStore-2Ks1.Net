@@ -4,8 +4,6 @@ import java.util.List;
 
 import com.ks1dotnet.jewelrystore.dto.ExchangeRatePolicyDTO;
 import com.ks1dotnet.jewelrystore.dto.InvoiceTypeDTO;
-import com.ks1dotnet.jewelrystore.entity.Employee;
-import com.ks1dotnet.jewelrystore.entity.ExchangeRatePolicy;
 import com.ks1dotnet.jewelrystore.payload.responseData;
 
 public interface IExchangeRatePolicyService {
