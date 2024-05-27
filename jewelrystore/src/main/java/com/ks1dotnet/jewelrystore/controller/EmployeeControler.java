@@ -1,10 +1,7 @@
 package com.ks1dotnet.jewelrystore.controller;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.hibernate.query.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -15,7 +12,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -139,11 +135,13 @@ public class EmployeeControler {
             @RequestParam("criteria") String criteria,
             @RequestParam("query") String query,
             @RequestParam("page") int page) {
-                responseData responseData = new responseData();
+        responseData responseData = new responseData();
         Map<String, Object> response = iEmployeeService.findByCriteria(criteria, query, page);
         responseData.setData(response);
         System.out.println(responseData);
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
+
+    
 
 }
