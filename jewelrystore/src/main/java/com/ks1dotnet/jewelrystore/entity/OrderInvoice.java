@@ -3,7 +3,6 @@ package com.ks1dotnet.jewelrystore.entity;
 import java.sql.Date;
 import java.util.Set;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,14 +20,10 @@ public class OrderInvoice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @Column(name = "date")
     private Date date;
-    @Column(name = "total_price_raw")
-    private double totalPriceRaw;
-    @Column(name = "total_price")
-    private double totalPrice;
-    @Column(name = "discount_price")
-    private double discountPrice;
+    private double total_price_raw;
+    private double total_price;
+    private double discount_price;
 
     @ManyToOne
     @JoinColumn(name = "id_user")

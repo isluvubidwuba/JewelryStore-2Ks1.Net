@@ -2,7 +2,6 @@ package com.ks1dotnet.jewelrystore.entity;
 
 import java.util.Set;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,8 +17,12 @@ public class VoucherType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+<<<<<<< HEAD
     @Column(name = "type")
     private String type;
+=======
+    private int type;
+>>>>>>> Manage-Employee
 
     @OneToMany(mappedBy = "voucherType")
     Set<Promotion> listPromotion;

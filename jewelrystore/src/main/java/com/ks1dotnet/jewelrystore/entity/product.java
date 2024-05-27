@@ -2,7 +2,6 @@ package com.ks1dotnet.jewelrystore.entity;
 
 import java.util.Set;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -23,11 +22,8 @@ import lombok.Setter;
 public class Product {
     @Id
     private String id;
-    @Column(name = "name")
     private String name;
-    @Column(name = "fee")
     private double fee;
-    @Column(name = "status")
     private boolean status;
 
     @ManyToOne

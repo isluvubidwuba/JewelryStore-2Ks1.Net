@@ -21,9 +21,11 @@ public class Employee {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @Column(name = "first_name")
-    private String firstName;
+    private String firsName;
+
     @Column(name = "last_name")
     private String lastName;
+
     @Column(name = "pin_code")
     private String pinCode;
 

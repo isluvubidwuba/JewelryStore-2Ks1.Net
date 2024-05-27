@@ -3,7 +3,6 @@ package com.ks1dotnet.jewelrystore.entity;
 import java.util.Date;
 import java.util.Set;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,7 +20,6 @@ public class AssignShiftForStaff {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @Column(name = "date")
     private Date date;
 
     @ManyToOne

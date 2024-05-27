@@ -2,7 +2,6 @@ package com.ks1dotnet.jewelrystore.entity;
 
 import java.util.Set;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,13 +19,10 @@ public class GemstoneOfProduct {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @Column(name = "color")
+
     private String color;
-    @Column(name = "clarity")
     private String clarity;
-    @Column(name = "carat")
     private float carat;
-    @Column(name = "price")
     private double price;
 
     @ManyToOne

@@ -3,7 +3,6 @@ package com.ks1dotnet.jewelrystore.entity;
 import java.util.Date;
 import java.util.Set;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,14 +18,10 @@ public class Material {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @Column(name = "name")
     private String name;
-    @Column(name = "purity")
     private String purity;
-    @Column(name = "price_at_time")
-    private Double priceAtTime;
-    @Column(name = "last_modified")
-    private Date lastModified;
+    private Double price_at_time;
+    private Date last_modified;
 
     @OneToMany(mappedBy = "material")
     Set<MaterialOfProduct> listMaterialOfProduct;
