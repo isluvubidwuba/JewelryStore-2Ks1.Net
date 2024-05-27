@@ -42,7 +42,8 @@ public class UserInfoController {
             @RequestParam String email,
             @RequestParam int roleId,
             @RequestParam String address) {
-
+                
+        System.out.println("Inserting employee: " + fullName);
         responseData responseData = new responseData();
         boolean isSuccess = iUserInfoService.insertEmployee(file, fullName, phoneNumber, email, roleId, address);
 
@@ -129,7 +130,7 @@ public class UserInfoController {
 
     @PostMapping("/searchsupplier")
     public ResponseEntity<?> findByCriteriaSupplier(@RequestParam String criteria, @RequestParam String query,
-                                                    @RequestParam int page) {
+            @RequestParam int page) {
         responseData responseData = new responseData();
         try {
             Map<String, Object> suppliers = iUserInfoService.findByCriteriaSupplier(criteria, query, page);
@@ -143,7 +144,6 @@ public class UserInfoController {
         }
     }
 
-
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserInfo(@PathVariable("id") int id) {
         responseData responseData = new responseData();
@@ -151,9 +151,5 @@ public class UserInfoController {
         System.out.println(iUserInfoService.getUserInfo(id).getDTO());
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
-
-
-    
-
 
 }
