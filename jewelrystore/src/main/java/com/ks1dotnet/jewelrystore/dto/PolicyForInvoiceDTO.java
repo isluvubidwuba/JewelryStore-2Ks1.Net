@@ -13,5 +13,4 @@ public class PolicyForInvoiceDTO {
     private int id;
     private InvoiceTypeDTO invoiceTypeDTO;
     private ExchangeRatePolicyDTO exchangeRatePolicyDTO;
-
 }

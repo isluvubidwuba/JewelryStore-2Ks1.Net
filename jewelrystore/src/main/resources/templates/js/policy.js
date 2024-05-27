@@ -1,4 +1,4 @@
-const rowsLimit = 10;
+const rowsLimit = 6;
 let currentPage = 0;
 let totalPage = 0;
 let policies = [];
@@ -7,6 +7,29 @@ function fetchPolicies() {
   $.ajax({
     url: "http://localhost:8080/policy/listpolicy",
     method: "GET",
+    success: function (response) {
+      if (response.status === 200) {
+        policies = response.data;
+        totalPage = Math.ceil(policies.length / rowsLimit);
+        displayTableData(currentPage);
+        updatePagination(totalPage, currentPage);
+        updatePolicyOverview(policies);
+        console.log(policies);
+      } else {
+        alert("Failed to fetch data");
+      }
+    },
+    error: function () {
+      alert("Error fetching data");
+    },
+  });
+}
+// Function to search and display policies based on keyword
+function searchPolicies(keyword) {
+  $.ajax({
+    url: "http://localhost:8080/policy/searhExchangeRate",
+    method: "POST",
+    data: { keyword: keyword },
     success: function (response) {
       if (response.status === 200) {
         policies = response.data;
@@ -56,13 +79,27 @@ function displayTableData(page) {
                   data.lastModified
                 ).toLocaleDateString()}</td>
                 <td class="text-left py-3 px-4">
-                    <button class="text-blue-500" data-id="${
+                    <button class="text-blue-500 text-xs" data-id="${data.id}">
+                    <svg class="text-themeColor-500 w-10 h-10"
+                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    
+                    Edit</button>
+                    <button class="text-red-500 text-xs" data-id="${data.id}">
+                    <svg class="text-themeColor-500 w-10 h-10"
+                    xmlns="http://www.w3.org/2000/svg" width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round">  <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" />  <line x1="18" y1="9" x2="12" y2="15" />  <line x1="12" y1="9" x2="18" y2="15" /></svg>
+                    Delete</button>
+                    <button class="text-amber-900 text-xs" id="bttn-detail" data-id="${
                       data.id
-                    }">Edit</button>
-                    <button class="text-red-500" data-id="${
-                      data.id
-                    }">Delete</button>
-                    <button id="bttn-detail" class="text-amber-900">Detail</button>
+                    }">
+                    <svg class="text-themeColor-500 w-10 h-10"
+                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/>
+                    </svg>
+                    
+                    Detail</button>
                 </td>
             </tr>
         `);
@@ -77,6 +114,7 @@ function displayTableData(page) {
 
 function updatePagination(totalPages, currentPage) {
   let pagination = $(".pagination");
+
   pagination.empty();
 
   if (currentPage > 0) {
@@ -144,15 +182,135 @@ function fetchPage(page) {
   updatePagination(totalPage, currentPage);
 }
 
+function loadDropdownOptions(idExchangeRate, button) {
+  $.ajax({
+    url: `http://localhost:8080/policy/detail?idExchangeRate=${idExchangeRate}`,
+    method: "POST",
+    success: function (response) {
+      if (response.status === 200) {
+        populateDropdown(
+          response.data.fullOption,
+          response.data.selectOption,
+          idExchangeRate
+        );
+      } else {
+        alert("Failed to fetch options");
+      }
+    },
+    error: function () {
+      alert("Error fetching options");
+    },
+  });
+}
+
+function populateDropdown(fullOptions, selectedOptions, idExchangeRate) {
+  const dropdownContent = $("<div>", { class: "py-1" });
+
+  // Add the header
+  dropdownContent.append(`
+    <div class="px-4 py-2 text-center font-bold text-lg flex justify-between items-center">
+      APPLIED FOR
+      <button id="closeButton" class="text-gray-500 hover:text-gray-700">
+        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd"
+            d="M10 8.586L15.657 2.93a1 1 0 011.414 1.414L11.414 10l5.657 5.657a1 1 0 01-1.414 1.414L10 11.414l-5.657 5.657a1 1 0 01-1.414 1.414L8.586 10 2.93 4.343A1 1 0 014.343 2.93L10 8.586z"
+            clip-rule="evenodd" />
+        </svg>
+      </button>
+    </div>
+  `);
+
+  fullOptions.forEach((option) => {
+    const isChecked = selectedOptions.some(
+      (selected) => selected.id === option.id
+    );
+    const optionElement = `
+      <label class="flex items-center px-4 py-2 text-sm text-gray-700" id="label-${
+        option.id
+      }">
+        <input type="checkbox" class="mr-2" name="options" value="${
+          option.id
+        }" ${isChecked ? "checked" : ""} />
+        <span class="option-name">${option.name}</span>
+        <button id="modal-updateInvoiceType-${option.id}" data-option-id="${
+      option.id
+    }" class="text-gray-500 hover:text-gray-700 ml-auto">
+    <svg class="svg-inline--fa fa-edit fa-w-18" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="edit" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" data-fa-i2svg=""><path fill="currentColor" d="M402.6 83.2l90.2 90.2c3.8 3.8 3.8 10 0 13.8L274.4 405.6l-92.8 10.3c-12.4 1.4-22.9-9.1-21.5-21.5l10.3-92.8L388.8 83.2c3.8-3.8 10-3.8 13.8 0zm162-22.9l-48.8-48.8c-15.2-15.2-39.9-15.2-55.2 0l-35.4 35.4c-3.8 3.8-3.8 10 0 13.8l90.2 90.2c3.8 3.8 10 3.8 13.8 0l35.4-35.4c15.2-15.3 15.2-40 0-55.2zM384 346.2V448H64V128h229.8c3.2 0 6.2-1.3 8.5-3.5l40-40c7.6-7.6 2.2-20.5-8.5-20.5H48C21.5 64 0 85.5 0 112v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V306.2c0-10.7-12.9-16-20.5-8.5l-40 40c-2.2 2.3-3.5 5.3-3.5 8.5z"></path></svg>
+        </button>
+      </label>
+    `;
+    dropdownContent.append(optionElement);
+  });
+
+  dropdownContent.append(`
+    <button
+      id="applyButton"
+      data-id="${idExchangeRate}"
+      class="w-full px-4 py-2 bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 focus:outline-none"
+    >
+      Apply
+    </button>
+  `);
+
+  // Remove existing dropdowns
+  $(".dynamic-dropdown").remove();
+
+  // Create a new dropdown
+  const dropdownMenu = $("<div>", {
+    class:
+      "fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden dynamic-dropdown",
+  }).append(
+    $("<div>", {
+      class:
+        "relative p-4 w-full max-w-md max-h-full bg-white rounded-lg shadow",
+    }).append(dropdownContent)
+  );
+
+  // Append to the body
+  $("body").append(dropdownMenu);
+
+  // Show the dropdown
+  dropdownMenu.removeClass("hidden");
+
+  // Close button functionality
+  $("#closeButton").click(function () {
+    dropdownMenu.addClass("hidden");
+  });
+}
+
+$(document).on("click", "#bttn-detail", function () {
+  const idExchangeRate = $(this).data("id");
+  loadDropdownOptions(idExchangeRate);
+});
+
+// Function to open the modal
+function openInvoiceTypeModal() {
+  $("#addInvoiceTypeModal").removeClass("hidden");
+}
+
+// Function to close the modal
+function closeInvoiceTypeModal() {
+  $("#addInvoiceTypeModal").addClass("hidden");
+}
+
 // Initial fetch
 $(document).ready(function () {
   fetchPolicies();
+  $("#exchange-search-button").click(function () {
+    const keyword = $("#keyword").val();
+    searchPolicies(keyword);
+  });
+
+  $(document).on("click", "#bttn-detail", function () {
+    const idExchangeRate = $(this).data("id");
+    loadDropdownOptions(idExchangeRate);
+  });
+
   const insertModal = $("#insert-modal");
   const updateModal = $("#update-modal");
 
   const modalInsertCloseButton = $("#modalInsertClose");
   const modalInsertOpenButton = $("#modalOpen");
-
   const modalUpdateCloseButton = $("#modalUpdateClose");
 
   modalInsertOpenButton.click(function () {
@@ -166,7 +324,17 @@ $(document).ready(function () {
   modalUpdateCloseButton.click(function () {
     updateModal.addClass("hidden");
   });
+  // Event listener to open the modal
+  $(document).on("click", "#open-invoice-type-modal", function () {
+    openInvoiceTypeModal();
+  });
 
+  // Event listener to close the modal
+  $(document).on("click", "#close-invoice-type-modal", function () {
+    closeInvoiceTypeModal();
+  });
+
+  //update exchange rate
   $(document).on("click", ".text-blue-500", function () {
     const idExchangeRate = $(this).data("id");
 
@@ -195,6 +363,7 @@ $(document).ready(function () {
     });
   });
 
+  //submit form update
   $("#form-update").submit(function (event) {
     event.preventDefault();
 
@@ -233,6 +402,7 @@ $(document).ready(function () {
     });
   });
 
+  //submit delete
   $(document).on("click", ".text-red-500", function () {
     const idExchangeRate = $(this).data("id");
 
@@ -257,29 +427,142 @@ $(document).ready(function () {
     }
   });
 
-  submitInsertForm(); // Initialize the insert form submission handler
+  //submit apply options
+  $(document).on("click", "#applyButton", function () {
+    const selectedOptions = [];
+    $(".dynamic-dropdown")
+      .find("input[type='checkbox']:checked")
+      .each(function () {
+        selectedOptions.push($(this).val());
+      });
+
+    const idExchangeRate = $(this).data("id"); // Keep as string
+
+    console.log(selectedOptions, idExchangeRate);
+
+    $.ajax({
+      url: "http://localhost:8080/policy/applySelectedOptions",
+      method: "POST",
+      contentType: "application/json",
+      data: JSON.stringify({ idExchangeRate, selectedOptions }), // Include idExchangeRate
+      success: function (response) {
+        if (response.status === 200) {
+          alert("Options applied successfully");
+          $(".dynamic-dropdown").addClass("hidden");
+        } else {
+          alert("Failed to apply options");
+        }
+      },
+      error: function () {
+        alert("Error applying options");
+      },
+    });
+  });
+
+  // Event listener for form submission
+  $(document).on("submit", "#add-invoice-type-form", function (event) {
+    event.preventDefault();
+    const invoiceTypeData = {
+      invoiceType: $("#invoice-type").val(),
+    };
+
+    $.ajax({
+      url: "http://localhost:8080/policy/addinvoicetype",
+      type: "POST",
+      data: invoiceTypeData,
+      success: function (response) {
+        if (response.status === 200) {
+          alert("Add invoice type successful!");
+          closeInvoiceTypeModal();
+          $("#add-invoice-type-form")[0].reset();
+        } else {
+          alert("Error: " + response.desc);
+        }
+      },
+      error: function (error) {
+        console.error("Error:", error);
+        alert("An error occurred while adding the invoice type.");
+      },
+    });
+  });
+
+  //update invoice type
+  // Function to open the update modal invoice type
+  function openUpdateInvoiceTypeModal(id, name) {
+    $("#invoice-type-id").val(id);
+    $("#invoice-type-name").val(name);
+    $("#updateInvoiceTypeModal").removeClass("hidden");
+    $(".dynamic-dropdown").addClass("hidden");
+  }
+
+  // Function to close the update modal invoice type
+  function closeUpdateInvoiceTypeModal() {
+    $("#updateInvoiceTypeModal").addClass("hidden");
+    $(".dynamic-dropdown").removeClass("hidden");
+  }
+
+  // Event listener to open the update modal invoice type
+  $(document).on("click", "[id^=modal-updateInvoiceType-]", function () {
+    const id = $(this).attr("id").split("-").pop();
+    const name = $(this).closest("label").text().trim();
+    openUpdateInvoiceTypeModal(id, name);
+  });
+
+  // Event listener to close the update modal
+  $(document).on("click", "#close-update-invoice-type-modal", function () {
+    closeUpdateInvoiceTypeModal();
+  });
+
+  // Event listener for form submission
+  $(document).on("submit", "#update-invoice-type-form", function (event) {
+    event.preventDefault();
+
+    const invoiceTypeData = {
+      idInvoiceType: $("#invoice-type-id").val(),
+      invoiceType: $("#invoice-type-name").val(),
+    };
+
+    $.ajax({
+      url: "http://localhost:8080/policy/updateinvoicetype",
+      type: "POST",
+      data: invoiceTypeData,
+      success: function (response) {
+        if (response.status === 200) {
+          alert("Update invoice type successful!");
+          closeUpdateInvoiceTypeModal();
+          $(`#label-${response.data.id} .option-name`).text(response.data.name);
+          // Optionally refresh the data here
+        } else {
+          alert("Error: " + response.desc);
+        }
+      },
+      error: function (error) {
+        console.error("Error:", error);
+        alert("An error occurred while updating the invoice type.");
+      },
+    });
+  });
+
+  submitInsertForm();
 });
 
 function submitInsertForm() {
   $(document).on("click", "#submit-insert", function (event) {
     event.preventDefault();
 
-    // Flag to track if all fields are filled
     let allFieldsFilled = true;
 
-    // Validate all required fields
     $("#form-insert")
       .find("input[type='text'], input[type='number'], textarea, select")
       .each(function () {
         if ($(this).val() === "") {
           allFieldsFilled = false;
-          return false; // Break out of the loop if any field is empty
+          return false;
         }
       });
 
-    // If all fields are filled, proceed with AJAX request
     if (allFieldsFilled) {
-      var formData = new FormData($("#form-insert")[0]); // Sử dụng id của biểu mẫu
+      var formData = new FormData($("#form-insert")[0]);
 
       $.ajax({
         url: "http://localhost:8080/policy/createexchange",
@@ -314,16 +597,14 @@ function submitInsertForm() {
                   <button class="text-red-500" data-id="${
                     newData.id
                   }">Delete</button>
-                  <button id="bttn-detail" class="text-amber-900">Detail</button>
+                  <button class="text-amber-900" id="bttn-detail" data-id="${
+                    newData.id
+                  }">Detail</button>
                 </td>
               </tr>
             `;
             $("#table-body").append(newRow);
-            $("#form-insert")
-              .find(
-                "input[type='text'], input[type='number'], textarea, select"
-              )
-              .val("");
+            $("#form-insert").find("input, select").val("");
             $("#form-insert").find("select").prop("selectedIndex", 0);
             insertModal.addClass("hidden");
             alert(response.desc);
