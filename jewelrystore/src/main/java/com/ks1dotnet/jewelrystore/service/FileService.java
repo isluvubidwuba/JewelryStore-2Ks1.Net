@@ -17,7 +17,12 @@ import com.ks1dotnet.jewelrystore.service.serviceImp.IFileService;
 import jakarta.annotation.PostConstruct;
 
 @Service
+<<<<<<< HEAD
 public class FileService implements IFileService {
+=======
+
+public class FileService implements IFileService{
+>>>>>>> origin/Manage-Employee
 
     @Value("${fileUpload.rootPath}")
     private String rootPath;

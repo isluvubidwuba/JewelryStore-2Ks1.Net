@@ -20,7 +20,7 @@ public class AuthenticationService implements IAuthenticationService {
     }
 
     @Override
-    public Employee findById(int id) {
+    public Employee findById(String id) {
         return iAuthenticationRepository.findById(id).orElse(null);
     }
 

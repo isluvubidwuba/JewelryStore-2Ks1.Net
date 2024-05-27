@@ -2,15 +2,16 @@ package com.ks1dotnet.jewelrystore.entity;
 
 import java.util.Set;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import lombok.Data;
+import com.ks1dotnet.jewelrystore.dto.RoleDTO;
+
+import jakarta.persistence.*;
+import lombok.*;
+
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter@Setter@ToString
 @Entity
 @Table(name = "role")
 public class Role {
@@ -20,9 +21,14 @@ public class Role {
     private String name;
 
     @OneToMany(mappedBy = "role")
-    Set<UserInfo> listUserInfo;
+    Set<Employee> listEmployee;
+
 
     @OneToMany(mappedBy = "role")
-    Set<Employee> listEmployee;
+    Set<UserInfo> listUserInfo;
+
+    public RoleDTO getDTO(){
+        return new RoleDTO(id, name);
+    }
 
 }

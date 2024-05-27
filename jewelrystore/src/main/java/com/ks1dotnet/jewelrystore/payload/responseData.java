@@ -1,6 +1,7 @@
 package com.ks1dotnet.jewelrystore.payload;
 
-import lombok.Data;
+import lombok.*;
+
 
 @Data
 public class responseData {
