@@ -129,6 +129,7 @@ $(document).ready(function () {
                     $("#firstName").val(employee.firstName);
                     $("#lastName").val(employee.lastName);
                     $("#phoneNumber").val(employee.phoneNumber);
+                    $("#pinCode").val(employee.pinCode);
                     $("#email").val(employee.email);
                     $("#address").val(employee.address);
                     $("#role").val(employee.role.id);

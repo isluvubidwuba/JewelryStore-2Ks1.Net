@@ -85,14 +85,15 @@ public class EmployeeControler {
             @RequestParam String firstName,
             @RequestParam String lastName,
             @RequestParam int roleId,
+            @RequestParam String pinCode,
             @RequestParam boolean status,
             @RequestParam String phoneNumber,
             @RequestParam String email,
             @RequestParam String address) {
         responseData responseData = new responseData();
 
-        EmployeeDTO employeeDTO = iEmployeeService.updateEmployee(file, id, firstName, lastName, lastName, phoneNumber,
-                email, address, status, roleId);
+        EmployeeDTO employeeDTO = iEmployeeService.updateEmployee(file, id, firstName, lastName, 
+        roleId, pinCode, status, phoneNumber, email, address);
         if (employeeDTO != null) {
             responseData.setDesc("Update successful");
             responseData.setData(employeeDTO);

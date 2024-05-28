@@ -102,35 +102,6 @@ public class EmployeeService implements IEmployeeService {
    }
 
    @Override
-   public EmployeeDTO updateEmployee(MultipartFile file, String id, String firstName, String lastName, String pinCode,
-         String phoneNumber, String email, String address, boolean status, int roleId) {
-      boolean isSaveFileSuccess = iFileService.savefile(file);
-      Optional<Employee> employee = iEmployeeRepository.findById(id);
-      System.out.println(employee);
-      EmployeeDTO employeeDTO = new EmployeeDTO();
-      if (employee.isPresent()) {
-         Employee employee1 = new Employee();
-         employee1.setId(id);
-         employee1.setFirstName(firstName);
-         employee1.setLastName(lastName);
-         employee1.setPinCode(pinCode);
-         employee1.setPhoneNumber(phoneNumber);
-         employee1.setEmail(email);
-         employee1.setAddress(address);
-         employee1.setStatus(status);
-         employee1.setRole(iRoleService.findById(roleId));
-         if (isSaveFileSuccess) {
-            employee1.setImage(file.getOriginalFilename());
-         } else {
-            employee1.setImage(employee.get().getImage());
-         }
-         iEmployeeRepository.save(employee1);
-         employeeDTO = employee1.getDTO();
-      }
-      return employeeDTO;
-   }
-
-   @Override
    public Employee listEmployee(String id) {
       return iEmployeeRepository.findById(id).orElse(null);
    }
@@ -179,6 +150,35 @@ public class EmployeeService implements IEmployeeService {
       response.put("totalPages", employeePage.getTotalPages());
       response.put("currentPage", page);
       return response;
+   }
+
+   @Override
+   public EmployeeDTO updateEmployee(MultipartFile file, String id, String firstName, String lastName, int roleId,
+         String pinCode, boolean status, String phoneNumber, String email, String address) {
+      boolean isSaveFileSuccess = iFileService.savefile(file);
+      Optional<Employee> employee = iEmployeeRepository.findById(id);
+      System.out.println(employee);
+      EmployeeDTO employeeDTO = new EmployeeDTO();
+      if (employee.isPresent()) {
+         Employee employee1 = new Employee();
+         employee1.setId(id);
+         employee1.setFirstName(firstName);
+         employee1.setLastName(lastName);
+         employee1.setPinCode(pinCode);
+         employee1.setPhoneNumber(phoneNumber);
+         employee1.setEmail(email);
+         employee1.setAddress(address);
+         employee1.setStatus(status);
+         employee1.setRole(iRoleService.findById(roleId));
+         if (isSaveFileSuccess) {
+            employee1.setImage(file.getOriginalFilename());
+         } else {
+            employee1.setImage(employee.get().getImage());
+         }
+         iEmployeeRepository.save(employee1);
+         employeeDTO = employee1.getDTO();
+      }
+      return employeeDTO;
    }
 
 }
