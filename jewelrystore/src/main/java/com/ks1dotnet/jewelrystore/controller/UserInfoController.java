@@ -54,7 +54,7 @@ public class UserInfoController {
 
             return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } else {
-            ResponseData.setData(500);
+            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             ResponseData.setDesc("Insert fail. Internal Server Error");
             return new ResponseEntity<>("Employee created successfully", HttpStatus.CREATED);
         }
@@ -159,7 +159,6 @@ public class UserInfoController {
     public ResponseEntity<?> getUserInfo(@PathVariable("id") int id) {
         ResponseData ResponseData = new ResponseData();
         ResponseData.setStatus(HttpStatus.OK);
-
         ResponseData.setData(iUserInfoService.getUserInfo(id).getDTO());
         System.out.println(iUserInfoService.getUserInfo(id).getDTO());
         return new ResponseEntity<>(ResponseData, HttpStatus.OK);

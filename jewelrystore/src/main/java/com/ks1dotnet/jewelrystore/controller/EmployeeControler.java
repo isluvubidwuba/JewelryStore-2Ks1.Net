@@ -71,7 +71,7 @@ public class EmployeeControler {
             ResponseData.setDesc("Insert successfull");
             return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } else {
-            ResponseData.setData(500);
+            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             ResponseData.setDesc("Insert fail. Internal Server Error");
             return new ResponseEntity<>("Employee created successfully", HttpStatus.CREATED);
         }
