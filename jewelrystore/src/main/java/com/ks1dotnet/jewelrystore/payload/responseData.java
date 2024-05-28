@@ -1,11 +1,16 @@
 package com.ks1dotnet.jewelrystore.payload;
 
-import lombok.*;
+import org.springframework.http.HttpStatus;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-public class responseData {
-    private int status = 200;
+@NoArgsConstructor
+@AllArgsConstructor
+public class ResponseData {
+    private HttpStatus status;
     private String desc;
     private Object data;
 }

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.ks1dotnet.jewelrystore.dto.InvoiceTypeDTO;
 import com.ks1dotnet.jewelrystore.entity.InvoiceType;
-import com.ks1dotnet.jewelrystore.payload.responseData;
+import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IInvoiceTypeRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IInvoiceTypeService;
 
@@ -19,18 +19,18 @@ public class InvoiceTypeService implements IInvoiceTypeService {
     IInvoiceTypeRepository iInvoiceTypeRepository;
 
     @Override
-    public responseData createInvoiceType(String name) {
-        responseData responseData = new responseData();
+    public ResponseData createInvoiceType(String name) {
+        ResponseData ResponseData = new ResponseData();
         try {
             InvoiceType save = new InvoiceType();
             save.setName(name);
             InvoiceType invoiceType = iInvoiceTypeRepository.save(save);
-            responseData.setData(invoiceType.getDTO());
-            responseData.setDesc("Create invoice type success");
+            ResponseData.setData(invoiceType.getDTO());
+            ResponseData.setDesc("Create invoice type success");
         } catch (Exception e) {
-            responseData.setDesc("An error occurred: " + e.getMessage());
+            ResponseData.setDesc("An error occurred: " + e.getMessage());
         }
-        return responseData;
+        return ResponseData;
     }
 
     @Override
@@ -50,40 +50,40 @@ public class InvoiceTypeService implements IInvoiceTypeService {
     }
 
     @Override
-    public responseData addInvoiceType(String invoiceType) {
-        responseData responseData = new responseData();
+    public ResponseData addInvoiceType(String invoiceType) {
+        ResponseData ResponseData = new ResponseData();
         try {
             InvoiceType invoiceType2 = new InvoiceType(new InvoiceTypeDTO(0, invoiceType));
-            responseData.setData(iInvoiceTypeRepository.save(invoiceType2).getDTO());
-            responseData.setDesc("Add invoice type successfull!");
-            return responseData;
+            ResponseData.setData(iInvoiceTypeRepository.save(invoiceType2).getDTO());
+            ResponseData.setDesc("Add invoice type successfull!");
+            return ResponseData;
         } catch (Exception e) {
             System.out.println("Throw method add Invoice type: " + e.getMessage());
-            responseData.setDesc("Fail to add invoice type");
-            return responseData;
+            ResponseData.setDesc("Fail to add invoice type");
+            return ResponseData;
         }
     }
 
     @Override
-    public responseData updateInvoice(int idInvoiceType, String invoiceType) {
-        responseData responseData = new responseData();
+    public ResponseData updateInvoice(int idInvoiceType, String invoiceType) {
+        ResponseData ResponseData = new ResponseData();
         try {
             Optional<InvoiceType> invoiceType2 = iInvoiceTypeRepository.findById(idInvoiceType);
             if (invoiceType2.isPresent()) {
                 InvoiceType invoiceTypeEntity = invoiceType2.get();
                 invoiceTypeEntity.setName(invoiceType);
-                responseData.setData(iInvoiceTypeRepository.save(invoiceTypeEntity).getDTO());
-                responseData.setDesc("update invoice type successfull!");
-                return responseData;
+                ResponseData.setData(iInvoiceTypeRepository.save(invoiceTypeEntity).getDTO());
+                ResponseData.setDesc("update invoice type successfull!");
+                return ResponseData;
 
             }
-            responseData.setData("Fail to update invoice type");
-            responseData.setDesc("Update invoice type fail!");
-            return responseData;
+            ResponseData.setData("Fail to update invoice type");
+            ResponseData.setDesc("Update invoice type fail!");
+            return ResponseData;
         } catch (Exception e) {
             System.out.println("Throw method add Invoice type: " + e.getMessage());
-            responseData.setDesc("Fail to add invoice type");
-            return responseData;
+            ResponseData.setDesc("Fail to add invoice type");
+            return ResponseData;
         }
     }
 

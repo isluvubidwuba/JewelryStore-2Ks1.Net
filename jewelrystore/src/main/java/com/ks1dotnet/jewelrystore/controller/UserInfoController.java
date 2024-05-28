@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ks1dotnet.jewelrystore.dto.UserInfoDTO;
-import com.ks1dotnet.jewelrystore.payload.responseData;
+import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IUserInfoService;
 
 @RestController
@@ -29,9 +29,10 @@ public class UserInfoController {
     private ResponseEntity<?> getHomePageUser(
             @RequestParam int page) {
         System.out.println("Requested page: " + page);
-        responseData responseData = new responseData();
-        responseData.setData(iUserInfoService.getHomePageUser(page));
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
+        ResponseData ResponseData = new ResponseData();
+        ResponseData.setData(iUserInfoService.getHomePageUser(page));
+        ResponseData.setStatus(HttpStatus.OK);
+        return new ResponseEntity<>(ResponseData, HttpStatus.OK);
     }
 
     @PostMapping("/insert")
@@ -42,17 +43,17 @@ public class UserInfoController {
             @RequestParam String email,
             @RequestParam int roleId,
             @RequestParam String address) {
-                
+
         System.out.println("Inserting employee: " + fullName);
-        responseData responseData = new responseData();
+        ResponseData ResponseData = new ResponseData();
         boolean isSuccess = iUserInfoService.insertEmployee(file, fullName, phoneNumber, email, roleId, address);
 
         if (isSuccess) {
-            responseData.setDesc("Insert successfull");
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
+            ResponseData.setDesc("Insert successfull");
+            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } else {
-            responseData.setData(500);
-            responseData.setDesc("Insert fail. Internal Server Error");
+            ResponseData.setData(500);
+            ResponseData.setDesc("Insert fail. Internal Server Error");
             return new ResponseEntity<>("Employee created successfully", HttpStatus.CREATED);
         }
 
@@ -67,89 +68,89 @@ public class UserInfoController {
             @RequestParam String email,
             @RequestParam int roleId,
             @RequestParam String address) {
-        responseData responseData = new responseData();
+        ResponseData ResponseData = new ResponseData();
 
         UserInfoDTO userInfoDTO = iUserInfoService.updateUserInfo(file, id, fullName, phoneNumber, email, roleId,
                 address);
         if (userInfoDTO != null) {
-            responseData.setDesc("Update successful");
-            responseData.setData(userInfoDTO);
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
+            ResponseData.setDesc("Update successful");
+            ResponseData.setData(userInfoDTO);
+            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } else {
-            responseData.setStatus(500);
-            responseData.setDesc("Update failed. Internal Server Error");
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData.setDesc("Update failed. Internal Server Error");
+            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/listcustomer")
     public ResponseEntity<?> listCustomer(@RequestParam int page) {
-        responseData responseData = new responseData();
+        ResponseData ResponseData = new ResponseData();
         try {
             Map<String, Object> customers = iUserInfoService.listCustomer(page);
-            responseData.setData(customers);
-            responseData.setDesc("Fetch successful");
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
+            ResponseData.setData(customers);
+            ResponseData.setDesc("Fetch successful");
+            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } catch (Exception e) {
-            responseData.setStatus(500);
-            responseData.setDesc("Fetch failed. Internal Server Error");
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData.setDesc("Fetch failed. Internal Server Error");
+            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/listsupplier")
     public ResponseEntity<?> Listsupplier(@RequestParam int page) {
-        responseData responseData = new responseData();
+        ResponseData ResponseData = new ResponseData();
         try {
             Map<String, Object> customers = iUserInfoService.listSupplier(page);
-            responseData.setData(customers);
-            responseData.setDesc("Fetch successful");
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
+            ResponseData.setData(customers);
+            ResponseData.setDesc("Fetch successful");
+            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } catch (Exception e) {
-            responseData.setStatus(500);
-            responseData.setDesc("Fetch failed. Internal Server Error");
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData.setDesc("Fetch failed. Internal Server Error");
+            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping("/searchcustomer")
     public ResponseEntity<?> findByCriteriaCustomer(@RequestParam String criteria, @RequestParam String query,
             @RequestParam int page) {
-        responseData responseData = new responseData();
+        ResponseData ResponseData = new ResponseData();
         try {
             Map<String, Object> customers = iUserInfoService.findByCriteriaCustomer(criteria, query, page);
-            responseData.setData(customers);
-            responseData.setDesc("Fetch successful");
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
+            ResponseData.setData(customers);
+            ResponseData.setDesc("Fetch successful");
+            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } catch (Exception e) {
-            responseData.setStatus(500);
-            responseData.setDesc("Fetch failed. Internal Server Error");
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData.setDesc("Fetch failed. Internal Server Error");
+            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping("/searchsupplier")
     public ResponseEntity<?> findByCriteriaSupplier(@RequestParam String criteria, @RequestParam String query,
             @RequestParam int page) {
-        responseData responseData = new responseData();
+        ResponseData ResponseData = new ResponseData();
         try {
             Map<String, Object> suppliers = iUserInfoService.findByCriteriaSupplier(criteria, query, page);
-            responseData.setData(suppliers);
-            responseData.setDesc("Fetch successful");
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
+            ResponseData.setData(suppliers);
+            ResponseData.setDesc("Fetch successful");
+            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } catch (Exception e) {
-            responseData.setStatus(500);
-            responseData.setDesc("Fetch failed. Internal Server Error");
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData.setDesc("Fetch failed. Internal Server Error");
+            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserInfo(@PathVariable("id") int id) {
-        responseData responseData = new responseData();
-        responseData.setData(iUserInfoService.getUserInfo(id).getDTO());
+        ResponseData ResponseData = new ResponseData();
+        ResponseData.setData(iUserInfoService.getUserInfo(id).getDTO());
         System.out.println(iUserInfoService.getUserInfo(id).getDTO());
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
+        return new ResponseEntity<>(ResponseData, HttpStatus.OK);
     }
 
 }

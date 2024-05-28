@@ -65,5 +65,4 @@ public class GemStoneOfProduct {
         this.gemstoneType = new GemStoneType(t.getGemstoneType());
         this.gemstoneCategory = new GemStoneCategory(t.getGemstoneCategory());
         this.product = new Product(t.getProduct());
-    }
-}
+    }}

@@ -7,21 +7,25 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "assign_counters_for_staff")
 public class AssignCountersForStaff {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "id_counter")
     private Counter counter;
 
-    @ManyToOne 
+    @ManyToOne
     @JoinColumn(name = "id_assign")
     private AssignShiftForStaff assignShiftForStaff;
 }

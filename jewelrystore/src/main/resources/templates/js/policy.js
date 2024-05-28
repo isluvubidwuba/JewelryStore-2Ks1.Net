@@ -8,7 +8,7 @@ function fetchPolicies() {
     url: "http://localhost:8080/policy/listpolicy",
     method: "GET",
     success: function (response) {
-      if (response.status === 200) {
+      if (response.status === "OK") {
         policies = response.data;
         totalPage = Math.ceil(policies.length / rowsLimit);
         displayTableData(currentPage);

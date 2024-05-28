@@ -11,7 +11,7 @@ import com.ks1dotnet.jewelrystore.dto.PolicyForInvoiceDTO;
 import com.ks1dotnet.jewelrystore.entity.ExchangeRatePolicy;
 import com.ks1dotnet.jewelrystore.entity.InvoiceType;
 import com.ks1dotnet.jewelrystore.entity.PolicyForInvoice;
-import com.ks1dotnet.jewelrystore.payload.responseData;
+import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IExchangeRatePolicyRepository;
 import com.ks1dotnet.jewelrystore.repository.IInvoiceTypeRepository;
 import com.ks1dotnet.jewelrystore.repository.IPolicyForInvoiceRepository;
@@ -46,8 +46,8 @@ public class PolicyForInvoiceService implements IPolicyForInvoiceService {
     }
 
     @Override
-    public responseData createPolicyForInvoice(int idInvoiceType, String idExchange) {
-        responseData responseData = new responseData();
+    public ResponseData createPolicyForInvoice(int idInvoiceType, String idExchange) {
+        ResponseData ResponseData = new ResponseData();
         PolicyForInvoice policyForInvoice = new PolicyForInvoice();
 
         Optional<ExchangeRatePolicy> exchangeRatePolicy = iExchangeRatePolicyRepository.findById(idExchange);
@@ -58,14 +58,14 @@ public class PolicyForInvoiceService implements IPolicyForInvoiceService {
             policyForInvoice.setExchangeRatePolicy(exchangeRatePolicy.get());
             PolicyForInvoice policyForInvoice2 = iPolicyForInvoiceRepository.save(policyForInvoice);
             if (policyForInvoice2 != null) {
-                responseData.setData(policyForInvoice2.getDTO());
-                responseData.setDesc("create Policy For Invoice success");
-                return responseData;
+                ResponseData.setData(policyForInvoice2.getDTO());
+                ResponseData.setDesc("create Policy For Invoice success");
+                return ResponseData;
             }
         }
-        responseData.setData("create Policy For Invoice fail");
-        responseData.setDesc("create Policy For Invoice fail");
-        return responseData;
+        ResponseData.setData("create Policy For Invoice fail");
+        ResponseData.setDesc("create Policy For Invoice fail");
+        return ResponseData;
     }
 
 }

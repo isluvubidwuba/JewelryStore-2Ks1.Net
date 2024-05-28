@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ks1dotnet.jewelrystore.payload.responseData;
+import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IVoucherTypeService;
 
 @RestController
@@ -20,8 +20,8 @@ public class VoucherTypeController {
 
     @GetMapping("/list")
     private ResponseEntity<?> findAll() {
-        responseData responseData = new responseData();
-        responseData.setData(iVoucherTypeService.findAll());
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
+        ResponseData ResponseData = new ResponseData();
+        ResponseData.setData(iVoucherTypeService.findAll());
+        return new ResponseEntity<>(ResponseData, HttpStatus.OK);
     }
 }

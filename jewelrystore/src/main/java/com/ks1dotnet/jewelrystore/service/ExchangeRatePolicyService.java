@@ -13,7 +13,7 @@ import com.ks1dotnet.jewelrystore.dto.InvoiceTypeDTO;
 import com.ks1dotnet.jewelrystore.entity.ExchangeRatePolicy;
 import com.ks1dotnet.jewelrystore.entity.InvoiceType;
 import com.ks1dotnet.jewelrystore.entity.PolicyForInvoice;
-import com.ks1dotnet.jewelrystore.payload.responseData;
+import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IExchangeRatePolicyRepository;
 import com.ks1dotnet.jewelrystore.repository.IInvoiceTypeRepository;
 import com.ks1dotnet.jewelrystore.repository.IPolicyForInvoiceRepository;
@@ -32,8 +32,8 @@ public class ExchangeRatePolicyService implements IExchangeRatePolicyService {
     private IPolicyForInvoiceService iPolicyForInvoiceService;
 
     @Override
-    public responseData createExchangeRatePolicy(String idExchange, String desc, float rate, boolean status) {
-        responseData responseData = new responseData();
+    public ResponseData createExchangeRatePolicy(String idExchange, String desc, float rate, boolean status) {
+        ResponseData ResponseData = new ResponseData();
         try {
             ExchangeRatePolicy newPolicy = new ExchangeRatePolicy();
             newPolicy.setId(idExchange);
@@ -42,13 +42,13 @@ public class ExchangeRatePolicyService implements IExchangeRatePolicyService {
             newPolicy.setStatus(status);
             newPolicy.setLastModified(); // Set last modified to current date
             ExchangeRatePolicyDTO exReturn = iExchangeRatePolicyRepository.save(newPolicy).getDTO();
-            responseData.setData(exReturn);
-            responseData.setDesc("Create successful");
+            ResponseData.setData(exReturn);
+            ResponseData.setDesc("Create successful");
         } catch (Exception e) {
             System.err.println("Error creating exchange rate policy: " + e.getMessage());
-            responseData.setDesc("Failed to create exchange rate policy.");
+            ResponseData.setDesc("Failed to create exchange rate policy.");
         }
-        return responseData;
+        return ResponseData;
     }
 
     @Override
@@ -87,15 +87,15 @@ public class ExchangeRatePolicyService implements IExchangeRatePolicyService {
     }
 
     @Override
-    public responseData updateExchangeRatePolicy(String idExchange, String desc, float rate, boolean status) {
-        responseData responseData = new responseData();
+    public ResponseData updateExchangeRatePolicy(String idExchange, String desc, float rate, boolean status) {
+        ResponseData ResponseData = new ResponseData();
         try {
             Optional<ExchangeRatePolicy> exchangeRatePolicyOptional = iExchangeRatePolicyRepository
                     .findById(idExchange);
             if (!exchangeRatePolicyOptional.isPresent()) {
-                responseData.setData("Exchange rate policy not found");
-                responseData.setDesc("Update failed");
-                return responseData;
+                ResponseData.setData("Exchange rate policy not found");
+                ResponseData.setDesc("Update failed");
+                return ResponseData;
             }
             ExchangeRatePolicy exPolicy = exchangeRatePolicyOptional.get();
             exPolicy.setDescription_policy(desc);
@@ -103,66 +103,66 @@ public class ExchangeRatePolicyService implements IExchangeRatePolicyService {
             exPolicy.setStatus(status);
             exPolicy.setLastModified(); // Set last modified to current date
             ExchangeRatePolicyDTO exReturn = iExchangeRatePolicyRepository.save(exPolicy).getDTO();
-            responseData.setData(exReturn);
-            responseData.setDesc("Update successful");
+            ResponseData.setData(exReturn);
+            ResponseData.setDesc("Update successful");
         } catch (Exception e) {
             // Log the exception (consider using a logging framework)
             System.err.println("Error updating exchange rate policy: " + e.getMessage());
-            responseData.setDesc("Failed to update exchange rate policy.");
+            ResponseData.setDesc("Failed to update exchange rate policy.");
         }
-        return responseData;
+        return ResponseData;
     }
 
     @Override
-    public responseData deleteExchangeRatePolicy(String idExchange) {
-        responseData responseData = new responseData();
+    public ResponseData deleteExchangeRatePolicy(String idExchange) {
+        ResponseData ResponseData = new ResponseData();
         try {
             Optional<ExchangeRatePolicy> exchangeRatePolicyOptional = iExchangeRatePolicyRepository
                     .findById(idExchange);
             if (!exchangeRatePolicyOptional.isPresent()) {
-                responseData.setData("Exchange rate policy not found");
-                responseData.setDesc("Delete failed");
-                return responseData;
+                ResponseData.setData("Exchange rate policy not found");
+                ResponseData.setDesc("Delete failed");
+                return ResponseData;
             }
             ExchangeRatePolicy exPolicy = exchangeRatePolicyOptional.get();
             exPolicy.setStatus(false);
             exPolicy.setLastModified(); // Set last modified to current date
             ExchangeRatePolicyDTO exReturn = iExchangeRatePolicyRepository.save(exPolicy).getDTO();
-            responseData.setData(exReturn);
-            responseData.setDesc("Delete successful");
+            ResponseData.setData(exReturn);
+            ResponseData.setDesc("Delete successful");
         } catch (Exception e) {
             // Log the exception (consider using a logging framework)
             System.err.println("Error Deleting exchange rate policy: " + e.getMessage());
-            responseData.setDesc("Failed to update exchange rate policy.");
+            ResponseData.setDesc("Failed to update exchange rate policy.");
         }
-        return responseData;
+        return ResponseData;
     }
 
     @Override
-    public responseData getInforByID(String idExchangeRate) {
-        responseData responseData = new responseData();
+    public ResponseData getInforByID(String idExchangeRate) {
+        ResponseData ResponseData = new ResponseData();
         try {
             Optional<ExchangeRatePolicy> exchangeRatePolicy = iExchangeRatePolicyRepository.findById(idExchangeRate);
             if (exchangeRatePolicy.isPresent()) {
-                responseData.setData(exchangeRatePolicy.get().getDTO());
-                responseData.setDesc("Get invoice by id exchange success");
-                return responseData;
+                ResponseData.setData(exchangeRatePolicy.get().getDTO());
+                ResponseData.setDesc("Get invoice by id exchange success");
+                return ResponseData;
             }
-            responseData.setData("Error method get IN4 by ID");
-            responseData.setDesc("Get invoice by id exchange success");
+            ResponseData.setData("Error method get IN4 by ID");
+            ResponseData.setDesc("Get invoice by id exchange success");
 
         } catch (Exception e) {
             // Log the exception (consider using a logging framework)
             System.err
                     .println("Error retrieving invoices by exchange rate ID (method: getFullByID): " + e.getMessage());
-            responseData.setDesc("Failed to get invoices by id exchange rate.");
+            ResponseData.setDesc("Failed to get invoices by id exchange rate.");
         }
-        return responseData;
+        return ResponseData;
     }
 
     @Override
-    public responseData applySelectOptions(String idExchangeRate, List<Integer> selectedOptions) {
-        responseData response = new responseData();
+    public ResponseData applySelectOptions(String idExchangeRate, List<Integer> selectedOptions) {
+        ResponseData response = new ResponseData();
         try {
             List<InvoiceTypeDTO> listDTOBefore = getFullByID(idExchangeRate);
 

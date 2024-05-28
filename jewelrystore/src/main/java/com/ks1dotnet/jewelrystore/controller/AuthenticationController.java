@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ks1dotnet.jewelrystore.entity.Employee;
-import com.ks1dotnet.jewelrystore.payload.responseData;
+import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IAuthenticationService;
 
 @RestController
@@ -25,35 +25,35 @@ public class AuthenticationController {
 
     @GetMapping("/list")
     private ResponseEntity<?> findAll() {
-        responseData responseData = new responseData();
+        ResponseData ResponseData = new ResponseData();
         List<Employee> listEmpl = iAuthenticationService.findAll();
         Employee e = new Employee();
-        responseData.setData(listEmpl);
+        ResponseData.setData(listEmpl);
         // for (employee e : listEmpl) {
         // System.out.println(e);
         System.out.println(iAuthenticationService.findByPinCode("12"));
         // }
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
+        return new ResponseEntity<>(ResponseData, HttpStatus.OK);
     }
 
     @PostMapping("/signup")
     private ResponseEntity<?> login(@RequestBody Employee emp) {
-        responseData responseData = new responseData();
+        ResponseData ResponseData = new ResponseData();
         try {
             Employee employee = iAuthenticationService.findById(emp.getId());
 
             if (employee == null) {
-                responseData.setDesc("SignUp fail. Not found employee");
+                ResponseData.setDesc("SignUp fail. Not found employee");
             } else if (employee.getPinCode().equals(emp.getPinCode())) {
-                responseData.setDesc("SignUp successful");
+                ResponseData.setDesc("SignUp successful");
             } else {
-                responseData.setDesc("SignUp fail. Pincode Error");
+                ResponseData.setDesc("SignUp fail. Pincode Error");
             }
         } catch (Exception e) {
-            responseData.setStatus(500);
-            responseData.setDesc("SignUp fail. Internal Server Error");
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData.setDesc("SignUp fail. Internal Server Error");
+            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
+        return new ResponseEntity<>(ResponseData, HttpStatus.OK);
     }
 }

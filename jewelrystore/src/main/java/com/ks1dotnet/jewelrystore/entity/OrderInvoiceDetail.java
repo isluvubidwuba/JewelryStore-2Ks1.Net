@@ -2,6 +2,7 @@ package com.ks1dotnet.jewelrystore.entity;
 
 import java.util.Set;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -10,17 +11,24 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "order_invoice_detail")
 public class OrderInvoiceDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    private double price;
-    private double price_material_at_time;
+    private Integer id;
+    @Column(name = "price")
+    private Double price;
+    @Column(name = "price_material_at_time")
+    private Double priceMaterialAtTime;
+    @Column(name = "quantity")
     private int quantity;
     private double total_price;
 

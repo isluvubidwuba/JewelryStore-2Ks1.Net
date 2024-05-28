@@ -15,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 @RestController
 @RequestMapping("/proxy")
 @CrossOrigin("*")
-public class proxyController {
+public class ProxyController {
 
     @GetMapping
     public ResponseEntity<String> getGoldPrices() {

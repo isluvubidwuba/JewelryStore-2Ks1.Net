@@ -20,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ks1dotnet.jewelrystore.dto.EmployeeDTO;
 import com.ks1dotnet.jewelrystore.entity.Employee;
-import com.ks1dotnet.jewelrystore.payload.responseData;
+import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IEmployeeService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IFileService;
 
@@ -38,17 +38,17 @@ public class EmployeeControler {
     private ResponseEntity<?> getHomePageEmployee(
             @RequestParam int page) {
         System.out.println("Requested page: " + page);
-        responseData responseData = new responseData();
-        responseData.setData(iEmployeeService.getHomePageEmployee(page));
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
+        ResponseData ResponseData = new ResponseData();
+        ResponseData.setData(iEmployeeService.getHomePageEmployee(page));
+        return new ResponseEntity<>(ResponseData, HttpStatus.OK);
     }
 
     @GetMapping("/listemployee/{id}")
     private ResponseEntity<?> findEmployee(
             @PathVariable String id) {
-        responseData responseData = new responseData();
-        responseData.setData(iEmployeeService.listEmployee(id).getDTO());
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
+        ResponseData ResponseData = new ResponseData();
+        ResponseData.setData(iEmployeeService.listEmployee(id).getDTO());
+        return new ResponseEntity<>(ResponseData, HttpStatus.OK);
     }
 
     @PostMapping("/insert")
@@ -63,16 +63,16 @@ public class EmployeeControler {
             @RequestParam int roleId,
             @RequestParam boolean status) {
 
-        responseData responseData = new responseData();
+        ResponseData ResponseData = new ResponseData();
         boolean isSuccess = iEmployeeService.insertEmployee(file, firstName, lastName, pinCode, phoneNumber, email,
                 address, roleId, status);
 
         if (isSuccess) {
-            responseData.setDesc("Insert successfull");
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
+            ResponseData.setDesc("Insert successfull");
+            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } else {
-            responseData.setData(500);
-            responseData.setDesc("Insert fail. Internal Server Error");
+            ResponseData.setData(500);
+            ResponseData.setDesc("Insert fail. Internal Server Error");
             return new ResponseEntity<>("Employee created successfully", HttpStatus.CREATED);
         }
 
@@ -89,36 +89,36 @@ public class EmployeeControler {
             @RequestParam String phoneNumber,
             @RequestParam String email,
             @RequestParam String address) {
-        responseData responseData = new responseData();
+        ResponseData ResponseData = new ResponseData();
 
         EmployeeDTO employeeDTO = iEmployeeService.updateEmployee(file, id, firstName, lastName, lastName, phoneNumber,
                 email, address, status, roleId);
         if (employeeDTO != null) {
-            responseData.setDesc("Update successful");
-            responseData.setData(employeeDTO);
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
+            ResponseData.setDesc("Update successful");
+            ResponseData.setData(employeeDTO);
+            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } else {
-            responseData.setStatus(500);
-            responseData.setDesc("Update failed. Internal Server Error");
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData.setDesc("Update failed. Internal Server Error");
+            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<responseData> deleteEmployee(@PathVariable String id) {
-        responseData responseData = new responseData();
+    public ResponseEntity<ResponseData> deleteEmployee(@PathVariable String id) {
+        ResponseData ResponseData = new ResponseData();
         try {
             Employee employee = iEmployeeService.findById(id);
             employee.setStatus(false);
             Employee updateEmployee = iEmployeeService.save(employee);
-            responseData.setDesc("Delete successfull");
-            responseData.setData(updateEmployee);
+            ResponseData.setDesc("Delete successfull");
+            ResponseData.setData(updateEmployee);
         } catch (Exception e) {
-            responseData.setStatus(500);
-            responseData.setDesc("Delete fail. Internal Server Error");
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData.setDesc("Delete fail. Internal Server Error");
+            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
+        return new ResponseEntity<>(ResponseData, HttpStatus.OK);
     }
 
     @GetMapping("/files/{filename:.+}")
@@ -135,13 +135,11 @@ public class EmployeeControler {
             @RequestParam("criteria") String criteria,
             @RequestParam("query") String query,
             @RequestParam("page") int page) {
-        responseData responseData = new responseData();
+        ResponseData ResponseData = new ResponseData();
         Map<String, Object> response = iEmployeeService.findByCriteria(criteria, query, page);
-        responseData.setData(response);
-        System.out.println(responseData);
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
+        ResponseData.setData(response);
+        System.out.println(ResponseData);
+        return new ResponseEntity<>(ResponseData, HttpStatus.OK);
     }
-
-    
 
 }

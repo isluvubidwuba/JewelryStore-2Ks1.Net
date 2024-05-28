@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ks1dotnet.jewelrystore.dto.RoleDTO;
-import com.ks1dotnet.jewelrystore.payload.responseData;
+import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IRoleService;
 
 @RestController
@@ -28,9 +28,9 @@ public class RoleController {
     @GetMapping("/list")
     private ResponseEntity<?> findAll() {
         List<RoleDTO> listRoleDTO = iRoleService.findAll();
-        responseData responseData = new responseData();
-        responseData.setData(listRoleDTO);
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
+        ResponseData ResponseData = new ResponseData();
+        ResponseData.setData(listRoleDTO);
+        return new ResponseEntity<>(ResponseData, HttpStatus.OK);
     }
 
     @PostMapping("/insert")

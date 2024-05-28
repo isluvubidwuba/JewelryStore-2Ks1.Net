@@ -21,7 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 import com.ks1dotnet.jewelrystore.entity.Promotion;
-import com.ks1dotnet.jewelrystore.payload.responseData;
+import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IFileService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionService;
 
@@ -36,91 +36,91 @@ public class PromotionController {
 
     @GetMapping("/list")
     private ResponseEntity<?> findAll() {
-        responseData responseData = new responseData();
-        responseData.setData(iPromotionService.findAll());
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
+        ResponseData ResponseData = new ResponseData();
+        ResponseData.setData(iPromotionService.findAll());
+        return new ResponseEntity<>(ResponseData, HttpStatus.OK);
     }
 
     @GetMapping("/getHomePagePromotion")
     private ResponseEntity<?> getHomePagePromotion(@RequestParam int page) {
-        responseData responseData = new responseData();
-        responseData.setData(iPromotionService.getHomePagePromotion2(page));
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
+        ResponseData ResponseData = new ResponseData();
+        ResponseData.setData(iPromotionService.getHomePagePromotion2(page));
+        return new ResponseEntity<>(ResponseData, HttpStatus.OK);
     }
 
     @PostMapping("/update")
     private ResponseEntity<?> update(@RequestParam MultipartFile file, @RequestParam int id,
             @RequestParam String name, @RequestParam int idVoucherType,
             @RequestParam double value, @RequestParam boolean status) {
-        responseData responseData = new responseData();
+        ResponseData ResponseData = new ResponseData();
         PromotionDTO promotionDTO = iPromotionService.updatePromotion(file, id, name, idVoucherType, value, status);
 
         if (promotionDTO != null) {
-            responseData.setDesc("Update successful");
-            responseData.setData(promotionDTO);
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
+            ResponseData.setDesc("Update successful");
+            ResponseData.setData(promotionDTO);
+            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } else {
-            responseData.setStatus(500);
-            responseData.setDesc("Update failed. Internal Server Error");
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData.setDesc("Update failed. Internal Server Error");
+            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping("/getById")
     private ResponseEntity<?> getById(@RequestParam int id) {
-        responseData responseData = new responseData();
+        ResponseData ResponseData = new ResponseData();
         Promotion promotion = iPromotionService.findById(id);
         if (promotion != null) {
-            responseData.setDesc("Find successfull ");
-            responseData.setData(promotion.getDTO());
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
+            ResponseData.setDesc("Find successfull ");
+            ResponseData.setData(promotion.getDTO());
+            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } else {
-            responseData.setStatus(500);
-            responseData.setDesc("Find fail. Internal Server Error");
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData.setDesc("Find fail. Internal Server Error");
+            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/delete/{id}")
     private ResponseEntity<?> update(@PathVariable int id) {
-        responseData responseData = new responseData();
+        ResponseData ResponseData = new ResponseData();
         try {
             Promotion promotion = iPromotionService.findById(id);
             promotion.setStatus(false);
             Promotion updatedPromotion = iPromotionService.saveOrUpdatePromotion(promotion);
-            responseData.setDesc("Delete successfull");
-            responseData.setData(updatedPromotion);
+            ResponseData.setDesc("Delete successfull");
+            ResponseData.setData(updatedPromotion);
         } catch (Exception e) {
-            responseData.setStatus(500);
-            responseData.setDesc("Delete fail. Internal Server Error");
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData.setDesc("Delete fail. Internal Server Error");
+            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
+        return new ResponseEntity<>(ResponseData, HttpStatus.OK);
     }
 
     @GetMapping("/search/{name}")
     private ResponseEntity<?> search(@PathVariable String name) {
-        responseData responseData = new responseData();
+        ResponseData ResponseData = new ResponseData();
         List<Promotion> listPromotions = iPromotionService.searchByName(name);
-        responseData.setDesc("Search successfull");
-        responseData.setData(listPromotions);
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
+        ResponseData.setDesc("Search successfull");
+        ResponseData.setData(listPromotions);
+        return new ResponseEntity<>(ResponseData, HttpStatus.OK);
     }
 
     @PostMapping("/create")
     private ResponseEntity<?> create(@RequestParam MultipartFile file,
             @RequestParam String name, @RequestParam int idVoucherType,
             @RequestParam double value, @RequestParam boolean status) {
-        responseData responseData = new responseData();
+        ResponseData ResponseData = new ResponseData();
         boolean isSuccess = iPromotionService.insertPromotion(file, name, idVoucherType, value, status);
 
         if (isSuccess) {
-            responseData.setDesc("Insert successfull ");
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
+            ResponseData.setDesc("Insert successfull ");
+            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } else {
-            responseData.setStatus(500);
-            responseData.setDesc("Insert fail. Internal Server Error");
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData.setDesc("Insert fail. Internal Server Error");
+            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

@@ -4,22 +4,22 @@ import java.util.List;
 
 import com.ks1dotnet.jewelrystore.dto.ExchangeRatePolicyDTO;
 import com.ks1dotnet.jewelrystore.dto.InvoiceTypeDTO;
-import com.ks1dotnet.jewelrystore.payload.responseData;
+import com.ks1dotnet.jewelrystore.payload.ResponseData;
 
 public interface IExchangeRatePolicyService {
     public List<ExchangeRatePolicyDTO> getFullExchange();
 
     public List<InvoiceTypeDTO> getFullByID(String idExchangeRate);
 
-    public responseData updateExchangeRatePolicy(String idExchange, String desc, float rate, boolean status);
+    public ResponseData updateExchangeRatePolicy(String idExchange, String desc, float rate, boolean status);
 
-    public responseData deleteExchangeRatePolicy(String idExchange);
+    public ResponseData deleteExchangeRatePolicy(String idExchange);
 
-    public responseData createExchangeRatePolicy(String idExchange, String desc, float rate, boolean status);
+    public ResponseData createExchangeRatePolicy(String idExchange, String desc, float rate, boolean status);
 
-    public responseData getInforByID(String idExchangeRate);
+    public ResponseData getInforByID(String idExchangeRate);
 
-    public responseData applySelectOptions(String idExchangeRate, List<Integer> selectedOptions);
+    public ResponseData applySelectOptions(String idExchangeRate, List<Integer> selectedOptions);
 
     public List<ExchangeRatePolicyDTO> searchExchangeRate(String keyword);
 

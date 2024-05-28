@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ks1dotnet.jewelrystore.dto.ExchangeRatePolicyDTO;
-import com.ks1dotnet.jewelrystore.payload.responseData;
+import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IExchangeRatePolicyService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IInvoiceTypeService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IPolicyForInvoiceService;
@@ -36,59 +36,61 @@ public class PolicyController {
 
     @GetMapping("/listpolicy")
     public ResponseEntity<?> getAllPolicyForInvoiceService() {
-        responseData responseData = new responseData();
+        ResponseData ResponseData = new ResponseData();
         try {
             List<ExchangeRatePolicyDTO> lExchangeRatePolicyDTOs = iExchangeRatePolicyService.getFullExchange();
             // List<PolicyForInvoiceDTO> listPFIDTO =
             // iPolicyForInvoiceService.findAllPolicyForInvoice();
-            responseData.setData(lExchangeRatePolicyDTOs);
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
+            ResponseData.setData(lExchangeRatePolicyDTOs);
+            ResponseData.setStatus(HttpStatus.OK);
+
+            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } catch (Exception e) {
             // Log the exception (consider using a logging framework)
             System.err.println("Error retrieving policy for invoice service(method getAllPolicyForInvoiceService): "
                     + e.getMessage());
-            responseData.setDesc("Failed to retrieve policies.");
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData.setDesc("Failed to retrieve policies.");
+            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping("/infor")
     public ResponseEntity<?> inforExchangeRate(@RequestParam String idExchangeRate) {
-        responseData responseData;
+        ResponseData ResponseData;
         try {
-            responseData = iExchangeRatePolicyService.getInforByID(idExchangeRate);
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
+            ResponseData = iExchangeRatePolicyService.getInforByID(idExchangeRate);
+            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } catch (Exception e) {
             // Log the exception (consider using a logging framework)
             System.err.println("Error retrieving infor exchange rate: " + e.getMessage());
-            responseData = new responseData();
-            responseData.setDesc("Failed to retrieve exchange rate infor.");
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData = new ResponseData();
+            ResponseData.setDesc("Failed to retrieve exchange rate infor.");
+            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping("/detail")
     public ResponseEntity<?> detailExchangeRate(@RequestParam String idExchangeRate) {
-        responseData responseData = new responseData();
+        ResponseData ResponseData = new ResponseData();
         try {
             Map<String, Object> dataMap = new HashMap<>();
             dataMap.put("selectOption", iExchangeRatePolicyService.getFullByID(idExchangeRate));
             dataMap.put("fullOption", iInvoiceTypeService.getFullInvoice());
 
-            responseData.setData(dataMap);
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
+            ResponseData.setData(dataMap);
+            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } catch (Exception e) {
             // Log the exception (consider using a logging framework)
             System.err.println("Error retrieving detail exchange rate: " + e.getMessage());
-            responseData = new responseData();
-            responseData.setDesc("Failed to retrieve exchange rate details.");
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData = new ResponseData();
+            ResponseData.setDesc("Failed to retrieve exchange rate details.");
+            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping("/applySelectedOptions")
     public ResponseEntity<?> applySelectedOptions(@RequestBody Map<String, Object> payload) {
-        responseData responseData = new responseData();
+        ResponseData ResponseData = new ResponseData();
         try {
             String idExchangeRate = (String) payload.get("idExchangeRate"); // idExchangeApply
             @SuppressWarnings("unchecked")
@@ -102,117 +104,117 @@ public class PolicyController {
                     selectedOptions.add(Integer.parseInt((String) obj));
                 }
             }
-            responseData = iExchangeRatePolicyService.applySelectOptions(idExchangeRate, selectedOptions);
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
+            ResponseData = iExchangeRatePolicyService.applySelectOptions(idExchangeRate, selectedOptions);
+            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } catch (Exception e) {
             // Log the exception (consider using a logging framework)
             System.err.println("Error retrieving detail exchange rate: " + e.getMessage());
-            responseData = new responseData();
-            responseData.setDesc("Failed to retrieve exchange rate details.");
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData = new ResponseData();
+            ResponseData.setDesc("Failed to retrieve exchange rate details.");
+            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping("/updateexchange")
     public ResponseEntity<?> updateExchange(@RequestParam String idExchange, @RequestParam String desc,
             @RequestParam float rate, @RequestParam boolean status) {
-        responseData responseData;
+        ResponseData ResponseData;
         try {
-            responseData = iExchangeRatePolicyService.updateExchangeRatePolicy(idExchange, desc, rate, status);
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
+            ResponseData = iExchangeRatePolicyService.updateExchangeRatePolicy(idExchange, desc, rate, status);
+            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } catch (Exception e) {
             // Log the exception (consider using a logging framework)
             System.err.println("Error updating exchange rate policy: " + e.getMessage());
-            responseData = new responseData();
-            responseData.setDesc("Failed to update exchange rate policy.");
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData = new ResponseData();
+            ResponseData.setDesc("Failed to update exchange rate policy.");
+            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping("/deleteexchange")
     public ResponseEntity<?> deleteExchange(@RequestParam String idExchange) {
-        responseData responseData;
+        ResponseData ResponseData;
         try {
-            responseData = iExchangeRatePolicyService.deleteExchangeRatePolicy(idExchange);
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
+            ResponseData = iExchangeRatePolicyService.deleteExchangeRatePolicy(idExchange);
+            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } catch (Exception e) {
             // Log the exception (consider using a logging framework)
             System.err.println("Error updating exchange rate policy: " + e.getMessage());
-            responseData = new responseData();
-            responseData.setDesc("Failed to update exchange rate policy.");
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData = new ResponseData();
+            ResponseData.setDesc("Failed to update exchange rate policy.");
+            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping("/createexchange")
     public ResponseEntity<?> createPolicy(@RequestParam String idExchange, @RequestParam String desc,
             @RequestParam float rate, @RequestParam boolean status) {
-        responseData responseData;
+        ResponseData ResponseData;
         try {
-            responseData = iExchangeRatePolicyService.createExchangeRatePolicy(idExchange, desc, rate, status);
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
+            ResponseData = iExchangeRatePolicyService.createExchangeRatePolicy(idExchange, desc, rate, status);
+            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } catch (Exception e) {
             System.err.println("Error creating exchange rate policy: " + e.getMessage());
-            responseData = new responseData();
-            responseData.setDesc("Failed to create exchange rate policy.");
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData = new ResponseData();
+            ResponseData.setDesc("Failed to create exchange rate policy.");
+            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping("/createpolicy")
     public ResponseEntity<?> createPolicy(@RequestParam int idInvoiceType, @RequestParam String idExchange) {
-        responseData responseData = iPolicyForInvoiceService.createPolicyForInvoice(idInvoiceType, idExchange);
+        ResponseData ResponseData = iPolicyForInvoiceService.createPolicyForInvoice(idInvoiceType, idExchange);
 
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
+        return new ResponseEntity<>(ResponseData, HttpStatus.OK);
     }
 
     @PostMapping("/createinvoicetype")
     public ResponseEntity<?> createInvoiceType(@RequestParam String name) {
-        responseData responseData = iInvoiceTypeService.createInvoiceType(name);
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
+        ResponseData ResponseData = iInvoiceTypeService.createInvoiceType(name);
+        return new ResponseEntity<>(ResponseData, HttpStatus.OK);
     }
 
     @PostMapping("/addinvoicetype")
     public ResponseEntity<?> addInvoiceType(@RequestParam String invoiceType) {
-        responseData responseData;
+        ResponseData ResponseData;
         try {
-            responseData = iInvoiceTypeService.addInvoiceType(invoiceType);
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
+            ResponseData = iInvoiceTypeService.addInvoiceType(invoiceType);
+            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } catch (Exception e) {
             System.err.println("Error add inovoice type : " + e.getMessage());
-            responseData = new responseData();
-            responseData.setDesc("Failed to addd invoice type.");
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData = new ResponseData();
+            ResponseData.setDesc("Failed to addd invoice type.");
+            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping("/updateinvoicetype")
     public ResponseEntity<?> updateInvoiceType(@RequestParam int idInvoiceType, @RequestParam String invoiceType) {
-        responseData responseData;
+        ResponseData ResponseData;
         try {
-            responseData = iInvoiceTypeService.updateInvoice(idInvoiceType, invoiceType);
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
+            ResponseData = iInvoiceTypeService.updateInvoice(idInvoiceType, invoiceType);
+            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } catch (Exception e) {
             System.err.println("Error update inovoice type : " + e.getMessage());
-            responseData = new responseData();
-            responseData.setDesc("Failed to update invoice type.");
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData = new ResponseData();
+            ResponseData.setDesc("Failed to update invoice type.");
+            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping("/searhExchangeRate")
     public ResponseEntity<?> updateInvoiceType(@RequestParam String keyword) {
-        responseData responseData = new responseData();
+        ResponseData ResponseData = new ResponseData();
         try {
             List<ExchangeRatePolicyDTO> lExchangeRatePolicyDTOs = iExchangeRatePolicyService
                     .searchExchangeRate(keyword);
-            responseData.setData(lExchangeRatePolicyDTOs);
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
+            ResponseData.setData(lExchangeRatePolicyDTOs);
+            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } catch (Exception e) {
             System.err.println("Error update inovoice type : " + e.getMessage());
-            responseData = new responseData();
-            responseData.setDesc("Failed to update invoice type.");
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseData = new ResponseData();
+            ResponseData.setDesc("Failed to update invoice type.");
+            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

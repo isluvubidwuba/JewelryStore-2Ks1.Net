@@ -7,11 +7,11 @@ import com.ks1dotnet.jewelrystore.dto.RoleDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
-
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter@Setter@ToString
+@Getter
+@Setter
+@ToString
 @Entity
 @Table(name = "role")
 public class Role {
@@ -21,13 +21,12 @@ public class Role {
     private String name;
 
     @OneToMany(mappedBy = "role")
-    Set<Employee> listEmployee;
-
-
-    @OneToMany(mappedBy = "role")
     Set<UserInfo> listUserInfo;
 
-    public RoleDTO getDTO(){
+    @OneToMany(mappedBy = "role")
+    Set<Employee> listEmployee;
+
+    public RoleDTO getDTO() {
         return new RoleDTO(id, name);
     }
 
