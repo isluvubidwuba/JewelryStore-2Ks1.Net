@@ -1,17 +1,15 @@
 $(document).ready(function () {
   setupEventListeners();
   fetchPromotions(0);
-  loadComponents();
+  loadComponents2();
   fetchVouchersForCreate();
   setupModalToggles();
   submitForm();
   submitUpdateForm(); // Call the function to handle update form submission
 });
 // load components
-function loadComponents() {
+function loadComponents2() {
   const components = [
-    { id: "sidebar-placeholder", url: "components/sidebar.html" },
-    { id: "header-placeholder", url: "components/header.html" },
     {
       id: "pagination-placeholder",
       url: "components/pagination-promotion.html",

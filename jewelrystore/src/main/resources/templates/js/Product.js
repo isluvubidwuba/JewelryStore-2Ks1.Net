@@ -1,36 +1,12 @@
 $(document).ready(function () {
   setupEventListeners();
   fetchProduct();
-  loadComponents();
   setupModalToggles();
   //submitForm();
   //submitUpdateForm(); // Call the function to handle update form submission
 });
 
 // load components
-function loadComponents() {
-  const components = [
-    { id: "sidebar-placeholder", url: "components/sidebar.html" },
-    { id: "header-placeholder", url: "components/header.html" },
-    {
-      id: "pagination-placeholder",
-      url: "components/pagination-promotion.html",
-    },
-    { id: "modal-placeholder", url: "components/modal-insert-promotion.html" },
-  ];
-
-  components.forEach((component) => {
-    $("#" + component.id).load(component.url, function (response, status, xhr) {
-      if (status === "error") {
-        console.error(
-          "Error loading the component:",
-          xhr.status,
-          xhr.statusText
-        );
-      }
-    });
-  });
-}
 
 // fetch Product by page
 function fetchProduct() {

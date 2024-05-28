@@ -292,6 +292,13 @@ function closeInvoiceTypeModal() {
   $("#addInvoiceTypeModal").addClass("hidden");
 }
 
+const insertModal = $("#insert-modal");
+const updateModal = $("#update-modal");
+
+const modalInsertCloseButton = $("#modalInsertClose");
+const modalInsertOpenButton = $("#modalOpen");
+const modalUpdateCloseButton = $("#modalUpdateClose");
+
 // Initial fetch
 $(document).ready(function () {
   fetchPolicies();
@@ -305,13 +312,6 @@ $(document).ready(function () {
     loadDropdownOptions(idExchangeRate);
   });
 
-  const insertModal = $("#insert-modal");
-  const updateModal = $("#update-modal");
-
-  const modalInsertCloseButton = $("#modalInsertClose");
-  const modalInsertOpenButton = $("#modalOpen");
-  const modalUpdateCloseButton = $("#modalUpdateClose");
-
   modalInsertOpenButton.click(function () {
     insertModal.removeClass("hidden");
   });
@@ -319,7 +319,9 @@ $(document).ready(function () {
   modalInsertCloseButton.click(function () {
     insertModal.addClass("hidden");
   });
-
+  function closeInsertModal() {
+    insertModal.addClass("hidden");
+  }
   modalUpdateCloseButton.click(function () {
     updateModal.addClass("hidden");
   });
@@ -621,9 +623,8 @@ function submitInsertForm() {
             //   </tr>
 
             // `;
-            // $("#table-body").append(newRow);
-            // $("#form-insert").find("input, select").val("");
-            // $("#form-insert").find("select").prop("selectedIndex", 0);
+            $("#form-insert").find("input, select").val("");
+            $("#form-insert").find("select").prop("selectedIndex", 0);
             fetchPolicies();
             insertModal.addClass("hidden");
             alert(response.desc);

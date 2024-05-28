@@ -1,14 +1,22 @@
-document.addEventListener("DOMContentLoaded", function () {
-  loadComponent("sidebar-placeholder", "components/sidebar.html");
-  loadComponent("header-placeholder", "components/header.html");
-});
+// load components
+function loadComponents() {
+  const components = [
+    { id: "sidebar-placeholder", url: "components/sidebar.html" },
+    { id: "header-placeholder", url: "components/header.html" },
+  ];
 
-function loadComponent(elementId, url) {
-  const element = document.getElementById(elementId);
-  fetch(url)
-    .then((response) => response.text())
-    .then((data) => {
-      element.innerHTML = data;
-    })
-    .catch((error) => console.error("Error loading the component:", error));
+  components.forEach((component) => {
+    $("#" + component.id).load(component.url, function (response, status, xhr) {
+      if (status === "error") {
+        console.error(
+          "Error loading the component:",
+          xhr.status,
+          xhr.statusText
+        );
+      }
+    });
+  });
 }
+$(document).ready(function () {
+  loadComponents();
+});
