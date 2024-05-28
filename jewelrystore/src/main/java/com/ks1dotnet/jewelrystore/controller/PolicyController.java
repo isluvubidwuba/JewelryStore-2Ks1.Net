@@ -50,6 +50,7 @@ public class PolicyController {
             System.err.println("Error retrieving policy for invoice service(method getAllPolicyForInvoiceService): "
                     + e.getMessage());
             ResponseData.setDesc("Failed to retrieve policies.");
+            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -59,12 +60,14 @@ public class PolicyController {
         ResponseData ResponseData;
         try {
             ResponseData = iExchangeRatePolicyService.getInforByID(idExchangeRate);
+            ResponseData.setStatus(HttpStatus.OK);
             return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } catch (Exception e) {
             // Log the exception (consider using a logging framework)
             System.err.println("Error retrieving infor exchange rate: " + e.getMessage());
             ResponseData = new ResponseData();
             ResponseData.setDesc("Failed to retrieve exchange rate infor.");
+            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -78,12 +81,15 @@ public class PolicyController {
             dataMap.put("fullOption", iInvoiceTypeService.getFullInvoice());
 
             ResponseData.setData(dataMap);
+            ResponseData.setStatus(HttpStatus.OK);
             return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } catch (Exception e) {
             // Log the exception (consider using a logging framework)
             System.err.println("Error retrieving detail exchange rate: " + e.getMessage());
             ResponseData = new ResponseData();
             ResponseData.setDesc("Failed to retrieve exchange rate details.");
+            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+
             return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -111,6 +117,7 @@ public class PolicyController {
             System.err.println("Error retrieving detail exchange rate: " + e.getMessage());
             ResponseData = new ResponseData();
             ResponseData.setDesc("Failed to retrieve exchange rate details.");
+            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -142,6 +149,8 @@ public class PolicyController {
             System.err.println("Error updating exchange rate policy: " + e.getMessage());
             ResponseData = new ResponseData();
             ResponseData.setDesc("Failed to update exchange rate policy.");
+            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+
             return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -157,6 +166,8 @@ public class PolicyController {
             System.err.println("Error creating exchange rate policy: " + e.getMessage());
             ResponseData = new ResponseData();
             ResponseData.setDesc("Failed to create exchange rate policy.");
+            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+
             return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -209,6 +220,7 @@ public class PolicyController {
             List<ExchangeRatePolicyDTO> lExchangeRatePolicyDTOs = iExchangeRatePolicyService
                     .searchExchangeRate(keyword);
             ResponseData.setData(lExchangeRatePolicyDTOs);
+            ResponseData.setStatus(HttpStatus.OK);
             return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } catch (Exception e) {
             System.err.println("Error update inovoice type : " + e.getMessage());

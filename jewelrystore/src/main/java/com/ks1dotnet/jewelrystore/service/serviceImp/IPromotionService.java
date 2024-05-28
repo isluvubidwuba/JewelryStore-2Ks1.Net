@@ -17,7 +17,7 @@ public interface IPromotionService {
 
         public Promotion saveOrUpdatePromotion(Promotion promotion);
 
-        public boolean insertPromotion(MultipartFile file,
+        public PromotionDTO insertPromotion(MultipartFile file,
                         String name,
                         int idVoucherType,
                         double value,

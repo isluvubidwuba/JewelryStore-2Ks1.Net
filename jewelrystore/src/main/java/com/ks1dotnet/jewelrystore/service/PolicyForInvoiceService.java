@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.ks1dotnet.jewelrystore.dto.PolicyForInvoiceDTO;
@@ -60,9 +61,11 @@ public class PolicyForInvoiceService implements IPolicyForInvoiceService {
             if (policyForInvoice2 != null) {
                 ResponseData.setData(policyForInvoice2.getDTO());
                 ResponseData.setDesc("create Policy For Invoice success");
+                ResponseData.setStatus(HttpStatus.OK);
                 return ResponseData;
             }
         }
+        ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         ResponseData.setData("create Policy For Invoice fail");
         ResponseData.setDesc("create Policy For Invoice fail");
         return ResponseData;
