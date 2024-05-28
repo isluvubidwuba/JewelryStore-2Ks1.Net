@@ -1,9 +1,12 @@
 package com.ks1dotnet.jewelrystore.service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -22,16 +25,23 @@ public class ProductCategoryService implements IProductCategoryService {
     private IProductCategoryRepository iProductCategoryRepository;
 
     @Override
-    public ResponseData findAll() {
+    public ResponseData Page(int page, int size) {
         try {
-            List<ProductCategoryDTO> listDTO = new ArrayList<>();
-            for (ProductCategory ProductCategory : iProductCategoryRepository.findAll()) {
-                listDTO.add(ProductCategory.getDTO());
-            }
-            return new ResponseData(HttpStatus.OK, "Find all product category successfully", listDTO);
-        } catch (Exception e) {
-            throw new RunTimeExceptionV1("Find all product category error");
+            Page<ProductCategory> p = iProductCategoryRepository.findAll(PageRequest.of(page, size));
+            return new ResponseData(HttpStatus.OK, "Find all products category successfully", convertToDtoPage(p));
+
+        } catch (RuntimeException e) {
+            throw new RunTimeExceptionV1("Find all product error", e.getMessage());
         }
+    }
+
+    private Page<ProductCategoryDTO> convertToDtoPage(Page<ProductCategory> productPage) {
+        List<ProductCategoryDTO> dtoList = productPage.getContent()
+                .stream()
+                .map(ProductCategory::getDTO)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(dtoList, productPage.getPageable(), productPage.getTotalElements());
     }
 
     @Override

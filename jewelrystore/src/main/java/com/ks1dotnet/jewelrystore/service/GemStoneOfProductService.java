@@ -1,9 +1,12 @@
 package com.ks1dotnet.jewelrystore.service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -22,16 +25,23 @@ public class GemStoneOfProductService implements IGemStoneOfProductService {
     private IGemStoneOfProductRepository iGemStoneOfProductRepository;
 
     @Override
-    public ResponseData findAll() {
+    public ResponseData Page(int page, int size) {
         try {
-            List<GemStoneOfProductDTO> listDTO = new ArrayList<>();
-            for (GemStoneOfProduct GemStoneOfProduct : iGemStoneOfProductRepository.findAll()) {
-                listDTO.add(GemStoneOfProduct.getDTO());
-            }
-            return new ResponseData(HttpStatus.OK, "Find all gem stone of product successfully", listDTO);
-        } catch (Exception e) {
-            throw new RunTimeExceptionV1("Find all gem stone of product error");
+            Page<GemStoneOfProduct> p = iGemStoneOfProductRepository.findAll(PageRequest.of(page, size));
+            return new ResponseData(HttpStatus.OK, "Find all products successfully", convertToDtoPage(p));
+
+        } catch (RuntimeException e) {
+            throw new RunTimeExceptionV1("Find all product error", e.getMessage());
         }
+    }
+
+    private Page<GemStoneOfProductDTO> convertToDtoPage(Page<GemStoneOfProduct> productPage) {
+        List<GemStoneOfProductDTO> dtoList = productPage.getContent()
+                .stream()
+                .map(GemStoneOfProduct::getDTO)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(dtoList, productPage.getPageable(), productPage.getTotalElements());
     }
 
     @Override

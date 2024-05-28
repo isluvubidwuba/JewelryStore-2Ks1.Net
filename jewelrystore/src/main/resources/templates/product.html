@@ -9,10 +9,11 @@
 
     <!-- Tailwind CSS -->
     <link href="build/tailwind.css" rel="stylesheet" />
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
 
     <!-- jQuery -->
     <script src="jquery/dist/jquery.min.js"></script>
-    <script src="./js/promotion.js"></script>
+    <script src="./js/Product.js"></script>
 
     <style>
       @import url("https://fonts.googleapis.com/css?family=Karla:400,700&display=swap");
@@ -50,41 +51,108 @@
       <!-- Desktop Header -->
       <div id="header-placeholder"></div>
 
-      <div class="w-full h-screen overflow-x-hidden border-t flex flex-col">
+      <div class="overflow-x-hidden border-t flex flex-col">
         <main class="w-full flex-grow p-6">
-          <div class="flex items-center justify-between">
-            <h1 class="text-3xl text-black pb-6">View Promotion</h1>
+          <div class="flex items-center justify-between mx-1">
+            <h1 class="text-3xl text-black pb-6">View Product</h1>
             <button
               id="modalToggle"
               class="ml-auto bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
             >
-              Create product
+              Create Product
             </button>
           </div>
-          <div class="flex w-full justify-center items-center py-12 px-6">
-            <div
-              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
-              id="product-container"
-            >
-              <!-- Thẻ khuyến mãi sẽ được chèn động ở đây -->
+
+          <form
+            class="max-w-xs my-1 ml-auto outline-none border shadow-sm rounded-xl hover:shadow-lg transition dark:bg-neutral-900 dark:border-neutral-700 dark:shadow-neutral-700/70"
+          >
+            <div class="flex relative">
+              <input
+                type="search"
+                id="search-input"
+                class="outline-none block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500"
+                placeholder="Search..."
+              />
+
+              <button
+                type="submit"
+                class="top-0 right-0 p-2.5 text-sm font-medium text-white bg-blue-700 rounded-r-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              >
+                <svg
+                  class="w-4 h-4"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                  />
+                </svg>
+                <span class="sr-only">Search</span>
+              </button>
             </div>
+          </form>
+          <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+            <table
+              class="w-full h-full bg-blend-multiply text-sm text-center text-gray-500 dark:text-gray-400"
+            >
+              <thead
+                class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
+              >
+                <tr>
+                  <th scope="col" class="px-6 py-3">Id</th>
+                  <th scope="col" class="px-6 py-3">Name</th>
+                  <th scope="col" class="px-6 py-3">Material</th>
+                  <th scope="col" class="px-6 py-3">Category</th>
+                  <th scope="col" class="px-6 py-3">Status</th>
+                  <th scope="col" class="px-6 py-3">Counter</th>
+                  <th scope="col" class="px-6 py-3"></th>
+                </tr>
+              </thead>
+              <tbody id="productTableBody">
+                <!-- Rows will be inserted here by jQuery -->
+              </tbody>
+            </table>
           </div>
+          <div class="flex justify-center">
+            <nav class="rounded-full px-4 py-1 my-7">
+              <ul
+                class="flex text-gray-600 gap-2 font-medium py-2"
+                id="pagination-wrapper"
+              ></ul>
+            </nav>
+          </div>
+          <!-- <div class="mb-4 flex justify-center items-center mt-4">
+            <button
+              id="prevPageBtn"
+              class="bg-blue-500 text-white px-6 py-2 rounded mx-2"
+            >
+              Prev
+            </button>
+            <button
+              id="nextPageBtn"
+              class="bg-blue-500 text-white px-6 py-2 rounded mx-2"
+            >
+              Next
+            </button>
+          </div> -->
         </main>
       </div>
 
       <!-- Modal Placeholder -->
       <div id="modal-placeholder"></div>
 
-      <div class="max-w-8xl mx-auto container py-10">
-        <ul class="flex justify-center items-center pagination">
-          <!-- Nút phân trang sẽ được cập nhật ở đây bởi JavaScript -->
-        </ul>
-      </div>
+      <div class="max-w-8xl mx-auto container py-1"></div>
 
       <!-- Modal update -->
       <div
         id="crud-update-modal"
-        class="hidden overflow-y-auto overflow-x-hidden fixed inset-0 z-50 flex items-center justify-center w-full h-full backdrop-blur-sm bg-white/30"
+        class="hidden overflow-y-auto overflow-x-hidden fixed inset-0 z-50 items-center justify-center w-full h-full backdrop-blur-sm bg-white/30"
       >
         <div class="relative p-4 w-full max-w-md max-h-full">
           <!-- Modal content -->

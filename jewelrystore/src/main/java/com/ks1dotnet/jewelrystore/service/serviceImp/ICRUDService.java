@@ -3,7 +3,7 @@ package com.ks1dotnet.jewelrystore.service.serviceImp;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 
 public interface ICRUDService<T, Id> {
-    public ResponseData findAll();
+    public ResponseData Page(int page, int size);
 
     public ResponseData findById(Id id);
 

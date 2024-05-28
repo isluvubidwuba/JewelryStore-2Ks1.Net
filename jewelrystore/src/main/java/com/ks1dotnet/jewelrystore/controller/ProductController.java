@@ -31,7 +31,13 @@ public class ProductController {
 
     @GetMapping("all")
     public ResponseEntity<?> getAll() {
-        ResponseData response = iProductService.findAll();
+        ResponseData response = iProductService.Page(0, 50);
+        return new ResponseEntity<>(response, response.getStatus());
+    }
+
+    @PostMapping("nextPage")
+    public ResponseEntity<?> getAll(@RequestParam int page, @RequestParam int size) {
+        ResponseData response = iProductService.Page(page, size);
         return new ResponseEntity<>(response, response.getStatus());
     }
 
@@ -41,8 +47,6 @@ public class ProductController {
         return new ResponseEntity<>(response, response.getStatus());
     }
 
-    // view : update status
-    // status = 1 disable, status = 0 is disable
     @PostMapping("change/status")
     public ResponseEntity<?> update(@RequestParam String id, @RequestParam int status) {
         ResponseData response = iProductService.updateStatus(id, status);

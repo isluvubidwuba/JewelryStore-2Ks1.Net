@@ -1,9 +1,12 @@
 package com.ks1dotnet.jewelrystore.service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -23,16 +26,23 @@ public class MaterialService implements IMaterialService {
     private IMaterialRepository iMaterialRepository;
 
     @Override
-    public ResponseData findAll() {
+    public ResponseData Page(int page, int size) {
         try {
-            List<MaterialDTO> listDTO = new ArrayList<>();
-            for (Material Material : iMaterialRepository.findAll()) {
-                listDTO.add(Material.getDTO());
-            }
-            return new ResponseData(HttpStatus.OK, "Find all material successfully", listDTO);
-        } catch (Exception e) {
-            throw new RunTimeExceptionV1("Find all material error");
+            Page<Material> p = iMaterialRepository.findAll(PageRequest.of(page, size));
+            return new ResponseData(HttpStatus.OK, "Find all products successfully", convertToDtoPage(p));
+
+        } catch (RuntimeException e) {
+            throw new RunTimeExceptionV1("Find all product error", e.getMessage());
         }
+    }
+
+    private Page<MaterialDTO> convertToDtoPage(Page<Material> productPage) {
+        List<MaterialDTO> dtoList = productPage.getContent()
+                .stream()
+                .map(Material::getDTO)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(dtoList, productPage.getPageable(), productPage.getTotalElements());
     }
 
     @Override

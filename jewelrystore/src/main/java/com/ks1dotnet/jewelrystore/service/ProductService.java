@@ -1,11 +1,13 @@
 package com.ks1dotnet.jewelrystore.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -32,17 +34,55 @@ public class ProductService implements IProductService {
     @Autowired
     ICounterRepository iCounterRepository;
 
+    // @Override
+    // public ResponseData Page(Page<ProductDTO> t) {
+    // try {
+    // if (t != null) {
+    // List<Product> product = t.getContent()
+    // .stream()
+    // .map(entry -> {
+    // return iProductRepository.findById(entry.getId())
+    // .orElseThrow(() -> new BadRequestException(
+    // "Product with ID " + entry.getId() + " does not exist"));
+
+    // })
+    // .collect(Collectors.toList());
+    // Page<Product> p = new PageImpl<>(product, t.previousOrFirstPageable(),
+    // product.size());
+    // p = iProductRepository.findAll(p.nextPageable());
+    // return new ResponseData(HttpStatus.OK, "Find all product successfully", p);
+    // }
+    // Page<Product> p = iProductRepository.findAll(PageRequest.of(0, 5));
+    // List<ProductDTO> productDTO = p.getContent()
+    // .stream()
+    // .map(Product::getDTO)
+    // .collect(Collectors.toList());
+    // Page<ProductDTO> pDTO = new PageImpl<>(productDTO, PageRequest.of(0, 5),
+    // productDTO.size());
+    // return new ResponseData(HttpStatus.OK, "Find all product successfully",
+    // pDTO);
+    // } catch (Exception e) {
+    // throw new RunTimeExceptionV1("Find all product error");
+    // }
+    // }
     @Override
-    public ResponseData findAll() {
+    public ResponseData Page(int page, int size) {
         try {
-            List<ProductDTO> listDTO = new ArrayList<>();
-            for (Product Product : iProductRepository.findAll()) {
-                listDTO.add(Product.getDTO());
-            }
-            return new ResponseData(HttpStatus.OK, "Find all product successfully", listDTO);
-        } catch (Exception e) {
-            throw new RunTimeExceptionV1("Find all product error");
+            Page<Product> p = iProductRepository.findAll(PageRequest.of(page, size));
+            return new ResponseData(HttpStatus.OK, "Find all products successfully", convertToDtoPage(p));
+
+        } catch (RuntimeException e) {
+            throw new RunTimeExceptionV1("Find all product error", e.getMessage());
         }
+    }
+
+    private Page<ProductDTO> convertToDtoPage(Page<Product> productPage) {
+        List<ProductDTO> dtoList = productPage.getContent()
+                .stream()
+                .map(Product::getDTO)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(dtoList, productPage.getPageable(), productPage.getTotalElements());
     }
 
     @Override
@@ -169,7 +209,7 @@ public class ProductService implements IProductService {
                 exists);
     }
 
-    public List<Product> findByAllFieldsExceptId(ProductDTO t) {
+    private List<Product> findByAllFieldsExceptId(ProductDTO t) {
         return iProductRepository.findByAllFieldsExceptId(t.getName(), t.getMaterialOfProductDTO().getId(),
                 t.getProductCategoryDTO().getId(), t.getCounterDTO().getId(), t.getFee());
     }

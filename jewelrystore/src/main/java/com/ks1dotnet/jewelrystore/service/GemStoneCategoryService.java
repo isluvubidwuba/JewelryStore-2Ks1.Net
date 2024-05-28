@@ -1,16 +1,20 @@
 package com.ks1dotnet.jewelrystore.service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.ks1dotnet.jewelrystore.dto.GemStoneCategoryDTO;
 import com.ks1dotnet.jewelrystore.entity.GemStoneCategory;
-import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
 import com.ks1dotnet.jewelrystore.exception.BadRequestException;
+import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
+import com.ks1dotnet.jewelrystore.exception.RunTimeExceptionV1;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IGemStoneCategoryRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IGemStoneCategoryService;
@@ -21,16 +25,23 @@ public class GemStoneCategoryService implements IGemStoneCategoryService {
     private IGemStoneCategoryRepository iGemStoneCategoryRepository;
 
     @Override
-    public ResponseData findAll() {
+    public ResponseData Page(int page, int size) {
         try {
-            List<GemStoneCategoryDTO> listDTO = new ArrayList<>();
-            for (GemStoneCategory gemStoneCategory : iGemStoneCategoryRepository.findAll()) {
-                listDTO.add(gemStoneCategory.getDTO());
-            }
-            return new ResponseData(HttpStatus.OK, "Find all gem stone category successfully", listDTO);
-        } catch (Exception e) {
-            throw new RuntimeException("Find all gem stone categories error");
+            Page<GemStoneCategory> p = iGemStoneCategoryRepository.findAll(PageRequest.of(page, size));
+            return new ResponseData(HttpStatus.OK, "Find all products successfully", convertToDtoPage(p));
+
+        } catch (RuntimeException e) {
+            throw new RunTimeExceptionV1("Find all product error", e.getMessage());
         }
+    }
+
+    private Page<GemStoneCategoryDTO> convertToDtoPage(Page<GemStoneCategory> productPage) {
+        List<GemStoneCategoryDTO> dtoList = productPage.getContent()
+                .stream()
+                .map(GemStoneCategory::getDTO)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(dtoList, productPage.getPageable(), productPage.getTotalElements());
     }
 
     @Override

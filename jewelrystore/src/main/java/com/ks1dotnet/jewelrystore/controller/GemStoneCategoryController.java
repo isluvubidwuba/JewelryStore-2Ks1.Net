@@ -29,7 +29,13 @@ public class GemStoneCategoryController {
 
     @GetMapping("all")
     public ResponseEntity<?> getAll() {
-        ResponseData response = iGemStoneCategoryService.findAll();
+        ResponseData response = iGemStoneCategoryService.Page(0, 10);
+        return new ResponseEntity<>(response, response.getStatus());
+    }
+
+    @PostMapping("nextPage")
+    public ResponseEntity<?> getAll(@RequestParam int page, @RequestParam int size) {
+        ResponseData response = iGemStoneCategoryService.Page(page, size);
         return new ResponseEntity<>(response, response.getStatus());
     }
 
