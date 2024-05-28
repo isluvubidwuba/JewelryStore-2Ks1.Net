@@ -15,7 +15,7 @@ spring:
       max-file-size: 10MB
 
 fileUpload:
-  rootPath: C:\Users\Acer\Desktop\UploadImage
+  rootPath: D:\UploadImage
 server:
   error:
     path: /error

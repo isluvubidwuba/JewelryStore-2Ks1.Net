@@ -22,8 +22,8 @@ public interface IEmployeeService {
         public boolean insertEmployee(MultipartFile file, String firstName, String lastName, String pinCode,
                         String phoneNumber, String email, String address, int roleId, boolean status);
 
-        public EmployeeDTO updateEmployee(MultipartFile file, String id, String firstName, String lastName, String pinCode,
-                        String phoneNumber, String email, String address, boolean status, int roleId);
+        public EmployeeDTO updateEmployee(MultipartFile file, String id, String firstName, String lastName, int roleId,
+                        String pinCode, boolean status, String phoneNumber, String email, String address);
 
         public Employee listEmployee(String id);
 

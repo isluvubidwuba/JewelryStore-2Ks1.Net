@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tailwind Admin Template</title>
+  <meta name="author" content="David Grzyb" />
+  <meta name="description" content="" />
+
+  <!-- Tailwind -->
+  <link href="build/tailwind.css" rel="stylesheet" />
+  <script src="jquery/dist/jquery.min.js"></script>
+  <script src="./js/DashboardAdmin.js"></script>
+  <script src="./js/ManagerUser.js"></script>
+
+  <style>
+    @import url("https://fonts.googleapis.com/css?family=Karla:400,700&display=swap");
+
+    .font-family-karla {
+      font-family: karla;
+    }
+
+    .bg-sidebar {
+      background: #3d68ff;
+    }
+
+    .cta-btn {
+      color: #3d68ff;
+    }
+
+    .upgrade-btn {
+      background: #1947ee;
+    }
+
+    .upgrade-btn:hover {
+      background: #0038fd;
+    }
+
+    .active-nav-link {
+      background: #1947ee;
+    }
+
+    .nav-item:hover {
+      background: #1947ee;
+    }
+
+    .account-link:hover {
+      background: #3d68ff;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100 font-family-karla flex">
+  <!-- side bar -->
+  <div id="sidebar-placeholder"></div>
+
+  <div class="relative w-full flex flex-col h-screen overflow-y-hidden">
+    <!-- Desktop Header -->
+    <div id="header-placeholder"></div>
+
+    <!-- Mobile Header & Nav -->
+    <header x-data="{ isOpen: false }" class="w-full bg-sidebar py-5 px-6 sm:hidden">
+      <div class="flex items-center justify-between">
+        <a href="index.html" class="text-white text-3xl font-semibold uppercase hover:text-gray-300">Admin</a>
+        <button @click="isOpen = !isOpen" class="text-white text-3xl focus:outline-none">
+          <i x-show="!isOpen" class="fas fa-bars"></i>
+          <i x-show="isOpen" class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Dropdown Nav -->
+      <nav :class="isOpen ? 'flex': 'hidden'" class="flex flex-col pt-4">
+        <a href="index.html" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
+          <i class="fas fa-tachometer-alt mr-3"></i>
+          Dashboard
+        </a>
+        <a href="blank.html" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
+          <i class="fas fa-sticky-note mr-3"></i>
+          Blank Page
+        </a>
+        <a href="tables.html" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
+          <i class="fas fa-table mr-3"></i>
+          Tables
+        </a>
+        <a href="forms.html" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
+          <i class="fas fa-align-left mr-3"></i>
+          Forms
+        </a>
+        <a href="tabs.html" class="flex items-center active-nav-link text-white py-2 pl-4 nav-item">
+          <i class="fas fa-tablet-alt mr-3"></i>
+          Tabbed Content
+        </a>
+        <a href="calendar.html" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
+          <i class="fas fa-calendar mr-3"></i>
+          Calendar
+        </a>
+        <a href="#" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
+          <i class="fas fa-cogs mr-3"></i>
+          Support
+        </a>
+        <a href="#" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
+          <i class="fas fa-user mr-3"></i>
+          My Account
+        </a>
+        <a href="#" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
+          <i class="fas fa-sign-out-alt mr-3"></i>
+          Sign Out
+        </a>
+        <button
+          class="w-full bg-white cta-btn font-semibold py-2 mt-3 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-300 flex items-center justify-center">
+          <i class="fas fa-arrow-circle-up mr-3"></i> Upgrade to Pro!
+        </button>
+      </nav>
+      <!-- <button class="w-full bg-white cta-btn font-semibold py-2 mt-5 rounded-br-lg rounded-bl-lg rounded-tr-lg shadow-lg hover:shadow-xl hover:bg-gray-300 flex items-center justify-center">
+                <i class="fas fa-plus mr-3"></i> New Report
+            </button> -->
+    </header>
+
+
+    <div class="w-full h-screen overflow-x-hidden border-t flex flex-col">
+      <main class="w-full flex-grow p-6">
+        <h1 class="text-3xl text-black pb-6">Tabbed Content</h1>
+        <div class="w-full mt-6">
+          <div>
+            <ul id="role-tabs" class="flex border-b">
+              <!-- Tabs will be dynamically added here -->
+
+            </ul>
+            <!-- Thêm vào bên dưới danh sách các tabs -->
+          </div>
+
+          <div id="tab-contents" class="bg-white p-6">
+            <!-- Tab contents will be dynamically added here -->
+            <div id="CUSTOMER" class="tab-content" style="display: none;">
+              <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl">Customer List</h2>
+                <div class="flex items-center">
+                  <div class="relative">
+                    <button id="criteria-button"
+                      class="bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded inline-flex items-center">
+                      <span id="selected-criteria">Search By</span>
+                      <svg class="fill-current h-4 w-4 ml-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                        <path d="M0 0h20v20H0z" fill="none" />
+                        <path d="M5.293 7.293l4.707 4.707 4.707-4.707-1.414-1.414L10 8.586 6.707 5.293z" />
+                      </svg>
+                    </button>
+                    <ul id="criteria-menu" class="absolute hidden text-gray-700 pt-1">
+                      <li class="">
+                        <a class="rounded-t bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap" href="#"
+                          data-criteria="id">ID</a>
+                      </li>
+                      <li class="">
+                        <a class="bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap" href="#"
+                          data-criteria="name">Name</a>
+                      </li>
+                      <li class="">
+                        <a class="bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap" href="#"
+                          data-criteria="numberphone">Phone Number</a>
+                      </li>
+                      <li class="">
+                        <a class="rounded-b bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap" href="#"
+                          data-criteria="email">Email</a>
+                      </li>
+                    </ul>
+                  </div>
+                  <input type="text" id="search-input" class="border rounded px-4 py-2 ml-2" placeholder="Search...">
+                  <button id="search-button"
+                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-2">Search</button>
+                </div>
+              </div>
+              <table id="customer-table" class="min-w-full bg-white">
+                <thead>
+                  <tr>
+                    <th class="py-2 px-4 border-b">ID</th>
+                    <th class="py-2 px-4 border-b">Image</th>
+                    <th class="py-2 px-4 border-b">Full Name</th>
+                    <th class="py-2 px-4 border-b">Phone Number</th>
+                    <th class="py-2 px-4 border-b">Email</th>
+                    <th class="py-2 px-4 border-b">Address</th>
+                    <th class="py-2 px-4 border-b">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Customer rows will be dynamically added here -->
+                </tbody>
+              </table>
+              <div id="pagination" class="mt-4">
+                <button id="prev-page"
+                  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Previous</button>
+                <span id="page-info" class="mx-2"></span>
+                <button id="next-page"
+                  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Next</button>
+              </div>
+            </div>
+
+
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+
+  <!-- Modal for adding role -->
+  <div id="addRoleModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden">
+    <div class="bg-white rounded-lg p-6 w-1/3">
+      <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-bold mb-4">Add Role</h2>
+        <button id="close-modal" class="text-gray-500 hover:text-gray-700">
+          <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd"
+              d="M10 8.586L15.657 2.93a1 1 0 011.414 1.414L11.414 10l5.657 5.657a1 1 0 01-1.414 1.414L10 11.414l-5.657 5.657a1 1 0 01-1.414 1.414L8.586 10 2.93 4.343A1 1 0 014.343 2.93L10 8.586z"
+              clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+      <form id="add-role-form">
+        <div class="mb-4">
+          <label for="role-name" class="block text-gray-700 font-bold mb-2">Role Name:</label>
+          <input type="text" id="role-name" name="roleName"
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            required>
+        </div>
+        <div class="flex justify-end">
+          <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Add Role
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- Modal for updating user information -->
+  <div id="updateUserModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden">
+    <div class="bg-white rounded-lg p-6 w-1/3">
+      <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-bold mb-4">Update User Information</h2>
+        <button id="close-update-modal" class="text-gray-500 hover:text-gray-700">
+          <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd"
+              d="M10 8.586L15.657 2.93a1 1 0 011.414 1.414L11.414 10l5.657 5.657a1 1 0 01-1.414 1.414L10 11.414l-5.657 5.657a1 1 0 01-1.414 1.414L8.586 10 2.93 4.343A1 1 0 014.343 2.93L10 8.586z"
+              clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+      <form id="update-user-form" enctype="multipart/form-data">
+        <input type="hidden" id="update-id" name="id">
+        <div class="mb-4">
+          <label for="update-fullname" class="block text-gray-700 font-bold mb-2">Full Name:</label>
+          <input type="text" id="update-fullname" name="fullName"
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            required>
+        </div>
+        <div class="mb-4">
+          <label for="update-phone" class="block text-gray-700 font-bold mb-2">Phone Number:</label>
+          <input type="text" id="update-phone" name="phoneNumber"
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            required>
+        </div>
+        <div class="mb-4">
+          <label for="update-email" class="block text-gray-700 font-bold mb-2">Email:</label>
+          <input type="email" id="update-email" name="email"
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            required>
+        </div>
+        <div class="mb-4">
+          <label for="update-address" class="block text-gray-700 font-bold mb-2">Address:</label>
+          <input type="text" id="update-address" name="address"
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            required>
+        </div>
+        <div class="mb-4">
+          <label for="update-role" class="block text-gray-700 font-bold mb-2">Role:</label>
+          <select id="update-role" name="roleId"
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            required>
+            <!-- Options will be dynamically populated -->Supplier List
+          </select>
+        </div>
+        <div class="mb-4">
+          <label for="update-file" class="block text-gray-700 font-bold mb-2">Profile Image:</label>
+          <input type="file" id="update-file" name="file"
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+        <div class="flex justify-end">
+          <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Update User
+            Information</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- Insert User Modal -->
+  <div id="insertUserModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-lg">
+      <div class="bg-blue-500 text-white py-2 px-4 rounded-t-lg">
+        <h2 class="text-2xl font-semibold text-center">Insert User</h2>
+      </div>
+      <div class="p-6">
+        <form id="insert-user-form" enctype="multipart/form-data" class="space-y-4">
+          <div>
+            <label for="insert-fullName" class="block text-sm font-medium text-gray-700">Full Name</label>
+            <input type="text" id="insert-fullName" name="fullName" required
+              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+          </div>
+          <div>
+            <label for="insert-phoneNumber" class="block text-sm font-medium text-gray-700">Phone Number</label>
+            <input type="text" id="insert-phoneNumber" name="phoneNumber" required
+              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+          </div>
+          <div>
+            <label for="insert-email" class="block text-sm font-medium text-gray-700">Email</label>
+            <input type="email" id="insert-email" name="email" required
+              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+          </div>
+          <div>
+            <label for="insert-role" class="block text-sm font-medium text-gray-700">Role</label>
+            <select id="insert-role" name="roleId" required
+              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></select>
+          </div>
+          <div>
+            <label for="insert-address" class="block text-sm font-medium text-gray-700">Address</label>
+            <input type="text" id="insert-address" name="address" required
+              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+          </div>
+          <div>
+            <label for="insert-file" class="block text-sm font-medium text-gray-700">File</label>
+            <input type="file" id="insert-file" name="file" required
+              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+          </div>
+          <div class="flex justify-end space-x-3">
+            <button type="button" id="close-insert-modal"
+              class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50">Cancel</button>
+            <button type="submit"
+              class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50">Insert</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+  <!-- AlpineJS -->
+  <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+  <!-- Font Awesome -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"
+    integrity="sha256-KzZiKy0DWYsnwMF+X1DvQngQ2/FxF7MF3Ff72XcpuPs=" crossorigin="anonymous"></script>
+</body>
+
+</html>

@@ -7,6 +7,7 @@ import com.ks1dotnet.jewelrystore.dto.RoleDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

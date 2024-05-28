@@ -99,7 +99,8 @@ $(document).ready(function () {
             method: "GET",
             success: function (response) {
                 if (response && response.data) {
-                    response.data.forEach(role => {
+                    const rolesToShow = response.data.slice(0, 3); // Get only the first 3 roles
+                    rolesToShow.forEach(role => {
                         $('#role').append(new Option(role.name, role.id));
                     });
                 }
@@ -133,6 +134,7 @@ $(document).ready(function () {
                     $("#address").val(employee.address);
                     $("#role").val(employee.role.id);
                     $("#status").val(employee.status.toString());
+                    $("#pinCode").val(employee.pinCode);
                     // Display the current image
                     if (employee.image) {
                         $("#currentImage").attr("src", `http://localhost:8080/employee/files/${employee.image}`).show();
@@ -190,8 +192,9 @@ $(document).ready(function () {
             method: "GET",
             success: function (response) {
                 if (response && response.data) {
+                    const rolesToShow = response.data.slice(0, 3); // Get only the first 3 roles
                     $('#insertRole').empty(); // Clear existing options
-                    response.data.forEach(role => {
+                    rolesToShow.forEach(role => {
                         $('#insertRole').append(new Option(role.name, role.id));
                     });
                 }

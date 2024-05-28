@@ -54,7 +54,8 @@ public class Employee {
     @OneToMany(mappedBy = "employee")
     Set<OrderInvoice> listOrderInvoice;
 
-    public EmployeeDTO getDTO(){
-        return new EmployeeDTO(id, firstName, lastName, pinCode, status, phoneNumber, email, address, role.getDTO(), image);
+    public EmployeeDTO getDTO() {
+        return new EmployeeDTO(id, firstName, lastName, pinCode, status, phoneNumber, email, address, role.getDTO(),
+                image);
     }
 }

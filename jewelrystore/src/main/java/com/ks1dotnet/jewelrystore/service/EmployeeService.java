@@ -102,8 +102,8 @@ public class EmployeeService implements IEmployeeService {
    }
 
    @Override
-   public EmployeeDTO updateEmployee(MultipartFile file, String id, String firstName, String lastName, String pinCode,
-         String phoneNumber, String email, String address, boolean status, int roleId) {
+   public EmployeeDTO updateEmployee(MultipartFile file, String id, String firstName, String lastName, int roleId,
+         String pinCode, boolean status, String phoneNumber, String email, String address) {
       boolean isSaveFileSuccess = iFileService.savefile(file);
       Optional<Employee> employee = iEmployeeRepository.findById(id);
       System.out.println(employee);

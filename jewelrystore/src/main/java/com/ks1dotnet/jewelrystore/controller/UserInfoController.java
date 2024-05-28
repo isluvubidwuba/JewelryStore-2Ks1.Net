@@ -50,6 +50,8 @@ public class UserInfoController {
 
         if (isSuccess) {
             ResponseData.setDesc("Insert successfull");
+            ResponseData.setStatus(HttpStatus.OK);
+
             return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } else {
             ResponseData.setData(500);
@@ -75,6 +77,7 @@ public class UserInfoController {
         if (userInfoDTO != null) {
             ResponseData.setDesc("Update successful");
             ResponseData.setData(userInfoDTO);
+            ResponseData.setStatus(HttpStatus.OK);
             return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } else {
             ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -90,6 +93,7 @@ public class UserInfoController {
             Map<String, Object> customers = iUserInfoService.listCustomer(page);
             ResponseData.setData(customers);
             ResponseData.setDesc("Fetch successful");
+            ResponseData.setStatus(HttpStatus.OK);
             return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } catch (Exception e) {
             ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -105,6 +109,8 @@ public class UserInfoController {
             Map<String, Object> customers = iUserInfoService.listSupplier(page);
             ResponseData.setData(customers);
             ResponseData.setDesc("Fetch successful");
+            ResponseData.setStatus(HttpStatus.OK);
+
             return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } catch (Exception e) {
             ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -120,6 +126,8 @@ public class UserInfoController {
         try {
             Map<String, Object> customers = iUserInfoService.findByCriteriaCustomer(criteria, query, page);
             ResponseData.setData(customers);
+            ResponseData.setStatus(HttpStatus.OK);
+
             ResponseData.setDesc("Fetch successful");
             return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } catch (Exception e) {
@@ -136,6 +144,8 @@ public class UserInfoController {
         try {
             Map<String, Object> suppliers = iUserInfoService.findByCriteriaSupplier(criteria, query, page);
             ResponseData.setData(suppliers);
+            ResponseData.setStatus(HttpStatus.OK);
+
             ResponseData.setDesc("Fetch successful");
             return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } catch (Exception e) {
@@ -148,6 +158,8 @@ public class UserInfoController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserInfo(@PathVariable("id") int id) {
         ResponseData ResponseData = new ResponseData();
+        ResponseData.setStatus(HttpStatus.OK);
+
         ResponseData.setData(iUserInfoService.getUserInfo(id).getDTO());
         System.out.println(iUserInfoService.getUserInfo(id).getDTO());
         return new ResponseEntity<>(ResponseData, HttpStatus.OK);

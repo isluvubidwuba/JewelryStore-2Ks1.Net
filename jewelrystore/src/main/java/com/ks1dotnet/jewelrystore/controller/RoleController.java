@@ -29,6 +29,7 @@ public class RoleController {
     private ResponseEntity<?> findAll() {
         List<RoleDTO> listRoleDTO = iRoleService.findAll();
         ResponseData ResponseData = new ResponseData();
+        ResponseData.setStatus(HttpStatus.OK);
         ResponseData.setData(listRoleDTO);
         return new ResponseEntity<>(ResponseData, HttpStatus.OK);
     }
@@ -36,8 +37,11 @@ public class RoleController {
     @PostMapping("/insert")
     public ResponseEntity<?> insertRole(@RequestParam String roleName) {
         boolean isSuccess = iRoleService.insertRole(roleName);
-
+        ResponseData ResponseData = new ResponseData();
+        
         if (isSuccess) {
+            ResponseData.setStatus(HttpStatus.OK);
+
             return new ResponseEntity<>("Role added successfully!", HttpStatus.CREATED);
         } else {
             return new ResponseEntity<>("Error adding role.", HttpStatus.INTERNAL_SERVER_ERROR);

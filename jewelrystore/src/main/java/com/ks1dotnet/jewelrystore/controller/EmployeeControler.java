@@ -85,22 +85,23 @@ public class EmployeeControler {
             @RequestParam String firstName,
             @RequestParam String lastName,
             @RequestParam int roleId,
+            @RequestParam String pinCode,
             @RequestParam boolean status,
             @RequestParam String phoneNumber,
             @RequestParam String email,
             @RequestParam String address) {
-        ResponseData ResponseData = new ResponseData();
+        ResponseData responseData = new ResponseData();
 
-        EmployeeDTO employeeDTO = iEmployeeService.updateEmployee(file, id, firstName, lastName, lastName, phoneNumber,
-                email, address, status, roleId);
+        EmployeeDTO employeeDTO = iEmployeeService.updateEmployee(file, id, firstName, lastName,
+                roleId, pinCode, status, phoneNumber, email, address);
         if (employeeDTO != null) {
-            ResponseData.setDesc("Update successful");
-            ResponseData.setData(employeeDTO);
-            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
+            responseData.setDesc("Update successful");
+            responseData.setData(employeeDTO);
+            return new ResponseEntity<>(responseData, HttpStatus.OK);
         } else {
-            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-            ResponseData.setDesc("Update failed. Internal Server Error");
-            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            responseData.setDesc("Update failed. Internal Server Error");
+            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
