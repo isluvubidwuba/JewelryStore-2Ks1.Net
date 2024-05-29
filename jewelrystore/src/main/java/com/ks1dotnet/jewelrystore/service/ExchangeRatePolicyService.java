@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.ks1dotnet.jewelrystore.dto.ExchangeRatePolicyDTO;
@@ -44,6 +45,7 @@ public class ExchangeRatePolicyService implements IExchangeRatePolicyService {
             ExchangeRatePolicyDTO exReturn = iExchangeRatePolicyRepository.save(newPolicy).getDTO();
             ResponseData.setData(exReturn);
             ResponseData.setDesc("Create successful");
+            ResponseData.setStatus(HttpStatus.OK);
         } catch (Exception e) {
             System.err.println("Error creating exchange rate policy: " + e.getMessage());
             ResponseData.setDesc("Failed to create exchange rate policy.");
@@ -95,6 +97,8 @@ public class ExchangeRatePolicyService implements IExchangeRatePolicyService {
             if (!exchangeRatePolicyOptional.isPresent()) {
                 ResponseData.setData("Exchange rate policy not found");
                 ResponseData.setDesc("Update failed");
+                ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+
                 return ResponseData;
             }
             ExchangeRatePolicy exPolicy = exchangeRatePolicyOptional.get();
@@ -104,11 +108,14 @@ public class ExchangeRatePolicyService implements IExchangeRatePolicyService {
             exPolicy.setLastModified(); // Set last modified to current date
             ExchangeRatePolicyDTO exReturn = iExchangeRatePolicyRepository.save(exPolicy).getDTO();
             ResponseData.setData(exReturn);
+            ResponseData.setStatus(HttpStatus.OK);
             ResponseData.setDesc("Update successful");
         } catch (Exception e) {
             // Log the exception (consider using a logging framework)
             System.err.println("Error updating exchange rate policy: " + e.getMessage());
             ResponseData.setDesc("Failed to update exchange rate policy.");
+            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+
         }
         return ResponseData;
     }
@@ -130,10 +137,14 @@ public class ExchangeRatePolicyService implements IExchangeRatePolicyService {
             ExchangeRatePolicyDTO exReturn = iExchangeRatePolicyRepository.save(exPolicy).getDTO();
             ResponseData.setData(exReturn);
             ResponseData.setDesc("Delete successful");
+            ResponseData.setStatus(HttpStatus.OK);
+
         } catch (Exception e) {
             // Log the exception (consider using a logging framework)
             System.err.println("Error Deleting exchange rate policy: " + e.getMessage());
             ResponseData.setDesc("Failed to update exchange rate policy.");
+            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+
         }
         return ResponseData;
     }
@@ -150,12 +161,15 @@ public class ExchangeRatePolicyService implements IExchangeRatePolicyService {
             }
             ResponseData.setData("Error method get IN4 by ID");
             ResponseData.setDesc("Get invoice by id exchange success");
+            ResponseData.setStatus(HttpStatus.OK);
 
         } catch (Exception e) {
             // Log the exception (consider using a logging framework)
             System.err
                     .println("Error retrieving invoices by exchange rate ID (method: getFullByID): " + e.getMessage());
             ResponseData.setDesc("Failed to get invoices by id exchange rate.");
+            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+
         }
         return ResponseData;
     }
@@ -180,9 +194,11 @@ public class ExchangeRatePolicyService implements IExchangeRatePolicyService {
             removePolicyForInvoiceTypes(idExchangeRate, idsToRemove);
 
             response.setDesc("Options applied successfully");
+            response.setStatus(HttpStatus.OK);
         } catch (Exception e) {
             System.err.println("Error applying selected options: " + e.getMessage());
             response.setDesc("Failed to apply selected options.");
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             throw new RuntimeException("Error applying selected options: " + e.getMessage());
         }
         return response;

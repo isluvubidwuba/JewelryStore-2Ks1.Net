@@ -1,17 +1,15 @@
 $(document).ready(function () {
   setupEventListeners();
   fetchPromotions(0);
-  loadComponents();
+  loadComponents2();
   fetchVouchersForCreate();
   setupModalToggles();
   submitForm();
   submitUpdateForm(); // Call the function to handle update form submission
 });
 // load components
-function loadComponents() {
+function loadComponents2() {
   const components = [
-    { id: "sidebar-placeholder", url: "components/sidebar.html" },
-    { id: "header-placeholder", url: "components/header.html" },
     {
       id: "pagination-placeholder",
       url: "components/pagination-promotion.html",
@@ -358,7 +356,7 @@ function submitForm() {
 
     // If all fields are filled, proceed with AJAX request
     if (allFieldsFilled) {
-      var formData = new FormData($("#form-insert")[0]); // Sử dụng id của biểu mẫu
+      var formData = new FormData($("#form-insert")[0]); // Use form ID
 
       $.ajax({
         url: "http://localhost:8080/promotion/create",
@@ -371,11 +369,12 @@ function submitForm() {
             .find(
               "input[type='text'], input[type='number'], input[type='file'], textarea, select"
             )
-            .val(""); // Đặt các trường input, textarea và select thành trống sau khi thành công
-          $("#form-insert").find("select").prop("selectedIndex", 0); // Đặt lại trạng thái của các select
+            .val(""); // Clear input fields after success
+          $("#form-insert").find("select").prop("selectedIndex", 0); // Reset select fields
           $("#crud-modal").addClass("hidden");
           console.log(response);
           alert(response.desc);
+          fetchPromotions(); // Fetch and display updated promotions
         },
         error: function (xhr, status, error) {
           alert("An error occurred while submitting the form.");

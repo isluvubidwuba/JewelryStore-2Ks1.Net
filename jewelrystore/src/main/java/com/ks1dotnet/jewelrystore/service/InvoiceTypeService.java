@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.ks1dotnet.jewelrystore.dto.InvoiceTypeDTO;
@@ -27,9 +28,12 @@ public class InvoiceTypeService implements IInvoiceTypeService {
             InvoiceType invoiceType = iInvoiceTypeRepository.save(save);
             ResponseData.setData(invoiceType.getDTO());
             ResponseData.setDesc("Create invoice type success");
+            ResponseData.setStatus(HttpStatus.OK);
         } catch (Exception e) {
+            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             ResponseData.setDesc("An error occurred: " + e.getMessage());
         }
+
         return ResponseData;
     }
 
@@ -56,10 +60,13 @@ public class InvoiceTypeService implements IInvoiceTypeService {
             InvoiceType invoiceType2 = new InvoiceType(new InvoiceTypeDTO(0, invoiceType));
             ResponseData.setData(iInvoiceTypeRepository.save(invoiceType2).getDTO());
             ResponseData.setDesc("Add invoice type successfull!");
+            ResponseData.setStatus(HttpStatus.OK);
             return ResponseData;
         } catch (Exception e) {
             System.out.println("Throw method add Invoice type: " + e.getMessage());
             ResponseData.setDesc("Fail to add invoice type");
+            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+
             return ResponseData;
         }
     }
@@ -74,15 +81,20 @@ public class InvoiceTypeService implements IInvoiceTypeService {
                 invoiceTypeEntity.setName(invoiceType);
                 ResponseData.setData(iInvoiceTypeRepository.save(invoiceTypeEntity).getDTO());
                 ResponseData.setDesc("update invoice type successfull!");
+                ResponseData.setStatus(HttpStatus.OK);
+
                 return ResponseData;
 
             }
+            ResponseData.setStatus(HttpStatus.BAD_REQUEST);
             ResponseData.setData("Fail to update invoice type");
             ResponseData.setDesc("Update invoice type fail!");
             return ResponseData;
         } catch (Exception e) {
             System.out.println("Throw method add Invoice type: " + e.getMessage());
             ResponseData.setDesc("Fail to add invoice type");
+            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+
             return ResponseData;
         }
     }

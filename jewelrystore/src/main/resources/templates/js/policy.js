@@ -14,7 +14,6 @@ function fetchPolicies() {
         displayTableData(currentPage);
         updatePagination(totalPage, currentPage);
         updatePolicyOverview(policies);
-        console.log(policies);
       } else {
         alert("Failed to fetch data");
       }
@@ -31,7 +30,7 @@ function searchPolicies(keyword) {
     method: "POST",
     data: { keyword: keyword },
     success: function (response) {
-      if (response.status === 200) {
+      if (response.status === "OK") {
         policies = response.data;
         totalPage = Math.ceil(policies.length / rowsLimit);
         displayTableData(currentPage);
@@ -187,7 +186,7 @@ function loadDropdownOptions(idExchangeRate, button) {
     url: `http://localhost:8080/policy/detail?idExchangeRate=${idExchangeRate}`,
     method: "POST",
     success: function (response) {
-      if (response.status === 200) {
+      if (response.status === "OK") {
         populateDropdown(
           response.data.fullOption,
           response.data.selectOption,
@@ -293,6 +292,13 @@ function closeInvoiceTypeModal() {
   $("#addInvoiceTypeModal").addClass("hidden");
 }
 
+const insertModal = $("#insert-modal");
+const updateModal = $("#update-modal");
+
+const modalInsertCloseButton = $("#modalInsertClose");
+const modalInsertOpenButton = $("#modalOpen");
+const modalUpdateCloseButton = $("#modalUpdateClose");
+
 // Initial fetch
 $(document).ready(function () {
   fetchPolicies();
@@ -306,13 +312,6 @@ $(document).ready(function () {
     loadDropdownOptions(idExchangeRate);
   });
 
-  const insertModal = $("#insert-modal");
-  const updateModal = $("#update-modal");
-
-  const modalInsertCloseButton = $("#modalInsertClose");
-  const modalInsertOpenButton = $("#modalOpen");
-  const modalUpdateCloseButton = $("#modalUpdateClose");
-
   modalInsertOpenButton.click(function () {
     insertModal.removeClass("hidden");
   });
@@ -320,7 +319,9 @@ $(document).ready(function () {
   modalInsertCloseButton.click(function () {
     insertModal.addClass("hidden");
   });
-
+  function closeInsertModal() {
+    insertModal.addClass("hidden");
+  }
   modalUpdateCloseButton.click(function () {
     updateModal.addClass("hidden");
   });
@@ -342,7 +343,7 @@ $(document).ready(function () {
       url: `http://localhost:8080/policy/infor?idExchangeRate=${idExchangeRate}`,
       type: "POST",
       success: function (response) {
-        if (response.status === 200) {
+        if (response.status === "OK") {
           const data = response.data;
           $("#update-idExchange").val(data.id);
           $("#update-desc").val(data.description_policy);
@@ -377,18 +378,19 @@ $(document).ready(function () {
       processData: false,
       contentType: false,
       success: function (response) {
-        if (response.status === 200) {
-          const updatedRow = $(`#table-body tr[data-id='${idExchange}']`);
-          updatedRow.find("td:eq(1)").text(response.data.description_policy);
-          updatedRow.find("td:eq(2)").text(response.data.rate);
-          updatedRow
-            .find("td:eq(3)")
-            .text(response.data.status ? "Active" : "Inactive");
-          updatedRow
-            .find("td:eq(4)")
-            .text(new Date(response.data.lastModified).toLocaleDateString());
+        if (response.status === "OK") {
+          // const updatedRow = $(`#table-body tr[data-id='${idExchange}']`);
+          // updatedRow.find("td:eq(1)").text(response.data.description_policy);
+          // updatedRow.find("td:eq(2)").text(response.data.rate);
+          // updatedRow
+          //   .find("td:eq(3)")
+          //   .text(response.data.status ? "Active" : "Inactive");
+          // updatedRow
+          //   .find("td:eq(4)")
+          //   .text(new Date(response.data.lastModified).toLocaleDateString());
 
-          $("#form-update").find("input, select").val("");
+          // $("#form-update").find("input, select").val("");
+          fetchPolicies();
           updateModal.addClass("hidden");
           alert(response.desc);
         } else {
@@ -411,7 +413,7 @@ $(document).ready(function () {
         url: `http://localhost:8080/policy/deleteexchange?idExchange=${idExchangeRate}`,
         type: "POST",
         success: function (response) {
-          if (response.status === 200) {
+          if (response.status === "OK") {
             $(`#table-body tr[data-id='${idExchangeRate}']`).remove();
             alert("Policy deleted successfully");
             fetchPolicies();
@@ -446,7 +448,7 @@ $(document).ready(function () {
       contentType: "application/json",
       data: JSON.stringify({ idExchangeRate, selectedOptions }), // Include idExchangeRate
       success: function (response) {
-        if (response.status === 200) {
+        if (response.status === "OK") {
           alert("Options applied successfully");
           $(".dynamic-dropdown").addClass("hidden");
         } else {
@@ -471,7 +473,7 @@ $(document).ready(function () {
       type: "POST",
       data: invoiceTypeData,
       success: function (response) {
-        if (response.status === 200) {
+        if (response.status === "OK") {
           alert("Add invoice type successful!");
           closeInvoiceTypeModal();
           $("#add-invoice-type-form")[0].reset();
@@ -527,7 +529,7 @@ $(document).ready(function () {
       type: "POST",
       data: invoiceTypeData,
       success: function (response) {
-        if (response.status === 200) {
+        if (response.status === "OK") {
           alert("Update invoice type successful!");
           closeUpdateInvoiceTypeModal();
           $(`#label-${response.data.id} .option-name`).text(response.data.name);
@@ -571,60 +573,59 @@ function submitInsertForm() {
         processData: false,
         contentType: false,
         success: function (response) {
-          if (response.status === 200) {
-            const newData = response.data;
-            const newRow = `
-              <tr class="${
-                $("#table-body tr").length % 2 === 0
-                  ? "bg-gray-100"
-                  : "bg-white"
-              }" data-id="${newData.id}">
-                <td class="text-left py-3 px-4">${newData.id}</td>
-                <td class="text-left py-3 px-4">${
-                  newData.description_policy
-                }</td>
-                <td class="text-left py-3 px-4">${newData.rate}</td>
-                <td class="text-left py-3 px-4">${
-                  newData.status ? "Active" : "Inactive"
-                }</td>
-                <td class="text-left py-3 px-4">${new Date(
-                  newData.lastModified
-                ).toLocaleDateString()}</td>
-                  
-                <td class="text-left py-3 px-4">
-                    <button class="text-blue-500 text-xs" data-id="${
-                      newData.id
-                    }">
-                    <svg class="text-themeColor-500 w-10 h-10"
-                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                    
-                    Edit</button>
-                    <button class="text-red-500 text-xs" data-id="${
-                      newData.id
-                    }">
-                    <svg class="text-themeColor-500 w-10 h-10"
-                    xmlns="http://www.w3.org/2000/svg" width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round">  <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" />  <line x1="18" y1="9" x2="12" y2="15" />  <line x1="12" y1="9" x2="18" y2="15" /></svg>
-                    Delete</button>
-                    <button class="text-amber-900 text-xs" id="bttn-detail" data-id="${
-                      newData.id
-                    }">
-                    <svg class="text-themeColor-500 w-10 h-10"
-                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/>
-                    </svg>
-                    
-                    Detail</button>
-                </td>
-              </tr>
-              
-              
-            `;
-            $("#table-body").append(newRow);
+          if (response.status === "OK") {
+            // const newData = response.data;
+            // const newRow = `
+            //   <tr class="${
+            //     $("#table-body tr").length % 2 === 0
+            //       ? "bg-gray-100"
+            //       : "bg-white"
+            //   }" data-id="${newData.id}">
+            //     <td class="text-left py-3 px-4">${newData.id}</td>
+            //     <td class="text-left py-3 px-4">${
+            //       newData.description_policy
+            //     }</td>
+            //     <td class="text-left py-3 px-4">${newData.rate}</td>
+            //     <td class="text-left py-3 px-4">${
+            //       newData.status ? "Active" : "Inactive"
+            //     }</td>
+            //     <td class="text-left py-3 px-4">${new Date(
+            //       newData.lastModified
+            //     ).toLocaleDateString()}</td>
+
+            //     <td class="text-left py-3 px-4">
+            //         <button class="text-blue-500 text-xs" data-id="${
+            //           newData.id
+            //         }">
+            //         <svg class="text-themeColor-500 w-10 h-10"
+            //         xmlns="http://www.w3.org/2000/svg" width="24" height="24"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            //           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+            //           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            //         </svg>
+
+            //         Edit</button>
+            //         <button class="text-red-500 text-xs" data-id="${
+            //           newData.id
+            //         }">
+            //         <svg class="text-themeColor-500 w-10 h-10"
+            //         xmlns="http://www.w3.org/2000/svg" width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round">  <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" />  <line x1="18" y1="9" x2="12" y2="15" />  <line x1="12" y1="9" x2="18" y2="15" /></svg>
+            //         Delete</button>
+            //         <button class="text-amber-900 text-xs" id="bttn-detail" data-id="${
+            //           newData.id
+            //         }">
+            //         <svg class="text-themeColor-500 w-10 h-10"
+            //         xmlns="http://www.w3.org/2000/svg" width="24" height="24"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            //           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/>
+            //         </svg>
+
+            //         Detail</button>
+            //     </td>
+            //   </tr>
+
+            // `;
             $("#form-insert").find("input, select").val("");
             $("#form-insert").find("select").prop("selectedIndex", 0);
+            fetchPolicies();
             insertModal.addClass("hidden");
             alert(response.desc);
           } else {

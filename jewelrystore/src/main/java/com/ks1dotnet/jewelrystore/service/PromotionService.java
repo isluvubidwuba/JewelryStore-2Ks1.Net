@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 import com.ks1dotnet.jewelrystore.entity.Promotion;
+import com.ks1dotnet.jewelrystore.exception.BadRequestException;
 import com.ks1dotnet.jewelrystore.repository.IPromotionRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IFileService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionService;
@@ -31,99 +32,132 @@ public class PromotionService implements IPromotionService {
 
     @Override
     public List<Promotion> findAll() {
-        return iPromotionRepository.findAll();
+        try {
+            return iPromotionRepository.findAll();
+        } catch (Exception e) {
+            throw new BadRequestException("Failed to fetch all promotions", e.getMessage());
+        }
     }
 
     @Override
     public Promotion saveOrUpdatePromotion(Promotion promotion) {
-        return iPromotionRepository.save(promotion);
+        try {
+            return iPromotionRepository.save(promotion);
+        } catch (Exception e) {
+            throw new BadRequestException("Failed to save or update promotion", e.getMessage());
+        }
     }
 
     @Override
     public Promotion findById(int id) {
-        return iPromotionRepository.findById(id).orElse(null);
+        try {
+            return iPromotionRepository.findById(id).orElse(null);
+        } catch (Exception e) {
+            throw new BadRequestException("Failed to find promotion by id", e.getMessage());
+        }
     }
 
     @Override
     public List<Promotion> searchByName(String name) {
-        return iPromotionRepository.findByNameLike("%" + name + "%");
+        try {
+            return iPromotionRepository.findByNameLike("%" + name + "%");
+        } catch (Exception e) {
+            throw new BadRequestException("Failed to search promotions by name", e.getMessage());
+        }
     }
 
     @Override
-    public boolean insertPromotion(MultipartFile file, String name, int idVoucherType, double value,
+    public PromotionDTO insertPromotion(MultipartFile file, String name, int idVoucherType, double value,
             boolean status) {
-        boolean isInsertSuccess = false;
-        boolean isSaveFileSuccess = iFileService.savefile(file);
-        if (isSaveFileSuccess) {
-            Promotion promotion = new Promotion();
-            promotion.setName(name);
-            promotion.setVoucherType(iVoucherTypeService.getVoucherById(idVoucherType));
-            promotion.setValue(value);
-            promotion.setStatus(status);
-            promotion.setImage(file.getOriginalFilename());
-            iPromotionRepository.save(promotion);
-            isInsertSuccess = true;
+        PromotionDTO promotionDTO = new PromotionDTO();
+        try {
+            boolean isSaveFileSuccess = iFileService.savefile(file);
+            if (isSaveFileSuccess) {
+                Promotion promotion = new Promotion();
+                promotion.setName(name);
+                promotion.setVoucherType(iVoucherTypeService.getVoucherById(idVoucherType));
+                promotion.setValue(value);
+                promotion.setStatus(status);
+                promotion.setImage(file.getOriginalFilename());
+                promotionDTO = iPromotionRepository.save(promotion).getDTO();
+                return promotionDTO;
+            } else {
+                promotionDTO = null;
+                return promotionDTO;
+            }
+        } catch (Exception e) {
+            throw new BadRequestException("Failed to insert promotion", e.getMessage());
         }
-        return isInsertSuccess;
     }
 
     @Override
     public List<PromotionDTO> getHomePagePromotion(int page) {
-        List<PromotionDTO> promotionDTOs = new ArrayList<>();
-        PageRequest pageRequest = PageRequest.of(page, 8);
-        Page<Promotion> listData = iPromotionRepository.findAll(pageRequest);
-        for (Promotion p : listData) {
-            PromotionDTO promotionDTO = new PromotionDTO();
-            promotionDTO.setImage(p.getImage());
-            promotionDTO.setName(p.getName());
-            promotionDTO.setStatus(p.isStatus());
-            promotionDTO.setValue(p.getValue());
-            promotionDTO.setIdVoucherType(p.getVoucherType().getId());
-            promotionDTOs.add(promotionDTO);
+        try {
+            List<PromotionDTO> promotionDTOs = new ArrayList<>();
+            PageRequest pageRequest = PageRequest.of(page, 8);
+            Page<Promotion> listData = iPromotionRepository.findAll(pageRequest);
+            for (Promotion p : listData) {
+                PromotionDTO promotionDTO = new PromotionDTO();
+                promotionDTO.setImage(p.getImage());
+                promotionDTO.setName(p.getName());
+                promotionDTO.setStatus(p.isStatus());
+                promotionDTO.setValue(p.getValue());
+                promotionDTO.setIdVoucherType(p.getVoucherType().getId());
+                promotionDTOs.add(promotionDTO);
+            }
+            return promotionDTOs;
+        } catch (Exception e) {
+            throw new BadRequestException("Failed to get home page promotions", e.getMessage());
         }
-
-        return promotionDTOs;
     }
 
     @Override
     public Map<String, Object> getHomePagePromotion2(int page) {
-        Map<String, Object> response = new HashMap<>();
-        List<PromotionDTO> promotionDTOs = new ArrayList<>();
-        PageRequest pageRequest = PageRequest.of(page, 8);
-        Page<Promotion> listData = iPromotionRepository.findAll(pageRequest);
+        try {
+            Map<String, Object> response = new HashMap<>();
+            List<PromotionDTO> promotionDTOs = new ArrayList<>();
+            PageRequest pageRequest = PageRequest.of(page, 8);
+            Page<Promotion> listData = iPromotionRepository.findAll(pageRequest);
 
-        for (Promotion p : listData) {
-            promotionDTOs.add(p.getDTO());
+            for (Promotion p : listData) {
+                promotionDTOs.add(p.getDTO());
+            }
+
+            response.put("promotions", promotionDTOs);
+            response.put("totalPages", listData.getTotalPages());
+            response.put("currentPage", page);
+
+            return response;
+        } catch (Exception e) {
+            throw new BadRequestException("Failed to get home page promotions with pagination", e.getMessage());
         }
-
-        response.put("promotions", promotionDTOs);
-        response.put("totalPages", listData.getTotalPages());
-        response.put("currentPage", page);
-
-        return response;
     }
 
     @Override
     public PromotionDTO updatePromotion(MultipartFile file, int id, String name, int idVoucherType, double value,
             boolean status) {
-        Optional<Promotion> promotionOptional = iPromotionRepository.findById(id);
-        boolean isSaveFileSuccess = iFileService.savefile(file);
-        PromotionDTO promotionDTO = new PromotionDTO();
-        if (promotionOptional.isPresent()) {
-            Promotion promotion = new Promotion();
-            promotion.setId(id);
-            promotion.setName(name);
-            promotion.setVoucherType(iVoucherTypeService.getVoucherById(idVoucherType));
-            promotion.setValue(value);
-            promotion.setStatus(status);
-            if (isSaveFileSuccess) {
-                promotion.setImage(file.getOriginalFilename());
-            } else {
-                promotion.setImage(promotionOptional.get().getImage());
+        try {
+            Optional<Promotion> promotionOptional = iPromotionRepository.findById(id);
+            boolean isSaveFileSuccess = iFileService.savefile(file);
+            PromotionDTO promotionDTO = new PromotionDTO();
+            if (promotionOptional.isPresent()) {
+                Promotion promotion = new Promotion();
+                promotion.setId(id);
+                promotion.setName(name);
+                promotion.setVoucherType(iVoucherTypeService.getVoucherById(idVoucherType));
+                promotion.setValue(value);
+                promotion.setStatus(status);
+                if (isSaveFileSuccess) {
+                    promotion.setImage(file.getOriginalFilename());
+                } else {
+                    promotion.setImage(promotionOptional.get().getImage());
+                }
+                iPromotionRepository.save(promotion);
+                promotionDTO = promotion.getDTO();
             }
-            iPromotionRepository.save(promotion);
-            promotionDTO = promotion.getDTO();
+            return promotionDTO;
+        } catch (Exception e) {
+            throw new BadRequestException("Failed to update promotion", e.getMessage());
         }
-        return promotionDTO;
     }
 }
