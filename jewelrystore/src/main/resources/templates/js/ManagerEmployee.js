@@ -235,7 +235,11 @@ $(document).ready(function () {
                 }
             },
             error: function (jqXHR, textStatus, errorThrown) {
-                alert("Insert fail. Internal Server Error");
+                if (jqXHR.responseJSON && jqXHR.responseJSON.desc) {
+                    alert("Error: " + jqXHR.responseJSON.desc);
+                } else {
+                    alert("Insert fail. Internal Server Error");
+                }
             }
         });
     });
@@ -257,19 +261,19 @@ $(document).ready(function () {
         // Check phone number is a number and email format
         let phoneNumber = $("#insertPhoneNumber").val();
         let email = $("#insertEmail").val();
-        if (isValid && isNaN(phoneNumber)) {
-            isValid = false;
-            errorMsg = "Phone number must be a number";
-        } else if (isValid && !validateEmail(email)) {
-            isValid = false;
-            errorMsg = "Invalid email format";
+        if (!validateEmail(email)) {
+            alert('Invalid email address.');
+            return false;
         }
 
-        if (!isValid) {
-            alert(errorMsg);
+        if (!isValidPhoneNumber(phoneNumber)) {
+            alert('Invalid phone number. It should contain only digits and be between 10 to 12 digits long.');
+            return false;
         }
 
-        return isValid;
+        return true;
+
+
     }
 
 
@@ -278,6 +282,12 @@ $(document).ready(function () {
     function validateEmail(email) {
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailPattern.test(email);
+    }
+
+    //Function to validate number phone
+    function isValidPhoneNumber(phoneNumber) {
+        const phonePattern = /^\d{10,12}$/;
+        return phonePattern.test(phoneNumber);
     }
 
     // Close insert modal

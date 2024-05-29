@@ -18,6 +18,13 @@ public interface IEmployeeRepository extends JpaRepository<Employee, String> {
 
     public Page<Employee> findByStatus(Boolean status, Pageable pageable);
 
-    public Page<Employee> findByLastNameContainingIgnoreCaseOrFirstNameContainingIgnoreCase(String lastName, String firstName,
+    public Page<Employee> findByLastNameContainingIgnoreCaseOrFirstNameContainingIgnoreCase(String lastName,
+            String firstName,
             Pageable pageable);
+
+    public boolean existsByEmail(String email);
+
+    public boolean existsByPhoneNumber(String phoneNumber);
+
+    public boolean existsById(String id);
 }

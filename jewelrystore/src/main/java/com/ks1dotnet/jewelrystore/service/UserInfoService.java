@@ -11,11 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ks1dotnet.jewelrystore.dto.UserInfoDTO;
 import com.ks1dotnet.jewelrystore.entity.UserInfo;
+import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IUserInfoRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IFileService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IRoleService;
@@ -62,23 +64,59 @@ public class UserInfoService implements IUserInfoService {
     }
 
     @Override
-    public boolean insertEmployee(MultipartFile file, String fullName, String phoneNumber, String email, int roleId,
+    public ResponseData insertUserInfo(MultipartFile file, String fullName, String phoneNumber, String email,
+            int roleId,
             String address) {
-        boolean isInsertSuccess = false;
-        boolean isSaveFileSuccess = iFileService.savefile(file);
+        ResponseData responseData = new ResponseData();
 
-        if (isSaveFileSuccess) {
-            UserInfo userInfo = new UserInfo();
-            userInfo.setFullName(fullName);
-            userInfo.setPhoneNumber(phoneNumber);
-            userInfo.setEmail(email);
-            userInfo.setRole(iRoleService.findById(roleId));
-            userInfo.setAddress(address);
-            userInfo.setImage(file.getOriginalFilename());
-            iUserInfoRepository.save(userInfo);
-            isInsertSuccess = true;
+        // Check if email or phone number already exists
+        if (iUserInfoRepository.existsByEmail(email)) {
+            responseData.setStatus(HttpStatus.CONFLICT);
+            responseData.setDesc("Email already exists");
+            return responseData;
         }
-        return isInsertSuccess;
+
+        if (iUserInfoRepository.existsByPhoneNumber(phoneNumber)) {
+            responseData.setStatus(HttpStatus.CONFLICT);
+            responseData.setDesc("Phone number already exists");
+            return responseData;
+        }
+
+        boolean isSaveFileSuccess = true;
+        String imageName;
+        // Check if a file is provided
+        if (file != null && !file.isEmpty()) {
+            try {
+                isSaveFileSuccess = iFileService.savefile(file);
+                if (isSaveFileSuccess) {
+                    imageName = file.getOriginalFilename();
+                } else {
+                    responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+                    responseData.setDesc("File save failed");
+                    return responseData;
+                }
+            } catch (Exception e) {
+                responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+                responseData.setDesc("File save failed: " + e.getMessage());
+                return responseData;
+            }
+        } else {
+            imageName = "default_image.png";
+        }
+        
+        UserInfo userInfo = new UserInfo();
+        userInfo.setFullName(fullName);
+        userInfo.setPhoneNumber(phoneNumber);
+        userInfo.setEmail(email);
+        userInfo.setAddress(address);
+        userInfo.setRole(iRoleService.findById(roleId));
+        userInfo.setImage(imageName); // Set the image name, default or uploaded
+        iUserInfoRepository.save(userInfo);
+
+        responseData.setStatus(HttpStatus.OK);
+        responseData.setDesc("Insert successful");
+        return responseData;
+
     }
 
     @Override
@@ -245,5 +283,4 @@ public class UserInfoService implements IUserInfoService {
         return iUserInfoRepository.findById(id).orElse(null);
     }
 
-   
 }

@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ks1dotnet.jewelrystore.dto.UserInfoDTO;
 import com.ks1dotnet.jewelrystore.entity.UserInfo;
+import com.ks1dotnet.jewelrystore.payload.ResponseData;
 
 public interface IUserInfoService {
 
@@ -18,7 +19,7 @@ public interface IUserInfoService {
 
         public Map<String, Object> getHomePageUser(int page);
 
-        public boolean insertEmployee(MultipartFile file, String full_name, String phoneNumber, String email,
+        public ResponseData insertUserInfo(MultipartFile file, String full_name, String phoneNumber, String email,
                         int roleId,
                         String address);
 

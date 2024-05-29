@@ -455,7 +455,7 @@ function setupInsertModalToggle() {
       },
       error: function (error) {
         console.error('Error inserting user:', error);
-        alert('Error inserting user!');
+        alert('Error inserting user: ' + (error.responseJSON ? error.responseJSON.desc : 'Internal Server Error'));
       }
     });
   });
@@ -519,7 +519,7 @@ function validateForm(form) {
   }
 
   if (!isValidPhoneNumber(phoneNumber)) {
-    alert('Invalid phone number. It should contain only digits and be between 10 to 11 digits long.');
+    alert('Invalid phone number. It should contain only digits and be between 10 to 12 digits long.');
     return false;
   }
 
@@ -532,7 +532,7 @@ function isValidEmail(email) {
 }
 
 function isValidPhoneNumber(phoneNumber) {
-  const phonePattern = /^\d{10,15}$/;
+  const phonePattern = /^\d{10,12}$/;
   return phonePattern.test(phoneNumber);
 }
 

@@ -66,20 +66,11 @@ public class EmployeeControler {
             @RequestParam int roleId,
             @RequestParam boolean status) {
 
-        ResponseData ResponseData = new ResponseData();
-        boolean isSuccess = iEmployeeService.insertEmployee(file, firstName, lastName, pinCode, phoneNumber, email,
+        ResponseData responseData = iEmployeeService.insertEmployee(file, firstName, lastName, pinCode, phoneNumber,
+                email,
                 address, roleId, status);
 
-        if (isSuccess) {
-            ResponseData.setDesc("Insert successfull");
-        ResponseData.setStatus(HttpStatus.OK);
-
-            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
-        } else {
-            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-            ResponseData.setDesc("Insert fail. Internal Server Error");
-            return new ResponseEntity<>("Employee created successfully", HttpStatus.CREATED);
-        }
+        return new ResponseEntity<>(responseData, responseData.getStatus());
 
     }
 

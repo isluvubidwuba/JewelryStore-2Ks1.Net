@@ -45,19 +45,10 @@ public class UserInfoController {
             @RequestParam String address) {
 
         System.out.println("Inserting employee: " + fullName);
-        ResponseData ResponseData = new ResponseData();
-        boolean isSuccess = iUserInfoService.insertEmployee(file, fullName, phoneNumber, email, roleId, address);
+        ResponseData responseData = iUserInfoService.insertUserInfo(file, fullName, phoneNumber, email, roleId,
+                address);
 
-        if (isSuccess) {
-            ResponseData.setDesc("Insert successfull");
-            ResponseData.setStatus(HttpStatus.OK);
-
-            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
-        } else {
-            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-            ResponseData.setDesc("Insert fail. Internal Server Error");
-            return new ResponseEntity<>("Employee created successfully", HttpStatus.CREATED);
-        }
+        return new ResponseEntity<>(responseData, responseData.getStatus());
 
     }
 
