@@ -39,6 +39,7 @@ public class EmployeeControler {
             @RequestParam int page) {
         System.out.println("Requested page: " + page);
         ResponseData ResponseData = new ResponseData();
+        ResponseData.setStatus(HttpStatus.OK);
         ResponseData.setData(iEmployeeService.getHomePageEmployee(page));
         return new ResponseEntity<>(ResponseData, HttpStatus.OK);
     }
@@ -47,6 +48,8 @@ public class EmployeeControler {
     private ResponseEntity<?> findEmployee(
             @PathVariable String id) {
         ResponseData ResponseData = new ResponseData();
+        ResponseData.setStatus(HttpStatus.OK);
+
         ResponseData.setData(iEmployeeService.listEmployee(id).getDTO());
         return new ResponseEntity<>(ResponseData, HttpStatus.OK);
     }
@@ -69,6 +72,8 @@ public class EmployeeControler {
 
         if (isSuccess) {
             ResponseData.setDesc("Insert successfull");
+        ResponseData.setStatus(HttpStatus.OK);
+
             return new ResponseEntity<>(ResponseData, HttpStatus.OK);
         } else {
             ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -95,6 +100,8 @@ public class EmployeeControler {
         EmployeeDTO employeeDTO = iEmployeeService.updateEmployee(file, id, firstName, lastName,
                 roleId, pinCode, status, phoneNumber, email, address);
         if (employeeDTO != null) {
+            responseData.setStatus(HttpStatus.OK);
+
             responseData.setDesc("Update successful");
             responseData.setData(employeeDTO);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
@@ -112,6 +119,8 @@ public class EmployeeControler {
             Employee employee = iEmployeeService.findById(id);
             employee.setStatus(false);
             Employee updateEmployee = iEmployeeService.save(employee);
+            ResponseData.setStatus(HttpStatus.OK);
+
             ResponseData.setDesc("Delete successfull");
             ResponseData.setData(updateEmployee);
         } catch (Exception e) {
@@ -139,7 +148,7 @@ public class EmployeeControler {
         ResponseData ResponseData = new ResponseData();
         Map<String, Object> response = iEmployeeService.findByCriteria(criteria, query, page);
         ResponseData.setData(response);
-        System.out.println(ResponseData);
+        ResponseData.setStatus(HttpStatus.OK);
         return new ResponseEntity<>(ResponseData, HttpStatus.OK);
     }
 

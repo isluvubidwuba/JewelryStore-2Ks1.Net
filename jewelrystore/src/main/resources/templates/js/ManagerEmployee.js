@@ -33,7 +33,7 @@ $(document).ready(function () {
                 const employeeRow = createEmployeeRow(employee);
                 $("#employeeTableBody").append(employeeRow);
             });
-            console.log(totalPages, currentPage)
+            console.log(totalPages, currentPage);
             updatePaginationControls(totalPages, currentPage);
         }
     }
@@ -54,7 +54,6 @@ $(document).ready(function () {
                 <td class="px-6 py-4">
                 <img src="http://localhost:8080/employee/files/${employee.image}" alt="Employee Image" class="w-10 h-10 rounded-full">
                 </td>
-
                 <td class="px-6 py-4">${employee.firstName} ${employee.lastName}</td>
                 <td class="px-6 py-4">${employee.role.name}</td>
                 <td class="px-6 py-4 ${statusColor}">${statusText}</td>
@@ -169,7 +168,7 @@ $(document).ready(function () {
             processData: false,
             success: function (response) {
                 alert(response.desc);
-                if (response.status !== 500) {
+                if (response.status === "OK") {
                     $("#updateEmployeeModal").addClass("hidden");
                     fetchEmployees(currentPage); // Reload current page after update
                 }
@@ -214,6 +213,12 @@ $(document).ready(function () {
     $("#insertEmployeeForm").on("submit", function (event) {
         event.preventDefault();
 
+        // Validate form fields
+        let isValid = validateInsertForm();
+        if (!isValid) {
+            return; // Stop form submission if validation fails
+        }
+
         var formData = new FormData($("#insertEmployeeForm")[0]);
         $.ajax({
             url: "http://localhost:8080/employee/insert",
@@ -223,7 +228,7 @@ $(document).ready(function () {
             processData: false,
             success: function (response) {
                 alert(response.desc);
-                if (response.status !== 500) {
+                if (response.status === "OK") {
                     $("#insertEmployeeModal").addClass("hidden");
                     resetInsertForm();
                     fetchEmployees(currentPage); // Reload current page after insert
@@ -234,6 +239,46 @@ $(document).ready(function () {
             }
         });
     });
+
+    // Function to validate insert form fields
+    function validateInsertForm() {
+        let isValid = true;
+        let errorMsg = "You must fill all fields";
+
+        // Check required fields
+        $("#insertEmployeeForm input[required]").each(function () {
+            if (!$(this).val().trim()) {
+                isValid = false;
+                errorMsg = `${$(this).attr('name')} cannot be empty`;
+                return false; // Exit each loop
+            }
+        });
+
+        // Check phone number is a number and email format
+        let phoneNumber = $("#insertPhoneNumber").val();
+        let email = $("#insertEmail").val();
+        if (isValid && isNaN(phoneNumber)) {
+            isValid = false;
+            errorMsg = "Phone number must be a number";
+        } else if (isValid && !validateEmail(email)) {
+            isValid = false;
+            errorMsg = "Invalid email format";
+        }
+
+        if (!isValid) {
+            alert(errorMsg);
+        }
+
+        return isValid;
+    }
+
+
+
+    // Function to validate email format
+    function validateEmail(email) {
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailPattern.test(email);
+    }
 
     // Close insert modal
     $("#closeInsertModalBtn").click(function () {
@@ -260,7 +305,7 @@ $(document).ready(function () {
             type: "DELETE",
             success: function (response) {
                 alert(response.desc);
-                if (response.status !== 500) {
+                if (response.status === "OK") {
                     fetchEmployees(currentPage); // Reload current page after delete
                 }
             },
@@ -270,6 +315,7 @@ $(document).ready(function () {
         });
     }
 
+    // Function to fetch and process search employees
     function fetchAndProcessSearchEmployees(criteria, query, page = 0) {
         // Gửi yêu cầu tìm kiếm dựa trên tiêu chí và giá trị tìm kiếm
         $.ajax({
@@ -310,7 +356,7 @@ $(document).ready(function () {
     });
 
     // Khi người dùng gửi form tìm kiếm
-    $('form').on('submit', function (event) {
+    $('#searchForm').on('submit', function (event) {
         event.preventDefault();
 
         var criteria = $('#selected-criteria').text();

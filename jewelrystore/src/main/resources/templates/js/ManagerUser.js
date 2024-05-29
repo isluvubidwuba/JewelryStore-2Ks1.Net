@@ -15,8 +15,7 @@ function fetchRoles() {
         initTabs(roles);
         populateRoleSelect(roles, '#update-role'); // Populate role select for update modal
         populateRoleSelect(roles, '#insert-role');
-
-      }else{
+      } else {
         alert("Fail to load Role");
       }
     },
@@ -39,23 +38,21 @@ function initTabs(roles) {
 
   bindTabClickEvents();
   const firstRole = roles[0].name;
-  switchTab(firstRole);
-  if (firstRole === 'CUSTOMER') {
-    fetchCustomers(0);
-  } else if (firstRole === 'SUPPLIER') {
-    fetchSuppliers(0);
-  }
-
+  console.log("First role to switch to:", firstRole);
+  switchTabByRole(firstRole); // Ensure first tab is activated
   setupInsertRoleModalToggle(); // Setup insert role modal toggle for the new insert button
 }
 
 function populateRoleSelect(roles, selector) {
   const roleSelect = $(selector);
   roleSelect.empty();
+  roleSelect.append(`<option value="" disabled selected>Select a role</option>`); // Add default option
   roles.forEach(role => {
     roleSelect.append(`<option value="${role.id}">${role.name}</option>`);
   });
+  console.log("Roles populated in select:", selector, roles); // Debug log
 }
+
 
 function setupModalToggle() {
   $('#close-modal').on('click', function () {
@@ -85,8 +82,11 @@ function setupModalToggle() {
     $('#updateUserModal').addClass('hidden');
   });
 
-  $('#update-user-form').off('submit').on('submit', function (e) { // Use .off('submit') to prevent multiple bindings
+  $('#update-user-form').off('submit').on('submit', function (e) {
     e.preventDefault();
+    const form = $(this);
+
+    if (!validateForm(form)) return;
     updateUser();
   });
 }
@@ -151,20 +151,23 @@ function bindTabClickEvents() {
   $('.tab-button').on('click', function (event) {
     event.preventDefault();
     const role = $(this).data('role');
-    switchTab(role);
-    if (role === 'CUSTOMER') {
-      fetchCustomers(0);
-    } else if (role === 'SUPPLIER') {
-      fetchSuppliers(0);
-    }
+    switchTabByRole(role);
   });
 }
 
 function switchTab(role) {
+  console.log("Switching to tab:", role); // Debug log
+
+  if (!role) {
+    console.error("Role is undefined"); // Log an error if role is undefined
+    return;
+  }
+
+  console.log("Switching to tab:", role); // Debug log
   $('.tab-content').hide();
-  $('#' + role).show();
+  $('#' + role.replace(/\s+/g, '')).show();
   setActiveTab(role);
-  setupSearch(); // Ensure search setup is called every time a tab is switched
+  setupSearch(role); // Ensure search setup is called every time a tab is switched
 }
 
 function setActiveTab(role) {
@@ -180,7 +183,7 @@ function fetchCustomers(page) {
       if (response.status === "OK") {
         const { customers, totalPages, currentPage } = response.data;
         populateCustomerTable(customers, currentPage);
-        updatePagination(currentPage, totalPages);
+        updatePagination(currentPage, totalPages, 'customer');
       }
     },
     error: function (error) {
@@ -197,7 +200,7 @@ function fetchSuppliers(page) {
       if (response.status === "OK") {
         const { customers: suppliers, totalPages, currentPage } = response.data;
         populateSupplierTable(suppliers, currentPage);
-        updatePaginationSupplier(currentPage, totalPages);
+        updatePagination(currentPage, totalPages, 'supplier');
       }
     },
     error: function (error) {
@@ -231,7 +234,6 @@ function populateSupplierTable(suppliers, currentPage) {
   tableBody.empty();
   let count = currentPage * 5 + 1;
   suppliers.forEach(supplier => {
-    console.log('Supplier:', supplier); // Debug log
     const row = `<tr class="text-center">
                   <td class="py-2 px-4 border-b">${count++}</td>
                   <td class="py-2 px-4 border-b"><img src="http://localhost:8080/employee/files/${supplier.image}" alt="${supplier.fullName}" class="h-10 w-10"></td>
@@ -247,30 +249,29 @@ function populateSupplierTable(suppliers, currentPage) {
   setupEditButtons();
 }
 
-function updatePagination(currentPage, totalPages) {
-  $('#page-info').text(`Page ${currentPage + 1} of ${totalPages}`);
-  $('#prev-page').off('click').on('click', function () {
-    if (currentPage > 0) {
-      fetchCustomers(currentPage - 1);
-    }
-  });
-  $('#next-page').off('click').on('click', function () {
-    if (currentPage < totalPages - 1) {
-      fetchCustomers(currentPage + 1);
-    }
-  });
-}
+function updatePagination(currentPage, totalPages, type) {
+  const paginationId = `#pagination-${type}`;
+  const prevPageId = `#prev-page-${type}`;
+  const nextPageId = `#next-page-${type}`;
+  const pageInfoId = `#page-info-${type}`;
 
-function updatePaginationSupplier(currentPage, totalPages) {
-  $('#page-info-supplier').text(`Page ${currentPage + 1} of ${totalPages}`);
-  $('#prev-page-supplier').off('click').on('click', function () {
+  $(pageInfoId).text(`Page ${currentPage + 1} of ${totalPages}`);
+  $(prevPageId).off('click').on('click', function () {
     if (currentPage > 0) {
-      fetchSuppliers(currentPage - 1);
+      if (type === 'customer') {
+        fetchCustomers(currentPage - 1);
+      } else {
+        fetchSuppliers(currentPage - 1);
+      }
     }
   });
-  $('#next-page-supplier').off('click').on('click', function () {
+  $(nextPageId).off('click').on('click', function () {
     if (currentPage < totalPages - 1) {
-      fetchSuppliers(currentPage + 1);
+      if (type === 'customer') {
+        fetchCustomers(currentPage + 1);
+      } else {
+        fetchSuppliers(currentPage + 1);
+      }
     }
   });
 }
@@ -286,7 +287,7 @@ function setupEditButtons() {
     $('#updateUserModal').addClass('hidden');
   });
 
-  $('#update-user-form').off('submit').on('submit', function (e) { // Use .off('submit') to prevent multiple bindings
+  $('#update-user-form').off('submit').on('submit', function (e) {
     e.preventDefault();
     updateUser();
   });
@@ -325,9 +326,10 @@ function updateUser() {
       if (response.status === "OK") {
         alert('User updated successfully!');
         $('#updateUserModal').addClass('hidden');
-        if ($('#CUSTOMER').is(':visible')) {
+        const activeTab = $('.tab-button.active').data('role');
+        if (activeTab === 'CUSTOMER') {
           fetchCustomers(0);
-        } else if ($('#SUPPLIER').is(':visible')) {
+        } else if (activeTab === 'SUPPLIER') {
           fetchSuppliers(0);
         }
       }
@@ -339,47 +341,30 @@ function updateUser() {
   });
 }
 
-function setupSearch() {
-  // Customer Search
-  $('#criteria-button').off('click').on('click', function (e) {
+function setupSearch(role) {
+  // Setup search for a specific role
+  $(`#${role.toLowerCase()}-criteria-button`).off('click').on('click', function (e) {
     e.preventDefault();
-    $('#criteria-menu').toggleClass('hidden');
+    $(`#${role.toLowerCase()}-criteria-menu`).toggleClass('hidden');
   });
 
-  $('#criteria-menu a').off('click').on('click', function (e) {
+  $(`#${role.toLowerCase()}-criteria-menu a`).off('click').on('click', function (e) {
     e.preventDefault();
     const criteria = $(this).data('criteria');
-    $('#selected-criteria').text($(this).text());
-    $('#criteria-menu').addClass('hidden');
-    $('#search-input').data('criteria', criteria);
+    $(`#${role.toLowerCase()}-selected-criteria`).text($(this).text());
+    $(`#${role.toLowerCase()}-criteria-menu`).addClass('hidden');
+    $(`#${role.toLowerCase()}-search-input`).data('criteria', criteria);
   });
 
-  $('#search-button').off('click').on('click', function (e) {
+  $(`#${role.toLowerCase()}-search-button`).off('click').on('click', function (e) {
     e.preventDefault();
-    const criteria = $('#search-input').data('criteria');
-    const query = $('#search-input').val();
-    searchCustomers(criteria, query, 0);
-  });
-
-  // Supplier Search
-  $('#supplier-criteria-button').off('click').on('click', function (e) {
-    e.preventDefault();
-    $('#supplier-criteria-menu').toggleClass('hidden');
-  });
-
-  $('#supplier-criteria-menu a').off('click').on('click', function (e) {
-    e.preventDefault();
-    const criteria = $(this).data('criteria');
-    $('#supplier-selected-criteria').text($(this).text());
-    $('#supplier-criteria-menu').addClass('hidden');
-    $('#supplier-search-input').data('criteria', criteria);
-  });
-
-  $('#supplier-search-button').off('click').on('click', function (e) {
-    e.preventDefault();
-    const criteria = $('#supplier-search-input').data('criteria');
-    const query = $('#supplier-search-input').val();
-    searchSuppliers(criteria, query, 0);
+    const criteria = $(`#${role.toLowerCase()}-search-input`).data('criteria');
+    const query = $(`#${role.toLowerCase()}-search-input`).val();
+    if (role === 'CUSTOMER') {
+      searchCustomers(criteria, query, 0);
+    } else if (role === 'SUPPLIER') {
+      searchSuppliers(criteria, query, 0);
+    }
   });
 }
 
@@ -396,7 +381,7 @@ function searchCustomers(criteria, query, page) {
       if (response.status === "OK") {
         const { customers, totalPages, currentPage } = response.data;
         populateCustomerTable(customers, currentPage);
-        updatePagination(currentPage, totalPages);
+        updatePagination(currentPage, totalPages, 'customer');
       }
     },
     error: function (error) {
@@ -417,13 +402,8 @@ function searchSuppliers(criteria, query, page) {
     success: function (response) {
       if (response.status === "OK") {
         const { suppliers, totalPages, currentPage } = response.data;
-        console.log(response.data);
-        console.log('Suppliers:', suppliers); // Debug log
-        console.log('Current Page:', currentPage); // Debug log
-        console.log('Total Pages:', totalPages); // Debug log
-
         populateSupplierTable(suppliers, currentPage);
-        updatePaginationSupplier(currentPage, totalPages);
+        updatePagination(currentPage, totalPages, 'supplier');
       }
     },
     error: function (error) {
@@ -446,11 +426,16 @@ function setupInsertModalToggle() {
 
   $('#insert-role').on('change', function () {
     selectedRole = $(this).find('option:selected').text().toUpperCase();
+    console.log("Selected role on change:", selectedRole);
   });
-
 
   $('#insert-user-form').off('submit').on('submit', function (e) {
     e.preventDefault();
+
+    const form = $(this);
+
+    if (!validateForm(form)) return;
+
     var formData = new FormData($("#insert-user-form")[0]);
     $.ajax({
       url: 'http://localhost:8080/userinfo/insert',
@@ -463,9 +448,7 @@ function setupInsertModalToggle() {
           alert('User inserted successfully!');
           $('#insertUserModal').addClass('hidden');
           clearInsertForm(); // Clear the form fields
-          console.log("De test chuyen trang :" + selectedRole);
           switchTabByRole(selectedRole);
-
         } else {
           alert('Error inserting user: ' + response.desc);
         }
@@ -517,13 +500,39 @@ function clearInsertForm() {
   $('#insert-user-form')[0].reset();
 }
 
-
 function switchTabByRole(role) {
+  switchTab(role); // Switch the tab first
   if (role === 'CUSTOMER') {
-    switchTab('CUSTOMER');
     fetchCustomers(0);
   } else if (role === 'SUPPLIER') {
-    switchTab('SUPPLIER');
     fetchSuppliers(0);
   }
 }
+
+function validateForm(form) {
+  const email = form.find('input[name="email"]').val();
+  const phoneNumber = form.find('input[name="phoneNumber"]').val();
+
+  if (!isValidEmail(email)) {
+    alert('Invalid email address.');
+    return false;
+  }
+
+  if (!isValidPhoneNumber(phoneNumber)) {
+    alert('Invalid phone number. It should contain only digits and be between 10 to 11 digits long.');
+    return false;
+  }
+
+  return true;
+}
+
+function isValidEmail(email) {
+  const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  return emailPattern.test(email);
+}
+
+function isValidPhoneNumber(phoneNumber) {
+  const phonePattern = /^\d{10,15}$/;
+  return phonePattern.test(phoneNumber);
+}
+
