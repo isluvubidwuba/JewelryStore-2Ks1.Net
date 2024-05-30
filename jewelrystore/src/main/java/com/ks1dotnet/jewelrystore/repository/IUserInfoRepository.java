@@ -17,7 +17,8 @@ public interface IUserInfoRepository extends JpaRepository<UserInfo, Integer> {
     public Page<UserInfo> findCustomersByNameContainingIgnoreCase(@Param("name") String name, Pageable pageable);
 
     @Query("SELECT u FROM UserInfo u WHERE u.role.id = 4 AND u.phoneNumber LIKE %:phoneNumber%")
-    public Page<UserInfo> findCustomersByPhoneNumberContaining(@Param("phoneNumber") String phoneNumber, Pageable pageable);
+    public Page<UserInfo> findCustomersByPhoneNumberContaining(@Param("phoneNumber") String phoneNumber,
+            Pageable pageable);
 
     @Query("SELECT u FROM UserInfo u WHERE u.role.id = 4 AND u.email LIKE %:email%")
     public Page<UserInfo> findCustomersByEmailContainingIgnoreCase(@Param("email") String email, Pageable pageable);
@@ -26,7 +27,8 @@ public interface IUserInfoRepository extends JpaRepository<UserInfo, Integer> {
     public Page<UserInfo> findSuppliersByNameContainingIgnoreCase(@Param("name") String name, Pageable pageable);
 
     @Query("SELECT u FROM UserInfo u WHERE u.role.id = 5 AND u.phoneNumber LIKE %:phoneNumber%")
-    public Page<UserInfo> findSuppliersByPhoneNumberContaining(@Param("phoneNumber") String phoneNumber, Pageable pageable);
+    public Page<UserInfo> findSuppliersByPhoneNumberContaining(@Param("phoneNumber") String phoneNumber,
+            Pageable pageable);
 
     @Query("SELECT u FROM UserInfo u WHERE u.role.id = 5 AND u.email LIKE %:email%")
     public Page<UserInfo> findSuppliersByEmailContainingIgnoreCase(@Param("email") String email, Pageable pageable);
@@ -38,6 +40,11 @@ public interface IUserInfoRepository extends JpaRepository<UserInfo, Integer> {
     public List<UserInfo> findSuppliersByRoleId();
 
     public boolean existsByEmail(String email);
+
     public boolean existsByPhoneNumber(String phoneNumber);
+
+    public boolean existsByEmailAndIdNot(String email, int id);
+
+    public boolean existsByPhoneNumberAndIdNot(String phoneNumber, int id);
 
 }

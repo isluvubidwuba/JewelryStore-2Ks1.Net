@@ -326,17 +326,24 @@ function updateUser() {
       if (response.status === "OK") {
         alert('User updated successfully!');
         $('#updateUserModal').addClass('hidden');
-        const activeTab = $('.tab-button.active').data('role');
+        const activeTab = $('.tab-button.border-l').data('role'); // Đảm bảo lấy đúng tab hiện tại
+
         if (activeTab === 'CUSTOMER') {
           fetchCustomers(0);
         } else if (activeTab === 'SUPPLIER') {
           fetchSuppliers(0);
         }
+      } else {
+        alert('Error updating user: ' + response.desc);
       }
     },
     error: function (error) {
-      console.error('Error updating user:', error);
-      alert('Error updating user!');
+      if (error.responseJSON) {
+        alert('Error updating user: ' + error.responseJSON.desc);
+      } else {
+        console.error('Error updating user:', error);
+        alert('Error updating user!');
+      }
     }
   });
 }

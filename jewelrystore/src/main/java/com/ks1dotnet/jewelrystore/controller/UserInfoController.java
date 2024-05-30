@@ -61,19 +61,14 @@ public class UserInfoController {
             @RequestParam String email,
             @RequestParam int roleId,
             @RequestParam String address) {
-        ResponseData ResponseData = new ResponseData();
 
-        UserInfoDTO userInfoDTO = iUserInfoService.updateUserInfo(file, id, fullName, phoneNumber, email, roleId,
+
+        ResponseData responseData = iUserInfoService.updateUserInfo(file, id, fullName, phoneNumber, email, roleId,
                 address);
-        if (userInfoDTO != null) {
-            ResponseData.setDesc("Update successful");
-            ResponseData.setData(userInfoDTO);
-            ResponseData.setStatus(HttpStatus.OK);
-            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
+        if (responseData.getStatus() == HttpStatus.OK) {
+            return new ResponseEntity<>(responseData, HttpStatus.OK);
         } else {
-            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-            ResponseData.setDesc("Update failed. Internal Server Error");
-            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(responseData, responseData.getStatus());
         }
     }
 

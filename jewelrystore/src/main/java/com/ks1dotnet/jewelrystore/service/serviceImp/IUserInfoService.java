@@ -23,7 +23,7 @@ public interface IUserInfoService {
                         int roleId,
                         String address);
 
-        public UserInfoDTO updateUserInfo(MultipartFile file, int id, String fullName, String phoneNumber, String email,
+        public ResponseData updateUserInfo(MultipartFile file, int id, String fullName, String phoneNumber, String email,
                         int roleId, String address);
 
         public Map<String, Object> listCustomer(int page);
