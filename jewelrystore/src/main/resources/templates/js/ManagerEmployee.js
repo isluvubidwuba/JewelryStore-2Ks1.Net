@@ -54,7 +54,6 @@ $(document).ready(function () {
                 <td class="px-6 py-4">
                 <img src="http://localhost:8080/employee/files/${employee.image}" alt="Employee Image" class="w-10 h-10 rounded-full">
                 </td>
-
                 <td class="px-6 py-4">${employee.firstName} ${employee.lastName}</td>
                 <td class="px-6 py-4">${employee.role.name}</td>
                 <td class="px-6 py-4 ${statusColor}">${statusText}</td>
@@ -176,7 +175,7 @@ $(document).ready(function () {
       processData: false,
       success: function (response) {
         alert(response.desc);
-        if (response.status !== 500) {
+        if (response.status === "OK") {
           $("#updateEmployeeModal").addClass("hidden");
           fetchEmployees(currentPage); // Reload current page after update
         }
@@ -221,6 +220,12 @@ $(document).ready(function () {
   $("#insertEmployeeForm").on("submit", function (event) {
     event.preventDefault();
 
+    // Validate form fields
+    let isValid = validateInsertForm();
+    if (!isValid) {
+      return; // Stop form submission if validation fails
+    }
+
     var formData = new FormData($("#insertEmployeeForm")[0]);
     $.ajax({
       url: "http://localhost:8080/employee/insert",
@@ -230,17 +235,65 @@ $(document).ready(function () {
       processData: false,
       success: function (response) {
         alert(response.desc);
-        if (response.status !== 500) {
+        if (response.status === "OK") {
           $("#insertEmployeeModal").addClass("hidden");
           resetInsertForm();
           fetchEmployees(currentPage); // Reload current page after insert
         }
       },
       error: function (jqXHR, textStatus, errorThrown) {
-        alert("Insert fail. Internal Server Error");
+        if (jqXHR.responseJSON && jqXHR.responseJSON.desc) {
+          alert("Error: " + jqXHR.responseJSON.desc);
+        } else {
+          alert("Insert fail. Internal Server Error");
+        }
       },
     });
   });
+
+  // Function to validate insert form fields
+  function validateInsertForm() {
+    let isValid = true;
+    let errorMsg = "You must fill all fields";
+
+    // Check required fields
+    $("#insertEmployeeForm input[required]").each(function () {
+      if (!$(this).val().trim()) {
+        isValid = false;
+        errorMsg = `${$(this).attr("name")} cannot be empty`;
+        return false; // Exit each loop
+      }
+    });
+
+    // Check phone number is a number and email format
+    let phoneNumber = $("#insertPhoneNumber").val();
+    let email = $("#insertEmail").val();
+    if (!validateEmail(email)) {
+      alert("Invalid email address.");
+      return false;
+    }
+
+    if (!isValidPhoneNumber(phoneNumber)) {
+      alert(
+        "Invalid phone number. It should contain only digits and be between 10 to 12 digits long."
+      );
+      return false;
+    }
+
+    return true;
+  }
+
+  // Function to validate email format
+  function validateEmail(email) {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+  }
+
+  //Function to validate number phone
+  function isValidPhoneNumber(phoneNumber) {
+    const phonePattern = /^\d{10,12}$/;
+    return phonePattern.test(phoneNumber);
+  }
 
   // Close insert modal
   $("#closeInsertModalBtn").click(function () {
@@ -267,7 +320,7 @@ $(document).ready(function () {
       type: "DELETE",
       success: function (response) {
         alert(response.desc);
-        if (response.status !== 500) {
+        if (response.status === "OK") {
           fetchEmployees(currentPage); // Reload current page after delete
         }
       },
@@ -277,6 +330,7 @@ $(document).ready(function () {
     });
   }
 
+  // Function to fetch and process search employees
   function fetchAndProcessSearchEmployees(criteria, query, page = 0) {
     // Gửi yêu cầu tìm kiếm dựa trên tiêu chí và giá trị tìm kiếm
     $.ajax({
@@ -317,7 +371,7 @@ $(document).ready(function () {
   });
 
   // Khi người dùng gửi form tìm kiếm
-  $("form").on("submit", function (event) {
+  $("#searchForm").on("submit", function (event) {
     event.preventDefault();
 
     var criteria = $("#selected-criteria").text();

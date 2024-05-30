@@ -37,4 +37,7 @@ public interface IUserInfoRepository extends JpaRepository<UserInfo, Integer> {
     @Query(value = "SELECT * FROM user_info u WHERE u.id_role = 5", nativeQuery = true)
     public List<UserInfo> findSuppliersByRoleId();
 
+    public boolean existsByEmail(String email);
+    public boolean existsByPhoneNumber(String phoneNumber);
+
 }

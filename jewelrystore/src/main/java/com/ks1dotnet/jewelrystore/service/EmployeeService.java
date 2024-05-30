@@ -11,11 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ks1dotnet.jewelrystore.dto.EmployeeDTO;
 import com.ks1dotnet.jewelrystore.entity.Employee;
+import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IEmployeeRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IEmployeeService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IFileService;
@@ -62,27 +64,71 @@ public class EmployeeService implements IEmployeeService {
    }
 
    @Override
-   public boolean insertEmployee(MultipartFile file, String firstName, String lastName, String pinCode,
+   public ResponseData insertEmployee(MultipartFile file, String firstName, String lastName, String pinCode,
          String phoneNumber, String email, String address, int roleId, boolean status) {
-      boolean isInsertSuccess = false;
-      boolean isSaveFileSuccess = iFileService.savefile(file);
+      ResponseData responseData = new ResponseData();
 
-      if (isSaveFileSuccess) {
-         Employee employee = new Employee();
-         employee.setId(generateUniqueEmployeeId());
-         employee.setFirstName(firstName);
-         employee.setLastName(lastName);
-         employee.setPinCode(pinCode);
-         employee.setPhoneNumber(phoneNumber);
-         employee.setEmail(email);
-         employee.setAddress(address);
-         employee.setStatus(status);
-         employee.setRole(iRoleService.findById(roleId));
-         employee.setImage(file.getOriginalFilename());
-         iEmployeeRepository.save(employee);
-         isInsertSuccess = true;
+      // Check if email, phone number, or ID already exists
+      if (iEmployeeRepository.existsByEmail(email)) {
+         responseData.setStatus(HttpStatus.CONFLICT);
+         responseData.setDesc("Email already exists");
+         return responseData;
       }
-      return isInsertSuccess;
+
+      if (iEmployeeRepository.existsByPhoneNumber(phoneNumber)) {
+         responseData.setStatus(HttpStatus.CONFLICT);
+         responseData.setDesc("Phone number already exists");
+         return responseData;
+      }
+
+      // Assuming generateUniqueEmployeeId() checks for uniqueness
+      String generatedId = generateUniqueEmployeeId();
+      if (iEmployeeRepository.existsById(generatedId)) {
+         responseData.setStatus(HttpStatus.CONFLICT);
+         responseData.setDesc("Generated ID already exists");
+         return responseData;
+      }
+
+      boolean isSaveFileSuccess = true;
+      String imageName;
+      // Check if a file is provided
+      if (file != null && !file.isEmpty()) {
+         try {
+            isSaveFileSuccess = iFileService.savefile(file);
+            if (isSaveFileSuccess) {
+               imageName = file.getOriginalFilename();
+            } else {
+               responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+               responseData.setDesc("File save failed");
+               return responseData;
+            }
+         } catch (Exception e) {
+            responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            responseData.setDesc("File save failed: " + e.getMessage());
+            return responseData;
+         }
+      }else{
+          imageName = "default_image.png";
+      }
+
+
+      Employee employee = new Employee();
+      employee.setId(generatedId);
+      employee.setFirstName(firstName);
+      employee.setLastName(lastName);
+      employee.setPinCode(pinCode);
+      employee.setPhoneNumber(phoneNumber);
+      employee.setEmail(email);
+      employee.setAddress(address);
+      employee.setStatus(status);
+      employee.setRole(iRoleService.findById(roleId));
+      employee.setImage(imageName);
+      iEmployeeRepository.save(employee);
+
+      responseData.setStatus(HttpStatus.OK);
+      responseData.setDesc("Insert successful");
+
+      return responseData;
    }
 
    public String generateUniqueEmployeeId() {
