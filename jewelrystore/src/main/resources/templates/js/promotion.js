@@ -4,7 +4,7 @@ $(document).ready(function () {
   loadComponents2();
   fetchVouchersForCreate();
   setupModalToggles();
-  submitForm();
+  submitInsertForm();
   submitUpdateForm(); // Call the function to handle update form submission
 });
 // load components
@@ -250,22 +250,12 @@ function submitUpdateForm() {
   $(document).on("click", "#submit-update", function (event) {
     event.preventDefault();
 
-    // Flag to track if all fields are filled
-    let allFieldsFilled = true;
+    // Validate the form
+    let { allFieldsFilled, numberFieldValid } = validateForm("#form-update");
 
-    // Validate all required fields
-    $("#form-update")
-      .find("input[type='text'], input[type='number'], textarea, select")
-      .each(function () {
-        if ($(this).val() === "") {
-          allFieldsFilled = false;
-          return false; // Break out of the loop if any field is empty
-        }
-      });
-
-    // If all fields are filled, proceed with AJAX request
-    if (allFieldsFilled) {
-      var formData = new FormData($("#form-update")[0]); // Sử dụng id của biểu mẫu
+    // If all fields are filled and number fields are valid, proceed with AJAX request
+    if (allFieldsFilled && numberFieldValid) {
+      var formData = new FormData($("#form-update")[0]); // Use form ID
 
       $.ajax({
         url: "http://localhost:8080/promotion/update",
@@ -274,15 +264,10 @@ function submitUpdateForm() {
         processData: false,
         contentType: false,
         success: function (response) {
-          $("#form-update")
-            .find(
-              "input[type='text'], input[type='number'], input[type='file'], textarea, select"
-            )
-            .val(""); // Đặt các trường input, textarea và select thành trống sau khi thành công
-          $("#form-update").find("select").prop("selectedIndex", 0); // Đặt lại trạng thái của các select
+          clearForm("#form-update"); // Clear the form after success
           $("#crud-update-modal").addClass("hidden");
-          handleUpdatePromotionResponse(response);
           alert(response.desc);
+          handleUpdatePromotionResponse(response);
         },
         error: function (xhr, status, error) {
           alert("An error occurred while submitting the form.");
@@ -290,7 +275,11 @@ function submitUpdateForm() {
         },
       });
     } else {
-      alert("You must fill all fields.");
+      if (!allFieldsFilled) {
+        alert("You must fill all fields.");
+      } else if (!numberFieldValid) {
+        alert("Number must be greater than 0 and less than 100.");
+      }
     }
   });
 }
@@ -335,27 +324,15 @@ function setupModalToggles() {
   });
 }
 //submit form create
-function submitForm() {
+function submitInsertForm() {
   $(document).on("click", "#submit-insert", function (event) {
     event.preventDefault();
 
-    // Flag to track if all fields are filled
-    let allFieldsFilled = true;
+    // Validate the form
+    let { allFieldsFilled, numberFieldValid } = validateForm("#form-insert");
 
-    // Validate all required fields
-    $("#form-insert")
-      .find(
-        "input[type='text'], input[type='number'], input[type='file'], textarea, select"
-      )
-      .each(function () {
-        if ($(this).val() === "") {
-          allFieldsFilled = false;
-          return false; // Break out of the loop if any field is empty
-        }
-      });
-
-    // If all fields are filled, proceed with AJAX request
-    if (allFieldsFilled) {
+    // If all fields are filled and number fields are valid, proceed with AJAX request
+    if (allFieldsFilled && numberFieldValid) {
       var formData = new FormData($("#form-insert")[0]); // Use form ID
 
       $.ajax({
@@ -365,14 +342,8 @@ function submitForm() {
         processData: false,
         contentType: false,
         success: function (response) {
-          $("#form-insert")
-            .find(
-              "input[type='text'], input[type='number'], input[type='file'], textarea, select"
-            )
-            .val(""); // Clear input fields after success
-          $("#form-insert").find("select").prop("selectedIndex", 0); // Reset select fields
+          clearForm("#form-insert"); // Clear the form after success
           $("#crud-modal").addClass("hidden");
-          console.log(response);
           alert(response.desc);
           fetchPromotions(); // Fetch and display updated promotions
         },
@@ -382,7 +353,45 @@ function submitForm() {
         },
       });
     } else {
-      alert("You must fill all fields.");
+      if (!allFieldsFilled) {
+        alert("You must fill all fields.");
+      } else if (!numberFieldValid) {
+        alert("Number must be greater than 0 and less than 100.");
+      }
     }
   });
+}
+
+function validateForm(formId) {
+  let allFieldsFilled = true;
+  let numberFieldValid = true;
+
+  // Validate all required fields
+  $(formId)
+    .find("input[type='text'], input[type='number'], textarea, select")
+    .each(function () {
+      if ($(this).val() === "") {
+        allFieldsFilled = false;
+        return false; // Break out of the loop if any field is empty
+      }
+
+      // Additional validation for input type number
+      if ($(this).attr("type") === "number") {
+        let numberValue = parseFloat($(this).val());
+        if (isNaN(numberValue) || numberValue <= 0 || numberValue >= 100) {
+          numberFieldValid = false;
+          return false; // Break out of the loop if number is invalid
+        }
+      }
+    });
+
+  return { allFieldsFilled, numberFieldValid };
+}
+function clearForm(formId) {
+  $(formId)
+    .find(
+      "input[type='text'], input[type='number'], input[type='file'], textarea, select"
+    )
+    .val(""); // Clear input fields
+  $(formId).find("select").prop("selectedIndex", 0); // Reset select fields
 }

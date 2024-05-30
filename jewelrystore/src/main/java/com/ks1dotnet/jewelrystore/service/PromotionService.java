@@ -9,12 +9,14 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 import com.ks1dotnet.jewelrystore.entity.Promotion;
 import com.ks1dotnet.jewelrystore.exception.BadRequestException;
+import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IPromotionRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IFileService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionService;
@@ -67,27 +69,43 @@ public class PromotionService implements IPromotionService {
     }
 
     @Override
-    public PromotionDTO insertPromotion(MultipartFile file, String name, int idVoucherType, double value,
+    public ResponseData insertPromotion(MultipartFile file, String name, int idVoucherType, double value,
             boolean status) {
+        ResponseData responseData = new ResponseData();
         PromotionDTO promotionDTO = new PromotionDTO();
         try {
-            boolean isSaveFileSuccess = iFileService.savefile(file);
-            if (isSaveFileSuccess) {
-                Promotion promotion = new Promotion();
-                promotion.setName(name);
-                promotion.setVoucherType(iVoucherTypeService.getVoucherById(idVoucherType));
-                promotion.setValue(value);
-                promotion.setStatus(status);
-                promotion.setImage(file.getOriginalFilename());
-                promotionDTO = iPromotionRepository.save(promotion).getDTO();
-                return promotionDTO;
+            Promotion promotion = new Promotion();
+            promotion.setName(name);
+            promotion.setVoucherType(iVoucherTypeService.getVoucherById(idVoucherType));
+            promotion.setValue(value);
+            promotion.setStatus(status);
+
+            // Check if the file is provided and save it
+            if (file != null && !file.isEmpty()) {
+                boolean isSaveFileSuccess = iFileService.savefile(file);
+                if (isSaveFileSuccess) {
+                    promotion.setImage(file.getOriginalFilename());
+                } else {
+                    responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+                    responseData.setDesc("File upload failed.");
+                    return responseData;
+                }
             } else {
-                promotionDTO = null;
-                return promotionDTO;
+                // Use default image if no file is provided
+                promotion.setImage("default_image.jpg");
             }
+
+            promotionDTO = iPromotionRepository.save(promotion).getDTO();
+            responseData.setData(promotionDTO);
+            responseData.setStatus(HttpStatus.OK);
+            responseData.setDesc("Insert successful");
+
         } catch (Exception e) {
+            System.out.println(" Failed to insert promotion " + e.getMessage());
             throw new BadRequestException("Failed to insert promotion", e.getMessage());
         }
+
+        return responseData;
     }
 
     @Override
@@ -138,26 +156,34 @@ public class PromotionService implements IPromotionService {
             boolean status) {
         try {
             Optional<Promotion> promotionOptional = iPromotionRepository.findById(id);
-            boolean isSaveFileSuccess = iFileService.savefile(file);
             PromotionDTO promotionDTO = new PromotionDTO();
+
             if (promotionOptional.isPresent()) {
-                Promotion promotion = new Promotion();
-                promotion.setId(id);
+                Promotion promotion = promotionOptional.get();
                 promotion.setName(name);
                 promotion.setVoucherType(iVoucherTypeService.getVoucherById(idVoucherType));
                 promotion.setValue(value);
                 promotion.setStatus(status);
-                if (isSaveFileSuccess) {
-                    promotion.setImage(file.getOriginalFilename());
+
+                // Check if the file is provided and save it
+                if (file != null && !file.isEmpty()) {
+                    boolean isSaveFileSuccess = iFileService.savefile(file);
+                    if (isSaveFileSuccess) {
+                        promotion.setImage(file.getOriginalFilename());
+                    }
                 } else {
-                    promotion.setImage(promotionOptional.get().getImage());
+                    // Use the existing image if no new file is provided
+                    promotion.setImage(promotion.getImage());
                 }
+
                 iPromotionRepository.save(promotion);
                 promotionDTO = promotion.getDTO();
             }
+
             return promotionDTO;
         } catch (Exception e) {
             throw new BadRequestException("Failed to update promotion", e.getMessage());
         }
     }
+
 }

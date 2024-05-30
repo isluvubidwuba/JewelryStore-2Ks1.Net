@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 import com.ks1dotnet.jewelrystore.entity.Promotion;
+import com.ks1dotnet.jewelrystore.payload.ResponseData;
 
 public interface IPromotionService {
         public List<Promotion> findAll();
@@ -17,7 +18,7 @@ public interface IPromotionService {
 
         public Promotion saveOrUpdatePromotion(Promotion promotion);
 
-        public PromotionDTO insertPromotion(MultipartFile file,
+        public ResponseData insertPromotion(MultipartFile file,
                         String name,
                         int idVoucherType,
                         double value,
