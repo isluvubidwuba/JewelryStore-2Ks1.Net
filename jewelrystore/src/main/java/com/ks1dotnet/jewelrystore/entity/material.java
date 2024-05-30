@@ -35,17 +35,22 @@ public class Material {
     private Date lastModified;
 
     @OneToMany(mappedBy = "material")
-    Set<MaterialOfProduct> listMaterialOfProduct;
+    Set<Product> listProduct;
 
     public MaterialDTO getDTO() {
         return new MaterialDTO(this.id, this.name, this.purity, this.priceAtTime, this.lastModified);
     }
 
     public Material(MaterialDTO t) {
-        this.id = t.getId();
-        this.name = t.getName();
-        this.purity = t.getPurity();
-        this.priceAtTime = t.getPriceAtTime();
-        this.lastModified = t.getLastModified();
+        if (t.getId() != null)
+            this.id = t.getId();
+        if (t.getName() != null)
+            this.name = t.getName();
+        if (t.getPurity() != null)
+            this.purity = t.getPurity();
+        if (t.getPriceAtTime() != null)
+            this.priceAtTime = t.getPriceAtTime();
+        if (t.getLastModified() != null)
+            this.lastModified = t.getLastModified();
     }
 }

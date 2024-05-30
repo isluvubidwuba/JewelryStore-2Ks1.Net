@@ -24,7 +24,7 @@ public class ProductController {
     private IProductService iProductService;
 
     @GetMapping
-    public ResponseEntity<?> getById(@RequestParam String id) {
+    public ResponseEntity<?> getById(@RequestParam int id) {
         ResponseData response = iProductService.findById(id);
         return new ResponseEntity<>(response, response.getStatus());
     }
@@ -48,13 +48,13 @@ public class ProductController {
     }
 
     @PostMapping("change/status")
-    public ResponseEntity<?> update(@RequestParam String id, @RequestParam int status) {
+    public ResponseEntity<?> update(@RequestParam int id, @RequestParam int status) {
         ResponseData response = iProductService.updateStatus(id, status);
         return new ResponseEntity<>(response, response.getStatus());
     }
 
     @PostMapping("change/statusAll")
-    public ResponseEntity<?> update(@RequestBody Map<String, Integer> map) {
+    public ResponseEntity<?> update(@RequestBody Map<Integer, Integer> map) {
         ResponseData response = iProductService.updateStatus(map);
         return new ResponseEntity<>(response, response.getStatus());
     }

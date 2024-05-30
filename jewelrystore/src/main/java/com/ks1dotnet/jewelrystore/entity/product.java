@@ -26,17 +26,23 @@ import lombok.NoArgsConstructor;
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
+    private int id;
+    @Column(name = "product_code")
+    private String productCode;
+    @Column(name = "barcode", unique = true)
+    private String barCode;
     @Column(name = "name")
     private String name;
     @Column(name = "fee")
     private double fee;
     @Column(name = "status")
     private boolean status;
+    @Column(name = "weight")
+    private Float weight;
 
     @ManyToOne
-    @JoinColumn(name = "id_material_of_product")
-    private MaterialOfProduct materialOfProduct;
+    @JoinColumn(name = "id_material")
+    private Material material;
 
     @ManyToOne
     @JoinColumn(name = "id_product_category")
@@ -59,17 +65,28 @@ public class Product {
     Set<OrderInvoiceDetail> listOrderInvoiceDetail;
 
     public ProductDTO getDTO() {
-        return new ProductDTO(this.id, this.name, this.fee, this.status, this.materialOfProduct.getDTO(),
+        return new ProductDTO(this.id, this.getProductCode(), this.getBarCode(), this.name, this.fee, this.status,
+                this.weight, this.material.getDTO(),
                 this.productCategory.getDTO(), this.counter.getDTO());
     }
 
     public Product(ProductDTO t) {
-        this.id = t.getId();
-        this.name = t.getName();
-        this.fee = t.getFee();
+        if (t.getId() != 0)
+            this.id = t.getId();
+        if (t.getProductCode() != null)
+            this.productCode = t.getProductCode();
+        if (t.getBarCode() != null)
+            this.barCode = t.getBarCode();
+        if (t.getName() != null)
+            this.name = t.getName();
+        if (t.getFee() != null)
+            this.fee = t.getFee();
         this.status = t.isStatus();
-        this.materialOfProduct = new MaterialOfProduct(t.getMaterialOfProductDTO());
-        this.productCategory = new ProductCategory(t.getProductCategoryDTO());
-        this.counter = new Counter(t.getCounterDTO());
+        if (t.getMaterialDTO() != null)
+            this.material = new Material(t.getMaterialDTO());
+        if (t.getProductCategoryDTO() != null)
+            this.productCategory = new ProductCategory(t.getProductCategoryDTO());
+        if (t.getCounterDTO() != null)
+            this.counter = new Counter(t.getCounterDTO());
     }
 }

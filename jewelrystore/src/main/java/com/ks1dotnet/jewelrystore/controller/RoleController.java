@@ -1,6 +1,5 @@
 package com.ks1dotnet.jewelrystore.controller;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;

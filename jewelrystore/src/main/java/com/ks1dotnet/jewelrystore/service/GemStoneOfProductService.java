@@ -1,6 +1,7 @@
 package com.ks1dotnet.jewelrystore.service;
 
 import java.util.List;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,6 +82,14 @@ public class GemStoneOfProductService implements IGemStoneOfProductService {
         return new ResponseData(exists ? HttpStatus.OK : HttpStatus.NOT_FOUND,
                 exists ? "Gem stone of product exists!" : "Gem stone of product not found!",
                 exists);
+    }
+
+    @Override
+    public ResponseData getGemStonesByProductId(int id) {
+        List<GemStoneOfProductDTO> listDto = iGemStoneOfProductRepository.findGemStonesByProductId(id).stream()
+                .map(GemStoneOfProduct::getDTO).collect(Collectors.toList());
+        return new ResponseData(HttpStatus.OK,
+                "Gem stone of product id: " + id + " found!", listDto);
     }
 
 }

@@ -1,11 +1,10 @@
 $(document).ready(function () {
-  setupEventListeners();
   fetchProduct();
   setupModalToggles();
-  //submitForm();
-  //submitUpdateForm(); // Call the function to handle update form submission
+  submitForm();
 });
-
+var listProduct = [];
+var listGemsDetail = null;
 // load components
 
 // fetch Product by page
@@ -18,9 +17,8 @@ function fetchProduct() {
       $("#productTableBody").empty(); // Clear existing products
 
       if (response && response.data) {
-        console.log(response.data);
         const { content } = response.data;
-
+        listProduct = content;
         var state = {
           querySet: content,
           page: 1,
@@ -39,9 +37,7 @@ function fetchProduct() {
                 <tr class = "font-bold border-b ">
                     <td class=" px-6 py-4">${product.id}</td>
                     <td class="px-6 py-4">${product.name}</td>
-                    <td class="px-6 py-4">${
-                      product.materialOfProductDTO.materialDTO.name
-                    }</td>
+                    <td class="px-6 py-4">${product.materialDTO.name}</td>
                     <td class="px-6 py-4">${
                       product.productCategoryDTO.name
                     }</td>
@@ -51,12 +47,12 @@ function fetchProduct() {
                     <td class="px-6 py-4">${product.counterDTO.name}</td>
                     <td class="px-6 py-4">
                     <div class ="relative flex justify-items-center">
-                    <button id="detailProduct" class="flex items-center w-fit h-fit gap-1 py-2 px-4 rounded-md hover:bg-gray-300 transition duration-300 ease-in-out transform hover:scale-110">
+                    <button type="button" name="modalToggle_Detail" class="flex items-center w-fit h-fit gap-1 py-2 px-4 rounded-md hover:bg-gray-300 transition duration-300 ease-in-out transform hover:scale-110" data-id="${
+                      product.id
+                    }">
                         Detail
                         </button>
-                        <button id="editProduct" class="flex items-center w-fit h-fit gap-1 py-2 px-4 rounded-md hover:bg-gray-300 transition duration-300 ease-in-out transform hover:scale-110">
-                        Edit
-                        </button></div>
+                        </div>
                     </td>
                 </tr>
               `;
@@ -67,6 +63,7 @@ function fetchProduct() {
         }
 
         function createPagination(totalPages, page) {
+          if (totalPages == 1) return;
           let liTag = "";
           let active;
           let beforePage = page - 1;
@@ -75,7 +72,9 @@ function fetchProduct() {
           if (page > 1) {
             liTag += `<li class="page rounded-full relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer" data-page="${
               page - 1
-            }"><span><i class="page rounded-full fas fa-angle-left"></i> Prev</span></li>`;
+            }">
+                          <span><i class="page rounded-full fas fa-angle-left"></i> Prev</span>
+                        </li>`;
           }
 
           if (page > 2) {
@@ -101,8 +100,8 @@ function fetchProduct() {
             if (plength > totalPages) {
               continue;
             }
-            if (plength == 0) {
-              plength = plength + 1;
+            if (plength <= 0) {
+              continue;
             }
             if (page == plength) {
               active = "bg-blue-500 text-white";
@@ -122,7 +121,9 @@ function fetchProduct() {
           if (page < totalPages) {
             liTag += `<li class="page relative rounded-full inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer" data-page="${
               page + 1
-            }"><span>Next <i class="page rounded-full "></i></span></li>`;
+            }">
+                          <span>Next <i class="page rounded-full"></i></span>
+                        </li>`;
           }
 
           $("#pagination-wrapper").html(liTag);
@@ -184,53 +185,6 @@ function fetchPromotionDetails(promotionId) {
   });
 }
 
-//open modal
-function setupEventListeners() {
-  $(document).on("click", ".promotion-click", function () {
-    var promotionId = $(this).data("id");
-    fetchPromotionDetails(promotionId);
-  });
-
-  $(document).on("click", "#updateModalClose", function () {
-    closeModal();
-  });
-}
-//update promotion
-
-function updatePromotionDetails(promotion) {
-  const promotionCard = $(`#promotion-card-${promotion.id}`);
-
-  // Update name
-  promotionCard.find(".promotion-name").text(promotion.name);
-
-  // Update value
-  promotionCard.find(".promotion-value").text(`Giá trị: ${promotion.value}%`);
-
-  // Update status
-  const statusText = promotion.status ? "Đang hoạt động" : "Không hoạt động";
-  const statusColorClass = promotion.status ? "text-green-500" : "text-red-500";
-  const promotionStatusElement = promotionCard.find(".promotion-status");
-
-  promotionStatusElement.text(statusText);
-
-  // Remove all existing classes and add the necessary classes
-  promotionStatusElement.attr(
-    "class",
-    `promotion-status focus:outline-none text-sm dark:text-gray-100 ${statusColorClass}`
-  );
-
-  // Update image
-  const newImageUrl = `http://localhost:8080/promotion/files/${promotion.image}`;
-  promotionCard.find(".promotion-image").attr("src", newImageUrl);
-}
-
-//call this function when receive the response after updating the promotion
-function handleUpdatePromotionResponse(response) {
-  if (response && response.data) {
-    updatePromotionDetails(response.data);
-  }
-}
-
 function submitUpdateForm() {
   $(document).on("click", "#submit-update", function (event) {
     event.preventDefault();
@@ -280,43 +234,35 @@ function submitUpdateForm() {
   });
 }
 
-//close modal update
-function closeModal() {
-  $("#crud-update-modal").removeClass("flex").addClass("hidden");
-}
-
-//related create promotion
-//load all voucher
-function fetchVouchersForCreate() {
-  $.ajax({
-    url: "http://localhost:8080/voucher/list",
-    method: "GET",
-    success: function (response) {
-      $("#idVoucherType").empty(); // Clear existing options in the dropdown
-      $("#idVoucherType").append("<option selected>Select category</option>"); // Add default option
-
-      if (response && response.data) {
-        // Check if response data is available
-        response.data.forEach(function (voucher) {
-          // Loop through each voucher and append to the dropdown
-          const option = `<option value="${voucher.id}">${voucher.type}</option>`;
-          $("#idVoucherType").append(option);
-        });
-      }
-    },
-    error: function (error) {
-      console.error("Error fetching vouchers:", error);
-    },
-  });
-}
 //open close modal
-function setupModalToggles() {
-  $(document).on("click", "#modalToggle", function () {
-    $("#crud-modal").removeClass("hidden");
+async function setupModalToggles() {
+  toggleModal("#create-modal", "#modalClose_Create", "#modalToggle_Create");
+  toggleModal(
+    "#detail-modal",
+    "#modalClose_Detail",
+    'button[name="modalToggle_Detail"]'
+  );
+  toggleModal(
+    "#list-gems-modal",
+    "#modalClose_listGems",
+    "td>button[name='list_gem_detail']"
+  );
+
+  openProductModalDetail();
+  const listMaterial = await fetchMaterial();
+  listMaterial.forEach(function (item) {
+    const option = `<option class="dark:placeholder-gray-400" value="${item.id}" >
+    ${item.name}
+  </option>`;
+    $("#idMaterialC").append(option);
   });
 
-  $(document).on("click", "#modalClose", function () {
-    $("#crud-modal").addClass("hidden");
+  const listProductCategory = await fetchProductCategory();
+  listProductCategory.forEach(function (item) {
+    const option = `<option class="dark:placeholder-gray-400" value="${item.id}" >
+    ${item.name}
+  </option>`;
+    $("#idCategoryC").append(option);
   });
 }
 //submit form create
@@ -324,14 +270,10 @@ function submitForm() {
   $(document).on("click", "#submit-insert", function (event) {
     event.preventDefault();
 
-    // Flag to track if all fields are filled
     let allFieldsFilled = true;
 
-    // Validate all required fields
     $("#form-insert")
-      .find(
-        "input[type='text'], input[type='number'], input[type='file'], textarea, select"
-      )
+      .find("input[type='text'], input[type='number'], select")
       .each(function () {
         if ($(this).val() === "") {
           allFieldsFilled = false;
@@ -341,24 +283,35 @@ function submitForm() {
 
     // If all fields are filled, proceed with AJAX request
     if (allFieldsFilled) {
-      var formData = new FormData($("#form-insert")[0]); // Sử dụng id của biểu mẫu
+      let product = {
+        name: $("#nameC").val(),
+        fee: $("#feeC").val(),
+        materialDTO: {
+          id: $("#idMaterialC").val(),
+        },
+        weight: $("#materialWeightC").val(),
+        productCategoryDTO: {
+          id: $("#idCategoryC").val(),
+        },
+      };
 
       $.ajax({
-        url: "http://localhost:8080/promotion/create",
+        url: "http://localhost:8080/product/create",
         type: "POST",
-        data: formData,
+        data: JSON.stringify(product),
         processData: false,
-        contentType: false,
+        contentType: "application/json; charset=utf-8",
         success: function (response) {
-          $("#form-insert")
-            .find(
-              "input[type='text'], input[type='number'], input[type='file'], textarea, select"
-            )
-            .val(""); // Đặt các trường input, textarea và select thành trống sau khi thành công
-          $("#form-insert").find("select").prop("selectedIndex", 0); // Đặt lại trạng thái của các select
-          $("#crud-modal").addClass("hidden");
-          console.log(response);
-          alert(response.desc);
+          alert("ok");
+          // $("#form-insert")
+          //   .find(
+          //     "input[type='text'], input[type='number'], input[type='file'], textarea, select"
+          //   )
+          //   .val(""); // Đặt các trường input, textarea và select thành trống sau khi thành công
+          // $("#form-insert").find("select").prop("selectedIndex", 0); // Đặt lại trạng thái của các select
+          // $("#crud-modal").addClass("hidden");
+          // console.log(response);
+          // alert(response.desc);
         },
         error: function (xhr, status, error) {
           alert("An error occurred while submitting the form.");
@@ -369,4 +322,211 @@ function submitForm() {
       alert("You must fill all fields.");
     }
   });
+}
+
+async function fetchProductCategory() {
+  const linkProduct = "http://localhost:8080/product/category/all";
+  try {
+    const response = await $.ajax({
+      url: linkProduct,
+      method: "GET",
+    });
+    if (response.status === "OK" && response.data) {
+      const { content } = response.data;
+      return content;
+    } else {
+      console.error("Failed to fetch product category");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching product category:", error);
+    return null;
+  }
+}
+
+async function fetchMaterial() {
+  const linkProduct = "http://localhost:8080/material/all";
+  try {
+    const response = await $.ajax({
+      url: linkProduct,
+      method: "GET",
+    });
+    if (response.status === "OK" && response.data) {
+      const { content } = response.data;
+      return content;
+    } else {
+      console.error("Failed to fetch Material");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching Material:", error);
+    return null;
+  }
+}
+
+async function fetchCounter() {
+  const linkProduct = "http://localhost:8080/counter/all";
+  try {
+    const response = await $.ajax({
+      url: linkProduct,
+      method: "GET",
+    });
+    if (response.status === "OK" && response.data) {
+      const { content } = response.data;
+      return content;
+    } else {
+      console.error("Failed to fetch data");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching product:", error);
+    return null;
+  }
+}
+
+async function fetchGemStoneOfProduct(productId) {
+  const linkProduct = `http://localhost:8080/gemStone/product?id=${productId}`;
+  try {
+    const response = await $.ajax({
+      url: linkProduct,
+      method: "GET",
+    });
+    if (response.status === "OK" && response.data) {
+      return response.data;
+    } else {
+      console.error("Failed to fetch gem stone product data");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching gem stone product:", error);
+    return null;
+  }
+}
+
+function toggleModal(idModal, idClose, idOpen) {
+  $(document).on("click", idOpen, function () {
+    $(idModal).removeClass("hidden").addClass("flex");
+  });
+
+  $(document).on("click", idClose, function () {
+    $(idModal).addClass("hidden").removeClass("flex");
+  });
+}
+
+async function detailModal(productId) {
+  const product = $.map(listProduct, function (item) {
+    if (item.id == productId) {
+      return item;
+    }
+  })[0];
+  // Check if the product exists
+  if (product) {
+    // Populate modal fields with product details
+    $("#productCode_detail").text(product.productCode);
+    $("#name_detail").text(product.name);
+    $("#fee_detail").text(product.fee);
+    $("#material_detail").text(product.materialDTO.name);
+    $("#status_detail").text(product.status);
+    $("#category_detail").text(product.productCategoryDTO.name);
+    $("#category_detail").text(product.productCategoryDTO.name);
+    JsBarcode("#barcode", product.barCode);
+    // Show the modal
+  } else {
+    alert("Product not found");
+  }
+  await buildTableGemStone(productId);
+}
+async function openProductModalDetail() {
+  $(document).on(
+    "click",
+    'button[name="modalToggle_Detail"]',
+    async function () {
+      // Get the data-id attribute of the clicked button
+      const productId = $(this).data("id");
+
+      // Call the detailModal function with the productId
+      await detailModal(productId);
+    }
+  );
+}
+
+async function buildTableGemStone(productId) {
+  $("#GemStone_detail_table").empty();
+  $("#notiBlank").empty();
+  let gemList = await fetchGemStoneOfProduct(productId);
+  if (gemList.length == 0) {
+    $("#notiBlank").text(`There are no gem stones in this product`);
+    return;
+  }
+  let listGemsDetail = await countCategoriesByType(gemList);
+  for (const type in listGemsDetail) {
+    for (const category in listGemsDetail[type]) {
+      const countRow = `
+        <tr class="font-bold border-b ">
+          <td class="px-6 py-3">
+            ${category}
+          </td>
+          <td class="px-6 py-3">
+            ${listGemsDetail[type][category].quantity}
+          </td>
+          <td class="px-6 py-3">
+            ${type}
+          </td>
+          <td  class="font-bold border-b px-6 py-3">
+            <button class="flex items-center w-fit h-fit gap-1 py-2 px-4 rounded-md hover:bg-gray-300 transition duration-300 ease-in-out transform hover:scale-110" name="list_gem_detail"  type="button"  data-type="${type}" data-category="${category}">
+              Detail
+            </button>
+          </td>
+        </tr>
+      `;
+      $("#GemStone_detail_table").append(countRow);
+    }
+  }
+
+  // Attach click event handler to the buttons
+  $("button[name='list_gem_detail']").on("click", function () {
+    const type = $(this).data("type");
+    const category = $(this).data("category");
+    const gems = listGemsDetail[type][category].gems;
+    displayGemDetails(gems);
+  });
+}
+function displayGemDetails(gems) {
+  let gemDetailsHtml = ""; // Initialize the variable
+
+  gems.forEach((gem) => {
+    gemDetailsHtml += `<tr class="font-bold border-b">
+                        <td class="px-6 py-3">${gem.color}</td>
+                        <td class="px-6 py-3">${gem.clarity}</td>
+                        <td class="px-6 py-3">${gem.carat}</td>
+                        <td class="px-6 py-3">${gem.price}</td>
+                        <td class="px-6 py-3">${gem.quantity}</td>
+                      </tr>`;
+  });
+
+  $("#Gems_detail_table").append(gemDetailsHtml);
+}
+function countCategoriesByType(gemList) {
+  const typeCategoryCount = {};
+
+  gemList.forEach((gem) => {
+    const typeName = gem.gemstoneType.name;
+    const categoryName = gem.gemstoneCategory.name;
+
+    if (!typeCategoryCount[typeName]) {
+      typeCategoryCount[typeName] = {};
+    }
+
+    if (!typeCategoryCount[typeName][categoryName]) {
+      typeCategoryCount[typeName][categoryName] = {
+        quantity: 0,
+        gems: [],
+      };
+    }
+
+    typeCategoryCount[typeName][categoryName].quantity += gem.quantity;
+    typeCategoryCount[typeName][categoryName].gems.push(gem);
+  });
+
+  return typeCategoryCount;
 }
