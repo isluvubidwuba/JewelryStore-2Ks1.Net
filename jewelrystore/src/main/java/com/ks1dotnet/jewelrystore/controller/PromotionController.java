@@ -137,20 +137,18 @@ public class PromotionController {
     }
 
     @PostMapping("/create")
-    private ResponseEntity<?> create(@RequestParam MultipartFile file,
-            @RequestParam String name, @RequestParam int idVoucherType,
-            @RequestParam double value, @RequestParam boolean status) {
+    private ResponseEntity<?> create(
+            @RequestParam(required = false) MultipartFile file,
+            @RequestParam String name,
+            @RequestParam int idVoucherType,
+            @RequestParam double value,
+            @RequestParam boolean status) {
         try {
-            ResponseData responseData = new ResponseData();
-            PromotionDTO isSuccess = iPromotionService.insertPromotion(file, name, idVoucherType, value, status);
+            ResponseData responseData = iPromotionService.insertPromotion(file, name, idVoucherType, value, status);
 
-            if (isSuccess != null) {
-                responseData.setData(isSuccess);
-                responseData.setDesc("Insert successful");
+            if (responseData.getStatus() == HttpStatus.OK) {
                 return new ResponseEntity<>(responseData, HttpStatus.OK);
             } else {
-                responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-                responseData.setDesc("Insert fail. Internal Server Error");
                 return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (BadRequestException e) {
