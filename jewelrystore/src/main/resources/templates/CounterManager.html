@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tailwind Admin Template</title>
+  <meta name="author" content="David Grzyb" />
+  <meta name="description" content="" />
+
+  <!-- Tailwind -->
+  <link href="build/tailwind.css" rel="stylesheet" />
+  <script src="jquery/dist/jquery.min.js"></script>
+  <script src="./js/DashboardAdmin.js"></script>
+  <script src="./js/CounterManager.js"></script>
+
+  <style>
+    @import url("https://fonts.googleapis.com/css?family=Karla:400,700&display=swap");
+
+    .font-family-karla {
+      font-family: karla;
+    }
+
+    .bg-sidebar {
+      background: #3d68ff;
+    }
+
+    .cta-btn {
+      color: #3d68ff;
+    }
+
+    .upgrade-btn {
+      background: #1947ee;
+    }
+
+    .upgrade-btn:hover {
+      background: #0038fd;
+    }
+
+    .active-nav-link {
+      background: #1947ee;
+    }
+
+    .nav-item:hover {
+      background: #1947ee;
+    }
+
+    .account-link:hover {
+      background: #3d68ff;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100 font-family-karla flex">
+  <!-- side bar -->
+  <div id="sidebar-placeholder"></div>
+
+  <div class="relative w-full flex flex-col h-screen overflow-y-hidden">
+    <!-- Desktop Header -->
+    <div id="header-placeholder"></div>
+
+    <!-- Mobile Header & Nav -->
+    <header x-data="{ isOpen: false }" class="w-full bg-sidebar py-5 px-6 sm:hidden">
+      <div class="flex items-center justify-between">
+        <a href="index.html" class="text-white text-3xl font-semibold uppercase hover:text-gray-300">Admin</a>
+        <button @click="isOpen = !isOpen" class="text-white text-3xl focus:outline-none">
+          <i x-show="!isOpen" class="fas fa-bars"></i>
+          <i x-show="isOpen" class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Dropdown Nav -->
+      <nav :class="isOpen ? 'flex': 'hidden'" class="flex flex-col pt-4">
+        <a href="index.html" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
+          <i class="fas fa-tachometer-alt mr-3"></i>
+          Dashboard
+        </a>
+        <a href="blank.html" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
+          <i class="fas fa-sticky-note mr-3"></i>
+          Blank Page
+        </a>
+        <a href="tables.html" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
+          <i class="fas fa-table mr-3"></i>
+          Tables
+        </a>
+        <a href="forms.html" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
+          <i class="fas fa-align-left mr-3"></i>
+          Forms
+        </a>
+        <a href="tabs.html" class="flex items-center active-nav-link text-white py-2 pl-4 nav-item">
+          <i class="fas fa-tablet-alt mr-3"></i>
+          Tabbed Content
+        </a>
+        <a href="calendar.html" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
+          <i class="fas fa-calendar mr-3"></i>
+          Calendar
+        </a>
+        <a href="#" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
+          <i class="fas fa-cogs mr-3"></i>
+          Support
+        </a>
+        <a href="#" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
+          <i class="fas fa-user mr-3"></i>
+          My Account
+        </a>
+        <a href="#" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
+          <i class="fas fa-sign-out-alt mr-3"></i>
+          Sign Out
+        </a>
+        <button
+          class="w-full bg-white cta-btn font-semibold py-2 mt-3 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-300 flex items-center justify-center">
+          <i class="fas fa-arrow-circle-up mr-3"></i> Upgrade to Pro!
+        </button>
+      </nav>
+
+    </header>
+
+
+
+    <div class="w-full h-screen overflow-x-hidden border-t flex flex-col">
+      <main class="w-full flex-grow p-6">
+
+        <div class="flex justify-between items-center pb-6">
+          <h1 class="text-3xl text-black">Counter Manager</h1>
+          <!-- Button to open Add Product Modal -->
+          <!-- Add Product Button -->
+          <button id="openAddProductModal" class="bg-green-500 hover:bg-green-700 text-white px-4 py-2 rounded ml-2">
+            Add Product to Counter
+          </button>
+        </div>
+
+        <div class="flex">
+          <!-- Button to open create counter modal -->
+          <button id="openCreateCounterModal"
+            class="ml-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            data-modal-target="createCounterModal" data-modal-toggle="createCounterModal">Create Counter</button>
+        </div>
+
+
+        <div class="w-full mt-6">
+          <div>
+            <ul id="counter-tabs" class="flex border-b">
+              <!-- Tabs will be dynamically added here -->
+            </ul>
+            <!-- Thêm vào bên dưới danh sách các tabs -->
+          </div>
+
+          <div id="tab-contents" class="bg-white p-6">
+            <!-- Tab contents will be dynamically added here -->
+          </div>
+        </div>
+      </main>
+    </div>
+
+
+
+
+
+    <!-- Create Counter Modal -->
+    <div id="createCounterModal"
+      class="fixed inset-0 z-50 flex items-center justify-center hidden bg-gray-800 bg-opacity-75">
+      <div class="bg-white w-1/3 rounded-lg shadow-lg p-6">
+        <div class="flex justify-between items-center pb-3">
+          <h2 class="text-2xl font-semibold">Create Counter</h2>
+          <button id="closeCreateCounterModal" class="text-gray-500 hover:text-gray-700"
+            data-modal-target="createCounterModal" data-modal-toggle="createCounterModal">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <form id="createCounterForm">
+          <div class="mb-4">
+            <label for="counterName" class="block text-gray-700">Counter Name</label>
+            <input type="text" id="counterName" name="counterName"
+              class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              required>
+          </div>
+          <div class="flex justify-end">
+            <button type="button" id="cancelCreateCounter" class="bg-gray-500 text-white px-4 py-2 rounded mr-2"
+              data-modal-target="createCounterModal" data-modal-toggle="createCounterModal">Cancel</button>
+            <button type="submit" id="submitCreateCounter"
+              class="bg-blue-500 text-white px-4 py-2 rounded">Create</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+
+
+
+
+
+    <div id="combinedModal"
+      class="fixed inset-0 z-50 flex items-center justify-center hidden bg-gray-800 bg-opacity-75">
+      <div class="bg-white w-4/5 h-4/5 rounded-lg shadow-lg p-6 overflow-hidden">
+        <div class="flex justify-between items-center pb-3">
+          <h2 id="modalTitle" class="text-2xl font-semibold">Add Products to Counter</h2>
+          <button id="closeCombinedModal" class="text-gray-500 hover:text-gray-700">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+
+
+        <div class="flex justify-between mb-4 overflow-y-auto max-h-full">
+          <div class="overflow-y-auto max-h-full w-3/4 pr-4" id="productGrid">
+            <!-- Product grid will be dynamically added here -->
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product
+                    Code</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Material
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Select</th>
+                </tr>
+              </thead>
+              <tbody id="productTableBody" class="bg-white divide-y divide-gray-200">
+                <!-- Rows will be dynamically added here -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="w-1/4 pl-4 border-l border-gray-200">
+            <div class="flex">
+              <select id="categoryFilter"
+                class="mt-1 block w-1/2 px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                <option value="all">All Categories</option>
+                <!-- Category options will be dynamically added here -->
+              </select>
+
+              <select id="materialFilter"
+                class="mt-1 block w-1/2  px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ml-2">
+                <option value="all">All Materials</option>
+                <!-- Material options will be dynamically added here -->
+              </select>
+            </div>
+
+
+            <div class="mb-4">
+              <label for="counterSelect" class="block text-gray-700">Select Counter</label>
+              <select id="counterSelect"
+                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                <option value="" selected disabled>Choose counter</option>
+                <!-- Options will be dynamically added here -->
+              </select>
+            </div>
+            <div class="flex justify-end">
+              <button type="button" id="cancelSelectCounter" class="bg-gray-500 text-white px-4 py-2 rounded mr-2">
+                Cancel
+              </button>
+              <button type="button" id="submitAddProductToCounter" class="bg-green-500 text-white px-4 py-2 rounded">
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- AlpineJS -->
+        <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+        <!-- Font Awesome -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"
+          integrity="sha256-KzZiKy0DWYsnwMF+X1DvQngQ2/FxF7MF3Ff72XcpuPs=" crossorigin="anonymous"></script>
+</body>
+
+</html>
