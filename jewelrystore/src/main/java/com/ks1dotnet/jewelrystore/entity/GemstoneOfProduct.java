@@ -31,7 +31,8 @@ public class GemStoneOfProduct {
     private float carat;
     @Column(name = "price")
     private double price;
-
+    @Column(name = "quantity")
+    private int quantity;
     @ManyToOne
     @JoinColumn(name = "id_gemstone_type")
     private GemStoneType gemstoneType;
@@ -53,7 +54,8 @@ public class GemStoneOfProduct {
                 this.price,
                 this.gemstoneType.getDTO(),
                 this.gemstoneCategory.getDTO(),
-                this.product.getDTO());
+                this.product.getDTO(),
+                this.getQuantity());
     }
 
     public GemStoneOfProduct(GemStoneOfProductDTO t) {
@@ -65,4 +67,6 @@ public class GemStoneOfProduct {
         this.gemstoneType = new GemStoneType(t.getGemstoneType());
         this.gemstoneCategory = new GemStoneCategory(t.getGemstoneCategory());
         this.product = new Product(t.getProduct());
-    }}
+        this.quantity = t.getQuantity();
+    }
+}

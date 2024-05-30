@@ -132,73 +132,14 @@
 
           <div id="tab-contents" class="bg-white p-6">
             <!-- Tab contents will be dynamically added here -->
-            <div id="CUSTOMER" class="tab-content" style="display: none;">
-              <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl">Customer List</h2>
-                <div class="flex items-center">
-                  <div class="relative">
-                    <button id="criteria-button"
-                      class="bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded inline-flex items-center">
-                      <span id="selected-criteria">Search By</span>
-                      <svg class="fill-current h-4 w-4 ml-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                        <path d="M0 0h20v20H0z" fill="none" />
-                        <path d="M5.293 7.293l4.707 4.707 4.707-4.707-1.414-1.414L10 8.586 6.707 5.293z" />
-                      </svg>
-                    </button>
-                    <ul id="criteria-menu" class="absolute hidden text-gray-700 pt-1">
-                      <li class="">
-                        <a class="rounded-t bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap" href="#"
-                          data-criteria="id">ID</a>
-                      </li>
-                      <li class="">
-                        <a class="bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap" href="#"
-                          data-criteria="name">Name</a>
-                      </li>
-                      <li class="">
-                        <a class="bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap" href="#"
-                          data-criteria="numberphone">Phone Number</a>
-                      </li>
-                      <li class="">
-                        <a class="rounded-b bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap" href="#"
-                          data-criteria="email">Email</a>
-                      </li>
-                    </ul>
-                  </div>
-                  <input type="text" id="search-input" class="border rounded px-4 py-2 ml-2" placeholder="Search...">
-                  <button id="search-button"
-                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-2">Search</button>
-                </div>
-              </div>
-              <table id="customer-table" class="min-w-full bg-white">
-                <thead>
-                  <tr>
-                    <th class="py-2 px-4 border-b">ID</th>
-                    <th class="py-2 px-4 border-b">Image</th>
-                    <th class="py-2 px-4 border-b">Full Name</th>
-                    <th class="py-2 px-4 border-b">Phone Number</th>
-                    <th class="py-2 px-4 border-b">Email</th>
-                    <th class="py-2 px-4 border-b">Address</th>
-                    <th class="py-2 px-4 border-b">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <!-- Customer rows will be dynamically added here -->
-                </tbody>
-              </table>
-              <div id="pagination" class="mt-4">
-                <button id="prev-page"
-                  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Previous</button>
-                <span id="page-info" class="mx-2"></span>
-                <button id="next-page"
-                  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Next</button>
-              </div>
-            </div>
-
-
           </div>
         </div>
+        
       </main>
     </div>
+
+
+
   </div>
 
 
@@ -327,7 +268,7 @@
           </div>
           <div>
             <label for="insert-file" class="block text-sm font-medium text-gray-700">File</label>
-            <input type="file" id="insert-file" name="file" required
+            <input type="file" id="insert-file" name="file"
               class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
           </div>
           <div class="flex justify-end space-x-3">

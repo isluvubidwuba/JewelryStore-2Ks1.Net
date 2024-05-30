@@ -16,4 +16,5 @@ public class GemStoneOfProductDTO {
     private GemStoneTypeDTO gemstoneType;
     private GemStoneCategoryDTO gemstoneCategory;
     private ProductDTO product;
+    private int quantity;
 }
