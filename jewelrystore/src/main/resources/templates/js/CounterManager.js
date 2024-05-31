@@ -51,7 +51,21 @@ function generateTabs(counters) {
             html: '<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>'
         }).on('click', function (e) {
             e.stopPropagation(); // Ngăn chặn sự kiện click của tab
-            deleteCounter(counter.id);
+            // Show the delete modal
+            $('#deleteModal').removeClass('hidden');
+            // Set the delete action for the confirmation button
+            $('#deleteModal').find('button[type="submit"]').off('click').on('click', function () {
+                deleteCounter(counter.id);
+                $('#deleteModal').addClass('hidden');
+            });
+            // Handle the close button
+            $('#deleteModal').find('.text-gray-400').off('click').on('click', function () {
+                $('#deleteModal').addClass('hidden');
+            });
+            // Handle the cancel button
+            $('#deleteModal').find('button[data-modal-toggle="deleteModal"]').off('click').on('click', function () {
+                $('#deleteModal').addClass('hidden');
+            });
         });
 
         tabLinkContainer.append(tabLink, deleteIcon);

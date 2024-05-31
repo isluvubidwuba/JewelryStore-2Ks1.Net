@@ -107,10 +107,9 @@ public class EmployeeService implements IEmployeeService {
             responseData.setDesc("File save failed: " + e.getMessage());
             return responseData;
          }
-      }else{
-          imageName = "default_image.png";
+      } else {
+         imageName = "default_image.png";
       }
-
 
       Employee employee = new Employee();
       employee.setId(generatedId);
@@ -150,7 +149,6 @@ public class EmployeeService implements IEmployeeService {
    @Override
    public EmployeeDTO updateEmployee(MultipartFile file, String id, String firstName, String lastName, int roleId,
          String pinCode, boolean status, String phoneNumber, String email, String address) {
-      boolean isSaveFileSuccess = iFileService.savefile(file);
       Optional<Employee> employee = iEmployeeRepository.findById(id);
       System.out.println(employee);
       EmployeeDTO employeeDTO = new EmployeeDTO();
@@ -165,11 +163,23 @@ public class EmployeeService implements IEmployeeService {
          employee1.setAddress(address);
          employee1.setStatus(status);
          employee1.setRole(iRoleService.findById(roleId));
-         if (isSaveFileSuccess) {
-            employee1.setImage(file.getOriginalFilename());
-         } else {
-            employee1.setImage(employee.get().getImage());
+
+         if (file != null && !file.isEmpty()) {
+            try {
+               boolean isSaveFileSuccess = iFileService.savefile(file);
+               if (isSaveFileSuccess) {
+                  employee1.setImage(file.getOriginalFilename());
+               } else {
+                  throw new RuntimeException("File save failed");
+               }
+            } catch (Exception e) {
+               throw new RuntimeException("File save failed: " + e.getMessage());
+            }
+         }else{
+         employee1.setImage(employee.get().getImage());
+
          }
+
          iEmployeeRepository.save(employee1);
          employeeDTO = employee1.getDTO();
       }
