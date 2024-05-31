@@ -30,7 +30,7 @@ public interface IPromotionService {
                         double value,
                         boolean status);
 
-        public Promotion findById(int id);
+        public PromotionDTO findById(int id);
 
         public Map<String, Object> getHomePagePromotion2(int page);
 

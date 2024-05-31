@@ -56,11 +56,11 @@ function fetchPromotions(page = 0) {
               <div>
                 <h4 class="promotion-name focus:outline-none text-gray-800 dark:text-gray-100 font-bold mb-3">${promotion.name}</h4>
                 <p class="promotion-value focus:outline-none text-gray-800 dark:text-gray-100 text-sm">Giá trị: ${promotion.value}%</p>
+                <p class="promotion-status focus:outline-none text-sm dark:text-gray-100 ${statusColor}">${statusText}</p>
                 <img id="promotion-image" src="${linkPromotion}/files/${promotion.image}" alt="${promotion.name}" class="promotion-image w-full h-auto mt-3 rounded">
               </div>
               <div>
-                <div class="flex items-center justify-between text-gray-800">
-                  <p class="promotion-status focus:outline-none text-sm dark:text-gray-100 ${statusColor}">${statusText}</p>
+                <div class="flex items-center justify-between text-gray-800 my-2">
                   <div class="promotion-click w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center" data-id="${promotion.id}">
                     <img src="https://tuk-cdn.s3.amazonaws.com/can-uploader/single_card_with_title_and_description-svg1.svg" alt="icon" />
                   </div>
@@ -156,7 +156,23 @@ function fetchPromotionDetails(promotionId) {
       $("#update-id").val(promotion.id); // Điền thông tin vào các trường của modal
       $("#update-name").val(promotion.name); // Điền thông tin vào các trường của modal
       $("#update-value").val(promotion.value);
-      fetchVouchers(promotion.idVoucherType).then(function () {
+      // Cập nhật giá trị data-promotion-id cho nút Detail
+      $("#modalToggle_Detail_Apply").attr("data-promotion-id", promotion.id);
+      $("#modalToggle_Detail_Apply").attr(
+        "data-promotion-name",
+        promotion.name
+      );
+      // Cập nhật giá trị data-promotion-id cho nút Detail
+      $("#modalToggle_Category_Apply").attr(
+        "data-voucher-id",
+        promotion.voucherTypeDTO.id
+      );
+      $("#modalToggle_Category_Apply").attr(
+        "data-voucher-name",
+        promotion.voucherTypeDTO.type
+      );
+
+      fetchVouchers(promotion.voucherTypeDTO.id).then(function () {
         // Gọi hàm fetchVouchers và đợi hàm này hoàn tất trước khi tiếp tục xử lý
         $("#update-status").val(promotion.status == true ? 1 : 0);
         // Đặt giá trị cho #update-status sau khi các tùy chọn đã được tải
@@ -213,6 +229,7 @@ function setupEventListeners() {
 //update promotion
 
 function updatePromotionDetails(promotion) {
+  console.log(promotion.type);
   const promotionCard = $(`#promotion-card-${promotion.id}`);
 
   // Update name

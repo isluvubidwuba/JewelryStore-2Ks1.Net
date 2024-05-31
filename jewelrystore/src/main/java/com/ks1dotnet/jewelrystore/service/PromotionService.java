@@ -15,7 +15,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 import com.ks1dotnet.jewelrystore.entity.Promotion;
+import com.ks1dotnet.jewelrystore.entity.VoucherType;
 import com.ks1dotnet.jewelrystore.exception.BadRequestException;
+import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IPromotionRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IFileService;
@@ -51,12 +53,12 @@ public class PromotionService implements IPromotionService {
     }
 
     @Override
-    public Promotion findById(int id) {
-        try {
-            return iPromotionRepository.findById(id).orElse(null);
-        } catch (Exception e) {
-            throw new BadRequestException("Failed to find promotion by id", e.getMessage());
+    public PromotionDTO findById(int id) {
+        PromotionDTO promotionDTO = iPromotionRepository.findPromotionDTOById(id);
+        if (promotionDTO == null) {
+            throw new ResourceNotFoundException("Promotion not found with id: " + id);
         }
+        return promotionDTO;
     }
 
     @Override
@@ -120,7 +122,7 @@ public class PromotionService implements IPromotionService {
                 promotionDTO.setName(p.getName());
                 promotionDTO.setStatus(p.isStatus());
                 promotionDTO.setValue(p.getValue());
-                promotionDTO.setIdVoucherType(p.getVoucherType().getId());
+                promotionDTO.setVoucherTypeDTO(p.getVoucherType().getDTO());
                 promotionDTOs.add(promotionDTO);
             }
             return promotionDTOs;
@@ -133,15 +135,10 @@ public class PromotionService implements IPromotionService {
     public Map<String, Object> getHomePagePromotion2(int page) {
         try {
             Map<String, Object> response = new HashMap<>();
-            List<PromotionDTO> promotionDTOs = new ArrayList<>();
             PageRequest pageRequest = PageRequest.of(page, 8);
-            Page<Promotion> listData = iPromotionRepository.findAll(pageRequest);
+            Page<PromotionDTO> listData = iPromotionRepository.findAllPromotions(pageRequest);
 
-            for (Promotion p : listData) {
-                promotionDTOs.add(p.getDTO());
-            }
-
-            response.put("promotions", promotionDTOs);
+            response.put("promotions", listData.getContent());
             response.put("totalPages", listData.getTotalPages());
             response.put("currentPage", page);
 
@@ -151,36 +148,66 @@ public class PromotionService implements IPromotionService {
         }
     }
 
+    // @Override
+    // public PromotionDTO updatePromotion(MultipartFile file, int id, String name,
+    // int idVoucherType, double value,
+    // boolean status) {
+    // try {
+    // PromotionDTO promotionDTO = iPromotionRepository.findPromotionDTOById(id);
+    // if (promotionDTO != null) {
+    // promotionDTO.setName(name);
+    // promotionDTO.setVoucherTypeDTO(iVoucherTypeService.getVoucherById(idVoucherType).getDTO());
+    // promotionDTO.setValue(value);
+    // promotionDTO.setStatus(status);
+
+    // // Check if the file is provided and save it
+    // if (file != null && !file.isEmpty()) {
+    // boolean isSaveFileSuccess = iFileService.savefile(file);
+    // if (isSaveFileSuccess) {
+    // promotionDTO.setImage(file.getOriginalFilename());
+    // }
+    // }
+    // Promotion promotion = new Promotion(promotionDTO);
+    // System.out.println(promotion);
+    // System.out.println("promotionDTO" + promotionDTO);
+    // promotionDTO = iPromotionRepository.save(new
+    // Promotion(promotionDTO)).getDTO();
+    // }
+    // return promotionDTO;
+    // } catch (Exception e) {
+    // throw new BadRequestException("Failed to update promotion", e.getMessage());
+    // }
+    // }
     @Override
     public PromotionDTO updatePromotion(MultipartFile file, int id, String name, int idVoucherType, double value,
             boolean status) {
         try {
-            Optional<Promotion> promotionOptional = iPromotionRepository.findById(id);
-            PromotionDTO promotionDTO = new PromotionDTO();
+            // Tìm đối tượng Promotion từ database
+            Promotion promotion = iPromotionRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Promotion not found with id: " + id));
 
-            if (promotionOptional.isPresent()) {
-                Promotion promotion = promotionOptional.get();
-                promotion.setName(name);
-                promotion.setVoucherType(iVoucherTypeService.getVoucherById(idVoucherType));
-                promotion.setValue(value);
-                promotion.setStatus(status);
+            // Cập nhật các trường của Promotion
+            promotion.setName(name);
+            promotion.setValue(value);
+            promotion.setStatus(status);
 
-                // Check if the file is provided and save it
-                if (file != null && !file.isEmpty()) {
-                    boolean isSaveFileSuccess = iFileService.savefile(file);
-                    if (isSaveFileSuccess) {
-                        promotion.setImage(file.getOriginalFilename());
-                    }
-                } else {
-                    // Use the existing image if no new file is provided
-                    promotion.setImage(promotion.getImage());
+            // Tìm và cập nhật VoucherType
+            VoucherType voucherType = iVoucherTypeService.getVoucherById(idVoucherType);
+            promotion.setVoucherType(voucherType);
+
+            // Kiểm tra và lưu file nếu có
+            if (file != null && !file.isEmpty()) {
+                boolean isSaveFileSuccess = iFileService.savefile(file);
+                if (isSaveFileSuccess) {
+                    promotion.setImage(file.getOriginalFilename());
                 }
-
-                iPromotionRepository.save(promotion);
-                promotionDTO = promotion.getDTO();
             }
 
-            return promotionDTO;
+            // Lưu đối tượng Promotion
+            promotion = iPromotionRepository.save(promotion);
+
+            // Chuyển đổi đối tượng Promotion sang PromotionDTO và trả về
+            return promotion.getDTO();
         } catch (Exception e) {
             throw new BadRequestException("Failed to update promotion", e.getMessage());
         }

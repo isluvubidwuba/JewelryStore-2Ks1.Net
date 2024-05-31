@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 import com.ks1dotnet.jewelrystore.entity.Promotion;
 import com.ks1dotnet.jewelrystore.exception.BadRequestException;
+import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IFileService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionService;
@@ -84,19 +85,18 @@ public class PromotionController {
     }
 
     @PostMapping("/getById")
-    private ResponseEntity<?> getById(@RequestParam int id) {
+    public ResponseEntity<?> getById(@RequestParam int id) {
         try {
             ResponseData responseData = new ResponseData();
-            Promotion promotion = iPromotionService.findById(id);
-            if (promotion != null) {
-                responseData.setDesc("Find successful");
-                responseData.setData(promotion.getDTO());
-                return new ResponseEntity<>(responseData, HttpStatus.OK);
-            } else {
-                responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-                responseData.setDesc("Find fail. Internal Server Error");
-                return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+            PromotionDTO promotionDTO = iPromotionService.findById(id);
+            responseData.setDesc("Find successful");
+            responseData.setData(promotionDTO);
+            return new ResponseEntity<>(responseData, HttpStatus.OK);
+        } catch (ResourceNotFoundException e) {
+            ResponseData responseData = new ResponseData();
+            responseData.setStatus(HttpStatus.NOT_FOUND);
+            responseData.setDesc(e.getMessage());
+            return new ResponseEntity<>(responseData, HttpStatus.NOT_FOUND);
         } catch (BadRequestException e) {
             return handleBadRequestException(e);
         } catch (Exception e) {
@@ -104,22 +104,23 @@ public class PromotionController {
         }
     }
 
-    @GetMapping("/delete/{id}")
-    private ResponseEntity<?> delete(@PathVariable int id) {
-        try {
-            ResponseData responseData = new ResponseData();
-            Promotion promotion = iPromotionService.findById(id);
-            promotion.setStatus(false);
-            Promotion updatedPromotion = iPromotionService.saveOrUpdatePromotion(promotion);
-            responseData.setDesc("Delete successful");
-            responseData.setData(updatedPromotion);
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
-        } catch (BadRequestException e) {
-            return handleBadRequestException(e);
-        } catch (Exception e) {
-            return handleException(e);
-        }
-    }
+    // @GetMapping("/delete/{id}")
+    // private ResponseEntity<?> delete(@PathVariable int id) {
+    // try {
+    // ResponseData responseData = new ResponseData();
+    // Promotion promotion = iPromotionService.findById(id);
+    // promotion.setStatus(false);
+    // Promotion updatedPromotion =
+    // iPromotionService.saveOrUpdatePromotion(promotion);
+    // responseData.setDesc("Delete successful");
+    // responseData.setData(updatedPromotion);
+    // return new ResponseEntity<>(responseData, HttpStatus.OK);
+    // } catch (BadRequestException e) {
+    // return handleBadRequestException(e);
+    // } catch (Exception e) {
+    // return handleException(e);
+    // }
+    // }
 
     @GetMapping("/search/{name}")
     private ResponseEntity<?> search(@PathVariable String name) {

@@ -28,4 +28,9 @@ public class ForProduct {
     @ManyToOne
     @JoinColumn(name = "id_product")
     private Product product;
+
+    public ForProduct(Promotion promotion, Product product) {
+        this.promotion = promotion;
+        this.product = product;
+    }
 }

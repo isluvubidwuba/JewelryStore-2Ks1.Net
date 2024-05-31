@@ -175,11 +175,7 @@ $(document).ready(function () {
       processData: false,
       success: function (response) {
         alert(response.desc);
-<<<<<<< HEAD
-        if (response.status !== 500) {
-=======
         if (response.status === "OK") {
->>>>>>> 0754061519f083c8f03e4335c3cd57e627a702ed
           $("#updateEmployeeModal").addClass("hidden");
           fetchEmployees(currentPage); // Reload current page after update
         }
@@ -219,13 +215,6 @@ $(document).ready(function () {
   $("#insertEmployeeBtn").click(function () {
     $("#insertEmployeeModal").removeClass("hidden");
   });
-<<<<<<< HEAD
-
-  // Handle form submit for inserting new employee
-  $("#insertEmployeeForm").on("submit", function (event) {
-    event.preventDefault();
-
-=======
 
   // Handle form submit for inserting new employee
   $("#insertEmployeeForm").on("submit", function (event) {
@@ -237,7 +226,6 @@ $(document).ready(function () {
       return; // Stop form submission if validation fails
     }
 
->>>>>>> 0754061519f083c8f03e4335c3cd57e627a702ed
     var formData = new FormData($("#insertEmployeeForm")[0]);
     $.ajax({
       url: "http://localhost:8080/employee/insert",
@@ -247,32 +235,22 @@ $(document).ready(function () {
       processData: false,
       success: function (response) {
         alert(response.desc);
-<<<<<<< HEAD
-        if (response.status !== 500) {
-=======
         if (response.status === "OK") {
->>>>>>> 0754061519f083c8f03e4335c3cd57e627a702ed
           $("#insertEmployeeModal").addClass("hidden");
           resetInsertForm();
           fetchEmployees(currentPage); // Reload current page after insert
         }
       },
       error: function (jqXHR, textStatus, errorThrown) {
-<<<<<<< HEAD
-        alert("Insert fail. Internal Server Error");
-=======
         if (jqXHR.responseJSON && jqXHR.responseJSON.desc) {
           alert("Error: " + jqXHR.responseJSON.desc);
         } else {
           alert("Insert fail. Internal Server Error");
         }
->>>>>>> 0754061519f083c8f03e4335c3cd57e627a702ed
       },
     });
   });
 
-<<<<<<< HEAD
-=======
   // Function to validate insert form fields
   function validateInsertForm() {
     let isValid = true;
@@ -317,7 +295,6 @@ $(document).ready(function () {
     return phonePattern.test(phoneNumber);
   }
 
->>>>>>> 0754061519f083c8f03e4335c3cd57e627a702ed
   // Close insert modal
   $("#closeInsertModalBtn").click(function () {
     $("#insertEmployeeModal").addClass("hidden");
@@ -343,11 +320,7 @@ $(document).ready(function () {
       type: "DELETE",
       success: function (response) {
         alert(response.desc);
-<<<<<<< HEAD
-        if (response.status !== 500) {
-=======
         if (response.status === "OK") {
->>>>>>> 0754061519f083c8f03e4335c3cd57e627a702ed
           fetchEmployees(currentPage); // Reload current page after delete
         }
       },
@@ -357,10 +330,7 @@ $(document).ready(function () {
     });
   }
 
-<<<<<<< HEAD
-=======
   // Function to fetch and process search employees
->>>>>>> 0754061519f083c8f03e4335c3cd57e627a702ed
   function fetchAndProcessSearchEmployees(criteria, query, page = 0) {
     // Gửi yêu cầu tìm kiếm dựa trên tiêu chí và giá trị tìm kiếm
     $.ajax({
@@ -401,11 +371,7 @@ $(document).ready(function () {
   });
 
   // Khi người dùng gửi form tìm kiếm
-<<<<<<< HEAD
-  $("form").on("submit", function (event) {
-=======
   $("#searchForm").on("submit", function (event) {
->>>>>>> 0754061519f083c8f03e4335c3cd57e627a702ed
     event.preventDefault();
 
     var criteria = $("#selected-criteria").text();

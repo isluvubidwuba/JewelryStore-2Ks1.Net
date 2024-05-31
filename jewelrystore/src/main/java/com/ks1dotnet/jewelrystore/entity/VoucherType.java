@@ -2,6 +2,8 @@ package com.ks1dotnet.jewelrystore.entity;
 
 import java.util.Set;
 
+import com.ks1dotnet.jewelrystore.dto.VoucherTypeDTO;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -34,4 +36,12 @@ public class VoucherType {
     @OneToMany(mappedBy = "voucherType")
     Set<ForProductType> listForProductType;
 
+    public VoucherTypeDTO getDTO() {
+        return new VoucherTypeDTO(id, type);
+    }
+
+    public VoucherType(VoucherTypeDTO voucherTypeDTO) {
+        this.id = voucherTypeDTO.getId();
+        this.type = voucherTypeDTO.getType();
+    }
 }

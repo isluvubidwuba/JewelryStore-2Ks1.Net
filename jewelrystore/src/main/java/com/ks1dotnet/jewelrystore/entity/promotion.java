@@ -1,9 +1,11 @@
 package com.ks1dotnet.jewelrystore.entity;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -40,17 +42,29 @@ public class Promotion {
     @JoinColumn(name = "id_voucher_type")
     private VoucherType voucherType;
 
-    @OneToMany(mappedBy = "promotion", fetch = FetchType.EAGER)
-    Set<ForProduct> listForProduct;
+    @OneToMany(mappedBy = "promotion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<ForProduct> listForProduct = new HashSet<>();
 
-    @OneToMany(mappedBy = "promotion")
-    Set<VoucherOnInvoice> listVoucherOnInvoice;
+    @OneToMany(mappedBy = "promotion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<VoucherOnInvoice> listVoucherOnInvoice = new HashSet<>();
 
-    @OneToMany(mappedBy = "promotion")
-    Set<VoucherOnInvoiceDetail> listVoucherOnInvoiceDetail;
+    @OneToMany(mappedBy = "promotion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<VoucherOnInvoiceDetail> listVoucherOnInvoiceDetail = new HashSet<>();
 
     public PromotionDTO getDTO() {
-        return new PromotionDTO(this.id, this.name, this.value, this.voucherType.getId(), this.status, this.image);
+        return new PromotionDTO(this.id, this.name, this.value, this.voucherType.getDTO(), this.status, this.image);
     }
 
+    public Promotion(PromotionDTO p) {
+        this.id = p.getId();
+        this.name = p.getName();
+        this.value = p.getValue();
+        this.status = p.isStatus();
+        this.image = p.getImage();
+        this.voucherType = new VoucherType(p.getVoucherTypeDTO());
+    }
+
+    public Promotion(int id) {
+        this.id = id;
+    }
 }

@@ -407,26 +407,42 @@ $(document).ready(function () {
   //submit delete
   $(document).on("click", ".text-red-500", function () {
     const idExchangeRate = $(this).data("id");
+    $("#deleteModal").removeClass("hidden").addClass("flex");
 
-    if (confirm("Are you sure you want to delete this policy?")) {
-      $.ajax({
-        url: `http://localhost:8080/policy/deleteexchange?idExchange=${idExchangeRate}`,
-        type: "POST",
-        success: function (response) {
-          if (response.status === "OK") {
-            $(`#table-body tr[data-id='${idExchangeRate}']`).remove();
-            alert("Policy deleted successfully");
-            fetchPolicies();
-          } else {
-            alert("Failed to delete exchange rate policy");
-          }
-        },
-        error: function (xhr, status, error) {
-          alert("An error occurred while deleting the exchange rate policy.");
-          console.log(xhr.responseText);
-        },
+    $("#confirmDelete")
+      .off("click")
+      .on("click", function () {
+        $.ajax({
+          url: `http://localhost:8080/policy/deleteexchange?idExchange=${idExchangeRate}`,
+          type: "POST",
+          success: function (response) {
+            if (response.status === "OK") {
+              $(`#table-body tr[data-id='${idExchangeRate}']`).remove();
+              alert("Policy deleted successfully");
+              fetchPolicies();
+            } else {
+              alert("Failed to delete exchange rate policy");
+            }
+            $("#deleteModal").removeClass("flex").addClass("hidden");
+          },
+          error: function (xhr, status, error) {
+            alert("An error occurred while deleting the exchange rate policy.");
+            console.log(xhr.responseText);
+            $("#deleteModal").removeClass("flex").addClass("hidden");
+          },
+        });
       });
-    }
+
+    $("#cancelDelete")
+      .off("click")
+      .on("click", function () {
+        $("#deleteModal").removeClass("flex").addClass("hidden");
+      });
+    $("#closeDelete")
+      .off("click")
+      .on("click", function () {
+        $("#deleteModal").removeClass("flex").addClass("hidden");
+      });
   });
 
   //submit apply options
