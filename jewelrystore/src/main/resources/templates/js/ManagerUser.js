@@ -287,6 +287,17 @@ function setupEditButtons() {
     $('#updateUserModal').addClass('hidden');
   });
 
+  $('#updateEmployeeImageFile').on('change', function () {
+    const file = this.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        $('#updateEmployeeImagePreview').attr('src', e.target.result);
+      }
+      reader.readAsDataURL(file);
+    }
+  });
+
   $('#update-user-form').off('submit').on('submit', function (e) {
     e.preventDefault();
     updateUser();
@@ -306,6 +317,7 @@ function fetchUserInfo(id) {
         $('#update-email').val(user.email);
         $('#update-address').val(user.address);
         $('#update-role').val(user.role.id);
+        $('#updateEmployeeImagePreview').attr('src', user.image);
       }
     },
     error: function (error) {
@@ -436,6 +448,21 @@ function setupInsertModalToggle() {
     console.log("Selected role on change:", selectedRole);
   });
 
+  // Update image preview when an image is selected
+  $('#insert-file').on('change', function (e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        $('#insertEmployeeImagePreview').attr('src', event.target.result).show();
+      };
+      reader.readAsDataURL(file);
+    } else {
+      $('#insertEmployeeImagePreview').attr('src', '#').hide();
+    }
+  });
+
+
   $('#insert-user-form').off('submit').on('submit', function (e) {
     e.preventDefault();
 
@@ -444,6 +471,12 @@ function setupInsertModalToggle() {
     if (!validateForm(form)) return;
 
     var formData = new FormData($("#insert-user-form")[0]);
+
+    // Add the file input manually
+    var fileInput = $('#insert-file')[0].files[0];
+    if (fileInput) {
+      formData.append('file', fileInput);
+    }
     $.ajax({
       url: 'http://localhost:8080/userinfo/insert',
       method: 'POST',
