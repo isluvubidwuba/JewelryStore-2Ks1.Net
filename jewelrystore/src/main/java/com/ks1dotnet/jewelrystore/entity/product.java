@@ -39,7 +39,8 @@ public class Product {
     private boolean status;
     @Column(name = "weight")
     private Float weight;
-
+    @Column(name = "img")
+    private String imgPath;
     @ManyToOne
     @JoinColumn(name = "id_material")
     private Material material;
@@ -67,7 +68,7 @@ public class Product {
     public ProductDTO getDTO() {
         return new ProductDTO(this.id, this.getProductCode(), this.getBarCode(), this.name, this.fee, this.status,
                 this.weight, this.material.getDTO(),
-                this.productCategory.getDTO(), this.counter.getDTO());
+                this.productCategory.getDTO(), this.counter.getDTO(), this.imgPath);
     }
 
     public Product(ProductDTO t) {
@@ -88,5 +89,7 @@ public class Product {
             this.productCategory = new ProductCategory(t.getProductCategoryDTO());
         if (t.getCounterDTO() != null)
             this.counter = new Counter(t.getCounterDTO());
+        if (t.getImgPath() != null)
+            this.imgPath = t.getImgPath();
     }
 }

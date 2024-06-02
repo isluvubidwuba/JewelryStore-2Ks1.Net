@@ -214,4 +214,33 @@ public class ProductService implements IProductService {
         return String.valueOf(checkDigit);
     }
 
+    // @Transactional(readOnly = true)
+    // @Override
+    // public ResponseData searchProduct(String search, String id_material, String
+    // id_product_category,
+    // String id_counter) {
+    // try {
+    // List<ProductDTO> listDTO = iProductRepository
+    // .dynamicSearchProduct(search, id_material, id_product_category,
+    // id_counter).stream()
+    // .map(Product::getDTO).collect(Collectors.toList());
+    // return new ResponseData(HttpStatus.OK, "Found Product successfully",
+    // listDTO);
+    // } catch (Exception e) {
+    // throw new RunTimeExceptionV1("Failed search product", e.getMessage());
+    // }
+    // }
+
+    @Override
+    public ResponseData searchProductV2(String search, String id_material, String id_product_category,
+            String id_counter) {
+        try {
+            List<ProductDTO> listDTO = iProductRepository
+                    .dynamicSearchProductV2(search, id_material, id_product_category, id_counter).stream()
+                    .map(Product::getDTO).collect(Collectors.toList());
+            return new ResponseData(HttpStatus.OK, "Found Product successfully", listDTO);
+        } catch (Exception e) {
+            throw new RunTimeExceptionV1("Failed search product", e.getMessage());
+        }
+    }
 }
