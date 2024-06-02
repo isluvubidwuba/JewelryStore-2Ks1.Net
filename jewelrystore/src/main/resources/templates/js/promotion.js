@@ -52,22 +52,95 @@ function fetchPromotions(page = 0) {
             : "text-red-500";
 
           const promotionCard = `
-            <div id="promotion-card-${promotion.id}" class="max-w-xs h-67 flex flex-col justify-between bg-white dark:bg-gray-800 rounded-lg border border-gray-400 mb-6 py-5 px-4 mx-4">
-              <div>
-                <h4 class="promotion-name focus:outline-none text-gray-800 dark:text-gray-100 font-bold mb-3">${promotion.name}</h4>
-                <p class="promotion-value focus:outline-none text-gray-800 dark:text-gray-100 text-sm">Giá trị: ${promotion.value}%</p>
-                <p class="promotion-status focus:outline-none text-sm dark:text-gray-100 ${statusColor}">${statusText}</p>
-                <img id="promotion-image" src="${linkPromotion}/files/${promotion.image}" alt="${promotion.name}" class="promotion-image w-full h-auto mt-3 rounded">
-              </div>
-              <div>
-                <div class="flex items-center justify-between text-gray-800 my-2">
-                  <div class="promotion-click w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center" data-id="${promotion.id}">
-                    <img src="https://tuk-cdn.s3.amazonaws.com/can-uploader/single_card_with_title_and_description-svg1.svg" alt="icon" />
+            <div id="promotion-card-${
+              promotion.id
+            }" class="bg-white rounded-lg shadow-lg w-full mb-3">
+              <div class="p-4">
+                <div class="flex space-x-4">
+                  <div class="w-1/3">
+                    <img
+                      src="${linkPromotion}/files/${promotion.image}"
+                      alt="${promotion.name}"
+                      class="w-auto h-64 object-cover mx-auto promotion-image"
+                    />
+                  </div>
+                  <div class="w-2/3">
+                    <input type="hidden" name="id" value="${promotion.id}" />
+                    <div class="mb-4 flex space-x-4">
+                      <div class="w-full">
+                        <label class="block text-gray-700">Name</label>
+                        <input
+                          type="text"
+                          value="${promotion.name}"
+                          class="w-full px-3 py-2 outline-none promotion-name"
+                          readonly
+                        />
+                      </div>
+                      <div class="w-full">
+                        <label class="block text-gray-700">Type Promotion</label>
+                        <input
+                          type="text"
+                          value="${promotion.voucherTypeDTO.type}"
+                          class="w-full px-3 py-2 outline-none promotion-type-promotion"
+                          readonly
+                        />
+                      </div>
+                    </div>
+                    <div class="mb-4 flex space-x-4">
+                      <div class="w-full">
+                        <label class="block text-gray-700">Value</label>
+                        <input
+                          type="number"
+                          value="${promotion.value}"
+                          class="w-full px-3 py-2 outline-none promotion-value"
+                          readonly
+                        />
+                      </div>
+                      <div class="w-full">
+                        <label class="block">Status</label>
+                        <input
+                          type="text"
+                          value="${
+                            promotion.status
+                              ? "Đang hoạt động"
+                              : "Không hoạt động"
+                          }"
+                          class="w-full outline-none px-3 py-2 promotion-status ${
+                            promotion.status ? "text-green-600" : "text-red-700"
+                          }"
+                          readonly
+                        />
+                      </div>
+                    </div>
+                    <div class="flex justify-end space-x-4 relative">
+                    ${
+                      promotion.status
+                        ? `
+                    <button
+                      id="bttn-delete-promotion"
+                      type="button"
+                      data-id="${promotion.id}"
+                      class="bg-red-500 text-white px-4 py-2 rounded"
+                    >
+                      Delete
+                    </button>
+                  `
+                        : ""
+                    }
+                      <button
+                        type="button"
+                        class="bg-blue-500 text-white px-4 py-2 rounded promotion-update-btn"
+                        data-id="${promotion.id}"
+                      >
+                        Update
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           `;
+
           $("#promotion-container").append(promotionCard);
         });
 
@@ -79,6 +152,7 @@ function fetchPromotions(page = 0) {
     },
   });
 }
+
 function updatePagination(totalPages, currentPage) {
   let pagination = $(".pagination");
   pagination.empty();
@@ -217,33 +291,90 @@ function fetchVouchers(selectedVoucherType) {
 
 //open modal
 function setupEventListeners() {
-  $(document).on("click", ".promotion-click", function () {
-    var promotionId = $(this).data("id");
+  // Open update promotion modal
+  $(document).on("click", ".promotion-update-btn", function () {
+    const promotionId = $(this).data("id");
     fetchPromotionDetails(promotionId);
   });
 
   $(document).on("click", "#updateModalClose", function () {
     closeModal();
   });
+
+  // Show/hide apply-for options on hover
+  $(document).on(
+    "mouseenter",
+    ".apply-for-btn, .apply-for-options",
+    function () {
+      $(this).closest(".relative").find(".apply-for-options").show();
+    }
+  );
+
+  $(document).on(
+    "mouseleave",
+    ".apply-for-btn, .apply-for-options",
+    function () {
+      $(this).closest(".relative").find(".apply-for-options").hide();
+    }
+  );
+
+  // Sự kiện click cho nút Delete
+  $(document).on("click", "#bttn-delete-promotion", function () {
+    const promotionId = $(this).data("id");
+    $("#confirmDelete").data("promotion-id", promotionId);
+    $("#deleteModal").removeClass("hidden");
+  });
+
+  // Sự kiện click cho nút Cancel trong modal
+  $(document).on("click", "#cancelDelete, #closeDelete", function () {
+    $("#deleteModal").addClass("hidden");
+  });
+
+  // Sự kiện click cho nút Confirm Delete trong modal
+  $(document).on("click", "#confirmDelete", function () {
+    const promotionId = $(this).data("promotion-id");
+    deletePromotion(promotionId);
+  });
+}
+function deletePromotion(promotionId) {
+  $.ajax({
+    url: `http://localhost:8080/promotion/delete/${promotionId}`,
+    type: "GET",
+    success: function (response) {
+      alert(response.desc); // Hiển thị thông báo trả về từ API
+      $("#deleteModal").addClass("hidden");
+      fetchPromotions(0); // Tải lại danh sách promotion
+    },
+    error: function (error) {
+      $("#deleteModal").addClass("hidden");
+      console.error("Error deleting promotion:", error);
+      alert("An error occurred while deleting the promotion.");
+    },
+  });
 }
 //update promotion
 
 function updatePromotionDetails(promotion) {
-  console.log(promotion.type);
   const promotionCard = $(`#promotion-card-${promotion.id}`);
 
   // Update name
-  promotionCard.find(".promotion-name").text(promotion.name);
+  promotionCard.find(".promotion-name").val(promotion.name);
 
   // Update value
-  promotionCard.find(".promotion-value").text(`Giá trị: ${promotion.value}%`);
+  promotionCard.find(".promotion-value").val(promotion.value);
+  // Update promotion-type-promotion
+  promotionCard
+    .find(".promotion-type-promotion")
+    .val(promotion.voucherTypeDTO.type);
 
   // Update status
   const statusText = promotion.status ? "Đang hoạt động" : "Không hoạt động";
-  const statusColorClass = promotion.status ? "text-green-500" : "text-red-500";
+  const statusColorClass = promotion.status
+    ? "w-full outline-none px-3 py-2 promotion-status text-green-500"
+    : "w-full outline-none px-3 py-2 promotion-status text-red-500";
   const promotionStatusElement = promotionCard.find(".promotion-status");
 
-  promotionStatusElement.text(statusText);
+  promotionStatusElement.val(statusText);
 
   // Remove all existing classes and add the necessary classes
   promotionStatusElement.attr(
@@ -254,6 +385,27 @@ function updatePromotionDetails(promotion) {
   // Update image
   const newImageUrl = `http://localhost:8080/promotion/files/${promotion.image}`;
   promotionCard.find(".promotion-image").attr("src", newImageUrl);
+
+  // Update delete button visibility based on status
+  const deleteButton = promotionCard.find("#bttn-delete-promotion");
+  if (promotion.status) {
+    if (deleteButton.length === 0) {
+      // If delete button doesn't exist, add it
+      const deleteButtonHtml = `
+        <button
+          id="bttn-delete-promotion"
+          type="button"
+          data-id="${promotion.id}"
+          class="bg-red-500 text-white px-4 py-2 rounded"
+        >
+          Delete
+        </button>
+      `;
+      promotionCard.find(".relative").prepend(deleteButtonHtml);
+    }
+  } else {
+    deleteButton.remove();
+  }
 }
 
 //call this function when receive the response after updating the promotion

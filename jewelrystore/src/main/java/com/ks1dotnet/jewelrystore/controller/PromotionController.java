@@ -104,6 +104,41 @@ public class PromotionController {
         }
     }
 
+    @GetMapping("/delete/{id}")
+    public ResponseEntity<?> delete(@PathVariable int id) {
+        try {
+            ResponseData responseData = new ResponseData();
+            PromotionDTO promotionDTO = iPromotionService.findById(id);
+
+            // Kiểm tra xem promotionDTO có null không trước khi gọi updatePromotion
+            if (promotionDTO == null) {
+                throw new ResourceNotFoundException("Promotion not found with id: " + id);
+            }
+
+            PromotionDTO promotionDTO2 = iPromotionService.updatePromotion(null, promotionDTO.getId(),
+                    promotionDTO.getName(), promotionDTO.getVoucherTypeDTO().getId(), promotionDTO.getValue(), false);
+
+            responseData.setData(promotionDTO2);
+            responseData.setDesc("Delete successful");
+            return new ResponseEntity<>(responseData, HttpStatus.OK);
+        } catch (ResourceNotFoundException e) {
+            ResponseData responseData = new ResponseData();
+            responseData.setStatus(HttpStatus.NOT_FOUND);
+            responseData.setDesc(e.getMessage());
+            return new ResponseEntity<>(responseData, HttpStatus.NOT_FOUND);
+        } catch (BadRequestException e) {
+            ResponseData responseData = new ResponseData();
+            responseData.setStatus(HttpStatus.BAD_REQUEST);
+            responseData.setDesc(e.getMessage());
+            return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            ResponseData responseData = new ResponseData();
+            responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            responseData.setDesc("An unexpected error occurred: " + e.getMessage());
+            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     // @GetMapping("/delete/{id}")
     // private ResponseEntity<?> delete(@PathVariable int id) {
     // try {

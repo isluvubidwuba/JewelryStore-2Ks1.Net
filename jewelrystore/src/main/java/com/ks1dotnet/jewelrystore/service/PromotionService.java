@@ -135,7 +135,7 @@ public class PromotionService implements IPromotionService {
     public Map<String, Object> getHomePagePromotion2(int page) {
         try {
             Map<String, Object> response = new HashMap<>();
-            PageRequest pageRequest = PageRequest.of(page, 8);
+            PageRequest pageRequest = PageRequest.of(page, 2);
             Page<PromotionDTO> listData = iPromotionRepository.findAllPromotions(pageRequest);
 
             response.put("promotions", listData.getContent());
