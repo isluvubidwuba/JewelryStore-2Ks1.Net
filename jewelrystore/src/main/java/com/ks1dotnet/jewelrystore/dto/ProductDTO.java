@@ -15,6 +15,7 @@ public class ProductDTO {
     private Double fee;
     private boolean status;
     private Float weight;
+    private String img;
     private MaterialDTO materialDTO;
     private ProductCategoryDTO productCategoryDTO;
     private CounterDTO counterDTO;

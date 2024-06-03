@@ -13,7 +13,7 @@ import com.ks1dotnet.jewelrystore.entity.Product;
 public interface IProductRepository extends JpaRepository<Product, Integer> {
 
     @Query(value = "SELECT * FROM Product p WHERE p.name = :name AND p.id_material = :idMaterial AND p.id_product_category = :idProductCategory AND p.id_counter = :idCounter AND p.fee = :fee", nativeQuery = true)
-    List<Product> findByAllFieldsExceptId(
+    public List<Product> findByAllFieldsExceptId(
             @Param("name") String name,
             @Param("idMaterial") Integer idMaterial,
             @Param("idProductCategory") Integer idProductCategory,
@@ -21,5 +21,8 @@ public interface IProductRepository extends JpaRepository<Product, Integer> {
             @Param("fee") Double fee);
 
     @Query(value = "SELECT MAX(p.id) FROM Product p")
-    Integer findMaxId();
+    public Integer findMaxId();
+
+    @Query("SELECT p FROM Product p WHERE p.counter.id = :counterId")
+    public List<Product> findByCounterId(@Param("counterId") int counterId);
 }

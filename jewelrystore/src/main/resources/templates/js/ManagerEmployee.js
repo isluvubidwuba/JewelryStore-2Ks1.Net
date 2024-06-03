@@ -1,399 +1,336 @@
 $(document).ready(function () {
-  var currentPage = 0;
-  var totalPages = 0;
+  initializeInsertEmployee();
+  initializePagination();
+  initializeSearchForm();
+  fetchEmployees(0);
+});
 
-  loadRoles();
-  loadRoleInsert();
-  fetchEmployees(currentPage); // Fetch initial page
+let currentPage = 0;
 
-  // Fetch employees list and render it
-  function fetchEmployees(page = 0) {
-    $.ajax({
-      url: `http://localhost:8080/employee/listpage?page=${page}`,
-      method: "GET",
-      success: function (response) {
-        processEmployeeResponse(response);
-      },
-      error: function (error) {
-        console.error("Error fetching employees:", error);
-      },
-    });
-  }
+function initializePagination() {
+  $("#prevPageBtn").click(handlePrevPage);
+  $("#nextPageBtn").click(handleNextPage);
+  $("#closeViewModalBtn").click(closeModal);
+  $("#updateEmployeeBtn").click(updateEmployee);
+  $("#deleteEmployeeBtn").click(deleteEmployee); // Added delete button initialization
+}
 
-  // Process response and render employees
-  function processEmployeeResponse(response) {
-    emptyTableBody();
+function initializeInsertEmployee() {
+  $("#openInsertModalBtn").click(openInsertModal);
+  $("#closeInsertModalBtn").click(closeInsertModal);
+  $("#insertEmployeeForm").submit(handleInsertEmployee);
+  $("#insertEmployeeImageFile").change(previewInsertImage);
+}
 
-    if (response && response.data) {
-      const { employees, totalPages: tp, currentPage: cp } = response.data;
-      totalPages = tp;
-      currentPage = cp;
-
-      employees.forEach(function (employee) {
-        const employeeRow = createEmployeeRow(employee);
-        $("#employeeTableBody").append(employeeRow);
-      });
-      console.log(totalPages, currentPage);
-      updatePaginationControls(totalPages, currentPage);
-    }
-  }
-
-  // Clear existing rows in the employee table body
-  function emptyTableBody() {
-    $("#employeeTableBody").empty();
-  }
-
-  // Create an employee row for the table
-  function createEmployeeRow(employee) {
-    const statusText = employee.status ? "Active" : "Inactive";
-    const statusColor = employee.status ? "text-green-500" : "text-red-500";
-
-    return `
-            <tr>
-                <td class="px-6 py-4">${employee.id}</td>
-                <td class="px-6 py-4">
-                <img src="http://localhost:8080/employee/files/${employee.image}" alt="Employee Image" class="w-10 h-10 rounded-full">
-                </td>
-                <td class="px-6 py-4">${employee.firstName} ${employee.lastName}</td>
-                <td class="px-6 py-4">${employee.role.name}</td>
-                <td class="px-6 py-4 ${statusColor}">${statusText}</td>
-                <td class="px-6 py-4">
-                    <button class="editBtn bg-blue-500 text-white px-4 py-2 rounded" data-id="${employee.id}">Edit</button>
-                    <button class="deleteBtn bg-red-500 text-white px-4 py-2 rounded" data-id="${employee.id}">Delete</button>
-                </td>
-            </tr>
-        `;
-  }
-
-  // Update pagination controls (Previous and Next buttons)
-  function updatePaginationControls(totalPages, currentPage) {
-    $("#paginationControls").empty();
-    for (let i = 0; i < totalPages; i++) {
-      const button = $('<button class="pagination-button">')
-        .text(i + 1)
-        .data("page", i);
-      if (i === currentPage) {
-        button.prop("disabled", true).addClass("active");
+function fetchEmployees(page) {
+  $.ajax({
+    url: `http://localhost:8080/employee/listpage`,
+    type: "GET",
+    data: { page: page },
+    success: function (response) {
+      if (response.status === "OK") {
+        renderEmployees(response.data.employees);
+        updatePagination(response.data.currentPage, response.data.totalPages);
+        currentPage = response.data.currentPage;
+      } else {
+        alert("Failed to load employee data.");
       }
-      $("#paginationControls").append(button);
-    }
+    },
+    error: function () {
+      alert("Error while fetching employee data.");
+    },
+  });
+}
+
+function renderEmployees(employees) {
+  const employeeTableBody = $("#employeeTableBody");
+  employeeTableBody.empty();
+
+  employees.forEach((employee) => {
+    const statusLabel = employee.status
+      ? '<span class="text-green-600">Active</span>'
+      : '<span class="text-red-600">Inactive</span>';
+    const employeeRow = `
+          <tr class="border-b dark:border-gray-700">
+              <td class="px-6 py-3">${employee.id}</td>
+              <td class="px-6 py-4">
+                  <img src="http://localhost:8080/employee/files/${employee.image}" alt="Employee Image" class="w-10 h-10 rounded-full">
+              </td>
+              <td class="px-6 py-3">${employee.lastName} ${employee.firstName}</td>
+              <td class="px-6 py-3">${employee.role.name}</td>
+              <td class="px-6 py-3">${statusLabel}</td>
+              <td class="px-6 py-3">
+                  <button class="bg-blue-500 text-white px-4 py-2 rounded" onclick="viewEmployee('${employee.id}')">View</button>
+              </td>
+          </tr>
+      `;
+    employeeTableBody.append(employeeRow);
+  });
+}
+
+function handlePrevPage() {
+  if (currentPage > 0) {
+    fetchEmployees(currentPage - 1);
   }
+}
 
-  // Handle click event for previous page button
-  $("#prevPageBtn").on("click", function () {
-    if (currentPage > 0) {
-      fetchEmployees(--currentPage);
-    }
-  });
+function handleNextPage() {
+  fetchEmployees(currentPage + 1);
+}
 
-  // Handle click event for next page button
-  $("#nextPageBtn").on("click", function () {
-    if (currentPage < totalPages - 1) {
-      fetchEmployees(++currentPage);
-    }
-  });
+function updatePagination(currentPage, totalPages) {
+  $("#currentPageIndicator").text(`Page ${currentPage + 1} of ${totalPages}`);
+  $("#prevPageBtn").prop("disabled", currentPage === 0);
+  $("#nextPageBtn").prop("disabled", currentPage === totalPages - 1);
+}
 
-  // Fetch roles and populate the role dropdown
-  function loadRoles() {
-    $.ajax({
-      url: `http://localhost:8080/role/list`,
-      method: "GET",
-      success: function (response) {
-        if (response && response.data) {
-          const rolesToShow = response.data.slice(0, 3); // Get only the first 3 roles
-          rolesToShow.forEach((role) => {
-            $("#role").append(new Option(role.name, role.id));
+function fetchRoles(selectElementId) {
+  $.ajax({
+    url: `http://localhost:8080/role/list`,
+    type: "GET",
+    success: function (response) {
+      if (response.status === "OK") {
+        const roles = response.data;
+        const roleSelect = $(`#${selectElementId}`);
+        roleSelect.empty();
+        roles
+          .filter((role) => [1, 2, 3].includes(role.id))
+          .forEach((role) => {
+            roleSelect.append(
+              `<option value="${role.id}">${role.name}</option>`
+            );
           });
-        }
-      },
-      error: function (error) {
-        console.error("Error fetching roles:", error);
-      },
-    });
-  }
-
-  // Handle click event on edit button to show the modal with employee data
-  $("#employeeTableBody").on("click", ".editBtn", function () {
-    const id = $(this).data("id");
-    showEmployeeModal(id);
-  });
-
-  // Fetch and display employee data in the modal
-  function showEmployeeModal(id) {
-    $.ajax({
-      url: `http://localhost:8080/employee/listemployee/${id}`,
-      method: "GET",
-      success: function (response) {
-        if (response && response.data) {
-          const employee = response.data;
-          // Populate the modal with employee data
-          $("#employeeId").val(employee.id);
-          $("#firstName").val(employee.firstName);
-          $("#lastName").val(employee.lastName);
-          $("#phoneNumber").val(employee.phoneNumber);
-          $("#email").val(employee.email);
-          $("#address").val(employee.address);
-          $("#role").val(employee.role.id);
-          $("#status").val(employee.status.toString());
-          $("#pinCode").val(employee.pinCode);
-          // Display the current image
-          if (employee.image) {
-            $("#currentImage")
-              .attr(
-                "src",
-                `http://localhost:8080/employee/files/${employee.image}`
-              )
-              .show();
-          } else {
-            $("#currentImage").hide();
-          }
-          $("#file").val(""); // Clear file input
-
-          // Show the modal
-          $("#updateEmployeeModal").removeClass("hidden");
-        } else {
-          console.error("No employee data found");
-        }
-      },
-      error: function (error) {
-        console.error("Error fetching employee data:", error);
-      },
-    });
-  }
-
-  // Handle form submit
-  $("#updateEmployeeForm").on("submit", function (event) {
-    event.preventDefault();
-
-    var formData = new FormData($("#updateEmployeeForm")[0]);
-
-    $.ajax({
-      url: "http://localhost:8080/employee/update",
-      type: "POST",
-      data: formData,
-      contentType: false,
-      processData: false,
-      success: function (response) {
-        alert(response.desc);
-        if (response.status === "OK") {
-          $("#updateEmployeeModal").addClass("hidden");
-          fetchEmployees(currentPage); // Reload current page after update
-        }
-      },
-      error: function (jqXHR, textStatus, errorThrown) {
-        alert("Update fail. Internal Server Error");
-      },
-    });
-  });
-
-  // Close modal
-  $("#closeModalBtn").click(function () {
-    $("#updateEmployeeModal").addClass("hidden");
-  });
-
-  // Fetch roles and populate the role dropdown for insert modal
-  function loadRoleInsert() {
-    $.ajax({
-      url: `http://localhost:8080/role/list`,
-      method: "GET",
-      success: function (response) {
-        if (response && response.data) {
-          const rolesToShow = response.data.slice(0, 3); // Get only the first 3 roles
-          $("#insertRole").empty(); // Clear existing options
-          rolesToShow.forEach((role) => {
-            $("#insertRole").append(new Option(role.name, role.id));
-          });
-        }
-      },
-      error: function (error) {
-        console.error("Error fetching roles:", error);
-      },
-    });
-  }
-
-  // Handle click event on insert button to show the insert modal
-  $("#insertEmployeeBtn").click(function () {
-    $("#insertEmployeeModal").removeClass("hidden");
-  });
-
-  // Handle form submit for inserting new employee
-  $("#insertEmployeeForm").on("submit", function (event) {
-    event.preventDefault();
-
-    // Validate form fields
-    let isValid = validateInsertForm();
-    if (!isValid) {
-      return; // Stop form submission if validation fails
-    }
-
-    var formData = new FormData($("#insertEmployeeForm")[0]);
-    $.ajax({
-      url: "http://localhost:8080/employee/insert",
-      type: "POST",
-      data: formData,
-      contentType: false,
-      processData: false,
-      success: function (response) {
-        alert(response.desc);
-        if (response.status === "OK") {
-          $("#insertEmployeeModal").addClass("hidden");
-          resetInsertForm();
-          fetchEmployees(currentPage); // Reload current page after insert
-        }
-      },
-      error: function (jqXHR, textStatus, errorThrown) {
-        if (jqXHR.responseJSON && jqXHR.responseJSON.desc) {
-          alert("Error: " + jqXHR.responseJSON.desc);
-        } else {
-          alert("Insert fail. Internal Server Error");
-        }
-      },
-    });
-  });
-
-  // Function to validate insert form fields
-  function validateInsertForm() {
-    let isValid = true;
-    let errorMsg = "You must fill all fields";
-
-    // Check required fields
-    $("#insertEmployeeForm input[required]").each(function () {
-      if (!$(this).val().trim()) {
-        isValid = false;
-        errorMsg = `${$(this).attr("name")} cannot be empty`;
-        return false; // Exit each loop
+      } else {
+        alert("Failed to load roles: " + response.desc);
       }
-    });
-
-    // Check phone number is a number and email format
-    let phoneNumber = $("#insertPhoneNumber").val();
-    let email = $("#insertEmail").val();
-    if (!validateEmail(email)) {
-      alert("Invalid email address.");
-      return false;
-    }
-
-    if (!isValidPhoneNumber(phoneNumber)) {
-      alert(
-        "Invalid phone number. It should contain only digits and be between 10 to 12 digits long."
-      );
-      return false;
-    }
-
-    return true;
-  }
-
-  // Function to validate email format
-  function validateEmail(email) {
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailPattern.test(email);
-  }
-
-  //Function to validate number phone
-  function isValidPhoneNumber(phoneNumber) {
-    const phonePattern = /^\d{10,12}$/;
-    return phonePattern.test(phoneNumber);
-  }
-
-  // Close insert modal
-  $("#closeInsertModalBtn").click(function () {
-    $("#insertEmployeeModal").addClass("hidden");
+    },
+    error: function (error) {
+      if (error.responseJSON) {
+        alert("Error while load roles: " + error.responseJSON.desc);
+      } else {
+        console.error("Error while load roles: ", error);
+        alert("Error load roles!");
+      }
+    },
   });
+}
 
-  // Function to clear the insert employee form
-  function resetInsertForm() {
-    $("#insertEmployeeForm")[0].reset(); // Clear all form fields
+function viewEmployee(id) {
+  fetchRoles("viewRole"); // Fetch roles before opening the modal
+  $.ajax({
+    url: `http://localhost:8080/employee/listemployee/${id}`,
+    type: "GET",
+    success: function (response) {
+      if (response.status === "OK") {
+        const employee = response.data;
+        $("#viewEmployeeImage").attr(
+          "src",
+          `http://localhost:8080/employee/files/${employee.image}`
+        );
+        $("#viewEmployeeId").val(employee.id);
+        $("#viewPinCode").val(employee.pinCode);
+        $("#viewFirstName").val(employee.firstName);
+        $("#viewLastName").val(employee.lastName);
+        $("#viewPhoneNumber").val(employee.phoneNumber);
+        $("#viewEmail").val(employee.email);
+        $("#viewAddress").val(employee.address);
+        $("#viewRole").val(employee.role.id);
+        $("#viewStatus").val(employee.status ? "true" : "false");
+        openModal();
+      } else {
+        alert("Failed to load employee details." + response.desc);
+      }
+    },
+    error: function (error) {
+      if (error.responseJSON) {
+        alert(
+          "Error while fetching employee details : " + error.responseJSON.desc
+        );
+      } else {
+        console.error("Error while fetching employee details : ", error);
+        alert("Error  fetching employee details :!");
+      }
+    },
+  });
+}
+
+function openModal() {
+  $("#viewEmployeeModal").removeClass("hidden");
+}
+
+function closeModal() {
+  $("#viewEmployeeModal").addClass("hidden");
+}
+
+function updateEmployee() {
+  var formData = new FormData($("#viewEmployeeForm")[0]);
+
+  const fileInput = document.getElementById("viewEmployeeImageFile");
+  if (fileInput && fileInput.files.length > 0) {
+    formData.append("file", fileInput.files[0]);
+  } else {
+    formData.append(
+      "file",
+      new Blob([""], { type: "application/octet-stream" })
+    );
   }
 
-  // Handle click event on delete button to delete an employee
-  $("#employeeTableBody").on("click", ".deleteBtn", function () {
-    const id = $(this).data("id");
-    if (confirm("Are you sure you want to delete this employee?")) {
-      deleteEmployee(id);
-    }
-  });
+  formData.append("roleId", $("#viewRole").val());
 
-  // Delete employee function
-  function deleteEmployee(id) {
-    $.ajax({
-      url: `http://localhost:8080/employee/delete/${id}`,
-      type: "DELETE",
-      success: function (response) {
+  $.ajax({
+    url: `http://localhost:8080/employee/update`,
+    type: "POST",
+    data: formData,
+    processData: false,
+    contentType: false,
+    success: function (response) {
+      if (response.status === "OK") {
         alert(response.desc);
-        if (response.status === "OK") {
-          fetchEmployees(currentPage); // Reload current page after delete
-        }
-      },
-      error: function (jqXHR, textStatus, errorThrown) {
-        alert("Delete fail. Internal Server Error");
-      },
-    });
+        clearUpdateForm();
+        closeModal();
+        fetchEmployees(currentPage);
+      } else {
+        alert("Failed to update employee: " + response.desc);
+      }
+    },
+    error: function (error) {
+      if (error.responseJSON) {
+        alert("Error while update employee: " + error.responseJSON.desc);
+      } else {
+        console.error("Error while update employee: ", error);
+        alert("Error update employee!");
+      }
+    },
+  });
+}
+
+function clearUpdateForm() {
+  $("#viewEmployeeForm")[0].reset();
+  $("#viewEmployeeImage").attr("src", ""); // Clear image preview
+  $("#viewRole").val("");
+  $("#viewStatus").val("");
+}
+
+function previewInsertImage() {
+  const fileInput = document.getElementById("insertEmployeeImageFile");
+  const imagePreview = document.getElementById("insertEmployeeImagePreview");
+  const file = fileInput.files[0];
+
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      imagePreview.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  } else {
+    imagePreview.src = "#";
   }
+}
 
-  // Function to fetch and process search employees
-  function fetchAndProcessSearchEmployees(criteria, query, page = 0) {
-    // Gửi yêu cầu tìm kiếm dựa trên tiêu chí và giá trị tìm kiếm
-    $.ajax({
-      url: "http://localhost:8080/employee/search",
-      method: "POST",
-      contentType: "application/x-www-form-urlencoded",
-      data: {
-        criteria: criteria,
-        query: query,
-        page: page,
-      },
-      success: function (response) {
-        // Xử lý phản hồi và hiển thị nhân viên
-        console.log(response);
-        processEmployeeResponse(response); // Gọi hàm xử lý phản hồi với dữ liệu tìm kiếm
-      },
-      error: function (error) {
-        console.error("Error fetching search results:", error);
-      },
-    });
-  }
+function openInsertModal() {
+  fetchRoles("insertRole");
+  $("#insertEmployeeModal").removeClass("hidden");
+}
 
-  // Handle pagination click event
-  $(document).on("click", ".pagination-button", function () {
-    var criteria = $("#selected-criteria").text();
-    var query = $("#search-input").val();
-    var page = $(this).data("page");
+function closeInsertModal() {
+  $("#insertEmployeeModal").addClass("hidden");
+  document.getElementById("insertEmployeeForm").reset();
+  $("#insertEmployeeImagePreview").attr("src", "#");
+}
 
-    fetchAndProcessSearchEmployees(criteria, query, page);
+function handleInsertEmployee(event) {
+  event.preventDefault();
+  var formData = new FormData($("#insertEmployeeForm")[0]);
+
+  $.ajax({
+    url: `http://localhost:8080/employee/insert`,
+    type: "POST",
+    data: formData,
+    processData: false,
+    contentType: false,
+    success: function (response) {
+      if (response.status === "OK") {
+        alert(response.desc);
+        closeModal();
+        fetchEmployees(currentPage);
+      } else {
+        alert("Failed to update employee: " + response.desc);
+      }
+    },
+    error: function (error) {
+      if (error.responseJSON) {
+        alert("Error while inserting employee: " + error.responseJSON.desc);
+      } else {
+        console.error("Error while inserting employee: ", error);
+        alert("Error updating user!");
+      }
+    },
   });
+}
 
-  // Khi người dùng chọn một tiêu chí tìm kiếm
-  $(".dropdown-item").on("click", function () {
-    var criteria = $(this).data("criteria");
-    $("#selected-criteria").text(criteria);
-    $("#dropdown").addClass("hidden");
-    $("#search-input").attr("placeholder", "Search by " + criteria);
-  });
-
-  // Khi người dùng gửi form tìm kiếm
-  $("#searchForm").on("submit", function (event) {
-    event.preventDefault();
-
-    var criteria = $("#selected-criteria").text();
-    var query = $("#search-input").val();
-
-    // Đặt lại trang hiện tại về 0 khi thực hiện tìm kiếm mới
-    currentPage = 0;
-    fetchAndProcessSearchEmployees(criteria, query, currentPage);
-  });
-
-  // Toggle dropdown menu
-  $("#dropdown-button").on("click", function () {
+function initializeSearchForm() {
+  $("#dropdown-button").click(function () {
     $("#dropdown").toggleClass("hidden");
   });
 
-  // Close dropdown when clicking outside
-  $(document).on("click", function (event) {
-    if (
-      !$(event.target).closest("#dropdown-button").length &&
-      !$(event.target).closest("#dropdown").length
-    ) {
-      $("#dropdown").addClass("hidden");
-    }
+  $(".dropdown-item").click(function () {
+    const selectedCriteria = $(this).data("criteria");
+    $("#selected-criteria").text(selectedCriteria);
+    $("#dropdown").addClass("hidden");
   });
-});
+
+  $("#searchForm").submit(function (event) {
+    event.preventDefault();
+    const criteria = $("#selected-criteria").text().toLowerCase();
+    const query = $("#searchInput").val();
+    searchEmployees(criteria, query, 0);
+  });
+}
+
+function searchEmployees(criteria, query, page) {
+  $.ajax({
+    url: `http://localhost:8080/employee/search`,
+    type: "POST",
+    data: { criteria: criteria, query: query, page: page },
+    success: function (response) {
+      if (response.status === "OK") {
+        renderEmployees(response.data.employees);
+        updatePagination(response.data.currentPage, response.data.totalPages);
+        currentPage = response.data.currentPage;
+      } else {
+        alert("Failed to search employee data.");
+      }
+    },
+    error: function () {
+      alert("Error while searching employee data.");
+    },
+  });
+}
+
+function deleteEmployee() {
+  const employeeId = $("#viewEmployeeId").val();
+
+  if (confirm("Are you sure you want to delete this employee?")) {
+    $.ajax({
+      url: `http://localhost:8080/employee/delete/${employeeId}`,
+      type: "DELETE",
+      success: function (response) {
+        if (response.status === "OK") {
+          alert(response.desc);
+          closeModal();
+          fetchEmployees(currentPage);
+        } else {
+          alert("Failed to delete employee: " + response.desc);
+        }
+      },
+      error: function (error) {
+        if (error.responseJSON) {
+          alert("Error while deleting employee: " + error.responseJSON.desc);
+        } else {
+          console.error("Error while deleting employee: ", error);
+          alert("Error deleting employee!");
+        }
+      },
+    });
+  }
+}

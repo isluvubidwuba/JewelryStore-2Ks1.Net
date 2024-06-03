@@ -68,7 +68,8 @@ public class UserInfoService implements IUserInfoService {
             int roleId,
             String address) {
         ResponseData responseData = new ResponseData();
-
+        phoneNumber.trim();
+        email.trim();
         // Check if email or phone number already exists
         if (iUserInfoRepository.existsByEmail(email)) {
             responseData.setStatus(HttpStatus.CONFLICT);

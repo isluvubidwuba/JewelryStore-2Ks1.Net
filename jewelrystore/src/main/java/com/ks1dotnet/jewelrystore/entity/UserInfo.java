@@ -53,4 +53,15 @@ public class UserInfo {
     public UserInfoDTO getDTO() {
         return new UserInfoDTO(id, fullName, phoneNumber, email, address, role.getDTO(), image);
     }
+
+    public UserInfo(UserInfoDTO t) {
+        this.id = t.getId();
+        this.fullName = t.getFullName();
+        this.phoneNumber = t.getPhoneNumber();
+        this.email = t.getEmail();
+        this.address = t.getAddress();
+        this.role = new Role(t.getRole());
+        this.image = t.getImage();
+    }
+
 }

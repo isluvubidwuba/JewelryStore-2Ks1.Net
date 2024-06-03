@@ -1,5 +1,7 @@
 $(document).ready(function () {
   fetchRoles();
+  fetchUniqueRankData()
+  initializeUnique()
   setupModalToggle();
   setupInsertModalToggle();
   setupInsertRoleModalToggle();
@@ -38,7 +40,6 @@ function initTabs(roles) {
 
   bindTabClickEvents();
   const firstRole = roles[0].name;
-  console.log("First role to switch to:", firstRole);
   switchTabByRole(firstRole); // Ensure first tab is activated
   setupInsertRoleModalToggle(); // Setup insert role modal toggle for the new insert button
 }
@@ -50,7 +51,6 @@ function populateRoleSelect(roles, selector) {
   roles.forEach(role => {
     roleSelect.append(`<option value="${role.id}">${role.name}</option>`);
   });
-  console.log("Roles populated in select:", selector, roles); // Debug log
 }
 
 
@@ -98,6 +98,7 @@ function createTab(role) {
 }
 
 function createTabContent(role) {
+  const rankHeader = role.name === 'CUSTOMER' ? '<th class="py-2 px-4 border-b">Rank</th>' : '';
   const commonContent = `
       <div class="flex justify-between items-center mb-4">
           <h2 class="text-2xl">${role.name} List</h2>
@@ -130,6 +131,7 @@ function createTabContent(role) {
                   <th class="py-2 px-4 border-b">Phone Number</th>
                   <th class="py-2 px-4 border-b">Email</th>
                   <th class="py-2 px-4 border-b">Address</th>
+                  ${rankHeader}
                   <th class="py-2 px-4 border-b">Action</th>
               </tr>
           </thead>
@@ -156,14 +158,12 @@ function bindTabClickEvents() {
 }
 
 function switchTab(role) {
-  console.log("Switching to tab:", role); // Debug log
 
   if (!role) {
     console.error("Role is undefined"); // Log an error if role is undefined
     return;
   }
 
-  console.log("Switching to tab:", role); // Debug log
   $('.tab-content').hide();
   $('#' + role.replace(/\s+/g, '')).show();
   setActiveTab(role);
@@ -182,8 +182,10 @@ function fetchCustomers(page) {
     success: function (response) {
       if (response.status === "OK") {
         const { customers, totalPages, currentPage } = response.data;
-        populateCustomerTable(customers, currentPage);
-        updatePagination(currentPage, totalPages, 'customer');
+        fetchCustomerRanks(function (ranks) {
+          populateCustomerTable(customers, ranks, currentPage, 'Customer');
+          updatePagination(currentPage, totalPages, 'customer');
+        });
       }
     },
     error: function (error) {
@@ -191,6 +193,28 @@ function fetchCustomers(page) {
     }
   });
 }
+function fetchCustomerRanks(callback) {
+  $.ajax({
+    url: 'http://localhost:8080/earnpoints/rank',
+    method: 'GET',
+    success: function (response) {
+      if (response.status === "OK") {
+        const ranks = response.data.map(rank => ({
+          customerId: rank.userInfoDTO.id,
+          rank: rank.customerTypeDTO.type,
+          points: rank.point
+        }));
+        callback(ranks);
+      }
+    },
+    error: function (error) {
+      console.error('Error fetching customer ranks:', error);
+      callback([]);
+    }
+  });
+}
+
+
 
 function fetchSuppliers(page) {
   $.ajax({
@@ -209,11 +233,18 @@ function fetchSuppliers(page) {
   });
 }
 
-function populateCustomerTable(customers, currentPage) {
-  const tableBody = $('#customer-table tbody');
+function populateCustomerTable(customers, ranks, currentPage, role) {
+  const tableBody = $(`#${role.toLowerCase()}-table tbody`);
   tableBody.empty();
   let count = currentPage * 5 + 1;
   customers.forEach(customer => {
+    let rankInfo = '';
+    if (role === 'Customer') {
+      const rankDetail = ranks.find(r => r.customerId === customer.id);
+      const rank = rankDetail ? rankDetail.rank : 'N/A';
+      const points = rankDetail ? rankDetail.points : 'N/A';
+      rankInfo = `<td class="py-2 px-4 border-b">${rank} (${points} points)</td>`;
+    }
     const row = `<tr class="text-center">
                   <td class="py-2 px-4 border-b">${count++}</td>
                   <td class="py-2 px-4 border-b"><img src="http://localhost:8080/employee/files/${customer.image}" alt="${customer.fullName}" class="h-10 w-10"></td>
@@ -221,6 +252,7 @@ function populateCustomerTable(customers, currentPage) {
                   <td class="py-2 px-4 border-b">${customer.phoneNumber}</td>
                   <td class="py-2 px-4 border-b">${customer.email}</td>
                   <td class="py-2 px-4 border-b">${customer.address}</td>
+                  ${rankInfo}
                   <td class="py-2 px-4 border-b"><button class="edit-btn" data-id="${customer.id}"><i class="fas fa-edit"></i></button></td>
                 </tr>`;
     tableBody.append(row);
@@ -287,6 +319,17 @@ function setupEditButtons() {
     $('#updateUserModal').addClass('hidden');
   });
 
+  $('#updateEmployeeImageFile').on('change', function () {
+    const file = this.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        $('#updateEmployeeImagePreview').attr('src', e.target.result);
+      }
+      reader.readAsDataURL(file);
+    }
+  });
+
   $('#update-user-form').off('submit').on('submit', function (e) {
     e.preventDefault();
     updateUser();
@@ -306,6 +349,7 @@ function fetchUserInfo(id) {
         $('#update-email').val(user.email);
         $('#update-address').val(user.address);
         $('#update-role').val(user.role.id);
+        $('#updateEmployeeImagePreview').attr('src', user.image);
       }
     },
     error: function (error) {
@@ -433,8 +477,22 @@ function setupInsertModalToggle() {
 
   $('#insert-role').on('change', function () {
     selectedRole = $(this).find('option:selected').text().toUpperCase();
-    console.log("Selected role on change:", selectedRole);
   });
+
+  // Update image preview when an image is selected
+  $('#insert-file').on('change', function (e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        $('#insertEmployeeImagePreview').attr('src', event.target.result).show();
+      };
+      reader.readAsDataURL(file);
+    } else {
+      $('#insertEmployeeImagePreview').attr('src', '#').hide();
+    }
+  });
+
 
   $('#insert-user-form').off('submit').on('submit', function (e) {
     e.preventDefault();
@@ -444,6 +502,12 @@ function setupInsertModalToggle() {
     if (!validateForm(form)) return;
 
     var formData = new FormData($("#insert-user-form")[0]);
+
+    // Add the file input manually
+    var fileInput = $('#insert-file')[0].files[0];
+    if (fileInput) {
+      formData.append('file', fileInput);
+    }
     $.ajax({
       url: 'http://localhost:8080/userinfo/insert',
       method: 'POST',
@@ -543,3 +607,192 @@ function isValidPhoneNumber(phoneNumber) {
   return phonePattern.test(phoneNumber);
 }
 
+// Fetch rank data and populate the table
+function fetchUniqueRankData() {
+  $.ajax({
+    url: 'http://localhost:8080/customertype/findall',
+    method: 'GET',
+    success: function (response) {
+      var tableBody = $('#rankTableBody');
+      tableBody.empty(); // Clear previous data
+
+      var displayId = 1; // Start with 1
+
+      response.data.forEach(function (rank) {
+        var row = '<tr>' +
+          '<td class="px-4 py-2 border">' + displayId + '</td>' + // Display incremental ID
+          '<td class="px-4 py-2 border">' + rank.type + '</td>' +
+          '<td class="px-4 py-2 border">' + rank.pointCondition + '</td>' +
+          '<td class="px-4 py-2 border text-center">' +
+          '<button class="edit-unique-btn text-blue-500 hover:text-blue-700" data-id="' + rank.id + '" data-type="' + rank.type + '" data-pointcondition="' + rank.pointCondition + '">' +
+          '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">' +
+          '<path d="M17.414 2.586a2 2 0 010 2.828l-10 10a2 2 0 01-.878.515l-4 1a1 1 0 01-1.263-1.263l1-4a2 2 0 01.515-.878l10-10a2 2 0 012.828 0zM5 13l-1 4 4-1 10-10-3-3L5 13zM3 17h2v2H3v-2z" />' +
+          '</svg>' +
+          '</button>' +
+          '</td>' +
+          '</tr>';
+        tableBody.append(row);
+        displayId++; // Increment the display ID
+      });
+
+      // Attach click event to the edit buttons
+      attachUniqueEditButtonEvents();
+    },
+    error: function (error) {
+      console.error("There was an error fetching the rank data: ", error);
+    }
+  });
+}
+
+// Attach click event to the edit buttons
+function attachUniqueEditButtonEvents() {
+  $('.edit-unique-btn').click(function () {
+    var id = $(this).data('id');
+    var type = $(this).data('type');
+    var pointCondition = $(this).data('pointcondition');
+
+    // Fill the form with the existing data
+    $('#updateUniqueId').val(id);
+    $('#updateUniqueType').val(type);
+    $('#updateUniquePointCondition').val(pointCondition);
+
+    // Show the update modal
+    $('#updateCustomerTypeModal').removeClass('hidden');
+  });
+}
+
+// Update customer type
+function updateUniqueCustomerType() {
+  $('#updateCustomerTypeForm').submit(function (e) {
+    e.preventDefault();
+
+    var id = $('#updateUniqueId').val();
+    var type = $('#updateUniqueType').val();
+    var pointCondition = $('#updateUniquePointCondition').val();
+
+    $.ajax({
+      url: 'http://localhost:8080/customertype/updatepointcondition',
+      method: 'POST',
+      data: {
+        id: id,
+        type: type,
+        pointCondition: pointCondition
+      },
+      success: function (response) {
+        alert('Update successful!');
+        $('#updateCustomerTypeModal').addClass('hidden');
+        fetchUniqueRankData(); // Refresh the data in the main modal
+      },
+      error: function (error) {
+        console.error("There was an error updating the rank data: ", error);
+      }
+    });
+  });
+}
+
+// Open customer type modal
+function openUniqueCustomerTypeModal() {
+  fetchUniqueRankData();
+  $('#customerTypeModal').removeClass('hidden');
+}
+
+// Close customer type modal
+function closeUniqueCustomerTypeModal() {
+  $('#customerTypeModal').addClass('hidden');
+}
+
+// Close update customer type modal
+function closeUpdateUniqueCustomerTypeModal() {
+  $('#updateCustomerTypeModal').addClass('hidden');
+}
+
+// Initialize event listeners
+function initializeUniqueEventListeners() {
+  $('#managerRank').click(openUniqueCustomerTypeModal);
+  $('#closeCustomerTypeModal, #closeCustomerTypeModalFooter').click(closeUniqueCustomerTypeModal);
+  $('#closeUpdateCustomerTypeModal').click(closeUpdateUniqueCustomerTypeModal);
+}
+
+// Initialize all functionalities
+function initializeUnique() {
+  initializeUniqueEventListeners();
+  deleteUniqueCustomerType();
+  updateUniqueCustomerType();
+  initializeAddCustomerTypeEventListeners();
+  addUniqueCustomerType();
+}
+
+// Initialize event listeners
+function initializeAddCustomerTypeEventListeners() {
+  attachAddCustomerTypeEvent();
+  closeAddCustomerTypeModal();
+}
+
+// Attach click event to the add button
+function attachAddCustomerTypeEvent() {
+  $('#addCustomerType').click(function () {
+    $('#addCustomerTypeModal').removeClass('hidden');
+  });
+}
+
+// Add new customer type
+function addUniqueCustomerType() {
+  $('#addCustomerTypeForm').submit(function (e) {
+    e.preventDefault();
+
+    var type = $('#addType').val();
+    var pointCondition = $('#addPointCondition').val();
+
+    $.ajax({
+      url: 'http://localhost:8080/customertype/add',
+      method: 'POST',
+      data: {
+        type: type,
+        pointCondition: pointCondition
+      },
+      success: function (response) {
+        alert('Customer Type added successfully!');
+        $('#addCustomerTypeModal').addClass('hidden');
+        fetchUniqueRankData(); // Refresh the data in the main modal
+      },
+      error: function (error) {
+        console.error("There was an error adding the customer type: ", error);
+      }
+    });
+  });
+}
+
+// Close add customer type modal
+function closeAddCustomerTypeModal() {
+  $('#closeAddCustomerTypeModal').click(function () {
+    $('#addCustomerTypeModal').addClass('hidden');
+  });
+}
+
+// Delete customer type
+function deleteUniqueCustomerType() {
+  $('#deleteCustomerType').click(function () {
+    var id = $('#updateUniqueId').val();
+
+    // Show confirmation dialog
+    var isConfirmed = confirm("Are you sure you want to delete this customer type?");
+
+    if (isConfirmed) {
+      $.ajax({
+        url: 'http://localhost:8080/customertype/delete',
+        method: 'POST',
+        data: {
+          customerTypeId: id
+        },
+        success: function (response) {
+          alert('Delete successful!');
+          $('#updateCustomerTypeModal').addClass('hidden');
+          fetchUniqueRankData(); // Refresh the data in the main modal
+        },
+        error: function (error) {
+          console.error("There was an error deleting the customer type: ", error);
+        }
+      });
+    }
+  });
+}
