@@ -122,19 +122,21 @@
 
         <div class="flex justify-between items-center pb-6">
           <h1 class="text-3xl text-black">Counter Manager</h1>
-          <!-- Button to open Add Product Modal -->
-          <!-- Add Product Button -->
-          <button id="openAddProductModal" class="bg-green-500 hover:bg-green-700 text-white px-4 py-2 rounded ml-2">
-            Add Product to Counter
-          </button>
+          <div class="flex items-center space-x-2">
+            <!-- Add Product Button -->
+            <button id="openAddProductModal"
+              class="flex items-center px-6 py-2 transition ease-in duration-200 uppercase rounded-full hover:bg-green-700 hover:text-white border-2 border-green-500 focus:outline-none">
+              Add Product to Counter
+            </button>
+            <!-- Create Counter Button -->
+            <button id="openCreateCounterModal"
+              class="flex items-center px-6 py-2 transition ease-in duration-200 uppercase rounded-full hover:bg-blue-700 hover:text-white border-2 border-blue-500 focus:outline-none"
+              data-modal-target="createCounterModal" data-modal-toggle="createCounterModal">
+              Create Counter
+            </button>
+          </div>
         </div>
 
-        <div class="flex">
-          <!-- Button to open create counter modal -->
-          <button id="openCreateCounterModal"
-            class="ml-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            data-modal-target="createCounterModal" data-modal-toggle="createCounterModal">Create Counter</button>
-        </div>
 
 
         <div class="w-full mt-6">
