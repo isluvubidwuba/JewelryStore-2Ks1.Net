@@ -19,3 +19,6 @@ fileUpload:
 server:
   error:
     path: /error
+
+jwt:
+  privateKey: wQwCoOrdAU3iyXZsqshyOKiC2xzW9C7R+/3HjwQ2cEk=

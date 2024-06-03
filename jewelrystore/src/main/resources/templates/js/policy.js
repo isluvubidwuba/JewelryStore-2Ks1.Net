@@ -2,11 +2,18 @@ const rowsLimit = 6;
 let currentPage = 0;
 let totalPage = 0;
 let policies = [];
+const token = localStorage.getItem("token");
 
 function fetchPolicies() {
+  console.log(token);
+
   $.ajax({
     url: "http://localhost:8080/policy/listpolicy",
     method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
     success: function (response) {
       if (response.status === "OK") {
         policies = response.data;
@@ -18,7 +25,8 @@ function fetchPolicies() {
         alert("Failed to fetch data");
       }
     },
-    error: function () {
+    error: function (xhr, status, error) {
+      console.error(`Error fetching data: ${xhr.status} - ${xhr.responseText}`);
       alert("Error fetching data");
     },
   });
@@ -342,6 +350,10 @@ $(document).ready(function () {
     $.ajax({
       url: `http://localhost:8080/policy/infor?idExchangeRate=${idExchangeRate}`,
       type: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
       success: function (response) {
         if (response.status === "OK") {
           const data = response.data;
@@ -415,6 +427,10 @@ $(document).ready(function () {
         $.ajax({
           url: `http://localhost:8080/policy/deleteexchange?idExchange=${idExchangeRate}`,
           type: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
           success: function (response) {
             if (response.status === "OK") {
               $(`#table-body tr[data-id='${idExchangeRate}']`).remove();

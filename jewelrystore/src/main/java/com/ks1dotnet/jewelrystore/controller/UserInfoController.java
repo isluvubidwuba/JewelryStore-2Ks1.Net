@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.ks1dotnet.jewelrystore.dto.UserInfoDTO;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IUserInfoService;
 
@@ -61,7 +60,6 @@ public class UserInfoController {
             @RequestParam String email,
             @RequestParam int roleId,
             @RequestParam String address) {
-
 
         ResponseData responseData = iUserInfoService.updateUserInfo(file, id, fullName, phoneNumber, email, roleId,
                 address);

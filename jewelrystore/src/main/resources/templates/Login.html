@@ -20,8 +20,9 @@
             contentType: "application/json",
             data: JSON.stringify({ id: id, pinCode: pincode }),
             success: function (data) {
-              if (data.desc === "SignUp successful") {
+              if (data.status === "OK") {
                 // Redirect to another page on successful login
+                localStorage.setItem("token", data.data);
                 window.location.href = "DashboardAdmin.html";
                 alert(data.desc);
               } else {
