@@ -31,4 +31,9 @@ public class Role {
         return new RoleDTO(id, name);
     }
 
+    public Role(RoleDTO t) {
+        this.id = t.getId();
+        this.name = t.getName();
+    }
+
 }

@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.ks1dotnet.jewelrystore.dto.UserInfoDTO;
 import com.ks1dotnet.jewelrystore.entity.UserInfo;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 
