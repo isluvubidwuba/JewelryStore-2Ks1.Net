@@ -159,6 +159,9 @@ function fetchProductsByPromotion(promotionId, promotionName) {
   $.ajax({
     url: `http://localhost:8080/promotion-for-product/promotion/${promotionId}`,
     type: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       var products = response.data;
       $("#promotion-name-listapply").text(promotionName);
@@ -212,6 +215,9 @@ function deleteSelectedProducts(promotionId) {
     $.ajax({
       url: "http://localhost:8080/promotion-for-product/remove-promotion",
       type: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       contentType: "application/json",
       data: JSON.stringify({
         promotionId: promotionId,
@@ -243,6 +249,9 @@ function fetchProductsNotInPromotion(promotionId) {
   $.ajax({
     url: `http://localhost:8080/promotion-for-product/not-in-promotion/${promotionId}`,
     type: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       var products = response.data;
       if (products.length > 0) {
@@ -289,6 +298,9 @@ function addSelectedProductsToPromotion(promotionId) {
     $.ajax({
       url: "http://localhost:8080/promotion-for-product/apply-promotion",
       type: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       contentType: "application/json",
       data: JSON.stringify({
         promotionId: promotionId,

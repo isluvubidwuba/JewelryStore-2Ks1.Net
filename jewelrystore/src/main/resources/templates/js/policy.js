@@ -12,7 +12,6 @@ function fetchPolicies() {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
     },
     success: function (response) {
       if (response.status === "OK") {
@@ -36,6 +35,9 @@ function searchPolicies(keyword) {
   $.ajax({
     url: "http://localhost:8080/policy/searhExchangeRate",
     method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     data: { keyword: keyword },
     success: function (response) {
       if (response.status === "OK") {
@@ -193,6 +195,9 @@ function loadDropdownOptions(idExchangeRate, button) {
   $.ajax({
     url: `http://localhost:8080/policy/detail?idExchangeRate=${idExchangeRate}`,
     method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       if (response.status === "OK") {
         populateDropdown(
@@ -352,7 +357,6 @@ $(document).ready(function () {
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
       },
       success: function (response) {
         if (response.status === "OK") {
@@ -386,9 +390,13 @@ $(document).ready(function () {
     $.ajax({
       url: "http://localhost:8080/policy/updateexchange",
       type: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       data: formData,
       processData: false,
       contentType: false,
+
       success: function (response) {
         if (response.status === "OK") {
           // const updatedRow = $(`#table-body tr[data-id='${idExchange}']`);
@@ -429,7 +437,6 @@ $(document).ready(function () {
           type: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
           },
           success: function (response) {
             if (response.status === "OK") {
@@ -477,6 +484,9 @@ $(document).ready(function () {
     $.ajax({
       url: "http://localhost:8080/policy/applySelectedOptions",
       method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       contentType: "application/json",
       data: JSON.stringify({ idExchangeRate, selectedOptions }), // Include idExchangeRate
       success: function (response) {
@@ -504,6 +514,9 @@ $(document).ready(function () {
       url: "http://localhost:8080/policy/addinvoicetype",
       type: "POST",
       data: invoiceTypeData,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       success: function (response) {
         if (response.status === "OK") {
           alert("Add invoice type successful!");
@@ -559,6 +572,9 @@ $(document).ready(function () {
     $.ajax({
       url: "http://localhost:8080/policy/updateinvoicetype",
       type: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       data: invoiceTypeData,
       success: function (response) {
         if (response.status === "OK") {
@@ -602,6 +618,9 @@ function submitInsertForm() {
         url: "http://localhost:8080/policy/createexchange",
         type: "POST",
         data: formData,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         processData: false,
         contentType: false,
         success: function (response) {

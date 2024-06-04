@@ -32,6 +32,9 @@ $(document).ready(function () {
     $.ajax({
       url: `http://localhost:8080/voucher/update`,
       method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       data: {
         id: invoiceTypeId,
         type: invoiceTypeName,
@@ -56,6 +59,9 @@ $(document).ready(function () {
     $.ajax({
       url: "http://localhost:8080/voucher/create",
       method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       contentType: "application/json",
       data: JSON.stringify({
         type: newVoucherTypeName,
@@ -76,6 +82,9 @@ function fetchVoucherTypes() {
   $.ajax({
     url: "http://localhost:8080/voucher/list",
     method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       if (response.data) {
         var voucherTypesContainer = $("#voucherTypesContainer");

@@ -44,6 +44,9 @@ function fetchCategoriesByVoucherType(voucherId) {
   $.ajax({
     url: `http://localhost:8080/voucher/${voucherId}/categories`,
     type: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       var categories = response.data;
       if (categories.length > 0 && response.status === "OK") {
@@ -85,6 +88,9 @@ function deleteSelectedCategories(voucherId) {
     $.ajax({
       url: "http://localhost:8080/voucher/remove-categories",
       type: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       contentType: "application/json",
       data: JSON.stringify({
         promotionId: voucherId,
@@ -113,6 +119,9 @@ function fetchCategoriesNotInVoucherType(voucherId) {
   $.ajax({
     url: `http://localhost:8080/voucher/${voucherId}/categories/not-in`,
     type: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       var categories = response.data;
       if (categories.length > 0) {
@@ -154,6 +163,9 @@ function addSelectedCategoriesToVoucherType(voucherId) {
     $.ajax({
       url: "http://localhost:8080/voucher/apply-categories",
       type: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       contentType: "application/json",
       data: JSON.stringify({
         promotionId: voucherId,

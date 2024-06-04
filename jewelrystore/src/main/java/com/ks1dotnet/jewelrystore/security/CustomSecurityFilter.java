@@ -38,9 +38,17 @@ public class CustomSecurityFilter {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/authentication/**").permitAll()
-                        .requestMatchers("/policy/listpolicy").hasAnyAuthority("STAFF", "ADMIN")
+                        .requestMatchers("/authentication/**", "/proxy").permitAll()
+                        .requestMatchers("/promotion/files/**").permitAll()
+                        .requestMatchers("/policy/listpolicy", "/voucher/list")
+                        .hasAnyAuthority("ADMIN", "MANAGER", "STAFF")
                         .requestMatchers("/policy/**").hasAuthority("ADMIN")
+                        .requestMatchers("/promotion/getHomePagePromotion**", "/promotion/getById",
+                                "/promotion-for-product/promotion/**", "/promotion-for-product/not-in-promotion/**",
+                                "/voucher/list", "/voucher/*/categories")
+                        .hasAnyAuthority("STAFF", "ADMIN", "MANAGER")
+                        .requestMatchers("/promotion/**", "/promotion-for-product/**", "/voucher/**")
+                        .hasAuthority("ADMIN")
                         .anyRequest().authenticated())
                 .addFilterBefore(customJwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

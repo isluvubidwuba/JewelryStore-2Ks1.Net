@@ -7,6 +7,8 @@ $(document).ready(function () {
   submitInsertForm();
   submitUpdateForm(); // Call the function to handle update form submission
 });
+const token = localStorage.getItem("token");
+
 // load components
 function loadComponents2() {
   const components = [
@@ -36,6 +38,9 @@ function fetchPromotions(page = 0) {
   $.ajax({
     url: `http://localhost:8080/promotion/getHomePagePromotion?page=${page}`,
     method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       $("#promotion-container").empty(); // Clear existing promotions
 
@@ -222,6 +227,9 @@ function fetchPromotionDetails(promotionId) {
   $.ajax({
     url: "http://localhost:8080/promotion/getById",
     type: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     contentType: "application/x-www-form-urlencoded",
     data: { id: promotionId },
     success: function (response) {
@@ -264,6 +272,9 @@ function fetchVouchers(selectedVoucherType) {
   return $.ajax({
     url: "http://localhost:8080/voucher/list",
     method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       $("#update-idVoucherType").empty(); // Clear existing options in the dropdown
       $("#update-idVoucherType").append(
@@ -340,6 +351,9 @@ function deletePromotion(promotionId) {
   $.ajax({
     url: `http://localhost:8080/promotion/delete/${promotionId}`,
     type: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       alert(response.desc); // Hiển thị thông báo trả về từ API
       $("#deleteModal").addClass("hidden");
@@ -429,6 +443,9 @@ function submitUpdateForm() {
       $.ajax({
         url: "http://localhost:8080/promotion/update",
         type: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         data: formData,
         processData: false,
         contentType: false,
@@ -464,6 +481,9 @@ function fetchVouchersForCreate() {
   $.ajax({
     url: "http://localhost:8080/voucher/list",
     method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       $("#idVoucherType").empty(); // Clear existing options in the dropdown
       $("#idVoucherType").append("<option selected>Select category</option>"); // Add default option
@@ -507,6 +527,9 @@ function submitInsertForm() {
       $.ajax({
         url: "http://localhost:8080/promotion/create",
         type: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         data: formData,
         processData: false,
         contentType: false,
