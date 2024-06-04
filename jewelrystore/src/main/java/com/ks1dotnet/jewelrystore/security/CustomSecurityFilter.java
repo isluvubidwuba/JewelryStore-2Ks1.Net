@@ -17,11 +17,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class CustomSecurityFilter {
+
     @Autowired
     CustomUserDetailService customUserDetailService;
 
     @Autowired
     CustomJwtFilter customJwtFilter;
+
+    @Autowired
+    CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity httpSecurity) throws Exception {
@@ -50,6 +54,7 @@ public class CustomSecurityFilter {
                         .requestMatchers("/promotion/**", "/promotion-for-product/**", "/voucher/**")
                         .hasAuthority("ADMIN")
                         .anyRequest().authenticated())
+                .exceptionHandling(exception -> exception.accessDeniedHandler(customAccessDeniedHandler))
                 .addFilterBefore(customJwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
