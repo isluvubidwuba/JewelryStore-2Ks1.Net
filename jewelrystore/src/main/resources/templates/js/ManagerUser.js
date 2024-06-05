@@ -6,11 +6,17 @@ $(document).ready(function () {
   setupInsertModalToggle();
   setupInsertRoleModalToggle();
 });
+const token = localStorage.getItem("token");
+
+
 
 function fetchRoles() {
   $.ajax({
     url: 'http://localhost:8080/role/list',
     method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       if (response.status === "OK") {
         const roles = response.data.filter(role => !['STAFF', 'ADMIN', 'MANAGER'].includes(role.name));
@@ -64,6 +70,9 @@ function setupModalToggle() {
     $.ajax({
       url: 'http://localhost:8080/role/insert',
       method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       contentType: 'application/x-www-form-urlencoded',
       data: $(this).serialize(),
       success: function (response) {
@@ -179,6 +188,9 @@ function fetchCustomers(page) {
   $.ajax({
     url: `http://localhost:8080/userinfo/listcustomer?page=${page}`,
     method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       if (response.status === "OK") {
         const { customers, totalPages, currentPage } = response.data;
@@ -197,6 +209,9 @@ function fetchCustomerRanks(callback) {
   $.ajax({
     url: 'http://localhost:8080/earnpoints/rank',
     method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       if (response.status === "OK") {
         const ranks = response.data.map(rank => ({
@@ -220,6 +235,9 @@ function fetchSuppliers(page) {
   $.ajax({
     url: `http://localhost:8080/userinfo/listsupplier?page=${page}`,
     method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       if (response.status === "OK") {
         const { customers: suppliers, totalPages, currentPage } = response.data;
@@ -338,8 +356,11 @@ function setupEditButtons() {
 
 function fetchUserInfo(id) {
   $.ajax({
-    url: `http://localhost:8080/userinfo/${id}`,
+    url: `http://localhost:8080/userinfo/findcustomer/${id}`,
     method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       if (response.status === "OK") {
         const user = response.data;
@@ -366,6 +387,9 @@ function updateUser() {
     processData: false,
     contentType: false,
     data: formData,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       if (response.status === "OK") {
         alert('User updated successfully!');
@@ -423,6 +447,9 @@ function searchCustomers(criteria, query, page) {
   $.ajax({
     url: 'http://localhost:8080/userinfo/searchcustomer',
     method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     data: {
       criteria: criteria,
       query: query,
@@ -431,8 +458,10 @@ function searchCustomers(criteria, query, page) {
     success: function (response) {
       if (response.status === "OK") {
         const { customers, totalPages, currentPage } = response.data;
-        populateCustomerTable(customers, currentPage);
-        updatePagination(currentPage, totalPages, 'customer');
+        fetchCustomerRanks(function (ranks) {
+          populateCustomerTable(customers, ranks, currentPage, 'Customer');
+          updatePagination(currentPage, totalPages, 'customer');
+        });
       }
     },
     error: function (error) {
@@ -449,6 +478,9 @@ function searchSuppliers(criteria, query, page) {
       criteria: criteria,
       query: query,
       page: page
+    },
+    headers: {
+      Authorization: `Bearer ${token}`,
     },
     success: function (response) {
       if (response.status === "OK") {
@@ -514,6 +546,9 @@ function setupInsertModalToggle() {
       processData: false,
       contentType: false,
       data: formData,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       success: function (response) {
         if (response.status === "OK") {
           alert('User inserted successfully!');
@@ -550,6 +585,9 @@ function setupInsertRoleModalToggle() {
       processData: false,
       contentType: false,
       data: formData,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       success: function (response) {
         if (response.status === "OK") {
           alert('Role inserted successfully!');
@@ -612,6 +650,9 @@ function fetchUniqueRankData() {
   $.ajax({
     url: 'http://localhost:8080/customertype/findall',
     method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       var tableBody = $('#rankTableBody');
       tableBody.empty(); // Clear previous data
@@ -677,6 +718,9 @@ function updateUniqueCustomerType() {
         id: id,
         type: type,
         pointCondition: pointCondition
+      },
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
       success: function (response) {
         alert('Update successful!');
@@ -750,6 +794,9 @@ function addUniqueCustomerType() {
         type: type,
         pointCondition: pointCondition
       },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       success: function (response) {
         alert('Customer Type added successfully!');
         $('#addCustomerTypeModal').addClass('hidden');
@@ -783,6 +830,9 @@ function deleteUniqueCustomerType() {
         method: 'POST',
         data: {
           customerTypeId: id
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
         success: function (response) {
           alert('Delete successful!');

@@ -31,6 +31,7 @@ public class CustomJwtFilter extends OncePerRequestFilter {
         if (token != null) {
             if (jwtUtilsHelper.verifyToken(token)) {
                 String role = jwtUtilsHelper.getRoleFromToken(token);
+                System.out.println("Role:" + role);
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
                         "", "", List.of(new SimpleGrantedAuthority(role)));
                 SecurityContext securityContext = SecurityContextHolder.getContext();

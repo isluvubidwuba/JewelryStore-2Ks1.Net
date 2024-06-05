@@ -33,6 +33,7 @@ public class CounterService implements ICounterSerivce {
     public ResponseData insert(String name) {
         Counter counter = new Counter();
         counter.setName(name);
+        counter.setStatus(true);
         iCounterRepository.save(counter);
         ResponseData responseData = new ResponseData();
         responseData.setData(counter.getDTO());
@@ -163,8 +164,8 @@ public class CounterService implements ICounterSerivce {
     }
 
     @Override
-    public ResponseData getAllCounters() {
-        List<Counter> counters = iCounterRepository.findAll();
+    public ResponseData getAllCountersActive() {
+        List<Counter> counters = iCounterRepository.findAllActiveCounters();
         List<CounterDTO> counterDTOs = counters.stream().map(Counter::getDTO).collect(Collectors.toList());
 
         ResponseData responseData = new ResponseData();
@@ -177,32 +178,64 @@ public class CounterService implements ICounterSerivce {
     @Override
     public ResponseData deleteCounter(int counterId) {
         ResponseData responseData = new ResponseData();
-        Optional<Counter> counter = iCounterRepository.findById(counterId);
-        if (counter.isPresent()) {
-            List<Product> products = iProductRepository.findByCounterId(counterId);
-            for (Product product : products) {
-                Optional<Counter> defaultCounter = iCounterRepository.findById(1);
-                if (defaultCounter.isPresent()) {
-                    product.setCounter(defaultCounter.get()); // Set counter to the default counter with id 1
-                } else {
-                    // Handle the case where the default counter does not exist
-                    responseData.setStatus(HttpStatus.NOT_FOUND);
-                    responseData.setDesc("Can not found ware house counter");
-                    return responseData;
-                }
-            }
-            iProductRepository.saveAll(products);
-            iCounterRepository.delete(counter.get());
-            responseData.setStatus(HttpStatus.OK);
-            responseData.setDesc("Counter deleted successfully");
+        Optional<Counter> counterOptional = iCounterRepository.findById(counterId);
+        if (counterOptional.isPresent()) {
+            Counter counter = counterOptional.get();
 
-            return responseData;
+            List<Product> products = iProductRepository.findByCounterId(counterId);
+            Optional<Counter> defaultCounterOptional = iCounterRepository.findById(1);
+            if (defaultCounterOptional.isPresent()) {
+                Counter defaultCounter = defaultCounterOptional.get();
+                for (Product product : products) {
+                    product.setCounter(defaultCounter); // Set counter to the default counter with id 1
+                }
+                iProductRepository.saveAll(products);
+
+                counter.setStatus(false); // Set status to 0 (inactive)
+                iCounterRepository.save(counter);
+
+                responseData.setStatus(HttpStatus.OK);
+                responseData.setDesc("Counter status set to inactive successfully");
+            } else {
+                // Handle the case where the default counter does not exist
+                responseData.setStatus(HttpStatus.NOT_FOUND);
+                responseData.setDesc("Cannot find warehouse counter");
+            }
         } else {
             responseData.setStatus(HttpStatus.NOT_FOUND);
             responseData.setDesc("Counter not found");
-            return responseData;
         }
+        return responseData;
     }
 
-    
+    @Override
+    public ResponseData getInactiveCounters() {
+        List<Counter> counters = iCounterRepository.findByStatus(false);
+        List<CounterDTO> counterDTOs = counters.stream().map(Counter::getDTO).collect(Collectors.toList());
+
+        ResponseData responseData = new ResponseData();
+        responseData.setData(counterDTOs);
+        responseData.setDesc("Inactive counters retrieved successfully");
+        responseData.setStatus(HttpStatus.OK);
+        return responseData;
+    }
+
+    @Override
+    public ResponseData updateCounter(int id, String name, boolean status) {
+        ResponseData responseData = new ResponseData();
+        Optional<Counter> counterOptional = iCounterRepository.findById(id);
+        if (counterOptional.isPresent()) {
+            Counter counter = counterOptional.get();
+            counter.setName(name);
+            counter.setStatus(status);
+            iCounterRepository.save(counter);
+            responseData.setStatus(HttpStatus.OK);
+            responseData.setDesc("Counter updated successfully");
+        } else {
+            responseData.setStatus(HttpStatus.NOT_FOUND);
+            responseData.setDesc("Counter not found");
+        }
+        return responseData;
+    }
+
 }

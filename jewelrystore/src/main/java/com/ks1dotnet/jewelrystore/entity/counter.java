@@ -13,20 +13,27 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Getter
+@Setter
 @Table(name = "counter")
 public class Counter {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    
+
     @Column(name = "name")
     private String name;
+
+    @Column(name = "status")
+    private boolean status;
 
     @OneToMany(mappedBy = "counter")
     Set<AssignCountersForStaff> ListAssignCountersForStaff;
@@ -38,11 +45,12 @@ public class Counter {
     Set<OrderInvoiceDetail> listOrderInvoiceDetail;
 
     public CounterDTO getDTO() {
-        return new CounterDTO(this.id, this.name);
+        return new CounterDTO(this.id, this.name, this.status);
     }
 
     public Counter(CounterDTO t) {
         this.id = t.getId();
         this.name = t.getName();
+        this.status = t.isStatus();
     }
 }

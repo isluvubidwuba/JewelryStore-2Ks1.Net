@@ -3,12 +3,19 @@ $(document).ready(function () {
     createCounterModal();
     setupAddProductModal();
     setupFilters();
+    setupMaintenanceCounterModal();
 });
+
+const token = localStorage.getItem("token");
+
 
 function fetchCounters() {
     $.ajax({
-        url: 'http://localhost:8080/counter/all',
+        url: 'http://localhost:8080/counter/allactivecounter',
         method: 'GET',
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
         success: function (response) {
             if (response.status === 'OK') {
                 const counters = response.data;
@@ -147,6 +154,9 @@ function fetchProductsByCounter(counterId, page = 1) {
     $.ajax({
         url: `http://localhost:8080/counter/listproductsbycounter?counterId=${counterId}&page=${page - 1}`,
         method: 'GET',
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
         success: function (response) {
             const products = response.products;
             const tableBody = $(`#table-body-${counterId}`);
@@ -207,6 +217,9 @@ function createCounterModal() {
             url: 'http://localhost:8080/counter/insert',
             method: 'POST',
             data: { name: counterName },
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
             success: function (response) {
                 if (response.status === 'OK') {
                     alert('Counter created successfully');
@@ -235,6 +248,9 @@ function fetchProductsForCounter() {
     $.ajax({
         url: 'http://localhost:8080/counter/products/counter1',
         method: 'GET',
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
         success: function (response) {
             const productTableBody = $('#productTableBody');
             productTableBody.empty();
@@ -304,6 +320,9 @@ function setupAddProductModal() {
             url: `http://localhost:8080/counter/addproductsforcounter?counterId=${counterId}`,
             method: 'POST',
             contentType: 'application/json',
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
             data: JSON.stringify(selectedProducts),
             success: function (response) {
                 if (response.status === 'OK') {
@@ -327,8 +346,11 @@ function setupAddProductModal() {
 
 function fetchCountersForSelect() {
     $.ajax({
-        url: 'http://localhost:8080/counter/all',
+        url: 'http://localhost:8080/counter/allactivecounter',
         method: 'GET',
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
         success: function (response) {
             if (response.status === 'OK') {
                 const counters = response.data;
@@ -432,6 +454,9 @@ function deleteCounter(counterId) {
     $.ajax({
         url: `http://localhost:8080/counter/delete/${counterId}`,
         method: 'DELETE',
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
         success: function (response) {
             if (response.status === 'OK') {
                 alert('Counter deleted successfully');
@@ -449,4 +474,94 @@ function deleteCounter(counterId) {
             alert('Error deleting counter');
         }
     });
+}
+
+
+// Fetch Inactive Counters
+function fetchInactiveCounters() {
+    $.ajax({
+        url: 'http://localhost:8080/counter/inactive',
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+        success: function (response) {
+            if (response.status === 'OK') {
+                const counters = response.data;
+                populateInactiveCounterTable(counters);
+            }
+        },
+        error: function (error) {
+            console.error('Error fetching inactive counters:', error);
+        }
+    });
+}
+
+// Populate Inactive Counter Table
+function populateInactiveCounterTable(counters) {
+    const tableBody = $('#counterTableBody');
+    tableBody.empty();
+    counters.forEach(counter => {
+        const row = `
+            <tr>
+                <td class="py-2 px-4 border-b">${counter.id}</td>
+                <td class="py-2 px-4 border-b">
+                    <input type="text" value="${counter.name}" class="name-input border rounded p-1" data-id="${counter.id}" />
+                </td>
+                <td class="py-2 px-4 border-b">
+                    <select class="status-select border rounded p-1" data-id="${counter.id}">
+                        <option value="true" ${counter.status ? 'selected' : ''}>Active</option>
+                        <option value="false" ${!counter.status ? 'selected' : ''}>Inactive</option>
+                    </select>
+                </td>
+                <td class="py-2 px-4 border-b">
+                    <button class="update-btn bg-green-500 text-white px-2 py-1 rounded" data-id="${counter.id}">Update</button>
+                </td>
+            </tr>
+        `;
+        tableBody.append(row);
+    });
+}
+
+// Handle Update Counter
+function handleUpdateCounter() {
+    const counterId = $(this).data('id'); // Added to retrieve the counter ID
+    const newName = $(`.name-input[data-id="${counterId}"]`).val(); // Added to retrieve the counter name
+    const newStatus = $(`.status-select[data-id="${counterId}"]`).val() === 'true'; // Added to retrieve the counter status
+
+    $.ajax({
+        url: 'http://localhost:8080/counter/update',
+        method: 'POST',
+        data: { id: counterId, name: newName, status: newStatus }, // Added to include the counter ID in the request
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+        success: function () {
+            alert('Counter updated successfully');
+            fetchInactiveCounters();
+            location.reload();
+        },
+        error: function () {
+            alert('Failed to update counter');
+        }
+    });
+}
+
+
+// Show Maintenance Counter Modal
+function showMaintenanceModal() {
+    $('#maintenanceModal').removeClass('hidden');
+    fetchInactiveCounters();
+}
+
+// Hide Maintenance Counter Modal
+function hideMaintenanceModal() {
+    $('#maintenanceModal').addClass('hidden');
+}
+
+// Setup Maintenance Counter Modal
+function setupMaintenanceCounterModal() {
+    $('#openMaintenanceCounters').click(showMaintenanceModal);  // Corrected function name
+    $('#closeModal').click(hideMaintenanceModal);
+    $('#counterTableBody').on('click', '.update-btn', handleUpdateCounter);
 }

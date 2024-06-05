@@ -20,6 +20,8 @@ import com.ks1dotnet.jewelrystore.service.serviceImp.IProductService;
 @RequestMapping("/product")
 @CrossOrigin("*")
 public class ProductController {
+
+
     @Autowired
     private IProductService iProductService;
 
@@ -64,7 +66,5 @@ public class ProductController {
         ResponseData response = iProductService.insert(t);
         return new ResponseEntity<>(response, response.getStatus());
     }
-
-    
 
 }
