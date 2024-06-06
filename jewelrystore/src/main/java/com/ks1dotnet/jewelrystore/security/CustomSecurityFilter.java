@@ -48,9 +48,12 @@ public class CustomSecurityFilter {
                                                 // Employee
                                                 .requestMatchers("/employee/listpage", "/employee/search",
                                                                 "/employee/listemployee/{id}")
-                                                .hasAuthority("MANAGER")
-                                                .requestMatchers("/employee/**")
+                                                .hasAnyAuthority("ADMIN", "MANAGER")
+                                                .requestMatchers("/employee/insert", "/employee/update",
+                                                                "/employee/delete/**")
                                                 .hasAuthority("ADMIN")
+                                                .requestMatchers("/employee/**")
+                                                .hasAnyAuthority("ADMIN", "MANAGER")
 
                                                 // Counter
                                                 .requestMatchers("/counter/allactivecounter",
@@ -61,12 +64,12 @@ public class CustomSecurityFilter {
                                                                 "/counter/moveProductsToCounter")
                                                 .hasAnyAuthority("MANAGER", "STAFF", "ADMIN")
                                                 .requestMatchers("/counter/update", "/counter/inactive",
-                                                                "/counter/inactive", "/counter/delete/**")
+                                                                "/counter/inactive","/counter/delete/{id}", "/counter/insert")
                                                 .hasAuthority("ADMIN")
 
                                                 // Customer Type
                                                 .requestMatchers("/customertype/findall")
-                                                .hasAnyAuthority("MANAGER", "STAFF")
+                                                .hasAnyAuthority("MANAGER", "STAFF", "ADMIN")
                                                 .requestMatchers("/customertype/**")
                                                 .hasAuthority("ADMIN")
 
@@ -74,15 +77,14 @@ public class CustomSecurityFilter {
                                                 .requestMatchers("/userinfo/listcustomer", "/userinfo/listpage",
                                                                 "/userinfo/findcustomer/{id}",
                                                                 "/userinfo/searchcustomer")
-                                                .hasAnyAuthority("STAFF", "MANAGER")
+                                                .hasAnyAuthority("STAFF", "MANAGER", "ADMIN")
 
-                                                .requestMatchers("/userinfo/update")
-                                                .hasAnyAuthority("STAFF", "MANAGER")
+                                                .requestMatchers("/userinfo/update" ,"/userinfo/insert")
+                                                .hasAnyAuthority("STAFF", "MANAGER", "ADMIN")
 
                                                 .requestMatchers("/userinfo/listsupplier",
-                                                                "/userinfo/searchsupplier",
-                                                                "/userinfo/insert")
-                                                .hasAuthority("MANAGER")
+                                                                "/userinfo/searchsupplier")
+                                                .hasAnyAuthority("MANAGER", "ADMIN")
 
                                                 .requestMatchers("/userinfo/**", "/role/insert")
                                                 .hasAuthority("ADMIN")
