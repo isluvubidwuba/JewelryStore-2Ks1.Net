@@ -1,6 +1,7 @@
 package com.ks1dotnet.jewelrystore.service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,13 +14,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ks1dotnet.jewelrystore.dto.ApplyPromotionDTO;
+import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
+import com.ks1dotnet.jewelrystore.entity.ForCustomer;
 import com.ks1dotnet.jewelrystore.entity.Promotion;
 import com.ks1dotnet.jewelrystore.exception.BadRequestException;
 import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
+import com.ks1dotnet.jewelrystore.repository.IForCustomerRepository;
 import com.ks1dotnet.jewelrystore.repository.IPromotionRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IFileService;
+import com.ks1dotnet.jewelrystore.service.serviceImp.IProductService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionService;
 
 @Service
@@ -29,6 +34,10 @@ public class PromotionService implements IPromotionService {
 
     @Autowired
     private IFileService iFileService;
+    @Autowired
+    private IProductService iProductService;
+    @Autowired
+    private IForCustomerRepository iForCustomerRepository;
 
     @Override
     public Map<String, Object> getHomePagePromotion(int page) {
@@ -146,6 +155,42 @@ public class PromotionService implements IPromotionService {
         } catch (Exception e) {
             throw new BadRequestException("Failed to delete expired promotions", e.getMessage());
         }
+    }
+
+    @Override
+    public List<PromotionDTO> getPromotionsByProductId(int productId) {
+        return iPromotionRepository.findPromotionsByProductId(productId);
+    }
+
+    @Override
+    public List<PromotionDTO> getPromotionsByProductCategoryId(int productCategoryId) {
+        return iPromotionRepository.findPromotionsByProductCategoryId(productCategoryId);
+    }
+
+    @Override
+    public ResponseData getAllPromotionByIdProduct(int productId) {
+        try {
+            List<PromotionDTO> promotions = getPromotionsByProductId(productId);
+            ProductDTO productDTO = (ProductDTO) iProductService.findById(productId).getData();
+            promotions
+                    .addAll(getPromotionsByProductCategoryId(productDTO.getProductCategoryDTO().getId()));
+            ResponseData responseData = new ResponseData(HttpStatus.OK, "get list promotion success", promotions);
+            return responseData;
+        } catch (Exception e) {
+            System.out.println("Failed get promotion by id product " + e.getMessage());
+            throw new BadRequestException("Failed get promotion by id product", e.getMessage());
+        }
+
+    }
+
+    @Override
+    public List<PromotionDTO> getPromotionsByUserId(int userId) {
+        List<ForCustomer> forCustomers = iForCustomerRepository.findActivePromotionsByUserId(userId);
+        List<PromotionDTO> promotionDTOs = new ArrayList<>();
+        for (ForCustomer fc : forCustomers) {
+            promotionDTOs.add(fc.getPromotion().getDTO());
+        }
+        return promotionDTOs;
     }
 
 }

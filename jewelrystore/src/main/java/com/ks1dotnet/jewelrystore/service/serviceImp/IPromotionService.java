@@ -1,6 +1,7 @@
 package com.ks1dotnet.jewelrystore.service.serviceImp;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -23,4 +24,12 @@ public interface IPromotionService {
         void deletePromotion(int id);
 
         void deleteExpiredPromotions();
+
+        public List<PromotionDTO> getPromotionsByProductId(int productId);
+
+        public List<PromotionDTO> getPromotionsByProductCategoryId(int productCategoryId);
+
+        ResponseData getAllPromotionByIdProduct(int productId);
+
+        public List<PromotionDTO> getPromotionsByUserId(int userId);
 }

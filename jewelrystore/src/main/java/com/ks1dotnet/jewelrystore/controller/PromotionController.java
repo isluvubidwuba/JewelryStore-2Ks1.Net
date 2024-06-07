@@ -1,6 +1,7 @@
 package com.ks1dotnet.jewelrystore.controller;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -160,6 +161,19 @@ public class PromotionController {
         } catch (Exception e) {
             return handleException(e);
         }
+    }
+
+    @GetMapping("/all-promotion-on-product")
+    public ResponseEntity<?> getPromotionsByProductId(@RequestParam int productId) {
+        ResponseData responseData = iPromotionService.getAllPromotionByIdProduct(productId);
+        return new ResponseEntity<>(responseData, HttpStatus.OK);
+    }
+
+    @GetMapping("/by-user")
+    public ResponseEntity<ResponseData> getPromotionsByUserId(@RequestParam int userId) {
+        List<PromotionDTO> promotions = iPromotionService.getPromotionsByUserId(userId);
+        ResponseData responseData = new ResponseData(HttpStatus.OK, "Get list promotion success", promotions);
+        return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
 
     private ResponseEntity<?> handleBadRequestException(BadRequestException e) {
