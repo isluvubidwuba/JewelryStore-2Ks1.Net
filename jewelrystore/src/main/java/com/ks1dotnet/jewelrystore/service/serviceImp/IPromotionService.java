@@ -1,37 +1,26 @@
 package com.ks1dotnet.jewelrystore.service.serviceImp;
 
-import java.util.List;
+import java.time.LocalDate;
 import java.util.Map;
 
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
-import com.ks1dotnet.jewelrystore.entity.Promotion;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 
 public interface IPromotionService {
-        public List<Promotion> findAll();
 
-        public List<PromotionDTO> getHomePagePromotion(int page);
+        Map<String, Object> getHomePagePromotion(int page);
 
-        public List<Promotion> searchByName(String name);
+        ResponseData insertPromotion(MultipartFile file, String name, double value, boolean status, LocalDate start,
+                        LocalDate end, String promotionType); // Thêm promotionType
 
-        public Promotion saveOrUpdatePromotion(Promotion promotion);
+        PromotionDTO updatePromotion(MultipartFile file, int id, String name, double value, boolean status,
+                        LocalDate start, LocalDate end);
 
-        public ResponseData insertPromotion(MultipartFile file,
-                        String name,
-                        int idVoucherType,
-                        double value,
-                        boolean status);
+        PromotionDTO findById(int id);
 
-        public PromotionDTO updatePromotion(MultipartFile file, int id,
-                        String name,
-                        int idVoucherType,
-                        double value,
-                        boolean status);
+        void deletePromotion(int id);
 
-        public PromotionDTO findById(int id);
-
-        public Map<String, Object> getHomePagePromotion2(int page);
-
+        void deleteExpiredPromotions();
 }

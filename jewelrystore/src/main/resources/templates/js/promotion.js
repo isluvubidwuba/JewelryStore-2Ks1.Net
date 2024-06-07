@@ -2,12 +2,13 @@ $(document).ready(function () {
   setupEventListeners();
   fetchPromotions(0);
   loadComponents2();
-  fetchVouchersForCreate();
   setupModalToggles();
   submitInsertForm();
   submitUpdateForm(); // Call the function to handle update form submission
 });
+
 const token = localStorage.getItem("token");
+let currentPage = 0; // Biến toàn cục lưu trữ trang hiện tại
 
 // load components
 function loadComponents2() {
@@ -34,6 +35,7 @@ function loadComponents2() {
 
 // fetch promotion by page
 function fetchPromotions(page = 0) {
+  currentPage = page; // Cập nhật trang hiện tại
   const linkPromotion = "http://localhost:8080/promotion";
   $.ajax({
     url: `http://localhost:8080/promotion/getHomePagePromotion?page=${page}`,
@@ -45,7 +47,6 @@ function fetchPromotions(page = 0) {
       $("#promotion-container").empty(); // Clear existing promotions
 
       if (response && response.data) {
-        // Check if response data is available
         const { promotions, totalPages, currentPage } = response.data;
 
         promotions.forEach(function (promotion) {
@@ -81,15 +82,8 @@ function fetchPromotions(page = 0) {
                           readonly
                         />
                       </div>
-                      <div class="w-full">
-                        <label class="block text-gray-700">Type Promotion</label>
-                        <input
-                          type="text"
-                          value="${promotion.voucherTypeDTO.type}"
-                          class="w-full px-3 py-2 outline-none promotion-type-promotion"
-                          readonly
-                        />
-                      </div>
+                      
+                      
                     </div>
                     <div class="mb-4 flex space-x-4">
                       <div class="w-full">
@@ -116,6 +110,46 @@ function fetchPromotions(page = 0) {
                           readonly
                         />
                       </div>
+                      <div class="w-full">
+                        <label class="block text-gray-700">Promotion for</label>
+                        <input
+                          type="text"
+                          value="${promotion.promotionType}"
+                          class="w-full px-3 py-2 outline-none promotion-type"
+                          readonly
+                        />
+                      </div>
+                      
+                    </div>
+                    <div class="mb-4 flex space-x-4">
+                      <div class="w-full">
+                      <label class="block text-gray-700">Start Date</label>
+                      <input
+                        type="text"
+                        value="${promotion.startDate}"
+                        class="w-full px-3 py-2 outline-none promotion-start-date"
+                        readonly
+                      />
+                      </div>
+                      <div class="w-full">
+                        <label class="block text-gray-700">End Date</label>
+                        <input
+                          type="text"
+                          value="${promotion.endDate}"
+                          class="w-full px-3 py-2 outline-none promotion-end-date"
+                          readonly
+                        />
+                      </div>
+                      <div class="w-full">
+                        <label class="block text-gray-700">Last Modified</label>
+                        <input
+                          type="text"
+                          value="${promotion.lastModified}"
+                          class="w-full px-3 py-2 outline-none promotion-last-modified"
+                          readonly
+                        />
+                      </div>
+                      
                     </div>
                     <div class="flex justify-end space-x-4 relative">
                     ${
@@ -127,7 +161,7 @@ function fetchPromotions(page = 0) {
                       data-id="${promotion.id}"
                       class="bg-red-500 text-white px-4 py-2 rounded"
                     >
-                      Delete
+                      Disable
                     </button>
                   `
                         : ""
@@ -221,7 +255,6 @@ function updatePagination(totalPages, currentPage) {
   }
 }
 
-// start update
 // get in4 about promotion detal
 function fetchPromotionDetails(promotionId) {
   $.ajax({
@@ -235,67 +268,67 @@ function fetchPromotionDetails(promotionId) {
     success: function (response) {
       var promotion = response.data;
 
-      $("#update-id").val(promotion.id); // Điền thông tin vào các trường của modal
-      $("#update-name").val(promotion.name); // Điền thông tin vào các trường của modal
+      $("#update-id").val(promotion.id);
+      $("#update-name").val(promotion.name);
       $("#update-value").val(promotion.value);
-      // Cập nhật giá trị data-promotion-id cho nút Detail
-      $("#modalToggle_Detail_Apply").attr("data-promotion-id", promotion.id);
-      $("#modalToggle_Detail_Apply").attr(
-        "data-promotion-name",
-        promotion.name
-      );
-      // Cập nhật giá trị data-promotion-id cho nút Detail
-      $("#modalToggle_Category_Apply").attr(
-        "data-voucher-id",
-        promotion.voucherTypeDTO.id
-      );
-      $("#modalToggle_Category_Apply").attr(
-        "data-voucher-name",
-        promotion.voucherTypeDTO.type
-      );
+      $("#update-start-date").val(promotion.startDate);
+      $("#update-end-date").val(promotion.endDate);
+      $("#update-status").val(promotion.status == true ? 1 : 0);
 
-      fetchVouchers(promotion.voucherTypeDTO.id).then(function () {
-        // Gọi hàm fetchVouchers và đợi hàm này hoàn tất trước khi tiếp tục xử lý
-        $("#update-status").val(promotion.status == true ? 1 : 0);
-        // Đặt giá trị cho #update-status sau khi các tùy chọn đã được tải
+      // Hiển thị giá trị cho promotionType mà không cho chỉnh sửa
+      $("#display-promotionType").text(promotion.promotionType);
 
-        $("#crud-update-modal").removeClass("hidden").addClass("flex"); // Hiển thị modal sau khi các thông tin đã được điền
-      });
+      // Hiển thị các nút tương ứng với loại promotionType
+      let buttonHtml = "";
+      if (promotion.promotionType === "product") {
+        buttonHtml = `
+          <button
+            type="button"
+            id="modalToggle_Detail_Apply"
+            class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            data-promotion-id="${promotion.id}"
+            data-promotion-name = "${promotion.name}"
+
+            style="width: 100%"
+          >
+            View products applied
+          </button>
+        `;
+      } else if (promotion.promotionType === "category") {
+        buttonHtml = `
+          <button
+            type="button"
+            id="modalToggle_Category_Apply"
+            class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            data-promotion-id="${promotion.id}"
+            data-promotion-name = "${promotion.name}"
+            style="width: 100%"
+          >
+            View categories applied
+          </button>
+        `;
+      } else if (promotion.promotionType === "customer") {
+        buttonHtml = `
+          <button
+            type="button"
+            id="modalToggle_Customer_Apply"
+            class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            data-promotion-id="${promotion.id}"
+            data-promotion-name = "${promotion.name}"
+
+            style="width: 100%"
+          >
+             View type customers applied
+          </button>
+        `;
+      }
+
+      $("#button-container").html(buttonHtml);
+
+      $("#crud-update-modal").removeClass("hidden").addClass("flex");
     },
     error: function (error) {
       console.error("Error fetching promotion:", error);
-    },
-  });
-}
-//load voucher choiced
-function fetchVouchers(selectedVoucherType) {
-  return $.ajax({
-    url: "http://localhost:8080/voucher/list",
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
-      $("#update-idVoucherType").empty(); // Clear existing options in the dropdown
-      $("#update-idVoucherType").append(
-        "<option selected>Select category</option>"
-      ); // Add default option
-
-      if (response && response.data) {
-        // Check if response data is available
-        response.data.forEach(function (voucher) {
-          // Loop through each voucher and append to the dropdown
-          const option = `<option value="${voucher.id}">${voucher.type}</option>`;
-          $("#update-idVoucherType").append(option);
-        });
-
-        if (selectedVoucherType) {
-          $("#update-idVoucherType").val(selectedVoucherType); // Set the selected voucher type if provided
-        }
-      }
-    },
-    error: function (error) {
-      console.error("Error fetching vouchers:", error);
     },
   });
 }
@@ -347,6 +380,7 @@ function setupEventListeners() {
     deletePromotion(promotionId);
   });
 }
+
 function deletePromotion(promotionId) {
   $.ajax({
     url: `http://localhost:8080/promotion/delete/${promotionId}`,
@@ -357,7 +391,7 @@ function deletePromotion(promotionId) {
     success: function (response) {
       alert(response.desc); // Hiển thị thông báo trả về từ API
       $("#deleteModal").addClass("hidden");
-      fetchPromotions(0); // Tải lại danh sách promotion
+      fetchPromotions(currentPage); // Tải lại danh sách promotion với trang hiện tại
     },
     error: function (error) {
       $("#deleteModal").addClass("hidden");
@@ -366,79 +400,20 @@ function deletePromotion(promotionId) {
     },
   });
 }
+
 //update promotion
-
-function updatePromotionDetails(promotion) {
-  const promotionCard = $(`#promotion-card-${promotion.id}`);
-
-  // Update name
-  promotionCard.find(".promotion-name").val(promotion.name);
-
-  // Update value
-  promotionCard.find(".promotion-value").val(promotion.value);
-  // Update promotion-type-promotion
-  promotionCard
-    .find(".promotion-type-promotion")
-    .val(promotion.voucherTypeDTO.type);
-
-  // Update status
-  const statusText = promotion.status ? "Đang hoạt động" : "Không hoạt động";
-  const statusColorClass = promotion.status
-    ? "w-full outline-none px-3 py-2 promotion-status text-green-500"
-    : "w-full outline-none px-3 py-2 promotion-status text-red-500";
-  const promotionStatusElement = promotionCard.find(".promotion-status");
-
-  promotionStatusElement.val(statusText);
-
-  // Remove all existing classes and add the necessary classes
-  promotionStatusElement.attr(
-    "class",
-    `promotion-status focus:outline-none text-sm dark:text-gray-100 ${statusColorClass}`
-  );
-
-  // Update image
-  const newImageUrl = `http://localhost:8080/promotion/files/${promotion.image}`;
-  promotionCard.find(".promotion-image").attr("src", newImageUrl);
-
-  // Update delete button visibility based on status
-  const deleteButton = promotionCard.find("#bttn-delete-promotion");
-  if (promotion.status) {
-    if (deleteButton.length === 0) {
-      // If delete button doesn't exist, add it
-      const deleteButtonHtml = `
-        <button
-          id="bttn-delete-promotion"
-          type="button"
-          data-id="${promotion.id}"
-          class="bg-red-500 text-white px-4 py-2 rounded"
-        >
-          Delete
-        </button>
-      `;
-      promotionCard.find(".relative").prepend(deleteButtonHtml);
-    }
-  } else {
-    deleteButton.remove();
-  }
-}
-
-//call this function when receive the response after updating the promotion
-function handleUpdatePromotionResponse(response) {
-  if (response && response.data) {
-    updatePromotionDetails(response.data);
-  }
-}
 
 function submitUpdateForm() {
   $(document).on("click", "#submit-update", function (event) {
     event.preventDefault();
 
-    // Validate the form
-    let { allFieldsFilled, numberFieldValid } = validateForm("#form-update");
+    let { allFieldsFilled, numberFieldValid, datesValid } = validateForm(
+      "#form-update",
+      true
+    );
 
-    // If all fields are filled and number fields are valid, proceed with AJAX request
-    if (allFieldsFilled && numberFieldValid) {
-      var formData = new FormData($("#form-update")[0]); // Use form ID
+    if (allFieldsFilled && numberFieldValid && datesValid) {
+      var formData = new FormData($("#form-update")[0]);
 
       $.ajax({
         url: "http://localhost:8080/promotion/update",
@@ -450,10 +425,10 @@ function submitUpdateForm() {
         processData: false,
         contentType: false,
         success: function (response) {
-          clearForm("#form-update"); // Clear the form after success
+          clearForm("#form-update");
           $("#crud-update-modal").addClass("hidden");
           alert(response.desc);
-          handleUpdatePromotionResponse(response);
+          fetchPromotions(currentPage); // Tải lại danh sách promotion với trang hiện tại
         },
         error: function (xhr, status, error) {
           alert("An error occurred while submitting the form.");
@@ -465,6 +440,8 @@ function submitUpdateForm() {
         alert("You must fill all fields.");
       } else if (!numberFieldValid) {
         alert("Number must be greater than 0 and less than 100.");
+      } else if (!datesValid) {
+        alert("End date must be after start date.");
       }
     }
   });
@@ -475,33 +452,6 @@ function closeModal() {
   $("#crud-update-modal").removeClass("flex").addClass("hidden");
 }
 
-//related create promotion
-//load all voucher
-function fetchVouchersForCreate() {
-  $.ajax({
-    url: "http://localhost:8080/voucher/list",
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
-      $("#idVoucherType").empty(); // Clear existing options in the dropdown
-      $("#idVoucherType").append("<option selected>Select category</option>"); // Add default option
-
-      if (response && response.data) {
-        // Check if response data is available
-        response.data.forEach(function (voucher) {
-          // Loop through each voucher and append to the dropdown
-          const option = `<option value="${voucher.id}">${voucher.type}</option>`;
-          $("#idVoucherType").append(option);
-        });
-      }
-    },
-    error: function (error) {
-      console.error("Error fetching vouchers:", error);
-    },
-  });
-}
 //open close modal
 function setupModalToggles() {
   $(document).on("click", "#modalToggle", function () {
@@ -512,17 +462,66 @@ function setupModalToggles() {
     $("#crud-modal").addClass("hidden");
   });
 }
-//submit form create
+
+function validateForm(formId, isUpdate = false) {
+  let allFieldsFilled = true;
+  let numberFieldValid = true;
+  let datesValid = true;
+
+  let formElement = $(formId);
+  let startDate = formElement.find("input[name='startDate']").val();
+  let endDate = formElement.find("input[name='endDate']").val();
+  let currentDate = new Date().toISOString().split("T")[0];
+
+  formElement
+    .find(
+      "input[type='text'], input[type='number'], input[type='date'], textarea, select"
+    )
+    .each(function () {
+      if ($(this).val() === "") {
+        allFieldsFilled = false;
+        return false;
+      }
+
+      if ($(this).attr("type") === "number") {
+        let numberValue = parseFloat($(this).val());
+        if (isNaN(numberValue) || numberValue <= 0 || numberValue >= 100) {
+          numberFieldValid = false;
+          return false;
+        }
+      }
+
+      if ($(this).attr("type") === "date") {
+        if (startDate && endDate) {
+          if (new Date(startDate) >= new Date(endDate)) {
+            datesValid = false;
+            return false;
+          }
+          if (
+            !isUpdate &&
+            (new Date(startDate) < new Date(currentDate) ||
+              new Date(endDate) < new Date(currentDate))
+          ) {
+            datesValid = false;
+            return false;
+          }
+        }
+      }
+    });
+
+  return { allFieldsFilled, numberFieldValid, datesValid };
+}
+// submit form create
+
 function submitInsertForm() {
   $(document).on("click", "#submit-insert", function (event) {
     event.preventDefault();
 
-    // Validate the form
-    let { allFieldsFilled, numberFieldValid } = validateForm("#form-insert");
+    let { allFieldsFilled, numberFieldValid, datesValid } =
+      validateForm("#form-insert");
 
-    // If all fields are filled and number fields are valid, proceed with AJAX request
-    if (allFieldsFilled && numberFieldValid) {
-      var formData = new FormData($("#form-insert")[0]); // Use form ID
+    if (allFieldsFilled && numberFieldValid && datesValid) {
+      var formData = new FormData($("#form-insert")[0]);
 
       $.ajax({
         url: "http://localhost:8080/promotion/create",
@@ -534,10 +533,10 @@ function submitInsertForm() {
         processData: false,
         contentType: false,
         success: function (response) {
-          clearForm("#form-insert"); // Clear the form after success
+          clearForm("#form-insert");
           $("#crud-modal").addClass("hidden");
           alert(response.desc);
-          fetchPromotions(); // Fetch and display updated promotions
+          fetchPromotions(currentPage); // Tải lại danh sách promotion với trang hiện tại
         },
         error: function (xhr, status, error) {
           alert("An error occurred while submitting the form.");
@@ -549,41 +548,20 @@ function submitInsertForm() {
         alert("You must fill all fields.");
       } else if (!numberFieldValid) {
         alert("Number must be greater than 0 and less than 100.");
+      } else if (!datesValid) {
+        alert(
+          "Start date and end date must be greater than the current date and end date must be after start date."
+        );
       }
     }
   });
 }
 
-function validateForm(formId) {
-  let allFieldsFilled = true;
-  let numberFieldValid = true;
-
-  // Validate all required fields
-  $(formId)
-    .find("input[type='text'], input[type='number'], textarea, select")
-    .each(function () {
-      if ($(this).val() === "") {
-        allFieldsFilled = false;
-        return false; // Break out of the loop if any field is empty
-      }
-
-      // Additional validation for input type number
-      if ($(this).attr("type") === "number") {
-        let numberValue = parseFloat($(this).val());
-        if (isNaN(numberValue) || numberValue <= 0 || numberValue >= 100) {
-          numberFieldValid = false;
-          return false; // Break out of the loop if number is invalid
-        }
-      }
-    });
-
-  return { allFieldsFilled, numberFieldValid };
-}
 function clearForm(formId) {
   $(formId)
     .find(
-      "input[type='text'], input[type='number'], input[type='file'], textarea, select"
+      "input[type='text'], input[type='number'], input[type='date'], input[type='file'], textarea, select"
     )
-    .val(""); // Clear input fields
-  $(formId).find("select").prop("selectedIndex", 0); // Reset select fields
+    .val("");
+  $(formId).find("select").prop("selectedIndex", 0);
 }

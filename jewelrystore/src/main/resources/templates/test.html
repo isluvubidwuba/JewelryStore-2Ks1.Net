@@ -3,166 +3,207 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tailwind Admin Template</title>
-    <meta name="author" content="David Grzyb" />
-    <meta name="description" content="" />
-
-    <!-- Tailwind -->
-    <link href="build/tailwind.css" rel="stylesheet" />
-
-    <script src="./js/DashboardAdmin.js"></script>
-
+    <title>Roles & Permission Matrix</title>
     <style>
-      @import url("https://fonts.googleapis.com/css?family=Karla:400,700&display=swap");
-      .font-family-karla {
-        font-family: karla;
+      body {
+        font-family: Arial, sans-serif;
       }
-      .bg-sidebar {
-        background: #3d68ff;
+      table {
+        width: 100%;
+        border-collapse: collapse;
       }
-      .cta-btn {
-        color: #3d68ff;
+      th,
+      td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: left;
       }
-      .upgrade-btn {
-        background: #1947ee;
+      th {
+        background-color: #4caf50;
+        color: white;
       }
-      .upgrade-btn:hover {
-        background: #0038fd;
+      .header {
+        background-color: #4caf50;
+        color: white;
+        text-align: center;
+        padding: 10px;
+        font-size: 24px;
       }
-      .active-nav-link {
-        background: #1947ee;
+      .feature-header {
+        background-color: #f2f2f2;
+        font-weight: bold;
       }
-      .nav-item:hover {
-        background: #1947ee;
+      .checkbox-cell {
+        text-align: center;
       }
-      .account-link:hover {
-        background: #3d68ff;
-      }
-      #applyForBtn:hover + div,
-      #applyForBtn:focus + div {
-        display: block !important;
+      .implementer {
+        text-align: center;
+        font-weight: bold;
       }
     </style>
   </head>
-  <body class="bg-gray-100 font-family-karla flex overflow-x-hidden">
-    <div class="bg-white rounded-lg shadow-lg w-2/3">
-      <div class="p-4">
-        <div class="flex space-x-4">
-          <div class="review"></div>
-          <div class="w-1/3">
-            <img
-              id="viewEmployeeImage"
-              src=""
-              alt="Employee Image"
-              class="w-64 h-64 object-cover mx-auto border border-gray-300 rounded-md"
-            />
-          </div>
-          <div class="w-2/3">
-            <input type="hidden" id="idPromotion" name="id" />
-            <div class="mb-4 flex space-x-4">
-              <div class="w-full">
-                <label for="viewFirstName" class="block text-gray-700"
-                  >Name</label
-                >
-                <input
-                  type="text"
-                  id="viewFirstName"
-                  name="firstName"
-                  class="w-full px-3 py-2 border rounded"
-                />
-              </div>
-              <div class="w-full">
-                <label for="viewLastName" class="block text-gray-700"
-                  >Type Promotion</label
-                >
-                <input
-                  type="text"
-                  id="viewLastName"
-                  name="lastName"
-                  class="w-full px-3 py-2 border rounded"
-                />
-              </div>
-            </div>
-            <div class="mb-4 flex space-x-4">
-              <div class="w-full">
-                <label for="viewRole" class="block text-gray-700">Value</label>
-                <input type="number" class="w-full px-3 py-2 border rounded" />
-              </div>
-              <div class="w-full">
-                <label for="viewStatus" class="block text-gray-700"
-                  >Status</label
-                >
-                <select
-                  id="viewStatus"
-                  name="status"
-                  class="w-full px-3 py-2 border rounded"
-                >
-                  <option value="true">Active</option>
-                  <option value="false">Inactive</option>
-                </select>
-              </div>
-            </div>
-            <div class="flex justify-end space-x-4 relative">
-              <button
-                type="button"
-                id="updateEmployeeBtn"
-                class="bg-blue-500 text-white px-4 py-2 rounded"
-              >
-                Update
-              </button>
-              <button
-                type="button"
-                id="deleteEmployeeBtn"
-                class="bg-red-500 text-white px-4 py-2 rounded"
-              >
-                Delete
-              </button>
-              <div class="relative group">
-                <button
-                  type="button"
-                  id="applyForBtn"
-                  class="bg-gray-500 text-white px-4 py-2 rounded"
-                >
-                  Apply For
-                </button>
-                <div
-                  class="absolute right-0 mt-2 w-full bg-white border border-gray-300 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  style="display: none"
-                >
-                  <div class="flex flex-col">
-                    <button
-                      type="button"
-                      id="modalToggle_Detail_Apply"
-                      class="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                      data-promotion-id="1"
-                      data-promotion-name="namepromotion"
-                    >
-                      Product
-                    </button>
-                    <button
-                      type="button"
-                      id="modalToggle_Category_Apply"
-                      class="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                      data-voucher-id="1"
-                      data-voucher-name="voucher type"
-                    >
-                      Category
-                    </button>
-                    <button
-                      type="button"
-                      id=""
-                      class="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                      data-promotion-id=""
-                    >
-                      Customer
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+  <body>
+    <div class="header">Roles & Permission Matrix</div>
+    <table>
+      <thead>
+        <tr>
+          <th rowspan="2">Feature</th>
+          <th rowspan="2">Description</th>
+          <th colspan="3">User Roles</th>
+          <th rowspan="2">Implemented By</th>
+        </tr>
+        <tr>
+          <th>Admin</th>
+          <th>Manager</th>
+          <th>Staff</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="feature-header">
+          <td>Authentication Feature</td>
+          <td></td>
+          <td colspan="3"></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Login/Logout</td>
+          <td></td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✔</td>
+          <td class="implementer">Trần Huy Hanh</td>
+        </tr>
+        <tr class="feature-header">
+          <td>Manager Employee Feature</td>
+          <td></td>
+          <td colspan="3"></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>View employee and employee attributes</td>
+          <td></td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✔</td>
+          <td class="implementer">Nguyễn Hoàng Nhựt Tân</td>
+        </tr>
+        <tr>
+          <td>Create employee and employee attributes</td>
+          <td></td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✖</td>
+          <td class="implementer">Nguyễn Hoàng Nhựt Tân</td>
+        </tr>
+        <tr>
+          <td>Update employee and employee attributes</td>
+          <td></td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✖</td>
+          <td class="implementer">Nguyễn Hoàng Nhựt Tân</td>
+        </tr>
+        <tr>
+          <td>Delete employee (change status)</td>
+          <td></td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✖</td>
+          <td class="implementer"></td>
+        </tr>
+        <tr>
+          <td>Search employee with attributes</td>
+          <td></td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✔</td>
+          <td class="implementer"></td>
+        </tr>
+        <tr class="feature-header">
+          <td>Manager Policy Feature</td>
+          <td></td>
+          <td colspan="3"></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>View list policy of store and policy attributes</td>
+          <td></td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✔</td>
+          <td class="implementer">Trần Huy Hanh</td>
+        </tr>
+        <tr>
+          <td>Create new policy</td>
+          <td></td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✖</td>
+          <td class="implementer">Nguyễn Hoàng Nhựt Tân</td>
+        </tr>
+        <tr>
+          <td>Update policy</td>
+          <td></td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✖</td>
+          <td class="implementer"></td>
+        </tr>
+        <tr>
+          <td>Delete policy (change status)</td>
+          <td></td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✖</td>
+          <td class="implementer"></td>
+        </tr>
+        <tr class="feature-header">
+          <td>Manager User Information Feature</td>
+          <td></td>
+          <td colspan="3"></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>View list customer information</td>
+          <td></td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✔</td>
+          <td class="implementer">Nguyễn Hoàng Nhựt Tân</td>
+        </tr>
+        <tr>
+          <td>View list supplier information</td>
+          <td></td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✔</td>
+          <td class="implementer">Nguyễn Hoàng Nhựt Tân</td>
+        </tr>
+        <tr>
+          <td>Update customer information and customer attributes</td>
+          <td></td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✖</td>
+          <td class="implementer">Nguyễn Hoàng Nhựt Tân</td>
+        </tr>
+        <tr>
+          <td>Search customer attributes</td>
+          <td></td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✔</td>
+          <td class="implementer"></td>
+        </tr>
+        <tr>
+          <td>Search supplier attributes</td>
+          <td></td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✔</td>
+          <td class="checkbox-cell">✔</td>
+          <td class="implementer"></td>
+        </tr>
+      </tbody>
+    </table>
   </body>
 </html>

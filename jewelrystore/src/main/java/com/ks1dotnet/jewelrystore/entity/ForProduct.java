@@ -1,5 +1,7 @@
 package com.ks1dotnet.jewelrystore.entity;
 
+import com.ks1dotnet.jewelrystore.dto.ForProductDTO;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -29,8 +31,15 @@ public class ForProduct {
     @JoinColumn(name = "id_product")
     private Product product;
 
-    public ForProduct(Promotion promotion, Product product) {
+    private boolean status;
+
+    public ForProduct(Promotion promotion, Product product, boolean status) {
         this.promotion = promotion;
         this.product = product;
+        this.status = status;
+    }
+
+    public ForProductDTO getDTO() {
+        return new ForProductDTO(id, this.promotion.getDTO(), this.product.getDTO(), this.status);
     }
 }

@@ -7,9 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ForProductTypeDTO {
-    private Integer Id;
+public class ForCustomerDTO {
+    private Integer id;
     private PromotionDTO promotionDTO;
-    private ProductCategoryDTO categoryDTO;
+    private CustomerTypeDTO customerTypeDTO;
     private boolean status;
 }

@@ -13,46 +13,47 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ks1dotnet.jewelrystore.dto.ApplyPromotionDTO;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
-import com.ks1dotnet.jewelrystore.service.serviceImp.IForProductTypeService;
+import com.ks1dotnet.jewelrystore.service.serviceImp.IForCustomerService;
 
 @RestController
-@RequestMapping("/promotion-for-category")
+@RequestMapping("/promotion-for-customer")
 @CrossOrigin("*")
-public class ForProductTypeController {
+public class ForCustomerController {
 
     @Autowired
-    IForProductTypeService iForProductTypeService;
+    IForCustomerService iForCustomerService;
 
     @GetMapping("/promotion/{promotionId}")
-    public ResponseEntity<ResponseData> getCategoriesByPromotion(@PathVariable int promotionId) {
-        ResponseData responseData = iForProductTypeService.getCategoriesByPromotionId(promotionId);
+    public ResponseEntity<ResponseData> getCustomerTypesByPromotion(@PathVariable int promotionId) {
+        ResponseData responseData = iForCustomerService.getCustomerTypesByPromotionId(promotionId);
         return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
     @PostMapping("/apply-promotion")
-    public ResponseEntity<ResponseData> applyPromotionToCategories(@RequestBody ApplyPromotionDTO applyPromotionDTO) {
-        ResponseData responseData = iForProductTypeService.applyPromotionToCategories(applyPromotionDTO);
+    public ResponseEntity<ResponseData> applyPromotionToCustomerTypes(
+            @RequestBody ApplyPromotionDTO applyPromotionDTO) {
+        ResponseData responseData = iForCustomerService.applyPromotionToCustomerTypes(applyPromotionDTO);
         return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
     @PostMapping("/remove-promotion")
-    public ResponseEntity<ResponseData> removePromotionFromCategories(
+    public ResponseEntity<ResponseData> removePromotionFromCustomerTypes(
             @RequestBody ApplyPromotionDTO applyPromotionDTO) {
-        ResponseData responseData = iForProductTypeService.removePromotionFromCategories(applyPromotionDTO);
+        ResponseData responseData = iForCustomerService.removePromotionFromCustomerTypes(applyPromotionDTO);
         return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
-    @GetMapping("/check-category/{categoryId}/{promotionId}")
-    public ResponseEntity<ResponseData> checkCategoryInOtherActivePromotions(@PathVariable int categoryId,
+    @GetMapping("/check-customer/{customerTypeId}/{promotionId}")
+    public ResponseEntity<ResponseData> checkCustomerTypeInOtherActivePromotions(@PathVariable int customerTypeId,
             @PathVariable int promotionId) {
-        ResponseData responseData = iForProductTypeService.checkCategoryInOtherActivePromotions(categoryId,
+        ResponseData responseData = iForCustomerService.checkCustomerTypeInOtherActivePromotions(customerTypeId,
                 promotionId);
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
 
     @GetMapping("/not-in-promotion/{promotionId}")
-    public ResponseEntity<ResponseData> getCategoriesNotInPromotion(@PathVariable int promotionId) {
-        ResponseData responseData = iForProductTypeService.getCategoriesNotInPromotion(promotionId);
+    public ResponseEntity<ResponseData> getCustomerTypesNotInPromotion(@PathVariable int promotionId) {
+        ResponseData responseData = iForCustomerService.getCustomerTypesNotInPromotion(promotionId);
         return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 }

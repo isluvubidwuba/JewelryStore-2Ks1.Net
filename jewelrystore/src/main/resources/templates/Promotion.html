@@ -16,8 +16,8 @@
     <script src="./js/promotion.js"></script>
     <script src="./js/DashboardAdmin.js"></script>
     <script src="./js/forProduct.js"></script>
-    <script src="./js/vouchertype.js"></script>
     <script src="./js/categoryVoucher.js"></script>
+    <script src="./js/customerType.js"></script>
 
     <style>
       @import url("https://fonts.googleapis.com/css?family=Karla:400,700&display=swap");
@@ -70,117 +70,10 @@
               >
                 Create Promotion
               </button>
-              <button
-                id="modalToggle-voucherType"
-                class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-              >
-                Voucher Type
-              </button>
             </div>
           </div>
           <div id="promotion-container" class="flex flex-wrap"></div>
         </main>
-      </div>
-
-      <!-- Voucher Type Modal -->
-      <div
-        id="voucherTypeModal"
-        class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center"
-      >
-        <div
-          class="relative p-4 w-full max-w-md max-h-full bg-white rounded-lg shadow"
-        >
-          <div class="py-1">
-            <div
-              class="px-4 py-2 text-center font-bold text-lg flex justify-between items-center"
-            >
-              Voucher Types
-              <button
-                id="closeVoucherTypeModal"
-                class="text-gray-500 hover:text-gray-700"
-              >
-                <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fill-rule="evenodd"
-                    d="M10 8.586L15.657 2.93a1 1 0 011.414 1.414L11.414 10l5.657 5.657a1 1 0 01-1.414 1.414L10 11.414l-5.657 5.657a1 1 0 01-1.414 1.414L8.586 10 2.93 4.343A1 1 0 014.343 2.93L10 8.586z"
-                    clip-rule="evenodd"
-                  ></path>
-                </svg>
-              </button>
-            </div>
-            <div
-              id="voucherTypesContainer"
-              class="px-4 py-2 max-h-56 overflow-y-auto items-center"
-            >
-              <!-- Voucher types will be dynamically inserted here -->
-            </div>
-
-            <button
-              id="applyButton"
-              class="w-full px-4 py-2 bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 focus:outline-none mt-4"
-            >
-              Apply
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Update Invoice Type Modal -->
-
-      <div
-        id="updateInvoiceTypeModal"
-        class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden"
-      >
-        <div class="relative p-4 w-full max-w-md max-h-full">
-          <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-            <div
-              class="flex items-center justify-between p-4 border-b rounded-t dark:border-gray-600"
-            >
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                Update Voucher
-              </h3>
-              <button
-                type="button"
-                id="closeUpdateInvoiceTypeModal"
-                class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-              >
-                <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fill-rule="evenodd"
-                    d="M10 8.586L15.657 2.93a1 1 0 011.414 1.414L11.414 10l5.657 5.657a1 1 0 01-1.414 1.414L10 11.414l-5.657 5.657a1 1 0 01-1.414 1.414L8.586 10 2.93 4.343A1 1 0 014.343 2.93L10 8.586z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-                <span class="sr-only">Close modal</span>
-              </button>
-            </div>
-            <form id="updateInvoiceTypeForm" class="p-4">
-              <input type="hidden" id="invoiceTypeId" name="invoiceTypeId" />
-              <div class="mb-4">
-                <label
-                  for="invoiceTypeName"
-                  class="block text-gray-700 font-bold mb-2"
-                  >Type:</label
-                >
-                <input
-                  type="text"
-                  id="invoiceTypeName"
-                  name="invoiceTypeName"
-                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  required
-                />
-              </div>
-              <div class="flex justify-end">
-                <button
-                  type="submit"
-                  class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-                >
-                  Update Voucher Type
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
       </div>
 
       <!-- Add Voucher Type Modal -->
@@ -249,6 +142,8 @@
       <!-- Modal update -->
       <div
         id="crud-update-modal"
+        tabindex="-1"
+        aria-hidden="true"
         class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden"
       >
         <div class="relative p-4 w-full max-w-md max-h-full">
@@ -284,8 +179,8 @@
               method="post"
               enctype="multipart/form-data"
             >
+              <input type="hidden" id="update-id" name="id" />
               <div class="grid gap-4 mb-4 grid-cols-2">
-                <input id="update-id" name="id" hidden />
                 <div class="col-span-2">
                   <label
                     for="update-name"
@@ -318,20 +213,6 @@
                 </div>
                 <div class="col-span-2 sm:col-span-1">
                   <label
-                    for="update-voucherType"
-                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                    >Voucher Type</label
-                  >
-                  <select
-                    id="update-idVoucherType"
-                    name="idVoucherType"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                  >
-                    <option selected>Select voucher type</option>
-                  </select>
-                </div>
-                <div class="col-span-2">
-                  <label
                     for="update-status"
                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                     >Status</label
@@ -341,83 +222,79 @@
                     name="status"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                   >
-                    <option value="0">Không hoạt động</option>
+                    <option value="" selected>Select status</option>
                     <option value="1">Hoạt động</option>
+                    <option value="0">Không hoạt động</option>
                   </select>
+                </div>
+                <div class="col-span-2 sm:col-span-1">
+                  <label
+                    for="update-start-date"
+                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    >Start Date</label
+                  >
+                  <input
+                    type="date"
+                    name="startDate"
+                    id="update-start-date"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    required
+                  />
+                </div>
+                <div class="col-span-2 sm:col-span-1">
+                  <label
+                    for="update-end-date"
+                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    >End Date</label
+                  >
+                  <input
+                    type="date"
+                    name="endDate"
+                    id="update-end-date"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    required
+                  />
+                </div>
+                <!-- Hiển thị promotionType bên ngoài form -->
+                <div class="col-span-2">
+                  <label
+                    for="display-promotionType"
+                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    >Promotion Type</label
+                  >
+                  <span
+                    id="display-promotionType"
+                    class="block w-full p-2.5 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg dark:bg-gray-600 dark:border-gray-500 dark:text-white"
+                  ></span>
                 </div>
                 <div class="col-span-2">
                   <label
-                    for="update-file"
+                    for="file"
                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                     >Select Image</label
                   >
                   <input
                     type="file"
                     name="file"
-                    id="update-file"
+                    id="file"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     accept="image/*"
                   />
-                  <div id="update-selected-image" class="mt-2"></div>
+                  <div id="selected-image" class="mt-2"></div>
                 </div>
               </div>
-
-              <button
-                type="submit"
-                id="submit-update"
-                class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-              >
-                Update Promotion
-              </button>
+              <div class="flex justify-between items-center">
+                <button
+                  type="submit"
+                  id="submit-update"
+                  class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                >
+                  Update Promotion
+                </button>
+                <!-- Container để hiển thị các nút tương ứng -->
+                <div id="button-container" class="flex flex-col"></div>
+              </div>
             </form>
-            <div class="px-4 pb-4">
-              <div class="col-span-2">
-                <div class="relative group">
-                  <button
-                    type="button"
-                    class="bg-gray-500 text-white px-4 py-2 rounded apply-for-btn"
-                    style="width: 150px"
-                  >
-                    Apply For
-                  </button>
-                  <div
-                    class="absolute mt-1 left-0 w-auto bg-white border border-gray-300 rounded shadow-lg apply-for-options hidden group-hover:block"
-                    style="min-width: 150px"
-                  >
-                    <div class="flex flex-col">
-                      <button
-                        type="button"
-                        id="modalToggle_Detail_Apply"
-                        class="block py-2 text-gray-700 hover:bg-gray-100"
-                        data-promotion-id="1"
-                        data-promotion-name="namepromotion"
-                        style="width: 100%"
-                      >
-                        Product
-                      </button>
-                      <button
-                        type="button"
-                        id="modalToggle_Category_Apply"
-                        class="block py-2 text-gray-700 hover:bg-gray-100"
-                        data-voucher-id="1"
-                        data-voucher-name="voucher type"
-                        style="width: 100%"
-                      >
-                        Category
-                      </button>
-                      <button
-                        type="button"
-                        class="block py-2 text-gray-700 hover:bg-gray-100"
-                        data-promotion-id=""
-                        style="width: 100%"
-                      >
-                        Customer
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -493,7 +370,7 @@
       </div>
     </div>
 
-    <!-- Modal chi tiết sản phẩm đã áp dụng promotion -->
+    <!-- Modal for products applied promotion -->
     <div
       id="detail-modal_ProductApply"
       class="fixed inset-0 z-50 flex items-center justify-center hidden bg-gray-800 bg-opacity-75"
@@ -501,7 +378,7 @@
       <div class="bg-white w-4/5 h-4/5 rounded-lg shadow-lg p-6">
         <div class="flex justify-between items-center pb-3">
           <h2 id="modalTitle" class="text-2xl font-semibold">
-            List product apply
+            List of Applied Products
           </h2>
           <button
             id="modalClose_ProductApply"
@@ -530,14 +407,38 @@
             id="productGrid"
             style="max-height: 70vh; overflow-y: auto"
           >
-            <!-- Product grid will be dynamically added here -->
+            <div class="flex mb-4">
+              <select
+                id="categoryFilterApply"
+                class="mt-1 block w-1/2 px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              >
+                <option value="all">All Categories</option>
+              </select>
+              <select
+                id="materialFilterApply"
+                class="mt-1 block w-1/2 px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ml-2"
+              >
+                <option value="all">All Materials</option>
+              </select>
+            </div>
+
             <table class="min-w-full divide-y divide-gray-200">
               <thead class="bg-gray-50">
                 <tr>
                   <th
                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
-                    Id
+                    ID
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Product Code
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Barcode
                   </th>
                   <th
                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -562,11 +463,6 @@
                   <th
                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
-                    Counter
-                  </th>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
                     Select
                   </th>
                 </tr>
@@ -582,38 +478,27 @@
           </div>
 
           <div class="w-1/4 pl-4 border-l border-gray-200">
-            <div class="flex mb-4">
-              <select
-                id="categoryFilterApply"
-                class="mt-1 block w-1/2 px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            <div class="flex justify-evenly">
+              <button
+                type="button"
+                id="active-selected-products"
+                class="bg-green-600 text-white px-4 py-2 rounded"
               >
-                <option value="all">All Categories</option>
-                <!-- Category options will be dynamically added here -->
-              </select>
-
-              <select
-                id="materialFilterApply"
-                class="mt-1 block w-1/2 px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ml-2"
-              >
-                <option value="all">All Materials</option>
-                <!-- Material options will be dynamically added here -->
-              </select>
-            </div>
-
-            <div class="flex justify-end">
+                Active select
+              </button>
               <button
                 type="button"
                 id="delete-selected-products"
-                class="bg-red-600 text-white px-4 py-2 rounded mr-2"
+                class="bg-red-600 text-white px-4 py-2 rounded mx-2"
               >
-                Delete Selected Products
+                Inactive select
               </button>
               <button
                 type="button"
                 id="add-products"
                 class="bg-green-600 text-white px-4 py-2 rounded"
               >
-                Add Products
+                Add
               </button>
             </div>
           </div>
@@ -621,7 +506,7 @@
       </div>
     </div>
 
-    <!-- category apply voucher -->
+    <!-- category apply promotion modal -->
     <div
       id="detail-modal_CategoryApply"
       class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden"
@@ -668,6 +553,7 @@
                           <th scope="col" class="px-6 py-3">Id</th>
                           <th scope="col" class="px-6 py-3">Name</th>
                           <th scope="col" class="px-6 py-3">Select</th>
+                          <th scope="col" class="px-6 py-3">Status</th>
                         </tr>
                       </thead>
                       <tbody
@@ -679,13 +565,23 @@
                   </div>
                 </div>
               </div>
-              <div id="delete-category-button-container" class="mt-4">
+              <div
+                id="delete-category-button-container justify-evenly"
+                class="mt-4"
+              >
                 <button
                   type="button"
                   id="delete-selected-categories"
                   class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-4"
                 >
-                  Delete Selected Categories
+                  Inactive Selected
+                </button>
+                <button
+                  type="button"
+                  id="actived-selected-categories"
+                  class="text-white bg-green-600 hover:bg-green-700focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-4"
+                >
+                  Active Selected
                 </button>
                 <button
                   type="button"
@@ -710,7 +606,7 @@
         <div
           class="flex items-center justify-between p-4 border-b rounded-t w-full"
         >
-          <h3 class="text-4xl font-black">Add Categories to Voucher Type</h3>
+          <h3 class="text-4xl font-black">Add Categories to Promotion</h3>
           <button
             type="button"
             id="modalClose_AddCategories"
@@ -751,12 +647,12 @@
                         </tr>
                       </thead>
                       <tbody
-                        id="category-not-apply-voucher"
+                        id="category-not-apply-promotion"
                         class="dark:text-gray-500"
                       ></tbody>
                     </table>
                     <p
-                      id="notiBlankCategoryNotInVoucher"
+                      id="notiBlankCategoryNotInPromotion"
                       class="text-center"
                     ></p>
                   </div>
@@ -768,6 +664,170 @@
                 class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-4"
               >
                 Add Selected Categories
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customer Apply Voucher Modal -->
+    <div
+      id="detail-modal_CustomerApply"
+      class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden"
+    >
+      <div class="bg-white rounded-lg shadow w-8/12">
+        <div
+          class="flex items-center justify-between p-4 border-b rounded-t w-full"
+        >
+          <h3 class="text-4xl font-black">List customer apply</h3>
+          <button
+            type="button"
+            id="modalClose_CustomerApply"
+            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+          >
+            <svg
+              class="w-3 h-3"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 14 14"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+              />
+            </svg>
+            <span class="sr-only">Close modal</span>
+          </button>
+        </div>
+        <div class="shadow-md w-auto bg-white rounded-lg">
+          <div class="col-span-2 p-10 w-full">
+            <div class="mb-4">
+              <div class="w-full max-h-56">
+                <div class="w-full mt-3 overflow-hidden">
+                  <div class="max-h-56 overflow-y-auto items-center">
+                    <table class="w-full bg-blend-multiply text-sm text-center">
+                      <thead
+                        class="bg-gray-200 dark:text-gray-600 sticky top-0 z-10"
+                      >
+                        <tr>
+                          <th scope="col" class="px-6 py-3">Id</th>
+                          <th scope="col" class="px-6 py-3">Type</th>
+                          <th scope="col" class="px-6 py-3">Point Condition</th>
+                          <th scope="col" class="px-6 py-3">Select</th>
+                          <th scope="col" class="px-6 py-3">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody
+                        id="customer-apply-promotion"
+                        class="dark:text-gray-500"
+                      ></tbody>
+                    </table>
+                    <p id="notiBlankCustomer" class="text-center"></p>
+                  </div>
+                </div>
+              </div>
+              <div id="delete-customer-button-container" class="mt-4">
+                <button
+                  type="button"
+                  id="delete-selected-customers"
+                  class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-4"
+                >
+                  Delete Selected Customers
+                </button>
+                <button
+                  type="button"
+                  id="actived-selected-customers"
+                  class="text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-4"
+                >
+                  Active Selected Customers
+                </button>
+                <button
+                  type="button"
+                  id="add-customers"
+                  class="text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center ml-2"
+                >
+                  Add Customers
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Customers Modal -->
+    <div
+      id="add-customers-modal"
+      class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden"
+    >
+      <div class="bg-white rounded-lg shadow w-6/12">
+        <div
+          class="flex items-center justify-between p-4 border-b rounded-t w-full"
+        >
+          <h3 class="text-4xl font-black">Add Customers to Voucher Type</h3>
+          <button
+            type="button"
+            id="modalClose_AddCustomers"
+            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+          >
+            <svg
+              class="w-3 h-3"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 14 14"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+              />
+            </svg>
+            <span class="sr-only">Close modal</span>
+          </button>
+        </div>
+        <div class="shadow-md w-auto bg-white rounded-lg">
+          <div class="col-span-2 p-10 w-full">
+            <div class="mb-4">
+              <div class="w-full max-h-56">
+                <div class="w-full mt-3 overflow-hidden">
+                  <div class="max-h-56 overflow-y-auto items-center">
+                    <table class="w-full bg-blend-multiply text-sm text-center">
+                      <thead
+                        class="bg-gray-200 dark:text-gray-600 sticky top-0 z-10"
+                      >
+                        <tr>
+                          <th scope="col" class="px-6 py-3">Id</th>
+                          <th scope="col" class="px-6 py-3">Type</th>
+                          <th scope="col" class="px-6 py-3">Point Condition</th>
+                          <th scope="col" class="px-6 py-3">Select</th>
+                        </tr>
+                      </thead>
+                      <tbody
+                        id="customer-not-apply-voucher"
+                        class="dark:text-gray-500"
+                      ></tbody>
+                    </table>
+                    <p
+                      id="notiBlankCustomerNotInVoucher"
+                      class="text-center"
+                    ></p>
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                id="add-selected-customers"
+                class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-4"
+              >
+                Add Selected Customers
               </button>
             </div>
           </div>
@@ -887,6 +947,56 @@
               </button>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+    <!-- Confirm Modal -->
+    <div
+      id="confirmModal"
+      class="fixed inset-0 z-50 flex items-center justify-center hidden bg-gray-800 bg-opacity-75"
+    >
+      <div class="bg-white w-1/3 rounded-lg shadow-lg p-6">
+        <div class="flex justify-between items-center pb-3">
+          <h2 class="text-2xl font-semibold">Notion</h2>
+          <button
+            id="closeConfirmModal"
+            class="text-gray-500 hover:text-gray-700"
+          >
+            <svg
+              class="h-6 w-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
+            </svg>
+          </button>
+        </div>
+        <div id="conflictPromotions" class="mb-4">
+          <!-- Conflict promotions will be listed here -->
+        </div>
+        <div id="confirmMessage" class="mb-4 text-red-500">
+          <!-- Confirmation message will be dynamically added here -->
+        </div>
+        <div class="flex justify-end">
+          <button
+            id="cancelConfirm"
+            class="bg-gray-500 text-white px-4 py-2 rounded mr-2"
+          >
+            Cancel
+          </button>
+          <button
+            id="confirmYes"
+            class="bg-green-500 text-white px-4 py-2 rounded"
+          >
+            Yes
+          </button>
         </div>
       </div>
     </div>

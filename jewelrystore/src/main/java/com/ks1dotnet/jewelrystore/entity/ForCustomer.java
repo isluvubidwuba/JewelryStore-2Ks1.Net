@@ -22,10 +22,18 @@ public class ForCustomer {
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "id_voucher_type", insertable = false, updatable = false)
-    private VoucherType voucherType;
+    @JoinColumn(name = "id_promotion")
+    private Promotion promotion;
 
     @ManyToOne
-    @JoinColumn(name = "id_customer_type", insertable = false, updatable = false)
+    @JoinColumn(name = "id_customer_type")
     private CustomerType customerType;
+
+    private boolean status;
+
+    public ForCustomer(Promotion promotion, CustomerType customerType, boolean status) {
+        this.promotion = promotion;
+        this.customerType = customerType;
+        this.status = status;
+    }
 }

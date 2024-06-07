@@ -1,6 +1,13 @@
 $(document).ready(function () {
+  // Sự kiện click cho nút Active select
+  $(document).on("click", "#active-selected-products", function () {
+    const promotionId = $("#modalToggle_Detail_Apply").attr(
+      "data-promotion-id"
+    );
+    activeSelectedProducts(promotionId);
+  });
   // Sự kiện click cho nút Detail
-  $("#modalToggle_Detail_Apply").on("click", function () {
+  $(document).on("click", "#modalToggle_Detail_Apply", function () {
     const promotionId = $(this).attr("data-promotion-id");
     const promotionName = $(this).attr("data-promotion-name");
     fetchProductsByPromotion(promotionId, promotionName);
@@ -8,12 +15,12 @@ $(document).ready(function () {
   });
 
   // Sự kiện click cho nút Close modal
-  $("#modalClose_ProductApply").on("click", function () {
+  $(document).on("click", "#modalClose_ProductApply", function () {
     $("#detail-modal_ProductApply").addClass("hidden");
   });
 
   // Sự kiện click cho nút Add Products
-  $("#add-products").on("click", function () {
+  $(document).on("click", "#add-products", function () {
     const promotionId = $("#modalToggle_Detail_Apply").attr(
       "data-promotion-id"
     );
@@ -23,12 +30,16 @@ $(document).ready(function () {
   });
 
   // Sự kiện click cho nút Close modal Combined
-  $("#closeCombinedModal, #cancelSelectItems").on("click", function () {
-    $("#combinedModal").addClass("hidden");
-  });
+  $(document).on(
+    "click",
+    "#closeCombinedModal, #cancelSelectItems",
+    function () {
+      $("#combinedModal").addClass("hidden");
+    }
+  );
 
   // Sự kiện click cho nút Add Selected Items
-  $("#submitAddItems").on("click", function () {
+  $(document).on("click", "#submitAddItems", function () {
     const promotionId = $("#modalToggle_Detail_Apply").attr(
       "data-promotion-id"
     );
@@ -36,7 +47,7 @@ $(document).ready(function () {
   });
 
   // Sự kiện click cho nút xóa (một lần duy nhất)
-  $("#delete-selected-products").on("click", function (event) {
+  $(document).on("click", "#delete-selected-products", function (event) {
     event.preventDefault();
     const promotionId = $("#modalToggle_Detail_Apply").attr(
       "data-promotion-id"
@@ -45,48 +56,140 @@ $(document).ready(function () {
   });
 
   setupFilters();
+  // Sự kiện click cho checkbox
+  $(document).on("change", ".item-checkbox", function () {
+    const productId = $(this).val();
+    const promotionId = $("#modalToggle_Detail_Apply").attr(
+      "data-promotion-id"
+    );
+    if (this.checked) {
+      checkProductInOtherActivePromotions(productId, promotionId, $(this));
+    }
+  });
+
+  // Sự kiện click cho nút close và cancel trong modal xác nhận
+  $(document).on("click", "#closeConfirmModal, #cancelConfirm", function () {
+    $("#confirmModal").addClass("hidden");
+    // Bỏ tick checkbox
+    const checkbox = $("#confirmYes").data("checkbox");
+    if (checkbox) {
+      checkbox.prop("checked", false);
+    }
+  });
+
+  // Sự kiện click cho nút Yes trong modal xác nhận
+  $(document).on("click", "#confirmYes", function () {
+    $("#confirmModal").addClass("hidden");
+    // Select sản phẩm
+    $(this).data("checkbox").prop("checked", true);
+  });
 });
+function checkProductInOtherActivePromotions(productId, promotionId, checkbox) {
+  $.ajax({
+    url: `http://localhost:8080/promotion-for-product/check-product/${productId}/${promotionId}`,
+    type: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    success: function (response) {
+      if (response.status === "CONFLICT") {
+        displayConflictModal(response.data, response.desc, checkbox);
+      }
+    },
+    error: function (error) {
+      console.error("Error checking product in other promotions:", error);
+    },
+  });
+}
+
+function displayConflictModal(conflictPromotions, desc, checkbox) {
+  $("#conflictPromotions").empty();
+  const descInfo = `<p class="mb-4">${desc}</p>`;
+  $("#conflictPromotions").append(descInfo);
+  conflictPromotions.forEach(function (promotion) {
+    const promoInfo = `
+          <div class="mb-4 p-4 border rounded shadow-sm">
+              <p><strong>ID:</strong> ${promotion.id}</p>
+              <p><strong>Name:</strong> ${promotion.name}</p>
+              <p><strong>Value:</strong> ${promotion.value}</p>
+              <p><strong>Status:</strong> ${
+                promotion.status ? "Active" : "Inactive"
+              }</p>
+              <p><strong>Start Date:</strong> ${promotion.startDate}</p>
+              <p><strong>End Date:</strong> ${promotion.endDate}</p>
+              <p><strong>Last Modified:</strong> ${promotion.lastModified}</p>
+              <p><strong>Promotion Type:</strong> ${promotion.promotionType}</p>
+          </div>
+      `;
+    $("#conflictPromotions").append(promoInfo);
+  });
+
+  const confirmMessage = `<p>Are you sure you want to add it to promotion? It will be disabled in other active promotions.</p>`;
+  $("#confirmMessage").html(confirmMessage);
+
+  $("#confirmYes").data("checkbox", checkbox);
+  $("#confirmModal").removeClass("hidden");
+}
+
+function activeSelectedProducts(promotionId) {
+  var selectedProductIds = [];
+  $(".product-checkbox:checked").each(function () {
+    selectedProductIds.push($(this).val());
+  });
+
+  if (selectedProductIds.length > 0) {
+    $.ajax({
+      url: "http://localhost:8080/promotion-for-product/apply-promotion", // URL mới cho chức năng inactive
+      type: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      contentType: "application/json",
+      data: JSON.stringify({
+        promotionId: promotionId,
+        productIds: selectedProductIds,
+      }),
+      success: function (response) {
+        // Sau khi thực hiện thành công, tải lại danh sách sản phẩm
+        fetchProductsByPromotion(
+          promotionId,
+          $("#promotion-name-listapply").text()
+        );
+        alert("Active successful");
+      },
+      error: function (error) {
+        console.error("Error inactivating selected products:", error);
+      },
+    });
+  } else {
+    alert("Please select at least one product to inactive.");
+  }
+}
 
 function setupFilters() {
-  $("#categoryFilter, #categoryFilterApply").on("change", function () {
-    filterItems();
-  });
-
-  $("#materialFilter, #materialFilterApply").on("change", function () {
-    filterItems();
-  });
+  // Sự kiện thay đổi cho bộ lọc category và material
+  $("#categoryFilter, #categoryFilterApply").on("change", filterItems);
+  $("#materialFilter, #materialFilterApply").on("change", filterItems);
 }
 
 function populateCategoryFilter(categories) {
   const categoryFilter = $("#categoryFilter");
   categoryFilter.empty();
   categoryFilter.append(
-    $("<option>", {
-      value: "all",
-      text: "All Categories",
-    })
+    $("<option>", { value: "all", text: "All Categories" })
   );
   categories.forEach((category) => {
-    const option = $("<option>", {
-      value: category,
-      text: category,
-    });
+    const option = $("<option>", { value: category, text: category });
     categoryFilter.append(option);
   });
 
   const categoryFilterApply = $("#categoryFilterApply");
   categoryFilterApply.empty();
   categoryFilterApply.append(
-    $("<option>", {
-      value: "all",
-      text: "All Categories",
-    })
+    $("<option>", { value: "all", text: "All Categories" })
   );
   categories.forEach((category) => {
-    const option = $("<option>", {
-      value: category,
-      text: category,
-    });
+    const option = $("<option>", { value: category, text: category });
     categoryFilterApply.append(option);
   });
 }
@@ -136,8 +239,8 @@ function filterItems() {
 
   rowsApply.each(function () {
     const row = $(this);
-    const itemCategory = row.find("td").eq(3).text();
-    const itemMaterial = row.find("td").eq(2).text();
+    const itemCategory = row.find("td").eq(5).text();
+    const itemMaterial = row.find("td").eq(4).text();
 
     if (
       (selectedCategoryApply === "all" ||
@@ -166,40 +269,38 @@ function fetchProductsByPromotion(promotionId, promotionName) {
       var products = response.data;
       $("#promotion-name-listapply").text(promotionName);
       if (products.length > 0 && response.status === "OK") {
-        products.forEach(function (product) {
+        var categories = [];
+        var materials = [];
+        products.forEach(function (forProduct) {
+          const product = forProduct.productDTO;
+          const statusText = forProduct.status ? "Active" : "Inactive";
           const row = `
-              <tr>
-                <td class="px-6 py-3">${product.id}</td>
-                <td class="px-6 py-3">${product.name}</td>
-                <td class="px-6 py-3">${product.materialDTO.name}</td>
-                <td class="px-6 py-3">${product.productCategoryDTO.name}</td>
-                <td class="px-6 py-3">${
-                  product.status ? "Active" : "Inactive"
-                }</td>
-                <td class="px-6 py-3">${product.counterDTO.name}</td>
-                <td class="px-6 py-3">
-                  <input type="checkbox" class="product-checkbox" value="${
-                    product.id
-                  }">
-                </td>
-              </tr>
-            `;
+                    <tr>
+                        <td class="px-6 py-3">${product.id}</td>
+                        <td class="px-6 py-3">${product.productCode}</td>
+                        <td class="px-6 py-3">${product.barCode}</td>
+                        <td class="px-6 py-3">${product.name}</td>
+                        <td class="px-6 py-3">${product.materialDTO.name}</td>
+                        <td class="px-6 py-3">${product.productCategoryDTO.name}</td>
+                        <td class="px-6 py-3">${statusText}</td>
+                        <td class="px-6 py-3">
+                            <input type="checkbox" class="product-checkbox item-checkbox" value="${product.id}">
+                        </td>
+                    </tr>
+                `;
           productTableBody.append(row);
+          categories.push(product.productCategoryDTO.name);
+          materials.push(product.materialDTO.name);
         });
-        populateCategoryFilter([
-          ...new Set(
-            products.map((product) => product.productCategoryDTO.name)
-          ),
-        ]);
-        populateMaterialFilter([
-          ...new Set(products.map((product) => product.materialDTO.name)),
-        ]);
-      } else if (response.status === "NOT_FOUND") {
-        alert("No products found for this promotion.");
+
+        populateCategoryFilter([...new Set(categories)]);
+        populateMaterialFilter([...new Set(materials)]);
+      } else {
+        alert("Không tìm thấy sản phẩm nào cho promotion này.");
       }
     },
     error: function (error) {
-      console.error("Error fetching products by promotion:", error);
+      console.error("Lỗi khi tải sản phẩm từ promotion:", error);
     },
   });
 }
@@ -210,7 +311,6 @@ function deleteSelectedProducts(promotionId) {
   $(".product-checkbox:checked").each(function () {
     selectedProductIds.push($(this).val());
   });
-
   if (selectedProductIds.length > 0) {
     $.ajax({
       url: "http://localhost:8080/promotion-for-product/remove-promotion",
@@ -225,7 +325,7 @@ function deleteSelectedProducts(promotionId) {
       }),
       success: function (response) {
         // Sau khi xóa thành công, tải lại danh sách sản phẩm
-        if (response.data === "OK") {
+        if (response.status === "OK") {
           fetchProductsByPromotion(
             promotionId,
             $("#promotion-name-listapply").text()
@@ -257,16 +357,16 @@ function fetchProductsNotInPromotion(promotionId) {
       if (products.length > 0) {
         products.forEach(function (product) {
           const row = `
-              <tr>
-                <td class="px-6 py-3">${product.id}</td>
-                <td class="px-6 py-3">${product.name}</td>
-                <td class="px-6 py-3">${product.productCategoryDTO.name}</td>
-                <td class="px-6 py-3">${product.materialDTO.name}</td>
-                <td class="px-6 py-3">
-                  <input type="checkbox" class="item-checkbox" value="${product.id}">
-                </td>
-              </tr>
-            `;
+            <tr>
+              <td class="px-6 py-3">${product.id}</td>
+              <td class="px-6 py-3">${product.name}</td>
+              <td class="px-6 py-3">${product.productCategoryDTO.name}</td>
+              <td class="px-6 py-3">${product.materialDTO.name}</td>
+              <td class="px-6 py-3">
+                <input type="checkbox" class="item-checkbox" value="${product.id}">
+              </td>
+            </tr>
+          `;
           itemTableBody.append(row);
         });
         populateCategoryFilter([

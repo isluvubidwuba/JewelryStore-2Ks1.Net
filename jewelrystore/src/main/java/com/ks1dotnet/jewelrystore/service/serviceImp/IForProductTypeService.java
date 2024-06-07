@@ -4,9 +4,13 @@ import com.ks1dotnet.jewelrystore.dto.ApplyPromotionDTO;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 
 public interface IForProductTypeService {
-    public ResponseData applyCategoriesToVoucherType(ApplyPromotionDTO applyCategoriesDTO);
+    public ResponseData getCategoriesByPromotionId(int promotionId);
 
-    public ResponseData removeCategoriesFromVoucherType(ApplyPromotionDTO applyCategoriesDTO);
+    public ResponseData applyPromotionToCategories(ApplyPromotionDTO applyPromotionDTO);
 
-    public ResponseData getCategoriesNotInVoucherType(int voucherTypeId);
+    public ResponseData removePromotionFromCategories(ApplyPromotionDTO applyPromotionDTO);
+
+    public ResponseData checkCategoryInOtherActivePromotions(int categoryId, int currentPromotionId);
+
+    public ResponseData getCategoriesNotInPromotion(int promotionId);
 }

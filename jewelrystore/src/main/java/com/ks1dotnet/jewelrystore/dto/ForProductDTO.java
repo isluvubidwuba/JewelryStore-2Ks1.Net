@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class VoucherTypeDTO {
-    private int id;
-    private String type;
+public class ForProductDTO {
+    private Integer Id;
+    private PromotionDTO promotionDTO;
+    private ProductDTO productDTO;
+    private boolean status;
 }

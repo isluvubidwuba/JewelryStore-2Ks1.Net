@@ -4,11 +4,13 @@ import com.ks1dotnet.jewelrystore.dto.ApplyPromotionDTO;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 
 public interface IForProductService {
-    public ResponseData getProductsByPromotionId(int promotionId);
+        public ResponseData getProductsByPromotionId(int promotionId);
 
-    public ResponseData getProductsNotInPromotion(int promotionId);
+        public ResponseData getProductsNotInPromotion(int promotionId);
 
-    public ResponseData applyPromotionToProducts(ApplyPromotionDTO applyPromotionDTO);
+        public ResponseData applyPromotionToProducts(ApplyPromotionDTO applyPromotionDTO);
 
-    public ResponseData removePromotionFromProducts(ApplyPromotionDTO applyPromotionDTO);
+        public ResponseData removePromotionFromProducts(ApplyPromotionDTO applyPromotionDTO);
+
+        public ResponseData checkProductInOtherActivePromotions(int productId, int currentPromotionId);
 }

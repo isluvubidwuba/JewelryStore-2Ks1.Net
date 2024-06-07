@@ -1,48 +1,111 @@
 $(document).ready(function () {
-  // Sự kiện click cho nút Category
-  $("#modalToggle_Category_Apply").on("click", function () {
-    const voucherId = $(this).attr("data-voucher-id");
-    fetchCategoriesByVoucherType(voucherId);
+  $(document).on("click", "#modalToggle_Category_Apply", function () {
+    const promotionId = $("#modalToggle_Category_Apply").attr(
+      "data-promotion-id"
+    );
     $("#detail-modal_CategoryApply").removeClass("hidden").addClass("flex");
+    fetchCategoriesByPromotion(promotionId);
   });
-
-  // Sự kiện click cho nút Close modal
   $("#modalClose_CategoryApply").on("click", function () {
     $("#detail-modal_CategoryApply").addClass("hidden");
   });
 
-  // Sự kiện click cho nút Add
   $("#add-categories").on("click", function () {
-    const voucherId = $("#modalToggle_Category_Apply").attr("data-voucher-id");
-    fetchCategoriesNotInVoucherType(voucherId);
+    const promotionId = $("#modalToggle_Category_Apply").attr(
+      "data-promotion-id"
+    );
+    fetchCategoriesNotInPromotion(promotionId);
     $("#add-categories-modal").removeClass("hidden").addClass("flex");
   });
 
-  // Sự kiện click cho nút Close modal Add Categories
   $("#modalClose_AddCategories").on("click", function () {
     $("#add-categories-modal").addClass("hidden");
   });
 
-  // Sự kiện click cho nút Add Selected Categories
   $("#add-selected-categories").on("click", function () {
-    const voucherId = $("#modalToggle_Category_Apply").attr("data-voucher-id");
-    addSelectedCategoriesToVoucherType(voucherId);
+    const promotionId = $("#modalToggle_Category_Apply").attr(
+      "data-promotion-id"
+    );
+    applyPromotionToSelectedCategories(promotionId);
   });
 
-  // Gán sự kiện click cho nút xóa (một lần duy nhất)
   $("#delete-selected-categories").on("click", function (event) {
     event.preventDefault();
-    const voucherId = $("#modalToggle_Category_Apply").attr("data-voucher-id");
-    deleteSelectedCategories(voucherId);
+    const promotionId = $("#modalToggle_Category_Apply").attr(
+      "data-promotion-id"
+    );
+    removePromotionFromSelectedCategories(promotionId);
   });
+
+  $("#actived-selected-categories").on("click", function (event) {
+    event.preventDefault();
+    const promotionId = $("#modalToggle_Category_Apply").attr(
+      "data-promotion-id"
+    );
+    activeSelectedCategories(promotionId);
+  });
+
+  // Common checkbox click handler
+  $(document).on("change", ".common-category-checkbox", function () {
+    const promotionId = $("#modalToggle_Category_Apply").attr(
+      "data-promotion-id"
+    );
+    const categoryId = $(this).val();
+    const checkbox = $(this);
+    if (this.checked) {
+      checkCategoryInOtherPromotions(categoryId, promotionId, checkbox);
+    }
+  });
+
+  // // Confirm modal button handlers
+  // $("#confirmYes").on("click", function () {
+  //   $("#confirmModal").addClass("hidden");
+  // });
+
+  // $("#cancelConfirm, #closeConfirmModal").on("click", function () {
+  //   $("#confirmModal").addClass("hidden");
+  //   $(".common-category-checkbox:checked").prop("checked", false);
+  // });
 });
 
-// Fetch categories by voucher type
-function fetchCategoriesByVoucherType(voucherId) {
+function activeSelectedCategories(promotionId) {
+  var selectedCategoryIds = [];
+  $(".category-checkbox:checked").each(function () {
+    selectedCategoryIds.push($(this).val());
+  });
+
+  if (selectedCategoryIds.length > 0) {
+    $.ajax({
+      url: "http://localhost:8080/promotion-for-category/apply-promotion",
+      type: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      contentType: "application/json",
+      data: JSON.stringify({
+        promotionId: promotionId,
+        productIds: selectedCategoryIds,
+      }),
+      success: function (response) {
+        if (response.status === "OK") {
+          fetchCategoriesByPromotion(promotionId);
+          alert("Activate successful");
+        }
+      },
+      error: function (error) {
+        console.error("Error activating selected categories:", error);
+      },
+    });
+  } else {
+    alert("Please select at least one category to activate.");
+  }
+}
+
+function fetchCategoriesByPromotion(promotionId) {
   var categoryTableBody = $("#category-apply-promotion");
   categoryTableBody.empty(); // Clear existing rows
   $.ajax({
-    url: `http://localhost:8080/voucher/${voucherId}/categories`,
+    url: `http://localhost:8080/promotion-for-category/promotion/${promotionId}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -53,32 +116,34 @@ function fetchCategoriesByVoucherType(voucherId) {
         $("#notiBlankCategory").text("");
         categories.forEach(function (category) {
           const row = `
-                <tr>
-                  <td class="px-6 py-3">${category.id}</td>
-                  <td class="px-6 py-3">${category.name}</td>
-                  <td class="px-6 py-3">
-                    <input type="checkbox" class="category-checkbox" value="${category.id}">
-                  </td>
-                </tr>
-              `;
+            <tr>
+              <td class="px-6 py-3">${category.categoryDTO.id}</td>
+              <td class="px-6 py-3">${category.categoryDTO.name}</td>
+              <td class="px-6 py-3">
+                <input type="checkbox" class="category-checkbox common-category-checkbox" value="${
+                  category.categoryDTO.id
+                }">
+              </td>
+              <td class="px-6 py-3">${
+                category.status ? "Active" : "Inactive"
+              }</td>
+            </tr>
+          `;
           categoryTableBody.append(row);
         });
       } else if (response.status === "NOT_FOUND") {
-        alert("No categories found for this voucher type.");
+        alert("No categories found for this promotion.");
       } else {
-        $("#notiBlankCategory").text(
-          "No categories found in this voucher type."
-        );
+        $("#notiBlankCategory").text("No categories found for this promotion.");
       }
     },
     error: function (error) {
-      console.error("Error fetching categories by voucher type:", error);
+      console.error("Error fetching categories by promotion:", error);
     },
   });
 }
 
-// Xóa các categories đã chọn khỏi voucher type
-function deleteSelectedCategories(voucherId) {
+function removePromotionFromSelectedCategories(promotionId) {
   var selectedCategoryIds = [];
   $(".category-checkbox:checked").each(function () {
     selectedCategoryIds.push($(this).val());
@@ -86,25 +151,24 @@ function deleteSelectedCategories(voucherId) {
 
   if (selectedCategoryIds.length > 0) {
     $.ajax({
-      url: "http://localhost:8080/voucher/remove-categories",
+      url: "http://localhost:8080/promotion-for-category/remove-promotion",
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
       },
       contentType: "application/json",
       data: JSON.stringify({
-        promotionId: voucherId,
+        promotionId: promotionId,
         productIds: selectedCategoryIds,
       }),
       success: function (response) {
-        // Sau khi xóa thành công, tải lại danh sách categories
         if (response.status === "OK") {
-          fetchCategoriesByVoucherType(voucherId);
+          fetchCategoriesByPromotion(promotionId);
           alert("Remove successful");
         }
       },
       error: function (error) {
-        console.error("Error deleting selected categories:", error);
+        console.error("Error removing selected categories:", error);
       },
     });
   } else {
@@ -112,12 +176,11 @@ function deleteSelectedCategories(voucherId) {
   }
 }
 
-// Fetch categories not in voucher type
-function fetchCategoriesNotInVoucherType(voucherId) {
-  var categoryTableBody = $("#category-not-apply-voucher");
+function fetchCategoriesNotInPromotion(promotionId) {
+  var categoryTableBody = $("#category-not-apply-promotion");
   categoryTableBody.empty(); // Clear existing rows
   $.ajax({
-    url: `http://localhost:8080/voucher/${voucherId}/categories/not-in`,
+    url: `http://localhost:8080/promotion-for-category/not-in-promotion/${promotionId}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -125,35 +188,34 @@ function fetchCategoriesNotInVoucherType(voucherId) {
     success: function (response) {
       var categories = response.data;
       if (categories.length > 0) {
-        $("#notiBlankCategoryNotInVoucher").text("");
+        $("#notiBlankCategoryNotInPromotion").text("");
         categories.forEach(function (category) {
           const row = `
-                <tr>
-                  <td class="px-6 py-3">${category.id}</td>
-                  <td class="px-6 py-3">${category.name}</td>
-                  <td class="px-6 py-3">
-                    <input type="checkbox" class="category2-checkbox" value="${category.id}">
-                  </td>
-                </tr>
-              `;
+            <tr>
+              <td class="px-6 py-3">${category.id}</td>
+              <td class="px-6 py-3">${category.name}</td>
+              <td class="px-6 py-3">
+                <input type="checkbox" class="category2-checkbox common-category-checkbox" value="${category.id}">
+              </td>
+            </tr>
+          `;
           categoryTableBody.append(row);
         });
       } else {
-        $("#notiBlankCategoryNotInVoucher").text(
-          "No categories found not in this voucher type."
+        $("#notiBlankCategoryNotInPromotion").text(
+          "No categories found not in this promotion."
         );
       }
     },
     error: function (error) {
-      console.error("Error fetching categories not in voucher type:", error);
+      console.error("Error fetching categories not in promotion:", error);
     },
   });
 }
 
-// Thêm các categories đã chọn vào voucher type
-function addSelectedCategoriesToVoucherType(voucherId) {
+function applyPromotionToSelectedCategories(promotionId) {
   var selectedCategoryIds = [];
-  $("#category-not-apply-voucher .category2-checkbox:checked").each(
+  $("#category-not-apply-promotion .category2-checkbox:checked").each(
     function () {
       selectedCategoryIds.push($(this).val());
     }
@@ -161,26 +223,43 @@ function addSelectedCategoriesToVoucherType(voucherId) {
 
   if (selectedCategoryIds.length > 0) {
     $.ajax({
-      url: "http://localhost:8080/voucher/apply-categories",
+      url: "http://localhost:8080/promotion-for-category/apply-promotion",
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
       },
       contentType: "application/json",
       data: JSON.stringify({
-        promotionId: voucherId,
+        promotionId: promotionId,
         productIds: selectedCategoryIds,
       }),
       success: function (response) {
-        // Sau khi thêm thành công, tải lại danh sách categories
-        fetchCategoriesByVoucherType(voucherId);
+        fetchCategoriesByPromotion(promotionId);
         $("#add-categories-modal").addClass("hidden");
       },
       error: function (error) {
-        console.error("Error adding selected categories:", error);
+        console.error("Error applying selected categories:", error);
       },
     });
   } else {
     alert("Please select at least one category to add.");
   }
+}
+
+function checkCategoryInOtherPromotions(categoryId, promotionId, checkbox) {
+  $.ajax({
+    url: `http://localhost:8080/promotion-for-category/check-category/${categoryId}/${promotionId}`,
+    type: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    success: function (response) {
+      if (response.status === "CONFLICT") {
+        displayConflictModal(response.data, response.desc, checkbox);
+      }
+    },
+    error: function (error) {
+      console.error("Error checking category in other promotions:", error);
+    },
+  });
 }
