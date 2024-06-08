@@ -21,7 +21,6 @@ import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 import com.ks1dotnet.jewelrystore.entity.Promotion;
 import com.ks1dotnet.jewelrystore.exception.BadRequestException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
-import com.ks1dotnet.jewelrystore.service.serviceImp.IFileService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionService;
 
 @RestController
@@ -30,8 +29,6 @@ import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionService;
 public class PromotionController {
     @Autowired
     private IPromotionService iPromotionService;
-    @Autowired
-    private IFileService iFileService;
 
     @GetMapping("/list")
     private ResponseEntity<?> findAll() {
@@ -60,12 +57,12 @@ public class PromotionController {
     }
 
     @PostMapping("/update")
-    private ResponseEntity<?> update(@RequestParam MultipartFile file, @RequestParam int id,
+    private ResponseEntity<?> update(@RequestParam String img, @RequestParam int id,
             @RequestParam String name, @RequestParam int idVoucherType,
             @RequestParam double value, @RequestParam boolean status) {
         try {
             ResponseData responseData = new ResponseData();
-            PromotionDTO promotionDTO = iPromotionService.updatePromotion(file, id, name, idVoucherType, value, status);
+            PromotionDTO promotionDTO = iPromotionService.updatePromotion(img, id, name, idVoucherType, value, status);
 
             if (promotionDTO != null) {
                 responseData.setDesc("Update successful");
@@ -137,43 +134,38 @@ public class PromotionController {
     }
 
     @PostMapping("/create")
-    private ResponseEntity<?> create(@RequestParam MultipartFile file,
+    private ResponseEntity<?> create(@RequestParam String img,
             @RequestParam String name, @RequestParam int idVoucherType,
             @RequestParam double value, @RequestParam boolean status) {
-        try {
-            ResponseData responseData = new ResponseData();
-            PromotionDTO isSuccess = iPromotionService.insertPromotion(file, name, idVoucherType, value, status);
+        ResponseData responseData = new ResponseData();
+        PromotionDTO isSuccess = iPromotionService.insertPromotion(img, name, idVoucherType, value, status);
 
-            if (isSuccess != null) {
-                responseData.setData(isSuccess);
-                responseData.setDesc("Insert successful");
-                return new ResponseEntity<>(responseData, HttpStatus.OK);
-            } else {
-                responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-                responseData.setDesc("Insert fail. Internal Server Error");
-                return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        } catch (BadRequestException e) {
-            return handleBadRequestException(e);
-        } catch (Exception e) {
-            return handleException(e);
+        if (isSuccess != null) {
+            responseData.setData(isSuccess);
+            responseData.setDesc("Insert successful");
+            return new ResponseEntity<>(responseData, HttpStatus.OK);
         }
+        responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        responseData.setDesc("Insert fail. Internal Server Error");
+        return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+
     }
 
-    @GetMapping("/files/{filename:.+}")
-    @ResponseBody
-    public ResponseEntity<?> getFile(@PathVariable String filename) {
-        try {
-            Resource resource = iFileService.loadFile(filename);
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
-                    .body(resource);
-        } catch (BadRequestException e) {
-            return handleBadRequestException(e);
-        } catch (Exception e) {
-            return handleException(e);
-        }
-    }
+    // @GetMapping("/files/{filename:.+}")
+    // @ResponseBody
+    // public ResponseEntity<?> getFile(@PathVariable String filename) {
+    // try {
+    // Resource resource = iFileService.loadFile(filename);
+    // return ResponseEntity.ok()
+    // .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" +
+    // resource.getFilename() + "\"")
+    // .body(resource);
+    // } catch (BadRequestException e) {
+    // return handleBadRequestException(e);
+    // } catch (Exception e) {
+    // return handleException(e);
+    // }
+    // }
 
     private ResponseEntity<ResponseData> handleBadRequestException(BadRequestException e) {
         ResponseData responseData = new ResponseData();

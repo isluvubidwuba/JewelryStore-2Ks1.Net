@@ -15,7 +15,14 @@ spring:
       max-file-size: 10MB
 
 fileUpload:
-  rootPath: D:\UploadImage
+  promotionPath: Promotion/
+  productPath: Product/
+  userPath: User/
 server:
   error:
     path: /error
+firebase:
+  config:
+    path: /firebase-service-account.json
+  bucket-name: jewelrystore-2ks1dotnet.appspot.com
+  img-url: https://storage.googleapis.com/${firebase.bucket-name}/

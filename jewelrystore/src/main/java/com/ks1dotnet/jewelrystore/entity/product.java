@@ -2,6 +2,8 @@ package com.ks1dotnet.jewelrystore.entity;
 
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 
 import jakarta.persistence.Column;
@@ -38,7 +40,7 @@ public class Product {
     @Column(name = "status")
     private boolean status;
     @Column(name = "weight")
-    private Float weight;
+    private float weight;
     @Column(name = "img")
     private String imgPath;
     @ManyToOne
@@ -80,8 +82,10 @@ public class Product {
             this.barCode = t.getBarCode();
         if (t.getName() != null)
             this.name = t.getName();
-        if (t.getFee() != null)
+        if (t.getFee() != 0)
             this.fee = t.getFee();
+        if (t.getWeight() != 0)
+            this.weight = t.getWeight();
         this.status = t.isStatus();
         if (t.getMaterialDTO() != null)
             this.material = new Material(t.getMaterialDTO());

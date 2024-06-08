@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GemStoneTypeDTO {
-    private Integer id;
+    private int id;
     private String name;
 }

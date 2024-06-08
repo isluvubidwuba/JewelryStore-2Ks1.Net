@@ -16,7 +16,6 @@ import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 import com.ks1dotnet.jewelrystore.entity.Promotion;
 import com.ks1dotnet.jewelrystore.exception.BadRequestException;
 import com.ks1dotnet.jewelrystore.repository.IPromotionRepository;
-import com.ks1dotnet.jewelrystore.service.serviceImp.IFileService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IVoucherTypeService;
 
@@ -25,8 +24,6 @@ public class PromotionService implements IPromotionService {
     @Autowired
     private IPromotionRepository iPromotionRepository;
 
-    @Autowired
-    private IFileService iFileService;
     @Autowired
     private IVoucherTypeService iVoucherTypeService;
 
@@ -67,18 +64,19 @@ public class PromotionService implements IPromotionService {
     }
 
     @Override
-    public PromotionDTO insertPromotion(MultipartFile file, String name, int idVoucherType, double value,
+    public PromotionDTO insertPromotion(String fileName, String name, int idVoucherType, double value,
             boolean status) {
         PromotionDTO promotionDTO = new PromotionDTO();
         try {
-            boolean isSaveFileSuccess = iFileService.savefile(file);
+            // boolean isSaveFileSuccess = iFileService.savefile(file);
+            boolean isSaveFileSuccess = true;
             if (isSaveFileSuccess) {
                 Promotion promotion = new Promotion();
                 promotion.setName(name);
                 promotion.setVoucherType(iVoucherTypeService.getVoucherById(idVoucherType));
                 promotion.setValue(value);
                 promotion.setStatus(status);
-                promotion.setImage(file.getOriginalFilename());
+                promotion.setImage(fileName);
                 promotionDTO = iPromotionRepository.save(promotion).getDTO();
                 return promotionDTO;
             } else {
@@ -134,11 +132,10 @@ public class PromotionService implements IPromotionService {
     }
 
     @Override
-    public PromotionDTO updatePromotion(MultipartFile file, int id, String name, int idVoucherType, double value,
+    public PromotionDTO updatePromotion(String fileName, int id, String name, int idVoucherType, double value,
             boolean status) {
         try {
             Optional<Promotion> promotionOptional = iPromotionRepository.findById(id);
-            boolean isSaveFileSuccess = iFileService.savefile(file);
             PromotionDTO promotionDTO = new PromotionDTO();
             if (promotionOptional.isPresent()) {
                 Promotion promotion = new Promotion();
@@ -147,11 +144,7 @@ public class PromotionService implements IPromotionService {
                 promotion.setVoucherType(iVoucherTypeService.getVoucherById(idVoucherType));
                 promotion.setValue(value);
                 promotion.setStatus(status);
-                if (isSaveFileSuccess) {
-                    promotion.setImage(file.getOriginalFilename());
-                } else {
-                    promotion.setImage(promotionOptional.get().getImage());
-                }
+                promotion.setImage(fileName);
                 iPromotionRepository.save(promotion);
                 promotionDTO = promotion.getDTO();
             }

@@ -22,7 +22,6 @@ import com.ks1dotnet.jewelrystore.dto.EmployeeDTO;
 import com.ks1dotnet.jewelrystore.entity.Employee;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IEmployeeService;
-import com.ks1dotnet.jewelrystore.service.serviceImp.IFileService;
 
 @RestController
 @RequestMapping("/employee")
@@ -30,9 +29,6 @@ import com.ks1dotnet.jewelrystore.service.serviceImp.IFileService;
 public class EmployeeControler {
     @Autowired
     private IEmployeeService iEmployeeService;
-
-    @Autowired
-    private IFileService iFileService;
 
     @GetMapping("/listpage")
     private ResponseEntity<?> getHomePageEmployee(
@@ -122,14 +118,15 @@ public class EmployeeControler {
         return new ResponseEntity<>(ResponseData, HttpStatus.OK);
     }
 
-    @GetMapping("/files/{filename:.+}")
-    @ResponseBody
-    public ResponseEntity<?> getFile(@PathVariable String filename) {
-        Resource resource = iFileService.loadFile(filename);
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
-                .body(resource);
-    }
+    // @GetMapping("/files/{filename:.+}")
+    // @ResponseBody
+    // public ResponseEntity<?> getFile(@PathVariable String filename) {
+    // Resource resource = iFileService.loadFile(filename);
+    // return ResponseEntity.ok()
+    // .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" +
+    // resource.getFilename() + "\"")
+    // .body(resource);
+    // }
 
     @PostMapping("/search")
     public ResponseEntity<?> searchEmployees(

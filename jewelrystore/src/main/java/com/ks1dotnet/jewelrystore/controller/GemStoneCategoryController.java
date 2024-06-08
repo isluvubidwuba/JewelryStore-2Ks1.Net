@@ -33,12 +33,6 @@ public class GemStoneCategoryController {
         return new ResponseEntity<>(response, response.getStatus());
     }
 
-    @PostMapping("nextPage")
-    public ResponseEntity<?> getAll(@RequestParam int page, @RequestParam int size) {
-        ResponseData response = iGemStoneCategoryService.Page(page, size);
-        return new ResponseEntity<>(response, response.getStatus());
-    }
-
     @PostMapping("/update")
     public ResponseEntity<?> update(@RequestBody GemStoneCategoryDTO t) {
         ResponseData response = iGemStoneCategoryService.update(t);

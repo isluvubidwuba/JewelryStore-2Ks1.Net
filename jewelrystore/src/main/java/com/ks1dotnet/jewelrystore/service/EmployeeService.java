@@ -20,15 +20,12 @@ import com.ks1dotnet.jewelrystore.entity.Employee;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IEmployeeRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IEmployeeService;
-import com.ks1dotnet.jewelrystore.service.serviceImp.IFileService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IRoleService;
 
 @Service
 public class EmployeeService implements IEmployeeService {
    @Autowired
    private IEmployeeRepository iEmployeeRepository;
-   @Autowired
-   private IFileService iFileService;
    @Autowired
    private IRoleService iRoleService;
 
@@ -69,64 +66,63 @@ public class EmployeeService implements IEmployeeService {
       ResponseData responseData = new ResponseData();
 
       // Check if email, phone number, or ID already exists
-      if (iEmployeeRepository.existsByEmail(email)) {
-         responseData.setStatus(HttpStatus.CONFLICT);
-         responseData.setDesc("Email already exists");
-         return responseData;
-      }
+      // if (iEmployeeRepository.existsByEmail(email)) {
+      // responseData.setStatus(HttpStatus.CONFLICT);
+      // responseData.setDesc("Email already exists");
+      // return responseData;
+      // }
 
-      if (iEmployeeRepository.existsByPhoneNumber(phoneNumber)) {
-         responseData.setStatus(HttpStatus.CONFLICT);
-         responseData.setDesc("Phone number already exists");
-         return responseData;
-      }
+      // if (iEmployeeRepository.existsByPhoneNumber(phoneNumber)) {
+      // responseData.setStatus(HttpStatus.CONFLICT);
+      // responseData.setDesc("Phone number already exists");
+      // return responseData;
+      // }
 
-      // Assuming generateUniqueEmployeeId() checks for uniqueness
-      String generatedId = generateUniqueEmployeeId();
-      if (iEmployeeRepository.existsById(generatedId)) {
-         responseData.setStatus(HttpStatus.CONFLICT);
-         responseData.setDesc("Generated ID already exists");
-         return responseData;
-      }
+      // // Assuming generateUniqueEmployeeId() checks for uniqueness
+      // String generatedId = generateUniqueEmployeeId();
+      // if (iEmployeeRepository.existsById(generatedId)) {
+      // responseData.setStatus(HttpStatus.CONFLICT);
+      // responseData.setDesc("Generated ID already exists");
+      // return responseData;
+      // }
 
-      boolean isSaveFileSuccess = true;
-      String imageName;
-      // Check if a file is provided
-      if (file != null && !file.isEmpty()) {
-         try {
-            isSaveFileSuccess = iFileService.savefile(file);
-            if (isSaveFileSuccess) {
-               imageName = file.getOriginalFilename();
-            } else {
-               responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-               responseData.setDesc("File save failed");
-               return responseData;
-            }
-         } catch (Exception e) {
-            responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-            responseData.setDesc("File save failed: " + e.getMessage());
-            return responseData;
-         }
-      }else{
-          imageName = "default_image.png";
-      }
+      // boolean isSaveFileSuccess = true;
+      // String imageName;
+      // // Check if a file is provided
+      // // if (file != null && !file.isEmpty()) {
+      // // try {
+      // // isSaveFileSuccess = iFileService.savefile(file);
+      // // if (isSaveFileSuccess) {
+      // // imageName = file.getOriginalFilename();
+      // // } else {
+      // // responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+      // // responseData.setDesc("File save failed");
+      // // return responseData;
+      // // }
+      // // } catch (Exception e) {
+      // // responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+      // // responseData.setDesc("File save failed: " + e.getMessage());
+      // // return responseData;
+      // // }
+      // // } else {
+      // // imageName = "default_image.png";
+      // // }
 
+      // Employee employee = new Employee();
+      // employee.setId(generatedId);
+      // employee.setFirstName(firstName);
+      // employee.setLastName(lastName);
+      // employee.setPinCode(pinCode);
+      // employee.setPhoneNumber(phoneNumber);
+      // employee.setEmail(email);
+      // employee.setAddress(address);
+      // employee.setStatus(status);
+      // employee.setRole(iRoleService.findById(roleId));
+      // employee.setImage(imageName);
+      // iEmployeeRepository.save(employee);
 
-      Employee employee = new Employee();
-      employee.setId(generatedId);
-      employee.setFirstName(firstName);
-      employee.setLastName(lastName);
-      employee.setPinCode(pinCode);
-      employee.setPhoneNumber(phoneNumber);
-      employee.setEmail(email);
-      employee.setAddress(address);
-      employee.setStatus(status);
-      employee.setRole(iRoleService.findById(roleId));
-      employee.setImage(imageName);
-      iEmployeeRepository.save(employee);
-
-      responseData.setStatus(HttpStatus.OK);
-      responseData.setDesc("Insert successful");
+      // responseData.setStatus(HttpStatus.OK);
+      // responseData.setDesc("Insert successful");
 
       return responseData;
    }
@@ -150,30 +146,31 @@ public class EmployeeService implements IEmployeeService {
    @Override
    public EmployeeDTO updateEmployee(MultipartFile file, String id, String firstName, String lastName, int roleId,
          String pinCode, boolean status, String phoneNumber, String email, String address) {
-      boolean isSaveFileSuccess = iFileService.savefile(file);
-      Optional<Employee> employee = iEmployeeRepository.findById(id);
-      System.out.println(employee);
-      EmployeeDTO employeeDTO = new EmployeeDTO();
-      if (employee.isPresent()) {
-         Employee employee1 = new Employee();
-         employee1.setId(id);
-         employee1.setFirstName(firstName);
-         employee1.setLastName(lastName);
-         employee1.setPinCode(pinCode);
-         employee1.setPhoneNumber(phoneNumber);
-         employee1.setEmail(email);
-         employee1.setAddress(address);
-         employee1.setStatus(status);
-         employee1.setRole(iRoleService.findById(roleId));
-         if (isSaveFileSuccess) {
-            employee1.setImage(file.getOriginalFilename());
-         } else {
-            employee1.setImage(employee.get().getImage());
-         }
-         iEmployeeRepository.save(employee1);
-         employeeDTO = employee1.getDTO();
-      }
-      return employeeDTO;
+      // boolean isSaveFileSuccess = iFileService.savefile(file);
+      // Optional<Employee> employee = iEmployeeRepository.findById(id);
+      // System.out.println(employee);
+      // EmployeeDTO employeeDTO = new EmployeeDTO();
+      // if (employee.isPresent()) {
+      // Employee employee1 = new Employee();
+      // employee1.setId(id);
+      // employee1.setFirstName(firstName);
+      // employee1.setLastName(lastName);
+      // employee1.setPinCode(pinCode);
+      // employee1.setPhoneNumber(phoneNumber);
+      // employee1.setEmail(email);
+      // employee1.setAddress(address);
+      // employee1.setStatus(status);
+      // employee1.setRole(iRoleService.findById(roleId));
+      // if (isSaveFileSuccess) {
+      // employee1.setImage(file.getOriginalFilename());
+      // } else {
+      // employee1.setImage(employee.get().getImage());
+      // }
+      // iEmployeeRepository.save(employee1);
+      // employeeDTO = employee1.getDTO();
+      // }
+      // return employeeDTO;
+      return null;
    }
 
    @Override

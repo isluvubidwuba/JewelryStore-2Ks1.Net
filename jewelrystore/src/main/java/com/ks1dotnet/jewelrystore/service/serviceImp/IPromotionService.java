@@ -17,13 +17,13 @@ public interface IPromotionService {
 
         public Promotion saveOrUpdatePromotion(Promotion promotion);
 
-        public PromotionDTO insertPromotion(MultipartFile file,
+        public PromotionDTO insertPromotion(String fileName,
                         String name,
                         int idVoucherType,
                         double value,
                         boolean status);
 
-        public PromotionDTO updatePromotion(MultipartFile file, int id,
+        public PromotionDTO updatePromotion(String fileName, int id,
                         String name,
                         int idVoucherType,
                         double value,

@@ -19,7 +19,6 @@ import com.ks1dotnet.jewelrystore.dto.UserInfoDTO;
 import com.ks1dotnet.jewelrystore.entity.UserInfo;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IUserInfoRepository;
-import com.ks1dotnet.jewelrystore.service.serviceImp.IFileService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IRoleService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IUserInfoService;
 
@@ -27,8 +26,6 @@ import com.ks1dotnet.jewelrystore.service.serviceImp.IUserInfoService;
 public class UserInfoService implements IUserInfoService {
     @Autowired
     private IUserInfoRepository iUserInfoRepository;
-    @Autowired
-    private IFileService iFileService;
     @Autowired
     private IRoleService iRoleService;
 
@@ -85,32 +82,32 @@ public class UserInfoService implements IUserInfoService {
         boolean isSaveFileSuccess = true;
         String imageName;
         // Check if a file is provided
-        if (file != null && !file.isEmpty()) {
-            try {
-                isSaveFileSuccess = iFileService.savefile(file);
-                if (isSaveFileSuccess) {
-                    imageName = file.getOriginalFilename();
-                } else {
-                    responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-                    responseData.setDesc("File save failed");
-                    return responseData;
-                }
-            } catch (Exception e) {
-                responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-                responseData.setDesc("File save failed: " + e.getMessage());
-                return responseData;
-            }
-        } else {
-            imageName = "default_image.png";
-        }
-        
+        // if (file != null && !file.isEmpty()) {
+        // try {
+        // isSaveFileSuccess = iFileService.savefile(file);
+        // if (isSaveFileSuccess) {
+        // imageName = file.getOriginalFilename();
+        // } else {
+        // responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        // responseData.setDesc("File save failed");
+        // return responseData;
+        // }
+        // } catch (Exception e) {
+        // responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        // responseData.setDesc("File save failed: " + e.getMessage());
+        // return responseData;
+        // }
+        // } else {
+        // imageName = "default_image.png";
+        // }
+
         UserInfo userInfo = new UserInfo();
         userInfo.setFullName(fullName);
         userInfo.setPhoneNumber(phoneNumber);
         userInfo.setEmail(email);
         userInfo.setAddress(address);
         userInfo.setRole(iRoleService.findById(roleId));
-        userInfo.setImage(imageName); // Set the image name, default or uploaded
+        // userInfo.setImage(imageName); // Set the image name, default or uploaded
         iUserInfoRepository.save(userInfo);
 
         responseData.setStatus(HttpStatus.OK);
@@ -122,7 +119,7 @@ public class UserInfoService implements IUserInfoService {
     @Override
     public UserInfoDTO updateUserInfo(MultipartFile file, int id, String fullName, String phoneNumber, String email,
             int roleId, String address) {
-        boolean isSaveFileSuccess = iFileService.savefile(file);
+        // boolean isSaveFileSuccess = iFileService.savefile(file);
         Optional<UserInfo> userInfo = iUserInfoRepository.findById(id);
         System.out.println(userInfo);
         UserInfoDTO userInfoDTO = new UserInfoDTO();
@@ -135,13 +132,13 @@ public class UserInfoService implements IUserInfoService {
             userInfo1.setRole(iRoleService.findById(roleId));
             userInfo1.setAddress(address);
 
-            if (isSaveFileSuccess) {
-                userInfo1.setImage(file.getOriginalFilename());
-            } else {
-                userInfo1.setImage(userInfo.get().getImage());
-            }
-            iUserInfoRepository.save(userInfo1);
-            userInfoDTO = userInfo1.getDTO();
+            // if (isSaveFileSuccess) {
+            // userInfo1.setImage(file.getOriginalFilename());
+            // } else {
+            // userInfo1.setImage(userInfo.get().getImage());
+            // }
+            // iUserInfoRepository.save(userInfo1);
+            // userInfoDTO = userInfo1.getDTO();
         }
         return userInfoDTO;
     }

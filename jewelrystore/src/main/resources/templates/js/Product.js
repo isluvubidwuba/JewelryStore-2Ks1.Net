@@ -604,6 +604,7 @@ function init() {
   setupModalToggles();
   setupFormSubmissions();
   setupSearch();
+  setUpOnChange();
 }
 
 const state = {
@@ -618,7 +619,6 @@ const state = {
   size: 50,
 };
 
-let listProduct = [];
 let listGemsDetail = null;
 let timeout = null;
 
@@ -633,7 +633,7 @@ function fetchProduct(page, size) {
         state.querySet = content; // Replace with new records
         state.totalPagesAtClient = Math.ceil(totalElements / state.rows);
         state.currentServerPage = page;
-        buildTable(state); // Build table after fetching products
+        buildTable(state, "There are no  product"); // Build table after fetching products
       }
     },
     error: function (error) {
@@ -642,8 +642,12 @@ function fetchProduct(page, size) {
   });
 }
 
-function buildTable(state) {
+function buildTable(state, noti) {
   $("#productTableBody").empty();
+  if (!state.querySet || state.querySet.length === 0) {
+    $("#notiBlankProduct").text(noti);
+    return;
+  }
   const data = pagination(state.querySet, state.page, state.rows);
   const myList = data.querySet;
 
@@ -657,12 +661,12 @@ function buildTable(state) {
 
 function createProductRow(product) {
   return `
-    <tr class="font-bold border-b">
+    <tr class="font-bold border-b " data-id-product="${product.id}" >
       <td class="px-6 py-4">${product.id}</td>
       <td class="px-6 py-4">${product.name}</td>
       <td class="px-6 py-4">${product.materialDTO.name}</td>
       <td class="px-6 py-4">${product.productCategoryDTO.name}</td>
-      <td class="px-6 py-4">${product.status ? "enable" : "disable"}</td>
+      <td class="px-6 py-4">${product.status ? "Active" : "Inactive"}</td>
       <td class="px-6 py-4">${product.counterDTO.name}</td>
       <td class="px-6 py-4">
         <div class="relative flex justify-items-center">
@@ -738,7 +742,7 @@ function createPagination(totalPages, page, actualTotalPagesAtClient) {
     if (serverPage != state.currentServerPage) {
       fetchProduct(serverPage, state.size); // Fetch new records for every new server page
     } else {
-      buildTable(state);
+      buildTable(state, "There are no  product");
     }
   });
 }
@@ -778,12 +782,12 @@ function createEllipsis() {
   return `<li class="relative rounded-full inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"><span>...</span></li>`;
 }
 
-function setupModalToggles() {
+async function setupModalToggles() {
   toggleModal("#create-modal", "#modalClose_Create", "#modalToggle_Create");
   toggleModal(
     "#detail-modal",
     "#modalClose_Detail",
-    'button[name="modalToggle_Detail"]'
+    "button[name='modalToggle_Detail']"
   );
   toggleModal(
     "#list-gems-modal",
@@ -791,9 +795,14 @@ function setupModalToggles() {
     "td>button[name='list_gem_detail']"
   );
 
+  setUpFormUpdateModal();
+
+  await fetchDropdownData("#update-material", fetchMaterial);
+  await fetchDropdownData("#update-category", fetchProductCategory);
   openProductModalDetail();
-  fetchDropdownData("#idMaterialC", fetchMaterial);
-  fetchDropdownData("#idCategoryC", fetchProductCategory);
+
+  await fetchDropdownData("#idMaterialC", fetchMaterial);
+  await fetchDropdownData("#idCategoryC", fetchProductCategory);
 }
 
 async function fetchDropdownData(elementId, fetchDataFunc) {
@@ -803,7 +812,39 @@ async function fetchDropdownData(elementId, fetchDataFunc) {
     $(elementId).append(option);
   });
 }
+function setUpFormUpdateModal() {
+  const detailsMapping = [
+    { updateBtn: "#update-name", detail: "#name_detail" },
+    { updateBtn: "#update-fee", detail: "#fee_detail" },
+    { updateBtn: "#update-weight", detail: "#weight_detail" },
+    { updateBtn: "#update-material", detail: "#material_detail" },
+    { updateBtn: "#update-status", detail: "#status_detail" },
+    { updateBtn: "#update-category", detail: "#category_detail" },
+  ];
+  detailsMapping.forEach(({ updateBtn, detail }) => {
+    setUpClickUpdateModal(
+      updateBtn,
+      "#cancel-update",
+      detail,
+      "#buttonSubmitUpdate"
+    );
+    setUpClickUpdateModal(detail, detail, "#cancel-update");
+  });
+  setUpClickUpdateModal("#buttonSubmitUpdate", "#cancel-update");
+}
 
+function setUpClickUpdateModal(idModal, idClose, idOpen, idBTN) {
+  $(idOpen).on("click", function () {
+    $(idModal).removeClass("hidden").addClass("flex");
+    $(idModal).focus();
+    $(idBTN).removeClass("hidden").addClass("flex");
+  });
+
+  $(idClose).on("click", function () {
+    $(idModal).addClass("hidden").removeClass("flex");
+    $(idBTN).removeClass("hidden").addClass("flex");
+  });
+}
 function toggleModal(idModal, idClose, idOpen) {
   $(document).on("click", idOpen, function () {
     $(idModal).removeClass("hidden").addClass("flex");
@@ -826,7 +867,7 @@ async function openProductModalDetail() {
 }
 
 async function detailModal(productId) {
-  const product = listProduct.find((item) => item.id == productId);
+  const product = state.querySet.find((item) => item.id == productId);
   if (product) {
     populateModalFields(product);
     JsBarcode("#barcode", product.barCode);
@@ -836,13 +877,40 @@ async function detailModal(productId) {
 
 function populateModalFields(product) {
   $("#productCode_detail").text(product.productCode);
-  $("#name_detail").text(product.name);
-  $("#fee_detail").text(product.fee);
-  $("#material_detail").text(product.materialDTO.name);
-  $("#status_detail").text(product.status);
-  $("#category_detail").text(product.productCategoryDTO.name);
-}
+  $("#productCode_detailInput").val(product.productCode);
 
+  $("#productBarcode").val(product.barcode);
+
+  $("#name_detail").text(product.name);
+  $("#update-name").val(product.name);
+
+  $("#fee_detail").text(product.fee);
+  $("#update-fee").val(product.fee);
+
+  $("#weight_detail").text(product.weight);
+  $("#update-weight").val(product.weight);
+
+  $("#material_detail").text(product.materialDTO.name);
+  $("#update-material").val(product.materialDTO.id).change();
+
+  $("#status_detail").text(product.status ? "Active" : "Inactive");
+  $("#update-status")
+    .val(product.status ? "true" : "false")
+    .change();
+
+  $("#category_detail").text(product.productCategoryDTO.name);
+  $("#update-category").val(product.productCategoryDTO.id).change();
+
+  $("#imgDetail").prop("src", product.imgPath);
+  $("#imgDetailInput").val(extractFilename(product.imgPath));
+
+  $("#submit-update").attr("data-product-id", product.id);
+}
+function extractFilename(url) {
+  const parsedUrl = new URL(url);
+  const pathSegments = parsedUrl.pathname.split("/");
+  return pathSegments.pop();
+}
 async function buildTableGemStone(productId) {
   $("#GemStone_detail_table").empty();
   $("#notiBlank").empty();
@@ -982,7 +1050,7 @@ async function fetchData(url) {
   try {
     const response = await $.ajax({ url, method: "GET" });
     if (response.status === "OK" && response.data) {
-      return response.data;
+      return response.data.content;
     } else {
       console.error(`Failed to fetch data from ${url}`);
       return [];
@@ -998,13 +1066,15 @@ function setupFormSubmissions() {
     "#submit-insert",
     "#form-insert",
     "http://localhost:8080/product/create",
-    handleFormInsertResponse
+    handleFormInsertResponse,
+    insertFormToProduct
   );
   setupFormSubmission(
     "#submit-update",
     "#form-update",
-    "http://localhost:8080/promotion/update",
-    handleFormUpdateResponse
+    "http://localhost:8080/product/update",
+    handleFormUpdateResponse,
+    updateFormToProduct
   );
 }
 
@@ -1012,19 +1082,20 @@ function setupFormSubmission(
   buttonSelector,
   formSelector,
   url,
-  successCallback
+  successCallback,
+  formToObject
 ) {
-  $(document).on("click", buttonSelector, function (event) {
+  $(document).on("click", buttonSelector, async function (event) {
     event.preventDefault();
-
     if (validateFormFields(formSelector)) {
-      const formData = new FormData($(formSelector)[0]);
-      $.ajax({
+      const formData = await formToObject();
+      console.log(formData);
+      await $.ajax({
         url,
         type: "POST",
-        data: formData,
+        data: JSON.stringify(formData),
         processData: false,
-        contentType: false,
+        contentType: "application/json; charset=utf-8",
         success: successCallback,
         error: function (xhr, status, error) {
           alert("An error occurred while submitting the form.");
@@ -1052,10 +1123,109 @@ function validateFormFields(formSelector) {
 
 function handleFormInsertResponse(response) {
   alert("Form submitted successfully.");
-  // Clear the form and hide the modal, etc.
 }
 
 function handleFormUpdateResponse(response) {
-  alert(response.desc);
-  // Clear the form and hide the modal, etc.
+  const product = response.data;
+  //alert(response.desc);
+  $("#cancel-update").click();
+  const $row = $(`tr[data-id-product="${product.id}"]`);
+
+  if ($row.length) {
+    $row.find("td:nth-child(1)").text(product.id);
+    $row.find("td:nth-child(2)").text(product.name);
+    $row.find("td:nth-child(3)").text(product.materialDTO.name);
+    $row.find("td:nth-child(4)").text(product.productCategoryDTO.name);
+    $row.find("td:nth-child(5)").text(product.status ? "enable" : "disable");
+    $row.find("td:nth-child(6)").text(product.counterDTO.name);
+  }
+  populateModalFields(product);
+}
+function handleFormUpload(response) {
+  return response.data;
+}
+async function updateFormToProduct() {
+  let product = {
+    id: $("#submit-update").attr("data-product-id"),
+    name: $("#update-name").val(),
+    fee: $("#update-fee").val(),
+    materialDTO: {
+      id: $("#update-material").val(),
+    },
+    weight: $("#update-weight").val(),
+    productCategoryDTO: {
+      id: $("#update-category").val(),
+    },
+    imgPath: $("#imgDetailInput").val(),
+    productCode: $("#productCode_detailInput").val(),
+    barcode: $("#productBarcode").val(),
+    weight: $("#update-weight").val(),
+    status: $("#update-status").val(),
+  };
+  console.log(product);
+  return product;
+}
+async function insertFormToProduct() {
+  let product = {
+    name: $("#nameC").val(),
+    fee: $("#feeC").val(),
+    materialDTO: {
+      id: $("#idMaterialC").val(),
+    },
+    weight: $("#materialWeightC").val(),
+    productCategoryDTO: {
+      id: $("#idCategoryC").val(),
+    },
+    imgPath: await uploadImage($("#productImgC").prop("files")[0]),
+  };
+  console.log(product);
+  return product;
+}
+async function uploadImage(file) {
+  if (file == null) {
+    console.log(file);
+    return "none";
+  }
+  var formData = new FormData();
+  formData.append("file", file);
+  try {
+    const response = await $.ajax({
+      url: "http://localhost:8080/product/upload",
+      type: "POST",
+      data: formData,
+      processData: false,
+      contentType: false,
+      error: function (xhr, status, error) {
+        alert("An error occurred while submitting the form.");
+        console.log(xhr.responseText);
+      },
+    });
+    return response.data;
+  } catch (error) {
+    alert("An error occurred while uploading the image");
+    console.error(error);
+    return "none";
+  }
+}
+
+function setUpOnChange() {
+  $("#productImgC").change(function () {
+    previewImage(this.id, $(this).prop("files")[0]);
+  });
+}
+
+function previewImage(id, file) {
+  $("#Imgc").empty();
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const img = document.createElement("img");
+      img.src = e.target.result;
+      img.className =
+        "flex flex-col items-center justify-center w-full h-3/6 border-2";
+      $("#ImgcLabel").append(img);
+      $("#ImgcLabelPlaceHolder").addClass("hidden").removeClass("flex");
+    };
+    reader.readAsDataURL(file);
+  }
 }

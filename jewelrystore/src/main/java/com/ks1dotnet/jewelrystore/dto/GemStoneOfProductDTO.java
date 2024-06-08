@@ -8,11 +8,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GemStoneOfProductDTO {
-    private Integer id;
+    private int id;
     private String color;
     private String clarity;
-    private Float carat;
-    private Double price;
+    private float carat;
+    private double price;
     private GemStoneTypeDTO gemstoneType;
     private GemStoneCategoryDTO gemstoneCategory;
     private ProductDTO product;

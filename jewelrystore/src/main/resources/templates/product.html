@@ -114,6 +114,7 @@
                 <!-- Rows will be inserted here by jQuery -->
               </tbody>
             </table>
+            <div><p id="notiBlankProduct" class="text-center"></p></div>
           </div>
           <div class="flex justify-center">
             <nav class="rounded-full px-4 py-1 my-7">
@@ -233,9 +234,7 @@
                   />
                 </div>
                 <div class="col-span-2 sm:col-span-1">
-                  <label
-                    for="materialWeightC"
-                    class="block mb-2 text-sm font-medium"
+                  <label class="block mb-2 text-sm font-medium"
                     >Material weight</label
                   >
                   <input
@@ -252,11 +251,13 @@
                 <div class="col-span-2">
                   <div class="flex items-center justify-center w-full">
                     <label
-                      for="productImg"
+                      for="productImgC"
+                      id="ImgcLabel"
                       class="flex flex-col items-center justify-center w-full h-3/6 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
                     >
                       <div
                         class="flex flex-col items-center justify-center pt-5 pb-6"
+                        id="ImgcLabelPlaceHolder"
                       >
                         <svg
                           class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
@@ -283,8 +284,8 @@
                           SVG, PNG, JPG or GIF (MAX. 800x400px)
                         </p>
                       </div>
-                      <input id="productImgC" type="file" class="hidden" />
                     </label>
+                    <input id="productImgC" type="file" class="hidden" />
                   </div>
                 </div>
               </div>
@@ -344,9 +345,11 @@
             >
               <div class="flex justify-center">
                 <img
+                  id="imgDetail"
                   class="w-16 md:w-32 lg:w-48 rounded-lg shadow-none transition-shadow duration-300 ease-in-out hover:shadow-2xl hover:shadow-slate-950"
-                  src="https://www.wikihow.com/images/thumb/5/59/Insert-Images-with-HTML-Step-1-Version-10.jpg/v4-728px-Insert-Images-with-HTML-Step-1-Version-10.jpg.webp"
-                  alt="image description"
+                  src=""
+                  onerror="this.src='https\://picsum.photos/180/100';"
+                  alt=""
                 />
               </div>
               <div class="flex items-center mt-5">
@@ -457,117 +460,143 @@
                 </div>
               </div>
             </div>
-            <form
-              id="form-update"
-              class="col-span-2 p-10 w-full"
-              action="/update"
-              method="post"
-              enctype="multipart/form-data"
-            >
-              <div class="grid gap-4 mb-4 grid-cols-2">
-                <input id="update-id" name="id" hidden />
-                <div class="col-span-2">
-                  <label for="update-name" class="block mb-2 font-extrabold"
-                    >Name</label
+            <div class="col-span-2 p-10 w-full">
+              <form
+                id="form-update"
+                class="col-span-2 p-10 w-full"
+                action="/update"
+                method="post"
+                enctype="multipart/form-data"
+              >
+                <div class="grid gap-4 mb-4 grid-cols-2">
+                  <input id="imgDetailInput" type="hidden" value="" />
+                  <input id="productCode_detailInput" type="hidden" value="" />
+                  <input id="productBarcode" type="hidden" value="" />
+                  <div class="col-span-2">
+                    <label for="update-name" class="block mb-2 font-extrabold"
+                      >Name</label
+                    >
+                    <p id="name_detail" for="update-name" class="text-sm">
+                      Le Hoang Nhat Tan
+                    </p>
+                    <input
+                      type="text"
+                      name="name"
+                      id="update-name"
+                      class="hidden bg-gray-50 border-gray-300 text-sm rounded-lg w-full p-2.5 dark:placeholder-gray-400 0 border-none outline-none"
+                      placeholder="Name of promotion"
+                      value=""
+                      required
+                    />
+                  </div>
+                  <div class="col-span-2 sm:col-span-1">
+                    <label class="block mb-2 font-extrabold">Fee</label>
+                    <p id="fee_detail" class="text-sm">152</p>
+                    <input
+                      type="number"
+                      name="value"
+                      id="update-fee"
+                      class="hidden bg-gray-50 border border-gray-300 text-sm rounded-lg w-full p-2.5 dark:placeholder-gray-400 border-none outline-none"
+                      placeholder="20%"
+                      value=""
+                      required
+                    />
+                  </div>
+                  <div class="col-span-2 sm:col-span-1">
+                    <label class="block mb-2 font-extrabold">Weight</label>
+                    <p id="weight_detail" class="text-sm">152</p>
+                    <input
+                      type="number"
+                      name="value"
+                      id="update-weight"
+                      class="hidden bg-gray-50 border border-gray-300 text-sm rounded-lg w-full p-2.5 dark:placeholder-gray-400 border-none outline-none"
+                      placeholder="g"
+                      value=""
+                      required
+                    />
+                  </div>
+                  <div class="col-span-2 sm:col-span-1">
+                    <label class="block mb-2 font-extrabold">Material</label>
+                    <p id="material_detail" class="text-sm">Vang 18k</p>
+                    <select
+                      id="update-material"
+                      value=""
+                      name="idMaterial"
+                      class="hidden bg-gray-50 border border-gray-300 text-sm rounded-lg w-full p-2.5 dark:placeholder-gray-400 border-none outline-none"
+                    ></select>
+                  </div>
+                  <div class="col-span-2 sm:col-span-1">
+                    <label class="block mb-2 font-extrabold">Status</label>
+                    <p id="status_detail" class="text-sm">Disable</p>
+                    <select
+                      id="update-status"
+                      value=""
+                      name="status"
+                      class="hidden bg-gray-50 border border-gray-300 text-sm rounded-lg w-full p-2.5 dark:placeholder-gray-400 border-none outline-none"
+                    >
+                      <option value="false">Inactive</option>
+                      <option value="trye">Active</option>
+                    </select>
+                  </div>
+                  <div class="col-span-2 sm:col-span-1">
+                    <label class="block mb-2 font-extrabold">Category</label>
+                    <p id="category_detail" class="text-sm">Necklage</p>
+                    <select
+                      id="update-category"
+                      value=""
+                      name="status"
+                      class="hidden bg-gray-50 border border-gray-300 text-sm rounded-lg w-full p-2.5 dark:placeholder-gray-400 border-none outline-none"
+                    ></select>
+                  </div>
+                  <div
+                    id="buttonSubmitUpdate"
+                    class="hidden col-span-1 mr-6 justify-end h-fit mt-8"
                   >
-                  <p id="name_detail" class="text-sm">Le Hoang Nhat Tan</p>
-                  <input
-                    type="text"
-                    name="name"
-                    id="update-name"
-                    class="hidden bg-gray-50 border-gray-300 text-sm rounded-lg w-full p-2.5 dark:placeholder-gray-400 0 border-none outline-none"
-                    placeholder="Name of promotion"
-                    readonly
-                    required
-                  />
+                    <button
+                      type="button"
+                      id="cancel-update"
+                      class="mr-2 bg-gray-100 hover:bg-gray-90 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:hover:bg-gray-200 dark:focus:ring-gray-200"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      id="submit-update"
+                      class="bg-gray-100 hover:bg-gray-90 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:hover:bg-gray-200 dark:focus:ring-gray-200"
+                      data-product-id=""
+                    >
+                      Update
+                    </button>
+                  </div>
                 </div>
-                <div class="col-span-2 sm:col-span-1">
-                  <label for="update-value" class="block mb-2 font-extrabold"
-                    >Fee</label
-                  >
-                  <p id="fee_detail" class="text-sm">152</p>
-                  <input
-                    type="number"
-                    name="value"
-                    id="update-value"
-                    class="hidden bg-gray-50 border border-gray-300 text-sm rounded-lg w-full p-2.5 dark:placeholder-gray-400 border-none outline-none"
-                    placeholder="20%"
-                    required
-                  />
-                </div>
-                <div class="col-span-2 sm:col-span-1">
-                  <label
-                    for="update-voucherType"
-                    class="block mb-2 font-extrabold"
-                    >Material</label
-                  >
-                  <p id="material_detail" class="text-sm">Vang 18k</p>
-                  <select
-                    id="update-idVoucherType"
-                    name="idVoucherType"
-                    class="hidden bg-gray-50 border border-gray-300 text-sm rounded-lg w-full p-2.5 dark:placeholder-gray-400 border-none outline-none"
-                  >
-                    <option selected>Select voucher type</option>
-                  </select>
-                </div>
-                <div class="col-span-2 sm:col-span-1">
-                  <label for="update-status" class="block mb-2 font-extrabold"
-                    >Status</label
-                  >
-                  <p id="status_detail" class="text-sm">Disable</p>
-                  <select
-                    id="update-status"
-                    name="status"
-                    class="hidden bg-gray-50 border border-gray-300 text-sm rounded-lg w-full p-2.5 dark:placeholder-gray-400 border-none outline-none"
-                  >
-                    <option value="0">Không hoạt động</option>
-                    <option value="1">Hoạt động</option>
-                  </select>
-                </div>
-                <div class="col-span-2 sm:col-span-1">
-                  <label for="update-status" class="block mb-2 font-extrabold"
-                    >Category</label
-                  >
-                  <p id="category_detail" class="text-sm">Necklage</p>
-                  <select
-                    id="update-status"
-                    name="status"
-                    class="hidden bg-gray-50 border border-gray-300 text-sm rounded-lg w-full p-2.5 dark:placeholder-gray-400 border-none outline-none"
-                  >
-                    <option value="0">Không hoạt động</option>
-                    <option value="1">Hoạt động</option>
-                  </select>
-                </div>
-                <div class="col-span-2 w-full max-h-56">
-                  <label for="update-status" class="mb-2 font-extrabold"
-                    >GemStone of this product</label
-                  >
-                  <div class="w-full mt-3 overflow-hidden">
-                    <div class="max-h-56 overflow-y-auto">
-                      <table
-                        class="w-full bg-blend-multiply text-sm text-center"
+              </form>
+              <div class="col-span-2 w-full max-h-56">
+                <label for="update-status" class="mb-2 font-extrabold"
+                  >GemStone of this product</label
+                >
+                <div class="w-full mt-3 overflow-hidden">
+                  <div class="max-h-56 overflow-y-auto">
+                    <table class="w-full bg-blend-multiply text-sm text-center">
+                      <thead
+                        class="bg-gray-200 dark:text-gray-600 sticky top-0 z-10"
                       >
-                        <thead
-                          class="bg-gray-200 dark:text-gray-600 sticky top-0 z-10"
-                        >
-                          <tr>
-                            <th scope="col" class="px-6 py-3">Category</th>
-                            <th scope="col" class="px-6 py-3">Quantity</th>
-                            <th scope="col" class="px-6 py-3">Type</th>
-                            <th scope="col" class="px-6 py-3"></th>
-                          </tr>
-                        </thead>
-                        <tbody
-                          id="GemStone_detail_table"
-                          class="dark:text-gray-500"
-                        ></tbody>
-                      </table>
-                      <p id="notiBlank" class="text-center"></p>
-                    </div>
+                        <tr>
+                          <th scope="col" class="px-6 py-3">Category</th>
+                          <th scope="col" class="px-6 py-3">Quantity</th>
+                          <th scope="col" class="px-6 py-3">Type</th>
+                          <th scope="col" class="px-6 py-3"></th>
+                        </tr>
+                      </thead>
+                      <tbody
+                        id="GemStone_detail_table"
+                        class="dark:text-gray-500"
+                      ></tbody>
+                    </table>
+                    <div><p id="notiBlank" class="text-center"></p></div>
                   </div>
                 </div>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       </div>
