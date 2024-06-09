@@ -10,6 +10,7 @@ import com.ks1dotnet.jewelrystore.service.OrderService;
 
 @RestController
 @RequestMapping("/order")
+@CrossOrigin("*")
 public class OrderController {
 
     @Autowired
