@@ -61,7 +61,7 @@ public class PolicyController {
         try {
             return new ResponseEntity<>(
                     iExchangeRatePolicyService.getListExchangeRatePoliciesByInvoiceType(invoiceType),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+                    HttpStatus.OK);
         } catch (Exception e) {
             // Log the exception (consider using a logging framework)
             System.err.println("Error retrieving policy for invoice (method getAllPolicyByInvoiceId): "

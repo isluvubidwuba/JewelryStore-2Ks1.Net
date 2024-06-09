@@ -58,6 +58,11 @@ public class CustomSecurityFilter {
                                                 .requestMatchers("/promotion/**", "/promotion-for-product/**",
                                                                 "/voucher/**")
                                                 .hasAuthority("ADMIN")
+
+                                                // Những phần permit all của counter employe userinfo
+                                                .requestMatchers("/authentication/**", "/role/list",
+                                                                "/employee/files/**", "/earnpoints/**", "/gemStone/**")
+                                                .permitAll()
                                                 // Employee
                                                 .requestMatchers("/employee/listpage", "/employee/search",
                                                                 "/employee/listemployee/{id}")
@@ -102,6 +107,7 @@ public class CustomSecurityFilter {
 
                                                 .requestMatchers("/userinfo/**", "/role/insert")
                                                 .hasAuthority("ADMIN")
+
                                                 .anyRequest().authenticated())
                                 .exceptionHandling(
                                                 exception -> exception.accessDeniedHandler(customAccessDeniedHandler))
