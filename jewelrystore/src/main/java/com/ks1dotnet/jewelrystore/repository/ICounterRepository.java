@@ -5,9 +5,11 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.ks1dotnet.jewelrystore.entity.Counter;
+import com.ks1dotnet.jewelrystore.entity.Product;
 
 @Repository
 public interface ICounterRepository extends JpaRepository<Counter, Integer> {
@@ -18,4 +20,6 @@ public interface ICounterRepository extends JpaRepository<Counter, Integer> {
 
     public Optional<Counter> findByName(String name);
 
+
+    
 }
