@@ -29,7 +29,7 @@ public interface IPromotionService {
 
         public List<PromotionDTO> getPromotionsByProductCategoryId(int productCategoryId);
 
-        ResponseData getAllPromotionByIdProduct(int productId);
+        List<PromotionDTO> getAllPromotionByIdProduct(int productId);
 
         public List<PromotionDTO> getPromotionsByUserId(int userId);
 }

@@ -165,18 +165,29 @@ public class PromotionController {
 
     @GetMapping("/all-promotion-on-product")
     public ResponseEntity<?> getPromotionsByProductId(@RequestParam int productId) {
-        ResponseData responseData = iPromotionService.getAllPromotionByIdProduct(productId);
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
+        try {
+            List<PromotionDTO> lPromotionDTOs = iPromotionService.getAllPromotionByIdProduct(productId);
+            return new ResponseEntity<>(new ResponseData(null, "Get list promotion success", lPromotionDTOs),
+                    HttpStatus.OK);
+        } catch (Exception e) {
+            return handleBadRequestException(e);
+        }
+
     }
 
     @GetMapping("/by-user")
-    public ResponseEntity<ResponseData> getPromotionsByUserId(@RequestParam int userId) {
-        List<PromotionDTO> promotions = iPromotionService.getPromotionsByUserId(userId);
-        ResponseData responseData = new ResponseData(HttpStatus.OK, "Get list promotion success", promotions);
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
+    public ResponseEntity<?> getPromotionsByUserId(@RequestParam int userId) {
+        try {
+            List<PromotionDTO> promotions = iPromotionService.getPromotionsByUserId(userId);
+            ResponseData responseData = new ResponseData(HttpStatus.OK, "Get list promotion success", promotions);
+            return new ResponseEntity<>(responseData, HttpStatus.OK);
+        } catch (Exception e) {
+            return handleBadRequestException(e);
+        }
+
     }
 
-    private ResponseEntity<?> handleBadRequestException(BadRequestException e) {
+    private ResponseEntity<?> handleBadRequestException(Exception e) {
         ResponseData responseData = new ResponseData();
         responseData.setStatus(HttpStatus.BAD_REQUEST);
         responseData.setDesc(e.getMessage());

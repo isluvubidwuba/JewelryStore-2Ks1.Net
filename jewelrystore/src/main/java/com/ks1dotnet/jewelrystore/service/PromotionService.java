@@ -168,14 +168,13 @@ public class PromotionService implements IPromotionService {
     }
 
     @Override
-    public ResponseData getAllPromotionByIdProduct(int productId) {
+    public List<PromotionDTO> getAllPromotionByIdProduct(int productId) {
         try {
             List<PromotionDTO> promotions = getPromotionsByProductId(productId);
             ProductDTO productDTO = (ProductDTO) iProductService.findById(productId).getData();
             promotions
                     .addAll(getPromotionsByProductCategoryId(productDTO.getProductCategoryDTO().getId()));
-            ResponseData responseData = new ResponseData(HttpStatus.OK, "get list promotion success", promotions);
-            return responseData;
+            return promotions;
         } catch (Exception e) {
             System.out.println("Failed get promotion by id product " + e.getMessage());
             throw new BadRequestException("Failed get promotion by id product", e.getMessage());

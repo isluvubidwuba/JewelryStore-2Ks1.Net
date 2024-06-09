@@ -10,6 +10,4 @@ public interface IProductService extends ICRUDService<ProductDTO, Integer> {
 
     public ResponseData updateStatus(Map<Integer, Integer> list);
 
-    
-
 }

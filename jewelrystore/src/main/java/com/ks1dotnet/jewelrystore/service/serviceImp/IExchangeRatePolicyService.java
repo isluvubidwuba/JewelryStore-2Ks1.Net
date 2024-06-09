@@ -23,4 +23,5 @@ public interface IExchangeRatePolicyService {
 
     public List<ExchangeRatePolicyDTO> searchExchangeRate(String keyword);
 
+    public ResponseData getListExchangeRatePoliciesByInvoiceType(int invoiceTypeId);
 }

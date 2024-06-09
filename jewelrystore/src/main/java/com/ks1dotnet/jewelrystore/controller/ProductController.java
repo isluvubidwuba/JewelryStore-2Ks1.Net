@@ -65,6 +65,4 @@ public class ProductController {
         return new ResponseEntity<>(response, response.getStatus());
     }
 
-    
-
 }
