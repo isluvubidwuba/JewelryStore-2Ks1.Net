@@ -3,7 +3,11 @@ let addedBarcodes = new Set(); // Set to store added barcodes
 let selectedProducts = []; // Danh sách sản phẩm đã chọn
 let discountValue = 0;
 
+//Các biến để tạo order invoice
+let selectedUserId = null;
+
 $(document).ready(function () {
+
     $('#toggleFeaturesButton').click(toggleFeatures);
     $('#profileOverviewButton').click(redirectToProfileOverview);
     $('#addProductButton').click(function () {
@@ -83,14 +87,30 @@ function addProductToInvoice(barcode, exchangeRateId) {
             if (response.status === 'OK' && response.data && response.data.productDTO) {
                 appendProductInfo(response.data.productDTO);
                 addedBarcodes.add(barcode); // Thêm barcode vào set
+
+                // Kiểm tra xem sản phẩm đã tồn tại trong selectedProducts chưa
+                const existingProduct = selectedProducts.find(p => p.id === response.data.productDTO.id);
+                let quantity = 1;
+
+                if (existingProduct) {
+                    quantity = existingProduct.quantity + 1; // Tăng số lượng nếu sản phẩm đã tồn tại
+                }
+
                 addProductToSelected({
                     id: response.data.productDTO.id,
                     name: response.data.productDTO.name,
                     productCode: response.data.productDTO.productCode,
                     price: response.data.productDTO.fee,
-                    quantity: 1,
-                    barcode: barcode
+                    quantity: quantity, // Thiết lập số lượng sản phẩm
+                    barcode: barcode,
+                    img: response.data.productDTO.img,
+                    weight: response.data.productDTO.weight,
+                    materialDTO: response.data.productDTO.materialDTO,
+                    productCategoryDTO: response.data.productDTO.productCategoryDTO,
+                    counterDTO: response.data.productDTO.counterDTO,
+                    promotions: response.data.listPromotion // Lưu thông tin khuyến mãi
                 });
+
                 if (Array.isArray(response.data.listPromotion)) {
                     displayPromotions(response.data.listPromotion); // Gọi hàm để hiển thị thông tin khuyến mãi
                 } else {
@@ -341,6 +361,8 @@ function closeModal() {
 }
 
 function selectUser(userId, userName) {
+    selectedUserId = userId; // Lưu idUser
+
     // Hiển thị thông tin người dùng đã chọn
     const userDetails = `
         <p><strong>ID:</strong> ${userId}</p>
@@ -418,6 +440,77 @@ function fetchUserPromotions(userId) {
         error: function (error) {
             console.error('Error fetching user promotions:', error);
             alert('Error fetching user promotions');
+        }
+    });
+}
+
+
+
+function createInvoiceData() {
+    // Lấy idUser từ người dùng đã chọn (giả sử biến selectedUserId đã được lưu trước đó)
+    const idUser = selectedUserId;
+
+    // Lấy token từ localStorage (giả sử token đã lưu trong localStorage)
+    const token = localStorage.getItem("token");
+
+
+    // Lấy totalPriceRaw, totalPrice, discountPrice từ các biến đã tính trước đó
+    const totalPriceRaw = parseFloat($('#totalPriceRaw').text().replace('$', ''));
+    const totalPrice = parseFloat($('#subtotal').text().replace('$', ''));
+    const discountPrice = parseFloat($('#discountPrice').text().replace('$', ''));
+
+    // Tạo listOrderInvoiceDetail từ selectedProducts
+    const listOrderInvoiceDetail = selectedProducts.map(product => ({
+        productDTO: {
+            id: product.id,
+            productCode: product.productCode,
+            barCode: product.barcode,
+            name: product.name,
+            fee: product.price,
+            status: product.status,
+            weight: product.weight,
+            img: product.img,
+            materialDTO: product.materialDTO,
+            productCategoryDTO: product.productCategoryDTO,
+            counterDTO: product.counterDTO
+        },
+        price: product.price,
+        quantity: product.quantity, // Sử dụng số lượng đã chỉnh sửa
+        totalPrice: product.price * product.quantity,
+        listPromotion: product.promotions
+    }));
+
+    // Tạo dữ liệu JSON gửi về backend
+    const invoiceData = {
+        idUser: idUser,
+        token: token,
+        idInvoiceType: 1,
+        totalPriceRaw: totalPriceRaw,
+        totalPrice: totalPrice,
+        discountPrice: discountPrice,
+        listOrderInvoiceDetail: listOrderInvoiceDetail
+    };
+
+    return invoiceData;
+}
+
+
+function submitInvoice() {
+    const invoiceData = createInvoiceData();
+
+    $.ajax({
+        url: 'http://localhost:8080/order/invoice',
+        type: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` // Token được gửi trong header
+        },
+        data: JSON.stringify(invoiceData),
+        success: function (response) {
+            console.log('Invoice submitted successfully:', response);
+        },
+        error: function (error) {
+            console.error('Error submitting invoice:', error);
         }
     });
 }
