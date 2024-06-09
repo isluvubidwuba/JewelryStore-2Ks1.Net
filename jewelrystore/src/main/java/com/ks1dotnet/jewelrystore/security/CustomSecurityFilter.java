@@ -18,49 +18,99 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class CustomSecurityFilter {
 
-    @Autowired
-    CustomUserDetailService customUserDetailService;
+        @Autowired
+        CustomUserDetailService customUserDetailService;
 
-    @Autowired
-    CustomJwtFilter customJwtFilter;
+        @Autowired
+        CustomJwtFilter customJwtFilter;
 
-    @Autowired
-    CustomAccessDeniedHandler customAccessDeniedHandler;
+        @Autowired
+        CustomAccessDeniedHandler customAccessDeniedHandler;
 
-    @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity httpSecurity) throws Exception {
-        AuthenticationManagerBuilder authenticationManagerBuilder = httpSecurity
-                .getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder.userDetailsService(customUserDetailService).passwordEncoder(passwordEncoder());
+        @Bean
+        public AuthenticationManager authenticationManager(HttpSecurity httpSecurity) throws Exception {
+                AuthenticationManagerBuilder authenticationManagerBuilder = httpSecurity
+                                .getSharedObject(AuthenticationManagerBuilder.class);
+                authenticationManagerBuilder.userDetailsService(customUserDetailService)
+                                .passwordEncoder(passwordEncoder());
 
-        return authenticationManagerBuilder.build();
-    }
+                return authenticationManagerBuilder.build();
+        }
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.cors(withDefaults())
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/authentication/**", "/proxy").permitAll()
-                        .requestMatchers("/promotion/files/**").permitAll()
-                        .requestMatchers("/policy/listpolicy", "/voucher/list")
-                        .hasAnyAuthority("ADMIN", "MANAGER", "STAFF")
-                        .requestMatchers("/policy/**").hasAuthority("ADMIN")
-                        .requestMatchers("/promotion/getHomePagePromotion**", "/promotion/getById",
-                                "/promotion-for-product/promotion/**", "/promotion-for-product/not-in-promotion/**",
-                                "/voucher/list", "/voucher/*/categories")
-                        .hasAnyAuthority("STAFF", "ADMIN", "MANAGER")
-                        .requestMatchers("/promotion/**", "/promotion-for-product/**", "/voucher/**")
-                        .hasAuthority("ADMIN")
-                        .anyRequest().authenticated())
-                .exceptionHandling(exception -> exception.accessDeniedHandler(customAccessDeniedHandler))
-                .addFilterBefore(customJwtFilter, UsernamePasswordAuthenticationFilter.class);
-        return http.build();
-    }
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+                http.cors(withDefaults())
+                                .csrf(csrf -> csrf.disable())
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .authorizeHttpRequests(authz -> authz
+                                                .requestMatchers("/authentication/**", "/proxy").permitAll()
+                                                .requestMatchers("/promotion/files/**").permitAll()
+                                                .requestMatchers("/policy/listpolicy", "/voucher/list")
+                                                .hasAnyAuthority("ADMIN", "MANAGER", "STAFF")
+                                                .requestMatchers("/policy/**").hasAuthority("ADMIN")
+                                                .requestMatchers("/promotion/getHomePagePromotion**",
+                                                                "/promotion/getById",
+                                                                "/promotion-for-product/promotion/**",
+                                                                "/promotion-for-product/not-in-promotion/**",
+                                                                "/voucher/list", "/voucher/*/categories")
+                                                .hasAnyAuthority("STAFF", "ADMIN", "MANAGER")
+                                                .requestMatchers("/promotion/**", "/promotion-for-product/**",
+                                                                "/voucher/**")
+                                                .hasAuthority("ADMIN")
+                                                // Employee
+                                                .requestMatchers("/employee/listpage", "/employee/search",
+                                                                "/employee/listemployee/{id}")
+                                                .hasAnyAuthority("ADMIN", "MANAGER")
+                                                .requestMatchers("/employee/insert", "/employee/update",
+                                                                "/employee/delete/**")
+                                                .hasAuthority("ADMIN")
+                                                .requestMatchers("/employee/**")
+                                                .hasAnyAuthority("ADMIN", "MANAGER")
 
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+                                                // Counter
+                                                .requestMatchers("/counter/allactivecounter",
+                                                                "/counter/listproductsbycounter",
+                                                                "/counter/addproductsforcounter",
+                                                                "/counter/products/counter1",
+                                                                "/counter/products/all", "/counter/product/details",
+                                                                "/counter/moveProductsToCounter")
+                                                .hasAnyAuthority("MANAGER", "STAFF", "ADMIN")
+                                                .requestMatchers("/counter/update", "/counter/inactive",
+                                                                "/counter/inactive", "/counter/delete/{id}",
+                                                                "/counter/insert")
+                                                .hasAuthority("ADMIN")
+
+                                                // Customer Type
+                                                .requestMatchers("/customertype/findall")
+                                                .hasAnyAuthority("MANAGER", "STAFF", "ADMIN")
+                                                .requestMatchers("/customertype/**")
+                                                .hasAuthority("ADMIN")
+
+                                                // User Information
+                                                .requestMatchers("/userinfo/listcustomer", "/userinfo/listpage",
+                                                                "/userinfo/findcustomer/{id}",
+                                                                "/userinfo/searchcustomer")
+                                                .hasAnyAuthority("STAFF", "MANAGER", "ADMIN")
+
+                                                .requestMatchers("/userinfo/update", "/userinfo/insert")
+                                                .hasAnyAuthority("STAFF", "MANAGER", "ADMIN")
+
+                                                .requestMatchers("/userinfo/listsupplier",
+                                                                "/userinfo/searchsupplier")
+                                                .hasAnyAuthority("MANAGER", "ADMIN")
+
+                                                .requestMatchers("/userinfo/**", "/role/insert")
+                                                .hasAuthority("ADMIN")
+                                                .anyRequest().authenticated())
+                                .exceptionHandling(
+                                                exception -> exception.accessDeniedHandler(customAccessDeniedHandler))
+                                .addFilterBefore(customJwtFilter, UsernamePasswordAuthenticationFilter.class);
+                return http.build();
+        }
+
+        @Bean
+        public BCryptPasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder();
+        }
 }

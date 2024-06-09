@@ -20,6 +20,8 @@ import com.ks1dotnet.jewelrystore.service.serviceImp.IProductService;
 @RequestMapping("/product")
 @CrossOrigin("*")
 public class ProductController {
+
+
     @Autowired
     private IProductService iProductService;
 

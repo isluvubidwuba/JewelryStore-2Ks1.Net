@@ -3,12 +3,9 @@ package com.ks1dotnet.jewelrystore.service.serviceImp;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.stereotype.Repository;
-
 import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 
-@Repository
 public interface ICounterSerivce {
     public ResponseData insert(String name);
 
@@ -24,7 +21,11 @@ public interface ICounterSerivce {
 
     public ResponseData getAllProducts();
 
-    public ResponseData getAllCounters();
+    public ResponseData getAllCountersActive();
 
     public ResponseData deleteCounter(int counterId);
+
+    public ResponseData getInactiveCounters();
+
+    public ResponseData updateCounter(int id,String name, boolean status);
 }

@@ -139,7 +139,7 @@ public class UserInfoController {
         }
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/findcustomer/{id}")
     public ResponseEntity<?> getUserInfo(@PathVariable("id") int id) {
         ResponseData ResponseData = new ResponseData();
         ResponseData.setStatus(HttpStatus.OK);

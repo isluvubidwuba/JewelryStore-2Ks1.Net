@@ -4,7 +4,7 @@ $(document).ready(function () {
   initializeSearchForm();
   fetchEmployees(0);
 });
-
+const token = localStorage.getItem("token");
 let currentPage = 0;
 
 function initializePagination() {
@@ -27,6 +27,9 @@ function fetchEmployees(page) {
     url: `http://localhost:8080/employee/listpage`,
     type: "GET",
     data: { page: page },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       if (response.status === "OK") {
         renderEmployees(response.data.employees);
@@ -88,6 +91,9 @@ function fetchRoles(selectElementId) {
   $.ajax({
     url: `http://localhost:8080/role/list`,
     type: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       if (response.status === "OK") {
         const roles = response.data;
@@ -120,6 +126,9 @@ function viewEmployee(id) {
   $.ajax({
     url: `http://localhost:8080/employee/listemployee/${id}`,
     type: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       if (response.status === "OK") {
         const employee = response.data;
@@ -181,6 +190,9 @@ function updateEmployee() {
     url: `http://localhost:8080/employee/update`,
     type: "POST",
     data: formData,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     processData: false,
     contentType: false,
     success: function (response) {
@@ -248,6 +260,9 @@ function handleInsertEmployee(event) {
     data: formData,
     processData: false,
     contentType: false,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       if (response.status === "OK") {
         alert(response.desc);
@@ -291,6 +306,9 @@ function searchEmployees(criteria, query, page) {
   $.ajax({
     url: `http://localhost:8080/employee/search`,
     type: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     data: { criteria: criteria, query: query, page: page },
     success: function (response) {
       if (response.status === "OK") {
@@ -314,6 +332,9 @@ function deleteEmployee() {
     $.ajax({
       url: `http://localhost:8080/employee/delete/${employeeId}`,
       type: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       success: function (response) {
         if (response.status === "OK") {
           alert(response.desc);

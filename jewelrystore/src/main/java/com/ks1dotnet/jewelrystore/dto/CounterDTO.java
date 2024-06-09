@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class CounterDTO {
     private int id;
     private String name;
+    private boolean status;
 }

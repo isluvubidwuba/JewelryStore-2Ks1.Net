@@ -65,8 +65,7 @@ public class CounterController {
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
 
-
-    //xử lý khi user click vào sản phẩm
+    // xử lý khi user click vào sản phẩm
     // lấy thông tin chi tiết của product
     @GetMapping("/product/details")
     public ResponseEntity<ResponseData> getProductDetails(@RequestParam int productId) {
@@ -74,7 +73,8 @@ public class CounterController {
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
 
-    //thể hiện lên 1 list product dùng cho trường hợp chọn list product khác counter 
+    // thể hiện lên 1 list product dùng cho trường hợp chọn list product khác
+    // counter
     // và chọn counter mong muốn sản phẩm chuyển đến
     @GetMapping("/products/all")
     public ResponseEntity<ResponseData> getAllProducts() {
@@ -82,11 +82,10 @@ public class CounterController {
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
 
-
-    //load các counter lên để tạo ra các tab động
-    @GetMapping("/all")
+    // load các counter lên để tạo ra các tab động
+    @GetMapping("/allactivecounter")
     public ResponseEntity<ResponseData> getAllCounters() {
-        ResponseData responseData = iCounterSerivce.getAllCounters();
+        ResponseData responseData = iCounterSerivce.getAllCountersActive();
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
 
@@ -95,4 +94,18 @@ public class CounterController {
         ResponseData responseData = iCounterSerivce.deleteCounter(counterId);
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
+
+    @GetMapping("/inactive")
+    public ResponseEntity<ResponseData> getInactiveCounters() {
+        ResponseData responseData = iCounterSerivce.getInactiveCounters();
+        return new ResponseEntity<>(responseData, HttpStatus.OK);
+    }
+
+    @PostMapping("/update")
+    public ResponseEntity<ResponseData> updateCounter(@RequestParam int id, @RequestParam String name,
+            @RequestParam boolean status) {
+        ResponseData responseData = iCounterSerivce.updateCounter(id, name, status);
+        return new ResponseEntity<>(responseData, HttpStatus.OK);
+    }
+
 }
