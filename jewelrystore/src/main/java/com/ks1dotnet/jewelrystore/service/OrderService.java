@@ -1,45 +1,78 @@
 package com.ks1dotnet.jewelrystore.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import com.ks1dotnet.jewelrystore.dto.OrderInvoiceDTO;
 import com.ks1dotnet.jewelrystore.dto.OrderInvoiceDetailDTO;
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
+import com.ks1dotnet.jewelrystore.entity.Counter;
+import com.ks1dotnet.jewelrystore.entity.Employee;
 import com.ks1dotnet.jewelrystore.entity.ExchangeRatePolicy;
+import com.ks1dotnet.jewelrystore.entity.OrderInvoice;
+import com.ks1dotnet.jewelrystore.entity.OrderInvoiceDetail;
 import com.ks1dotnet.jewelrystore.entity.Product;
+import com.ks1dotnet.jewelrystore.entity.Promotion;
+import com.ks1dotnet.jewelrystore.entity.UserInfo;
+import com.ks1dotnet.jewelrystore.entity.VoucherOnInvoice;
+import com.ks1dotnet.jewelrystore.entity.VoucherOnInvoiceDetail;
+import com.ks1dotnet.jewelrystore.entity.WareHouse;
 import com.ks1dotnet.jewelrystore.exception.BadRequestException;
+import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IEmployeeRepository;
 import com.ks1dotnet.jewelrystore.repository.IExchangeRatePolicyRepository;
-import com.ks1dotnet.jewelrystore.repository.IGemStoneOfProductRepository;
+import com.ks1dotnet.jewelrystore.repository.IInvoiceTypeRepository;
+import com.ks1dotnet.jewelrystore.repository.IOrderInvoiceDetailRepository;
 import com.ks1dotnet.jewelrystore.repository.IOrderInvoiceRepository;
 import com.ks1dotnet.jewelrystore.repository.IProductRepository;
-import com.ks1dotnet.jewelrystore.repository.IPromotionRepository;
 import com.ks1dotnet.jewelrystore.repository.IUserInfoRepository;
+import com.ks1dotnet.jewelrystore.repository.IVoucherOnInvoiceDetailRepository;
+import com.ks1dotnet.jewelrystore.repository.IVoucherOnInvoiceRepository;
+import com.ks1dotnet.jewelrystore.repository.IWareHouseRepository;
+import com.ks1dotnet.jewelrystore.service.serviceImp.IEarnPointsService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IOrderService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionService;
+import com.ks1dotnet.jewelrystore.utils.JwtUtilsHelper;
+
+import jakarta.transaction.Transactional;
 
 @Service
+@Transactional
 public class OrderService implements IOrderService {
     @Autowired
-    IOrderInvoiceRepository iOrderInvoiceRepository;
-
+    private IOrderInvoiceRepository iOrderInvoiceRepository;
     @Autowired
-    IEmployeeRepository iEmployeeRepository;
+    private IEarnPointsService iEarnPointsService;
     @Autowired
-    IUserInfoRepository iUserInfoRepository;
+    private IEmployeeRepository iEmployeeRepository;
     @Autowired
-    IProductRepository iProductRepository;
+    private IUserInfoRepository iUserInfoRepository;
     @Autowired
-    IPromotionRepository iPromotionRepository;
+    private IProductRepository iProductRepository;
     @Autowired
-    IExchangeRatePolicyRepository iExchangeRatePolicyRepository;
-
+    private IExchangeRatePolicyRepository iExchangeRatePolicyRepository;
     @Autowired
-    IPromotionService iPromotionService;
+    private IInvoiceTypeRepository iInvoiceTypeRepository;
+    @Autowired
+    private IPromotionService iPromotionService;
+    @Autowired
+    private IVoucherOnInvoiceRepository iVoucherOnInvoiceRepository;
+    @Autowired
+    private IOrderInvoiceDetailRepository iOrderInvoiceDetailRepository;
+    @Autowired
+    private IVoucherOnInvoiceDetailRepository iVoucherOnInvoiceDetailRepository;
+    @Autowired
+    JwtUtilsHelper jwtUtilsHelper;
+    @Autowired
+    private IWareHouseRepository iWareHouseRepository;
 
     @Override
     public ResponseData getOrderInvoiceDetail(String barcode, String IdExchangeRate) {
@@ -71,14 +104,19 @@ public class OrderService implements IOrderService {
             priceRaw = priceRaw * exchangeRatePolicy.getRate();
             // giá tổng = giá bán - promotion giảm
             double totalPrice = priceRaw;
+
             for (PromotionDTO promotionDTO : listPromotionDTOs) {
                 totalPrice -= totalPrice * promotionDTO.getValue() / 100;
             }
 
+            // Làm tròn các giá trị
+            BigDecimal priceRawRounded = BigDecimal.valueOf(priceRaw).setScale(2, RoundingMode.HALF_UP);
+            BigDecimal totalPriceRounded = BigDecimal.valueOf(totalPrice).setScale(2, RoundingMode.HALF_UP);
+
             orderInvoiceDetailDTO.setProductDTO(product2.getDTO());
-            orderInvoiceDetailDTO.setPrice(priceRaw);
+            orderInvoiceDetailDTO.setPrice(priceRawRounded.doubleValue());
             orderInvoiceDetailDTO.setQuantity(quantityMax);
-            orderInvoiceDetailDTO.setTotalPrice(totalPrice);
+            orderInvoiceDetailDTO.setTotalPrice(totalPriceRounded.doubleValue());
             orderInvoiceDetailDTO.setListPromotion(listPromotionDTOs);
 
             return new ResponseData(HttpStatus.OK, "Success", orderInvoiceDetailDTO);
@@ -86,52 +124,95 @@ public class OrderService implements IOrderService {
             return new ResponseData(HttpStatus.BAD_REQUEST, "Error get order detail: " + e.getMessage(), null);
         }
     }
-    // @Override
-    // @Transactional
-    // public ResponseData insertOrder(OrderRequest orderRequest) {
-    // UserInfo userInfo = iUserInfoRepository.findById(orderRequest.getUserId())
-    // .orElseThrow(() -> new ResourceNotFoundException("User not found: " +
-    // orderRequest.getUserId()));
-    // Employee employee =
-    // iEmployeeRepository.findById(orderRequest.getEmployeeId())
-    // .orElseThrow(
-    // () -> new ResourceNotFoundException("Employee not found: " +
-    // orderRequest.getEmployeeId()));
 
-    // OrderInvoice orderInvoice = new OrderInvoice();
-    // orderInvoice.setEmployee(employee);
-    // orderInvoice.setUserInfo(userInfo);
-    // // Thiết lập ngày hiện tại
-    // orderInvoice.setDate(new Date());
-    // iOrderInvoiceRepository.save(orderInvoice);
-    // // Xử lý chi tiết đơn hàng
-    // List<OrderInvoiceDetail> orderDetails = new ArrayList<>();
-    // for (Map.Entry<Integer, Integer> entry :
-    // orderRequest.getProducts().entrySet()) {
-    // Integer productId = entry.getKey();
-    // Integer quantity = entry.getValue();
+    @Override
+    public ResponseData insertOrder(OrderInvoiceDTO orderInvoiceRequest) {
+        try {
 
-    // Product product = iProductRepository.findById(productId)
-    // .orElseThrow(() -> new ResourceNotFoundException("Product not found: " +
-    // productId));
+            // Tìm user
+            UserInfo userInfo = iUserInfoRepository.findById(orderInvoiceRequest.getIdUser())
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found: " +
+                            orderInvoiceRequest.getIdUser()));
 
-    // OrderInvoiceDetail detail = new OrderInvoiceDetail();
-    // detail.setOrderInvoice(orderInvoice);
-    // detail.setProduct(product);
-    // // Thiết lập các giá trị chi tiết khác (nếu cần)
-    // detail.setPrice(product.getPrice());
-    // detail.setQuantity(quantity);
-    // // duyệt mảng để lấy %
-    // List<PromotionDTO> promotions =
-    // iPromotionService.getAllPromotionByIdProduct(product.getId());
+            // Tìm employee
+            String token = orderInvoiceRequest.getIdEmployee();
+            String IDEmpl = jwtUtilsHelper.getEmployeeIdFromToken(token);
+            Employee employee = iEmployeeRepository.findById(IDEmpl)
+                    .orElseThrow(
+                            () -> new ResourceNotFoundException("Employee not found: " + IDEmpl));
+            // tạo hóa đơn
+            OrderInvoice orderInvoice = new OrderInvoice();
+            // save mọi thứ cần thiết
+            orderInvoice.setEmployee(employee);
+            orderInvoice.setUserInfo(userInfo);
+            orderInvoice.setDate(new Date());
+            orderInvoice.setTotal_price_raw(orderInvoiceRequest.getTotalPriceRaw());
+            orderInvoice.setTotal_price(orderInvoiceRequest.getTotalPrice());
+            orderInvoice.setDiscount_price(orderInvoiceRequest.getDiscountPrice());
+            orderInvoice.setInvoiceType(iInvoiceTypeRepository.findById(orderInvoiceRequest.getIdInvoiceType())
+                    .orElseThrow(() -> new ResourceNotFoundException("InvoiceType not found: " +
+                            orderInvoiceRequest.getIdInvoiceType())));
 
-    // detail.setTotal_price(product.getPrice() * quantity);
+            iOrderInvoiceRepository.save(orderInvoice);
 
-    // orderDetails.add(detail);
-    // }
+            // Không thể có hơn 2 forCustomers active
+            List<PromotionDTO> promotions = iPromotionService.getPromotionsByUserId(orderInvoiceRequest.getIdUser());
+            if (promotions.size() == 1) {
+                VoucherOnInvoice voucherOnInvoice = new VoucherOnInvoice();
+                voucherOnInvoice.setOrderInvoice(orderInvoice);
+                voucherOnInvoice.setPromotion(new Promotion(promotions.get(0)));
+                iVoucherOnInvoiceRepository.save(voucherOnInvoice);
+            }
 
-    // return null;
+            List<OrderInvoiceDetail> listOrderDetailSave = new ArrayList<>();
+            List<OrderInvoiceDetailDTO> orderInvoiceDetailDTOs = orderInvoiceRequest.getListOrderInvoiceDetail();
 
-    // }
+            for (OrderInvoiceDetailDTO orderInvoiceDetailDTO : orderInvoiceDetailDTOs) {
+                // Kiểm tra số lượng trong kho
+                int productId = orderInvoiceDetailDTO.getProductDTO().getId();
+                int quantityToReduce = orderInvoiceDetailDTO.getQuantity();
+                WareHouse wareHouse = iWareHouseRepository.findByProductId(productId);
+                if (wareHouse.getQuantity() < quantityToReduce) {
+                    return new ResponseData(HttpStatus.BAD_REQUEST, "Not enough quantity in stock", null);
+                }
 
+                OrderInvoiceDetail orderInvoiceDetail = new OrderInvoiceDetail();
+                orderInvoiceDetail.setOrderInvoice(orderInvoice);
+                orderInvoiceDetail.setProduct(new Product(orderInvoiceDetailDTO.getProductDTO()));
+                orderInvoiceDetail.setPrice(orderInvoiceDetailDTO.getPrice());
+                orderInvoiceDetail.setPriceMaterialAtTime(
+                        orderInvoiceDetailDTO.getProductDTO().getMaterialDTO().getPriceAtTime());
+                orderInvoiceDetail.setQuantity(orderInvoiceDetailDTO.getQuantity());
+                orderInvoiceDetail.setTotal_price(orderInvoiceDetailDTO.getTotalPrice());
+                orderInvoiceDetail.setCounter(new Counter(orderInvoiceDetailDTO.getProductDTO().getCounterDTO()));
+
+                listOrderDetailSave.add(orderInvoiceDetail);
+
+                // Cập nhật số lượng trong kho
+                int newQuantity = wareHouse.getQuantity() - quantityToReduce;
+                int newTotalSold = wareHouse.getTotal_sold() + quantityToReduce;
+                iWareHouseRepository.updateWareHouse(wareHouse.getId(), newQuantity, newTotalSold);
+            }
+
+            iOrderInvoiceDetailRepository.saveAll(listOrderDetailSave);
+            for (OrderInvoiceDetail orderInvoice2 : listOrderDetailSave) {
+                List<PromotionDTO> Pdtos = iPromotionService
+                        .getAllPromotionByIdProduct(orderInvoice2.getProduct().getId());
+                for (PromotionDTO promotionDTO : Pdtos) {
+                    Promotion p = new Promotion(promotionDTO);
+                    // save table voucher on invoice detail
+                    iVoucherOnInvoiceDetailRepository.save(new VoucherOnInvoiceDetail(p, orderInvoice2));
+                }
+            }
+            BigDecimal totalPriceRounded = BigDecimal.valueOf(orderInvoice.getTotal_price()).setScale(0,
+                    RoundingMode.HALF_UP);
+            int points = totalPriceRounded.multiply(BigDecimal.valueOf(0.01)).setScale(0, RoundingMode.HALF_UP)
+                    .intValue();
+            iEarnPointsService.addPoints(orderInvoice.getUserInfo().getId(), points);
+            System.out.println("Total price: " + orderInvoice.getTotal_price() + "Poit add: " + points);
+            return new ResponseData(HttpStatus.CREATED, "Order inserted successfully", orderInvoice);
+        } catch (Exception e) {
+            return new ResponseData(HttpStatus.BAD_REQUEST, "Error inserting order: " + e.getMessage(), null);
+        }
+    }
 }

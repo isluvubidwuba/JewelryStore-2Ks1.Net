@@ -422,6 +422,7 @@ function submitUpdateForm() {
           Authorization: `Bearer ${token}`,
         },
         data: formData,
+
         processData: false,
         contentType: false,
         success: function (response) {

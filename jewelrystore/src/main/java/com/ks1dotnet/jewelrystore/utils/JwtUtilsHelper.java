@@ -46,4 +46,14 @@ public class JwtUtilsHelper {
                 .get("role", String.class);
     }
 
+    // Lấy id của employee từ token
+    public String getEmployeeIdFromToken(String token) {
+        SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(privateKey));
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+    }
 }

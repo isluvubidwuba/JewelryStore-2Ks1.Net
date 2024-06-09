@@ -15,6 +15,7 @@ import com.ks1dotnet.jewelrystore.dto.UserInfoDTO;
 import com.ks1dotnet.jewelrystore.entity.CustomerType;
 import com.ks1dotnet.jewelrystore.entity.EarnPoints;
 import com.ks1dotnet.jewelrystore.entity.UserInfo;
+import com.ks1dotnet.jewelrystore.exception.BadRequestException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.ICustomerTypeRepository;
 import com.ks1dotnet.jewelrystore.repository.IEarnPointsRepository;
@@ -87,13 +88,14 @@ public class EarnPointsService implements IEarnPointsService {
             earnPoints = new EarnPoints();
             earnPoints.setUserInfo(userInfo);
             earnPoints.setPoint(points);
+            earnPoints.setCustomerType(iCustomerTypeRepository.findById(1)
+                    .orElseThrow(() -> new BadRequestException("Not found customer type")));
             // Set default customer type if needed, otherwise null
         }
-
+        EarnPoints savedEarnPoints = iEarnPointsRepository.save(earnPoints);
         // Determine the new customer type based on the updated points
         updateCustomerTypeBasedOnPoints(customerId);
 
-        EarnPoints savedEarnPoints = iEarnPointsRepository.save(earnPoints);
         EarnPointsDTO earnPointsDTO = new EarnPointsDTO(
                 savedEarnPoints.getId(),
                 savedEarnPoints.getPoint(),
