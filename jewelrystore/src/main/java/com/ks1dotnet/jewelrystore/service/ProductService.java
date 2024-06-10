@@ -87,6 +87,8 @@ public class ProductService implements IProductService {
                 product.setName(t.getName());
             if (t.getFee() != 0)
                 product.setFee(t.getFee());
+            if (t.getWeight() != 0 && t.getWeight() != product.getWeight())
+                product.setWeight(t.getWeight());
             if (t.getMaterialDTO() != null
                     && iMaterialRepository.existsById(t.getMaterialDTO().getId()))
                 product.setMaterialDTO(t.getMaterialDTO());
