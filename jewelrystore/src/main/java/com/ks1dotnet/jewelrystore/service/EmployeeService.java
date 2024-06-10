@@ -12,11 +12,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ks1dotnet.jewelrystore.dto.EmployeeDTO;
 import com.ks1dotnet.jewelrystore.entity.Employee;
+import com.ks1dotnet.jewelrystore.exception.RunTimeExceptionV1;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IEmployeeRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IEmployeeService;
@@ -31,6 +33,8 @@ public class EmployeeService implements IEmployeeService {
    private IFileService iFileService;
    @Autowired
    private IRoleService iRoleService;
+   @Autowired
+   private PasswordEncoder passwordEncoder;
 
    @Override
    public List<Employee> findAll() {
@@ -115,7 +119,11 @@ public class EmployeeService implements IEmployeeService {
       employee.setId(generatedId);
       employee.setFirstName(firstName);
       employee.setLastName(lastName);
-      employee.setPinCode(pinCode);
+
+      // Mã hóa pinCode
+      String encodedPinCode = passwordEncoder.encode(pinCode);
+      employee.setPinCode(encodedPinCode);
+
       employee.setPhoneNumber(phoneNumber);
       employee.setEmail(email);
       employee.setAddress(address);
@@ -175,8 +183,8 @@ public class EmployeeService implements IEmployeeService {
             } catch (Exception e) {
                throw new RuntimeException("File save failed: " + e.getMessage());
             }
-         }else{
-         employee1.setImage(employee.get().getImage());
+         } else {
+            employee1.setImage(employee.get().getImage());
 
          }
 
@@ -235,6 +243,23 @@ public class EmployeeService implements IEmployeeService {
       response.put("totalPages", employeePage.getTotalPages());
       response.put("currentPage", page);
       return response;
+   }
+
+   @Override
+   public ResponseData getStaff() {
+      ResponseData responseData = new ResponseData();
+      try {
+         List<EmployeeDTO> employeeDTOs = new ArrayList<>();
+         for (Employee employee : iEmployeeRepository.findAllStaff()) {
+            employeeDTOs.add(employee.getDTO());
+         }
+         responseData.setDesc("Load list staff successfully");
+         responseData.setStatus(HttpStatus.OK);
+         responseData.setData(employeeDTOs);
+         return responseData;
+      } catch (RunTimeExceptionV1 e) {
+         throw new RunTimeExceptionV1("Find all staff error", e.getMessage());
+      }
    }
 
 }

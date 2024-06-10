@@ -143,4 +143,10 @@ public class EmployeeControler {
         return new ResponseEntity<>(ResponseData, HttpStatus.OK);
     }
 
+    @GetMapping("/getstaff")
+    public ResponseEntity<?> getStaff() {
+        ResponseData responseData = iEmployeeService.getStaff();
+        return new ResponseEntity<>(responseData, responseData.getStatus());
+    }
+
 }
