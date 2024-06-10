@@ -6,6 +6,8 @@ let discountValue = 0;
 //Các biến để tạo order invoice
 let selectedUserId = null;
 
+const token = localStorage.getItem("token");
+
 $(document).ready(function () {
 
     $('#toggleFeaturesButton').click(toggleFeatures);
@@ -19,6 +21,8 @@ $(document).ready(function () {
     $('#sideBarButton').click(toggleSideTurnOnOff);
     $('#ERP_DEF-button').click(fetchExchangeRateId);
 
+    //nút submit của invoice
+    $('#chargeButton').click(submitInvoice);
     // Bổ sung sự kiện click vào các div sản phẩm để tăng quantity
     $('#product-info').on('click', 'div[data-id]', function () {
         const productId = $(this).data('id');
@@ -37,7 +41,6 @@ $(document).ready(function () {
     });
 });
 
-const token = localStorage.getItem("token");
 
 function toggleSideTurnOnOff() {
     $('#mySidebar').toggleClass('hidden');
@@ -100,7 +103,8 @@ function addProductToInvoice(barcode, exchangeRateId) {
                     id: response.data.productDTO.id,
                     name: response.data.productDTO.name,
                     productCode: response.data.productDTO.productCode,
-                    price: response.data.productDTO.fee,
+                    price: response.data.price,
+                    totalPrice: response.data.totalPrice,
                     quantity: quantity, // Thiết lập số lượng sản phẩm
                     barcode: barcode,
                     img: response.data.productDTO.img,
@@ -116,6 +120,9 @@ function addProductToInvoice(barcode, exchangeRateId) {
                 } else {
                     console.error('Promotions is not an array');
                 }
+
+                // Tính toán lại tổng giá trị hóa đơn
+                updateSelectedProductsTable();
             } else {
                 console.error('Không tìm thấy thông tin sản phẩm');
             }
@@ -125,7 +132,6 @@ function addProductToInvoice(barcode, exchangeRateId) {
         }
     });
 }
-
 function fetchExchangeRateId() {
     $.ajax({
         url: 'http://localhost:8080/policy/getExchangeApply',
@@ -175,8 +181,8 @@ function appendProductInfo(product) {
 
 function updateSelectedProductsTable() {
     let totalPriceRaw = 0;
-    let discountPrice = 0;
     let totalPrice = 0;
+    let discountPrice = 0;
 
     $('#selected-products').empty(); // Xóa bảng trước khi thêm dữ liệu mới
 
@@ -194,10 +200,10 @@ function updateSelectedProductsTable() {
         `;
         $('#selected-products').append(row);
         totalPriceRaw += product.price * product.quantity;
+        totalPrice += product.totalPrice; // Sử dụng totalPrice từ backend
     });
-
-    discountPrice = totalPriceRaw * (discountValue / 100);
-    totalPrice = totalPriceRaw - discountPrice;
+    totalPrice -= totalPrice * (discountValue / 100);
+    discountPrice = totalPriceRaw - totalPrice;
 
     $('#totalPriceRaw').text(`$${totalPriceRaw.toFixed(2)}`);
     $('#discountPrice').text(`$${discountPrice.toFixed(2)}`);
@@ -453,7 +459,6 @@ function createInvoiceData() {
     // Lấy token từ localStorage (giả sử token đã lưu trong localStorage)
     const token = localStorage.getItem("token");
 
-
     // Lấy totalPriceRaw, totalPrice, discountPrice từ các biến đã tính trước đó
     const totalPriceRaw = parseFloat($('#totalPriceRaw').text().replace('$', ''));
     const totalPrice = parseFloat($('#subtotal').text().replace('$', ''));
@@ -483,7 +488,7 @@ function createInvoiceData() {
     // Tạo dữ liệu JSON gửi về backend
     const invoiceData = {
         idUser: idUser,
-        token: token,
+        idEmployee: token,
         idInvoiceType: 1,
         totalPriceRaw: totalPriceRaw,
         totalPrice: totalPrice,
@@ -491,20 +496,21 @@ function createInvoiceData() {
         listOrderInvoiceDetail: listOrderInvoiceDetail
     };
 
+    console.log('Invoice Data:', JSON.stringify(invoiceData, null, 2)); // Log dữ liệu invoice
     return invoiceData;
 }
 
-
 function submitInvoice() {
     const invoiceData = createInvoiceData();
+    const token = localStorage.getItem("token");
 
     $.ajax({
-        url: 'http://localhost:8080/order/invoice',
+        url: 'http://localhost:8080/order/create',
         type: 'POST',
         headers: {
-            'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}` // Token được gửi trong header
         },
+        contentType: 'application/json',
         data: JSON.stringify(invoiceData),
         success: function (response) {
             console.log('Invoice submitted successfully:', response);
