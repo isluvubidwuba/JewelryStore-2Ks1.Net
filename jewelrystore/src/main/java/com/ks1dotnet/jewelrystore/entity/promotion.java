@@ -1,7 +1,9 @@
 package com.ks1dotnet.jewelrystore.entity;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
@@ -52,7 +54,7 @@ public class Promotion {
     private Set<ForProductType> listForProductType = new HashSet<>();
 
     @OneToMany(mappedBy = "promotion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<ForProduct> listForProduct = new HashSet<>();
+    private List<ForProduct> listForProduct = new ArrayList<>();
 
     @OneToMany(mappedBy = "promotion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<VoucherOnInvoice> listVoucherOnInvoice = new HashSet<>();

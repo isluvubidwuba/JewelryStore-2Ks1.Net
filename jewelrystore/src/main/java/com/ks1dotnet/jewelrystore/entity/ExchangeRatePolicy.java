@@ -4,10 +4,13 @@ import java.time.LocalDate;
 import java.util.Set;
 
 import com.ks1dotnet.jewelrystore.dto.ExchangeRatePolicyDTO;
+import com.ks1dotnet.jewelrystore.dto.InvoiceTypeDTO;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -31,11 +34,13 @@ public class ExchangeRatePolicy {
     @Column(name = "last_modified")
     private LocalDate lastModified;
 
-    @OneToMany(mappedBy = "exchangeRatePolicy")
-    Set<PolicyForInvoice> listPolicyForInvoice;
+    @ManyToOne
+    @JoinColumn(name = "id_invoice_type")
+    private InvoiceType invoiceType;
 
     public ExchangeRatePolicyDTO getDTO() {
-        return new ExchangeRatePolicyDTO(this.id, this.description_policy, this.rate, this.status, this.lastModified);
+        return new ExchangeRatePolicyDTO(this.id, this.description_policy, this.rate, this.status, this.lastModified,
+                this.invoiceType.getDTO());
     }
 
     public void setLastModified() {
@@ -48,5 +53,6 @@ public class ExchangeRatePolicy {
         this.rate = e.getRate();
         this.status = e.isStatus();
         this.lastModified = e.getLastModified();
+        this.invoiceType = new InvoiceType(e.getInvoiceTypeDTO());
     }
 }

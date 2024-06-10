@@ -1,18 +1,14 @@
 package com.ks1dotnet.jewelrystore.service.serviceImp;
 
-import java.util.List;
-
-import com.ks1dotnet.jewelrystore.dto.InvoiceTypeDTO;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 
 public interface IInvoiceTypeService {
+    ResponseData getAllInvoiceTypes();
 
-    public ResponseData createInvoiceType(String name);
+    ResponseData getInvoiceTypeById(int id);
 
-    public List<InvoiceTypeDTO> getFullInvoice();
+    ResponseData createInvoiceType(String name);
 
-    public ResponseData addInvoiceType(String invoiceType);
-
-    public ResponseData updateInvoice(int idInvoiceType, String invoiceType);
+    ResponseData updateInvoiceType(int id, String name);
 
 }

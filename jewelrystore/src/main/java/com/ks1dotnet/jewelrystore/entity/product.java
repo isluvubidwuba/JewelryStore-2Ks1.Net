@@ -2,6 +2,7 @@ package com.ks1dotnet.jewelrystore.entity;
 
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 
 import jakarta.persistence.Column;
@@ -68,7 +69,7 @@ public class Product {
 
     public ProductDTO getDTO() {
         return new ProductDTO(this.id, this.getProductCode(), this.getBarCode(), this.name, this.fee, this.status,
-                this.weight,this.img, this.material.getDTO(),
+                this.weight, this.img, this.material.getDTO(),
                 this.productCategory.getDTO(), this.counter.getDTO());
     }
 
@@ -85,7 +86,7 @@ public class Product {
             this.fee = t.getFee();
         if (t.getImg() != null)
             this.img = t.getImg();
-            
+
         this.status = t.isStatus();
         if (t.getMaterialDTO() != null)
             this.material = new Material(t.getMaterialDTO());

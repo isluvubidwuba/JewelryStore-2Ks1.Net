@@ -1,27 +1,19 @@
 package com.ks1dotnet.jewelrystore.service.serviceImp;
 
-import java.util.List;
-
-import com.ks1dotnet.jewelrystore.dto.ExchangeRatePolicyDTO;
-import com.ks1dotnet.jewelrystore.dto.InvoiceTypeDTO;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 
 public interface IExchangeRatePolicyService {
-    public List<ExchangeRatePolicyDTO> getFullExchange();
+        ResponseData getAllExchangeRatePolicies();
 
-    public List<InvoiceTypeDTO> getFullByID(String idExchangeRate);
+        ResponseData getExchangeRatePolicyById(String id);
 
-    public ResponseData updateExchangeRatePolicy(String idExchange, String desc, float rate, boolean status);
+        ResponseData createExchangeRatePolicy(String id, String descriptionPolicy, Float rate, boolean status,
+                        Integer invoiceTypeId);
 
-    public ResponseData deleteExchangeRatePolicy(String idExchange);
+        ResponseData updateExchangeRatePolicy(String id, String descriptionPolicy, Float rate, boolean status,
+                        Integer invoiceTypeId);
 
-    public ResponseData createExchangeRatePolicy(String idExchange, String desc, float rate, boolean status);
+        ResponseData deactivateExchangeRatePolicy(String id);
 
-    public ResponseData getInforByID(String idExchangeRate);
-
-    public ResponseData applySelectOptions(String idExchangeRate, List<Integer> selectedOptions);
-
-    public List<ExchangeRatePolicyDTO> searchExchangeRate(String keyword);
-
-    public ResponseData getListExchangeRatePoliciesByInvoiceType(int invoiceTypeId);
+        ResponseData getAllExchangeRatePoliciesByInvoiceTypeId(int invoiceTypeId);
 }

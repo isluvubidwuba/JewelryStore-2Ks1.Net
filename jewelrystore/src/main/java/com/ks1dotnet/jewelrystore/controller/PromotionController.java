@@ -1,6 +1,7 @@
 package com.ks1dotnet.jewelrystore.controller;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.method.P;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,10 +20,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
+import com.ks1dotnet.jewelrystore.entity.ForProduct;
+import com.ks1dotnet.jewelrystore.entity.Product;
+import com.ks1dotnet.jewelrystore.entity.Promotion;
 import com.ks1dotnet.jewelrystore.exception.BadRequestException;
 import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
+import com.ks1dotnet.jewelrystore.repository.IPromotionRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IFileService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionService;
 
@@ -29,7 +36,8 @@ import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionService;
 @RequestMapping("/promotion")
 @CrossOrigin("*")
 public class PromotionController {
-
+    @Autowired
+    private IPromotionRepository iPromotionRepository;
     @Autowired
     private IPromotionService iPromotionService;
     @Autowired
@@ -166,8 +174,17 @@ public class PromotionController {
     @GetMapping("/all-promotion-on-product")
     public ResponseEntity<?> getPromotionsByProductId(@RequestParam int productId) {
         try {
-            List<PromotionDTO> lPromotionDTOs = iPromotionService.getAllPromotionByIdProduct(productId);
-            return new ResponseEntity<>(new ResponseData(null, "Get list promotion success", lPromotionDTOs),
+            // List<PromotionDTO> lPromotionDTOs =
+            // iPromotionService.getAllPromotionByIdProduct(productId);
+            Promotion list = iPromotionRepository.findById(45).get();
+            List<ProductDTO> list2 = new ArrayList<>();
+            List<ForProduct> list3 = list.getListForProduct();
+            for (ForProduct fp : list3) {
+                if (fp.isStatus()) {
+                    list2.add(fp.getProduct().getDTO());
+                }
+            }
+            return new ResponseEntity<>(new ResponseData(null, "Get list promotion success", list2),
                     HttpStatus.OK);
         } catch (Exception e) {
             return handleBadRequestException(e);

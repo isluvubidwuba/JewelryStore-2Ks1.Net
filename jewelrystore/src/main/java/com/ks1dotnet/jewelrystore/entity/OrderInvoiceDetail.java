@@ -1,8 +1,12 @@
 package com.ks1dotnet.jewelrystore.entity;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import com.ks1dotnet.jewelrystore.dto.OrderInvoiceDetailDTO;
+import com.ks1dotnet.jewelrystore.dto.ProductDTO;
+import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -47,6 +51,20 @@ public class OrderInvoiceDetail {
     private Counter counter;
 
     @OneToMany(mappedBy = "orderInvoiceDetail")
-    Set<VoucherOnInvoiceDetail> listVoucherOnInvoiceDetail;
+    List<VoucherOnInvoiceDetail> listVoucherOnInvoiceDetail;
 
+    public OrderInvoiceDetailDTO getDTO() {
+        List<PromotionDTO> listPromotion = new ArrayList<>();
+        for (VoucherOnInvoiceDetail voucherOnInvoiceDetail : this.listVoucherOnInvoiceDetail) {
+            listPromotion.add(voucherOnInvoiceDetail.getPromotion().getDTO());
+        }
+        return new OrderInvoiceDetailDTO(this.product.getDTO(), this.price, this.quantity, this.total_price,
+                listPromotion);
+    }
+
+    // private ProductDTO productDTO;
+    // private double price;
+    // private int quantity;
+    // private double totalPrice;
+    // private List<PromotionDTO> listPromotion;
 }

@@ -28,7 +28,7 @@ public class InvoiceType {
     private String name;
 
     @OneToMany(mappedBy = "invoiceType")
-    Set<PolicyForInvoice> listPolicyForInvoice;
+    Set<ExchangeRatePolicy> listExchangeRatePolicy;
 
     @OneToMany(mappedBy = "invoiceType")
     Set<OrderInvoice> listOrderInvoice;

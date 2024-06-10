@@ -1,7 +1,16 @@
 package com.ks1dotnet.jewelrystore.entity;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
+
+import com.ks1dotnet.jewelrystore.dto.EmployeeDTO;
+import com.ks1dotnet.jewelrystore.dto.InvoiceTypeDTO;
+import com.ks1dotnet.jewelrystore.dto.OrderInvoiceDetailDTO;
+import com.ks1dotnet.jewelrystore.dto.OrderInvoiceResponseDTO;
+import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
+import com.ks1dotnet.jewelrystore.dto.UserInfoDTO;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -44,8 +53,35 @@ public class OrderInvoice {
     private InvoiceType invoiceType;
 
     @OneToMany(mappedBy = "orderInvoice")
-    Set<VoucherOnInvoice> listVoucherOnInvoice;
+    List<VoucherOnInvoice> listVoucherOnInvoice;
 
     @OneToMany(mappedBy = "orderInvoice")
-    Set<OrderInvoiceDetail> listOrderInvoiceDetail;
+    List<OrderInvoiceDetail> listOrderInvoiceDetail;
+
+    public OrderInvoiceResponseDTO gResponseDTO() {
+        List<OrderInvoiceDetailDTO> listOrderInvoiceDetail = new ArrayList<>();
+        for (OrderInvoiceDetail orderInvoiceDetail : this.listOrderInvoiceDetail) {
+            listOrderInvoiceDetail.add(orderInvoiceDetail.getDTO());
+        }
+        List<PromotionDTO> promotions = new ArrayList<>();
+        for (VoucherOnInvoice voucherOnInvoice : this.listVoucherOnInvoice) {
+            promotions.add(voucherOnInvoice.getPromotion().getDTO());
+        }
+        return new OrderInvoiceResponseDTO(this.id, this.userInfo.getDTO(), this.employee.getDTO(),
+                this.invoiceType.getDTO(),
+                total_price_raw, total_price, discount_price, date, listOrderInvoiceDetail, promotions);
+
+    }
+
+    // private Integer id;
+    // private UserInfoDTO userInfo;
+    // private EmployeeDTO employee;
+    // private InvoiceTypeDTO invoiceType;
+    // private double totalPriceRaw;
+    // private double totalPrice;
+    // private double discountPrice;
+    // private Date date;
+    // private List<OrderInvoiceDetailDTO> listOrderInvoiceDetail;
+    // private List<PromotionDTO> promotions;
+
 }
