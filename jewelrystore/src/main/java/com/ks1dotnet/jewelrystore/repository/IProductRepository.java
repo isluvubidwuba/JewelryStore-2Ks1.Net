@@ -24,9 +24,6 @@ public interface IProductRepository extends JpaRepository<Product, Integer> {
         // @Param("idCounter") Integer idCounter,
         // @Param("fee") Double fee);
 
-        @Query(value = "SELECT MAX(p.id) FROM Product p")
-        Integer findMaxId();
-
         // @Transactional
         // @Procedure(procedureName = "GET_DynamicSearch_Product")
         // List<Product> dynamicSearchProduct(String search, String id_material, String
@@ -58,17 +55,5 @@ public interface IProductRepository extends JpaRepository<Product, Integer> {
 
         @Query("SELECT p FROM Product p WHERE p.counter.id = :counterId")
         public List<Product> findByCounterId(@Param("counterId") int counterId);
-
-        @Query(value = "SELECT * FROM Product p WHERE " +
-                        "(:search IS NULL OR p.product_code LIKE %:search% OR p.name COLLATE SQL_Latin1_General_CP1_CI_AI LIKE %:search% OR p.barcode LIKE %:search% OR p.fee LIKE %:search% OR p.weight LIKE %:search% ) AND "
-                        +
-                        "(:id_material IS NULL OR p.id_material LIKE %:id_material%) AND " +
-                        "(:id_product_category IS NULL OR p.id_product_category LIKE %:id_product_category%) AND " +
-                        "(:id_counter IS NULL OR p.id_counter LIKE %:id_counter%)", nativeQuery = true)
-        Page<Product> dynamicSearchProductV2(@Param("search") String search,
-                        @Param("id_material") String id_material,
-                        @Param("id_product_category") String id_product_category,
-                        @Param("id_counter") String id_counter,
-                        Pageable pageable);
 
 }

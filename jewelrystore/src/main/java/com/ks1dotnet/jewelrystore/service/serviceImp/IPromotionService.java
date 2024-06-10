@@ -13,10 +13,10 @@ public interface IPromotionService {
 
         Map<String, Object> getHomePagePromotion(int page);
 
-        ResponseData insertPromotion(MultipartFile file, String name, double value, boolean status, LocalDate start,
+        ResponseData insertPromotion(String file, String name, double value, boolean status, LocalDate start,
                         LocalDate end, String promotionType); // Thêm promotionType
 
-        PromotionDTO updatePromotion(MultipartFile file, int id, String name, double value, boolean status,
+        PromotionDTO updatePromotion(String file, int id, String name, double value, boolean status,
                         LocalDate start, LocalDate end);
 
         PromotionDTO findById(int id);

@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,12 +23,19 @@ import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 import com.ks1dotnet.jewelrystore.exception.BadRequestException;
 import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
+import com.ks1dotnet.jewelrystore.service.FirebaseStorageService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionService;
 
 @RestController
 @RequestMapping("/promotion")
 @CrossOrigin("*")
 public class PromotionController {
+
+    @Value("${fileUpload.promotionPath}")
+    private String filePath;
+
+    @Autowired
+    private FirebaseStorageService firebaseStorageService;
 
     @Autowired
     private IPromotionService iPromotionService;
@@ -44,7 +52,8 @@ public class PromotionController {
         try {
             LocalDate start = LocalDate.parse(startDate);
             LocalDate end = LocalDate.parse(endDate);
-            ResponseData responseData = iPromotionService.insertPromotion(file, name, value, status, start, end,
+            String filename = firebaseStorageService.uploadImage(file, filePath).getData().toString();
+            ResponseData responseData = iPromotionService.insertPromotion(filename, name, value, status, start, end,
                     promotionType);
             if (responseData.getStatus() == HttpStatus.OK) {
                 return new ResponseEntity<>(responseData, HttpStatus.OK);
@@ -60,7 +69,7 @@ public class PromotionController {
 
     @PostMapping("/update")
     public ResponseEntity<?> update(
-            @RequestParam MultipartFile file,
+            @RequestParam String file,
             @RequestParam int id,
             @RequestParam String name,
             @RequestParam double value,
@@ -145,20 +154,21 @@ public class PromotionController {
         }
     }
 
-    @GetMapping("/files/{filename:.+}")
-    @ResponseBody
-    public ResponseEntity<?> getFile(@PathVariable String filename) {
-        try {
-            Resource resource = iFileService.loadFile(filename);
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
-                    .body(resource);
-        } catch (BadRequestException e) {
-            return handleBadRequestException(e);
-        } catch (Exception e) {
-            return handleException(e);
-        }
-    }
+    // @GetMapping("/files/{filename:.+}")
+    // @ResponseBody
+    // public ResponseEntity<?> getFile(@PathVariable String filename) {
+    // try {
+    // Resource resource = iFileService.loadFile(filename);
+    // return ResponseEntity.ok()
+    // .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" +
+    // resource.getFilename() + "\"")
+    // .body(resource);
+    // } catch (BadRequestException e) {
+    // return handleBadRequestException(e);
+    // } catch (Exception e) {
+    // return handleException(e);
+    // }
+    // }
 
     @GetMapping("/all-promotion-on-product")
     public ResponseEntity<?> getPromotionsByProductId(@RequestParam int productId) {

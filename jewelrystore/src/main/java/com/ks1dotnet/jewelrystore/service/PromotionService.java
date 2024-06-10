@@ -22,7 +22,6 @@ import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IForCustomerRepository;
 import com.ks1dotnet.jewelrystore.repository.IPromotionRepository;
-import com.ks1dotnet.jewelrystore.service.serviceImp.IFileService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IProductService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionService;
 
@@ -31,8 +30,6 @@ public class PromotionService implements IPromotionService {
     @Autowired
     private IPromotionRepository iPromotionRepository;
 
-    @Autowired
-    private IFileService iFileService;
     @Autowired
     private IProductService iProductService;
     @Autowired
@@ -56,7 +53,7 @@ public class PromotionService implements IPromotionService {
     }
 
     @Override
-    public ResponseData insertPromotion(MultipartFile file, String name, double value, boolean status,
+    public ResponseData insertPromotion(String file, String name, double value, boolean status,
             LocalDate startDate, LocalDate endDate, String promotionType) {
         ResponseData responseData = new ResponseData();
         try {
@@ -68,19 +65,7 @@ public class PromotionService implements IPromotionService {
             promotion.setEndDate(endDate);
             promotion.setLastModified();
             promotion.setPromotionType(promotionType);
-
-            if (file != null && !file.isEmpty()) {
-                boolean isSaveFileSuccess = iFileService.savefile(file);
-                if (isSaveFileSuccess) {
-                    promotion.setImage(file.getOriginalFilename());
-                } else {
-                    responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-                    responseData.setDesc("File upload failed.");
-                    return responseData;
-                }
-            } else {
-                promotion.setImage("default_image.jpg");
-            }
+            promotion.setImage(file);
 
             PromotionDTO promotionDTO = iPromotionRepository.save(promotion).getDTO();
             responseData.setData(promotionDTO);
@@ -94,7 +79,7 @@ public class PromotionService implements IPromotionService {
     }
 
     @Override
-    public PromotionDTO updatePromotion(MultipartFile file, int id, String name, double value, boolean status,
+    public PromotionDTO updatePromotion(String file, int id, String name, double value, boolean status,
             LocalDate startDate, LocalDate endDate) {
         try {
             Promotion promotion = iPromotionRepository.findById(id)
@@ -106,14 +91,7 @@ public class PromotionService implements IPromotionService {
             promotion.setStartDate(startDate);
             promotion.setEndDate(endDate);
             promotion.setLastModified();
-            // promotion.setPromotionType(promotionType);
-
-            if (file != null && !file.isEmpty()) {
-                boolean isSaveFileSuccess = iFileService.savefile(file);
-                if (isSaveFileSuccess) {
-                    promotion.setImage(file.getOriginalFilename());
-                }
-            }
+            promotion.setImage(file);
 
             promotion = iPromotionRepository.save(promotion);
             return promotion.getDTO();
