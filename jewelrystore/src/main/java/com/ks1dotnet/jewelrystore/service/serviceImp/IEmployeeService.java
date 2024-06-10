@@ -30,14 +30,5 @@ public interface IEmployeeService {
 
         public Map<String, Object> findByCriteria(String criteria, String query, int page);
 
-        // private int id;
-        // private String firstName;
-        // private String lastName;
-        // private String pinCode;
-        // private boolean status;
-        // private String phoneNumber;
-        // private String email;
-        // private String address;
-        // private RoleDTO role;
-        // }
+        public ResponseData getStaff();
 }

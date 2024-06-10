@@ -18,7 +18,9 @@ import lombok.*;
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int id;
+    @Column(name = "name")
     private String name;
 
     @OneToMany(mappedBy = "role")
@@ -29,6 +31,11 @@ public class Role {
 
     public RoleDTO getDTO() {
         return new RoleDTO(id, name);
+    }
+
+    public Role(RoleDTO t) {
+        this.id = t.getId();
+        this.name = t.getName();
     }
 
 }

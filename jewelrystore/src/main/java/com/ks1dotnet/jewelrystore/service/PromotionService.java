@@ -1,23 +1,30 @@
 package com.ks1dotnet.jewelrystore.service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
+import com.ks1dotnet.jewelrystore.entity.ForCustomer;
 import com.ks1dotnet.jewelrystore.entity.Promotion;
 import com.ks1dotnet.jewelrystore.exception.BadRequestException;
+import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
+import com.ks1dotnet.jewelrystore.payload.ResponseData;
+import com.ks1dotnet.jewelrystore.repository.IForCustomerRepository;
 import com.ks1dotnet.jewelrystore.repository.IPromotionRepository;
+import com.ks1dotnet.jewelrystore.service.serviceImp.IFileService;
+import com.ks1dotnet.jewelrystore.service.serviceImp.IProductService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionService;
-import com.ks1dotnet.jewelrystore.service.serviceImp.IVoucherTypeService;
 
 @Service
 public class PromotionService implements IPromotionService {
@@ -25,103 +32,20 @@ public class PromotionService implements IPromotionService {
     private IPromotionRepository iPromotionRepository;
 
     @Autowired
-    private IVoucherTypeService iVoucherTypeService;
+    private IFileService iFileService;
+    @Autowired
+    private IProductService iProductService;
+    @Autowired
+    private IForCustomerRepository iForCustomerRepository;
 
     @Override
-    public List<Promotion> findAll() {
-        try {
-            return iPromotionRepository.findAll();
-        } catch (Exception e) {
-            throw new BadRequestException("Failed to fetch all promotions", e.getMessage());
-        }
-    }
-
-    @Override
-    public Promotion saveOrUpdatePromotion(Promotion promotion) {
-        try {
-            return iPromotionRepository.save(promotion);
-        } catch (Exception e) {
-            throw new BadRequestException("Failed to save or update promotion", e.getMessage());
-        }
-    }
-
-    @Override
-    public Promotion findById(int id) {
-        try {
-            return iPromotionRepository.findById(id).orElse(null);
-        } catch (Exception e) {
-            throw new BadRequestException("Failed to find promotion by id", e.getMessage());
-        }
-    }
-
-    @Override
-    public List<Promotion> searchByName(String name) {
-        try {
-            return iPromotionRepository.findByNameLike("%" + name + "%");
-        } catch (Exception e) {
-            throw new BadRequestException("Failed to search promotions by name", e.getMessage());
-        }
-    }
-
-    @Override
-    public PromotionDTO insertPromotion(String fileName, String name, int idVoucherType, double value,
-            boolean status) {
-        PromotionDTO promotionDTO = new PromotionDTO();
-        try {
-            // boolean isSaveFileSuccess = iFileService.savefile(file);
-            boolean isSaveFileSuccess = true;
-            if (isSaveFileSuccess) {
-                Promotion promotion = new Promotion();
-                promotion.setName(name);
-                promotion.setVoucherType(iVoucherTypeService.getVoucherById(idVoucherType));
-                promotion.setValue(value);
-                promotion.setStatus(status);
-                promotion.setImage(fileName);
-                promotionDTO = iPromotionRepository.save(promotion).getDTO();
-                return promotionDTO;
-            } else {
-                promotionDTO = null;
-                return promotionDTO;
-            }
-        } catch (Exception e) {
-            throw new BadRequestException("Failed to insert promotion", e.getMessage());
-        }
-    }
-
-    @Override
-    public List<PromotionDTO> getHomePagePromotion(int page) {
-        try {
-            List<PromotionDTO> promotionDTOs = new ArrayList<>();
-            PageRequest pageRequest = PageRequest.of(page, 8);
-            Page<Promotion> listData = iPromotionRepository.findAll(pageRequest);
-            for (Promotion p : listData) {
-                PromotionDTO promotionDTO = new PromotionDTO();
-                promotionDTO.setImage(p.getImage());
-                promotionDTO.setName(p.getName());
-                promotionDTO.setStatus(p.isStatus());
-                promotionDTO.setValue(p.getValue());
-                promotionDTO.setIdVoucherType(p.getVoucherType().getId());
-                promotionDTOs.add(promotionDTO);
-            }
-            return promotionDTOs;
-        } catch (Exception e) {
-            throw new BadRequestException("Failed to get home page promotions", e.getMessage());
-        }
-    }
-
-    @Override
-    public Map<String, Object> getHomePagePromotion2(int page) {
+    public Map<String, Object> getHomePagePromotion(int page) {
         try {
             Map<String, Object> response = new HashMap<>();
-            List<PromotionDTO> promotionDTOs = new ArrayList<>();
-            PageRequest pageRequest = PageRequest.of(page, 8);
-            Page<Promotion> listData = iPromotionRepository.findAll(pageRequest);
+            PageRequest pageRequest = PageRequest.of(page, 2);
+            Page<PromotionDTO> listData = iPromotionRepository.findAllPromotions(pageRequest);
 
-            for (Promotion p : listData) {
-                promotionDTOs.add(p.getDTO());
-            }
-
-            response.put("promotions", promotionDTOs);
+            response.put("promotions", listData.getContent());
             response.put("totalPages", listData.getTotalPages());
             response.put("currentPage", page);
 
@@ -132,25 +56,139 @@ public class PromotionService implements IPromotionService {
     }
 
     @Override
-    public PromotionDTO updatePromotion(String fileName, int id, String name, int idVoucherType, double value,
-            boolean status) {
+    public ResponseData insertPromotion(MultipartFile file, String name, double value, boolean status,
+            LocalDate startDate, LocalDate endDate, String promotionType) {
+        ResponseData responseData = new ResponseData();
         try {
-            Optional<Promotion> promotionOptional = iPromotionRepository.findById(id);
-            PromotionDTO promotionDTO = new PromotionDTO();
-            if (promotionOptional.isPresent()) {
-                Promotion promotion = new Promotion();
-                promotion.setId(id);
-                promotion.setName(name);
-                promotion.setVoucherType(iVoucherTypeService.getVoucherById(idVoucherType));
-                promotion.setValue(value);
-                promotion.setStatus(status);
-                promotion.setImage(fileName);
-                iPromotionRepository.save(promotion);
-                promotionDTO = promotion.getDTO();
+            Promotion promotion = new Promotion();
+            promotion.setName(name);
+            promotion.setValue(value);
+            promotion.setStatus(status);
+            promotion.setStartDate(startDate);
+            promotion.setEndDate(endDate);
+            promotion.setLastModified();
+            promotion.setPromotionType(promotionType);
+
+            if (file != null && !file.isEmpty()) {
+                boolean isSaveFileSuccess = iFileService.savefile(file);
+                if (isSaveFileSuccess) {
+                    promotion.setImage(file.getOriginalFilename());
+                } else {
+                    responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+                    responseData.setDesc("File upload failed.");
+                    return responseData;
+                }
+            } else {
+                promotion.setImage("default_image.jpg");
             }
-            return promotionDTO;
+
+            PromotionDTO promotionDTO = iPromotionRepository.save(promotion).getDTO();
+            responseData.setData(promotionDTO);
+            responseData.setStatus(HttpStatus.OK);
+            responseData.setDesc("Insert successful");
+        } catch (Exception e) {
+            throw new BadRequestException("Failed to insert promotion", e.getMessage());
+        }
+
+        return responseData;
+    }
+
+    @Override
+    public PromotionDTO updatePromotion(MultipartFile file, int id, String name, double value, boolean status,
+            LocalDate startDate, LocalDate endDate) {
+        try {
+            Promotion promotion = iPromotionRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Promotion not found with id: " + id));
+
+            promotion.setName(name);
+            promotion.setValue(value);
+            promotion.setStatus(status);
+            promotion.setStartDate(startDate);
+            promotion.setEndDate(endDate);
+            promotion.setLastModified();
+            // promotion.setPromotionType(promotionType);
+
+            if (file != null && !file.isEmpty()) {
+                boolean isSaveFileSuccess = iFileService.savefile(file);
+                if (isSaveFileSuccess) {
+                    promotion.setImage(file.getOriginalFilename());
+                }
+            }
+
+            promotion = iPromotionRepository.save(promotion);
+            return promotion.getDTO();
         } catch (Exception e) {
             throw new BadRequestException("Failed to update promotion", e.getMessage());
         }
     }
+
+    @Override
+    public PromotionDTO findById(int id) {
+        PromotionDTO promotionDTO = iPromotionRepository.findPromotionDTOById(id);
+        if (promotionDTO == null) {
+            throw new ResourceNotFoundException("Promotion not found with id: " + id);
+        }
+        return promotionDTO;
+    }
+
+    @Override
+    public void deletePromotion(int id) {
+        try {
+            Promotion promotion = iPromotionRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Promotion not found with id: " + id));
+            promotion.setStatus(false);
+            iPromotionRepository.save(promotion);
+        } catch (Exception e) {
+            throw new BadRequestException("Failed to delete promotion", e.getMessage());
+        }
+    }
+
+    @Override
+    public void deleteExpiredPromotions() {
+        try {
+            List<Promotion> expiredPromotions = iPromotionRepository.findByEndDateBefore(LocalDate.now());
+            for (Promotion promotion : expiredPromotions) {
+                promotion.setStatus(false);
+                iPromotionRepository.save(promotion);
+            }
+        } catch (Exception e) {
+            throw new BadRequestException("Failed to delete expired promotions", e.getMessage());
+        }
+    }
+
+    @Override
+    public List<PromotionDTO> getPromotionsByProductId(int productId) {
+        return iPromotionRepository.findPromotionsByProductId(productId);
+    }
+
+    @Override
+    public List<PromotionDTO> getPromotionsByProductCategoryId(int productCategoryId) {
+        return iPromotionRepository.findPromotionsByProductCategoryId(productCategoryId);
+    }
+
+    @Override
+    public List<PromotionDTO> getAllPromotionByIdProduct(int productId) {
+        try {
+            List<PromotionDTO> promotions = getPromotionsByProductId(productId);
+            ProductDTO productDTO = (ProductDTO) iProductService.findById(productId).getData();
+            promotions
+                    .addAll(getPromotionsByProductCategoryId(productDTO.getProductCategoryDTO().getId()));
+            return promotions;
+        } catch (Exception e) {
+            System.out.println("Failed get promotion by id product " + e.getMessage());
+            throw new BadRequestException("Failed get promotion by id product", e.getMessage());
+        }
+
+    }
+
+    @Override
+    public List<PromotionDTO> getPromotionsByUserId(int userId) {
+        List<ForCustomer> forCustomers = iForCustomerRepository.findActivePromotionsByUserId(userId);
+        List<PromotionDTO> promotionDTOs = new ArrayList<>();
+        for (ForCustomer fc : forCustomers) {
+            promotionDTOs.add(fc.getPromotion().getDTO());
+        }
+        return promotionDTOs;
+    }
+
 }

@@ -2,6 +2,8 @@ package com.ks1dotnet.jewelrystore.entity;
 
 import java.util.Set;
 
+import com.ks1dotnet.jewelrystore.dto.OrderInvoiceDetailDTO;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -46,4 +48,5 @@ public class OrderInvoiceDetail {
 
     @OneToMany(mappedBy = "orderInvoiceDetail")
     Set<VoucherOnInvoiceDetail> listVoucherOnInvoiceDetail;
+
 }

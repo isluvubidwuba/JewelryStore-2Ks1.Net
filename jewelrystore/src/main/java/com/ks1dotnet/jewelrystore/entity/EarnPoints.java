@@ -1,5 +1,7 @@
 package com.ks1dotnet.jewelrystore.entity;
 
+import com.ks1dotnet.jewelrystore.dto.EarnPointsDTO;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -31,4 +33,16 @@ public class EarnPoints {
     @ManyToOne
     @JoinColumn(name = "id_customer_type")
     private CustomerType customerType;
+
+    public EarnPointsDTO getDTO(EarnPointsDTO e) {
+        return new EarnPointsDTO(this.id, this.point, this.userInfo.getDTO(), this.customerType.getDTO());
+    }
+
+    public EarnPoints(EarnPointsDTO t) {
+        this.id = t.getId();
+        this.point = t.getPoint();
+        this.userInfo = new UserInfo(t.getUserInfoDTO());
+        this.customerType = new CustomerType(t.getCustomerTypeDTO());
+    }
+
 }

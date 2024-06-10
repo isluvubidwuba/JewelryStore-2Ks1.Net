@@ -1,6 +1,6 @@
 package com.ks1dotnet.jewelrystore.entity;
 
-import java.sql.Date;
+import java.util.Date;
 import java.util.Set;
 
 import jakarta.persistence.Column;

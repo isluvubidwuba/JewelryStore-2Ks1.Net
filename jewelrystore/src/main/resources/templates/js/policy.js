@@ -2,11 +2,17 @@ const rowsLimit = 6;
 let currentPage = 0;
 let totalPage = 0;
 let policies = [];
+const token = localStorage.getItem("token");
 
 function fetchPolicies() {
+  console.log(token);
+
   $.ajax({
     url: "http://localhost:8080/policy/listpolicy",
     method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       if (response.status === "OK") {
         policies = response.data;
@@ -18,7 +24,8 @@ function fetchPolicies() {
         alert("Failed to fetch data");
       }
     },
-    error: function () {
+    error: function (xhr, status, error) {
+      console.error(`Error fetching data: ${xhr.status} - ${xhr.responseText}`);
       alert("Error fetching data");
     },
   });
@@ -28,6 +35,9 @@ function searchPolicies(keyword) {
   $.ajax({
     url: "http://localhost:8080/policy/searhExchangeRate",
     method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     data: { keyword: keyword },
     success: function (response) {
       if (response.status === "OK") {
@@ -185,6 +195,9 @@ function loadDropdownOptions(idExchangeRate, button) {
   $.ajax({
     url: `http://localhost:8080/policy/detail?idExchangeRate=${idExchangeRate}`,
     method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     success: function (response) {
       if (response.status === "OK") {
         populateDropdown(
@@ -342,6 +355,9 @@ $(document).ready(function () {
     $.ajax({
       url: `http://localhost:8080/policy/infor?idExchangeRate=${idExchangeRate}`,
       type: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       success: function (response) {
         if (response.status === "OK") {
           const data = response.data;
@@ -374,9 +390,13 @@ $(document).ready(function () {
     $.ajax({
       url: "http://localhost:8080/policy/updateexchange",
       type: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       data: formData,
       processData: false,
       contentType: false,
+
       success: function (response) {
         if (response.status === "OK") {
           // const updatedRow = $(`#table-body tr[data-id='${idExchange}']`);
@@ -407,26 +427,45 @@ $(document).ready(function () {
   //submit delete
   $(document).on("click", ".text-red-500", function () {
     const idExchangeRate = $(this).data("id");
+    $("#deleteModal").removeClass("hidden").addClass("flex");
 
-    if (confirm("Are you sure you want to delete this policy?")) {
-      $.ajax({
-        url: `http://localhost:8080/policy/deleteexchange?idExchange=${idExchangeRate}`,
-        type: "POST",
-        success: function (response) {
-          if (response.status === "OK") {
-            $(`#table-body tr[data-id='${idExchangeRate}']`).remove();
-            alert("Policy deleted successfully");
-            fetchPolicies();
-          } else {
-            alert("Failed to delete exchange rate policy");
-          }
-        },
-        error: function (xhr, status, error) {
-          alert("An error occurred while deleting the exchange rate policy.");
-          console.log(xhr.responseText);
-        },
+    $("#confirmDelete")
+      .off("click")
+      .on("click", function () {
+        $.ajax({
+          url: `http://localhost:8080/policy/deleteexchange?idExchange=${idExchangeRate}`,
+          type: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          success: function (response) {
+            if (response.status === "OK") {
+              $(`#table-body tr[data-id='${idExchangeRate}']`).remove();
+              alert("Policy deleted successfully");
+              fetchPolicies();
+            } else {
+              alert("Failed to delete exchange rate policy");
+            }
+            $("#deleteModal").removeClass("flex").addClass("hidden");
+          },
+          error: function (xhr, status, error) {
+            alert("An error occurred while deleting the exchange rate policy.");
+            console.log(xhr.responseText);
+            $("#deleteModal").removeClass("flex").addClass("hidden");
+          },
+        });
       });
-    }
+
+    $("#cancelDelete")
+      .off("click")
+      .on("click", function () {
+        $("#deleteModal").removeClass("flex").addClass("hidden");
+      });
+    $("#closeDelete")
+      .off("click")
+      .on("click", function () {
+        $("#deleteModal").removeClass("flex").addClass("hidden");
+      });
   });
 
   //submit apply options
@@ -445,6 +484,9 @@ $(document).ready(function () {
     $.ajax({
       url: "http://localhost:8080/policy/applySelectedOptions",
       method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       contentType: "application/json",
       data: JSON.stringify({ idExchangeRate, selectedOptions }), // Include idExchangeRate
       success: function (response) {
@@ -472,6 +514,9 @@ $(document).ready(function () {
       url: "http://localhost:8080/policy/addinvoicetype",
       type: "POST",
       data: invoiceTypeData,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       success: function (response) {
         if (response.status === "OK") {
           alert("Add invoice type successful!");
@@ -527,6 +572,9 @@ $(document).ready(function () {
     $.ajax({
       url: "http://localhost:8080/policy/updateinvoicetype",
       type: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       data: invoiceTypeData,
       success: function (response) {
         if (response.status === "OK") {
@@ -570,6 +618,9 @@ function submitInsertForm() {
         url: "http://localhost:8080/policy/createexchange",
         type: "POST",
         data: formData,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         processData: false,
         contentType: false,
         success: function (response) {

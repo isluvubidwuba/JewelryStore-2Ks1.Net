@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.ks1dotnet.jewelrystore.dto.UserInfoDTO;
 import com.ks1dotnet.jewelrystore.entity.UserInfo;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 
@@ -23,7 +22,8 @@ public interface IUserInfoService {
                         int roleId,
                         String address);
 
-        public UserInfoDTO updateUserInfo(MultipartFile file, int id, String fullName, String phoneNumber, String email,
+        public ResponseData updateUserInfo(MultipartFile file, int id, String fullName, String phoneNumber,
+                        String email,
                         int roleId, String address);
 
         public Map<String, Object> listCustomer(int page);

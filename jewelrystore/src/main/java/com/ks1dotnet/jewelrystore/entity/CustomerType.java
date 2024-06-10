@@ -2,6 +2,8 @@ package com.ks1dotnet.jewelrystore.entity;
 
 import java.util.Set;
 
+import com.ks1dotnet.jewelrystore.dto.CustomerTypeDTO;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -23,7 +25,7 @@ public class CustomerType {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @Column(name = "type")
-    private Integer type;
+    private String type;
     @Column(name = "point_condition")
     private Integer pointCondition;
 
@@ -32,4 +34,15 @@ public class CustomerType {
 
     @OneToMany(mappedBy = "customerType")
     Set<EarnPoints> listEarnPoints;
+
+    public CustomerTypeDTO getDTO() {
+        return new CustomerTypeDTO(this.id, this.type, this.pointCondition);
+    }
+
+    public CustomerType(CustomerTypeDTO t) {
+        this.id = t.getId();
+        this.type = t.getType();
+        this.pointCondition = t.getPointCondition();
+    }
+
 }

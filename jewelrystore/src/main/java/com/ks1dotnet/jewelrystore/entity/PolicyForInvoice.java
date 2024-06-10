@@ -1,6 +1,5 @@
 package com.ks1dotnet.jewelrystore.entity;
 
-import com.ks1dotnet.jewelrystore.dto.InvoiceTypeDTO;
 import com.ks1dotnet.jewelrystore.dto.PolicyForInvoiceDTO;
 
 import jakarta.persistence.Entity;

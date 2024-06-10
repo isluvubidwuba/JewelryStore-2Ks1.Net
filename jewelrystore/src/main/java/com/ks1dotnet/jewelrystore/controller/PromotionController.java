@@ -1,5 +1,6 @@
 package com.ks1dotnet.jewelrystore.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
-import com.ks1dotnet.jewelrystore.entity.Promotion;
 import com.ks1dotnet.jewelrystore.exception.BadRequestException;
+import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionService;
 
@@ -27,28 +28,29 @@ import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionService;
 @RequestMapping("/promotion")
 @CrossOrigin("*")
 public class PromotionController {
+
     @Autowired
     private IPromotionService iPromotionService;
 
-    @GetMapping("/list")
-    private ResponseEntity<?> findAll() {
+    @PostMapping("/create")
+    public ResponseEntity<?> create(
+            @RequestParam(required = false) MultipartFile file,
+            @RequestParam String name,
+            @RequestParam double value,
+            @RequestParam boolean status,
+            @RequestParam String startDate,
+            @RequestParam String endDate,
+            @RequestParam String promotionType) { // Thêm promotionType vào đây
         try {
-            ResponseData responseData = new ResponseData();
-            responseData.setData(iPromotionService.findAll());
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
-        } catch (BadRequestException e) {
-            return handleBadRequestException(e);
-        } catch (Exception e) {
-            return handleException(e);
-        }
-    }
-
-    @GetMapping("/getHomePagePromotion")
-    private ResponseEntity<?> getHomePagePromotion(@RequestParam int page) {
-        try {
-            ResponseData responseData = new ResponseData();
-            responseData.setData(iPromotionService.getHomePagePromotion2(page));
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
+            LocalDate start = LocalDate.parse(startDate);
+            LocalDate end = LocalDate.parse(endDate);
+            ResponseData responseData = iPromotionService.insertPromotion(file, name, value, status, start, end,
+                    promotionType);
+            if (responseData.getStatus() == HttpStatus.OK) {
+                return new ResponseEntity<>(responseData, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
         } catch (BadRequestException e) {
             return handleBadRequestException(e);
         } catch (Exception e) {
@@ -57,43 +59,22 @@ public class PromotionController {
     }
 
     @PostMapping("/update")
-    private ResponseEntity<?> update(@RequestParam String img, @RequestParam int id,
-            @RequestParam String name, @RequestParam int idVoucherType,
-            @RequestParam double value, @RequestParam boolean status) {
+    public ResponseEntity<?> update(
+            @RequestParam MultipartFile file,
+            @RequestParam int id,
+            @RequestParam String name,
+            @RequestParam double value,
+            @RequestParam boolean status,
+            @RequestParam String startDate,
+            @RequestParam String endDate) {
         try {
+            LocalDate start = LocalDate.parse(startDate);
+            LocalDate end = LocalDate.parse(endDate);
             ResponseData responseData = new ResponseData();
-            PromotionDTO promotionDTO = iPromotionService.updatePromotion(img, id, name, idVoucherType, value, status);
-
-            if (promotionDTO != null) {
-                responseData.setDesc("Update successful");
-                responseData.setData(promotionDTO);
-                return new ResponseEntity<>(responseData, HttpStatus.OK);
-            } else {
-                responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-                responseData.setDesc("Update failed. Internal Server Error");
-                return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        } catch (BadRequestException e) {
-            return handleBadRequestException(e);
-        } catch (Exception e) {
-            return handleException(e);
-        }
-    }
-
-    @PostMapping("/getById")
-    private ResponseEntity<?> getById(@RequestParam int id) {
-        try {
-            ResponseData responseData = new ResponseData();
-            Promotion promotion = iPromotionService.findById(id);
-            if (promotion != null) {
-                responseData.setDesc("Find successful");
-                responseData.setData(promotion.getDTO());
-                return new ResponseEntity<>(responseData, HttpStatus.OK);
-            } else {
-                responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-                responseData.setDesc("Find fail. Internal Server Error");
-                return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+            PromotionDTO promotionDTO = iPromotionService.updatePromotion(file, id, name, value, status, start, end);
+            responseData.setDesc("Update successful");
+            responseData.setData(promotionDTO);
+            return new ResponseEntity<>(responseData, HttpStatus.OK);
         } catch (BadRequestException e) {
             return handleBadRequestException(e);
         } catch (Exception e) {
@@ -102,29 +83,60 @@ public class PromotionController {
     }
 
     @GetMapping("/delete/{id}")
-    private ResponseEntity<?> delete(@PathVariable int id) {
+    public ResponseEntity<?> delete(@PathVariable int id) {
         try {
             ResponseData responseData = new ResponseData();
-            Promotion promotion = iPromotionService.findById(id);
-            promotion.setStatus(false);
-            Promotion updatedPromotion = iPromotionService.saveOrUpdatePromotion(promotion);
+            PromotionDTO promotionDTO = iPromotionService.findById(id);
+            if (promotionDTO == null) {
+                throw new ResourceNotFoundException("Promotion not found with id: " + id);
+            }
+            iPromotionService.deletePromotion(id);
             responseData.setDesc("Delete successful");
-            responseData.setData(updatedPromotion);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
+        } catch (ResourceNotFoundException e) {
+            ResponseData responseData = new ResponseData();
+            responseData.setStatus(HttpStatus.NOT_FOUND);
+            responseData.setDesc(e.getMessage());
+            return new ResponseEntity<>(responseData, HttpStatus.NOT_FOUND);
         } catch (BadRequestException e) {
-            return handleBadRequestException(e);
+            ResponseData responseData = new ResponseData();
+            responseData.setStatus(HttpStatus.BAD_REQUEST);
+            responseData.setDesc(e.getMessage());
+            return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            return handleException(e);
+            ResponseData responseData = new ResponseData();
+            responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            responseData.setDesc("An unexpected error occurred: " + e.getMessage());
+            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("/search/{name}")
-    private ResponseEntity<?> search(@PathVariable String name) {
+    @PostMapping("/getById")
+    public ResponseEntity<?> getById(@RequestParam int id) {
         try {
             ResponseData responseData = new ResponseData();
-            List<Promotion> listPromotions = iPromotionService.searchByName(name);
-            responseData.setDesc("Search successful");
-            responseData.setData(listPromotions);
+            PromotionDTO promotionDTO = iPromotionService.findById(id);
+            responseData.setDesc("Find successful");
+            responseData.setData(promotionDTO);
+            return new ResponseEntity<>(responseData, HttpStatus.OK);
+        } catch (ResourceNotFoundException e) {
+            ResponseData responseData = new ResponseData();
+            responseData.setStatus(HttpStatus.NOT_FOUND);
+            responseData.setDesc(e.getMessage());
+            return new ResponseEntity<>(responseData, HttpStatus.NOT_FOUND);
+        } catch (BadRequestException e) {
+            return handleBadRequestException(e);
+        } catch (Exception e) {
+            return handleException(e);
+        }
+    }
+
+    @GetMapping("/getHomePagePromotion")
+    public ResponseEntity<?> getHomePagePromotion(@RequestParam int page) {
+        iPromotionService.deleteExpiredPromotions();
+        try {
+            ResponseData responseData = new ResponseData();
+            responseData.setData(iPromotionService.getHomePagePromotion(page));
             return new ResponseEntity<>(responseData, HttpStatus.OK);
         } catch (BadRequestException e) {
             return handleBadRequestException(e);
@@ -133,51 +145,56 @@ public class PromotionController {
         }
     }
 
-    @PostMapping("/create")
-    private ResponseEntity<?> create(@RequestParam String img,
-            @RequestParam String name, @RequestParam int idVoucherType,
-            @RequestParam double value, @RequestParam boolean status) {
-        ResponseData responseData = new ResponseData();
-        PromotionDTO isSuccess = iPromotionService.insertPromotion(img, name, idVoucherType, value, status);
-
-        if (isSuccess != null) {
-            responseData.setData(isSuccess);
-            responseData.setDesc("Insert successful");
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
+    @GetMapping("/files/{filename:.+}")
+    @ResponseBody
+    public ResponseEntity<?> getFile(@PathVariable String filename) {
+        try {
+            Resource resource = iFileService.loadFile(filename);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                    .body(resource);
+        } catch (BadRequestException e) {
+            return handleBadRequestException(e);
+        } catch (Exception e) {
+            return handleException(e);
         }
-        responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-        responseData.setDesc("Insert fail. Internal Server Error");
-        return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @GetMapping("/all-promotion-on-product")
+    public ResponseEntity<?> getPromotionsByProductId(@RequestParam int productId) {
+        try {
+            List<PromotionDTO> lPromotionDTOs = iPromotionService.getAllPromotionByIdProduct(productId);
+            return new ResponseEntity<>(new ResponseData(null, "Get list promotion success", lPromotionDTOs),
+                    HttpStatus.OK);
+        } catch (Exception e) {
+            return handleBadRequestException(e);
+        }
 
     }
 
-    // @GetMapping("/files/{filename:.+}")
-    // @ResponseBody
-    // public ResponseEntity<?> getFile(@PathVariable String filename) {
-    // try {
-    // Resource resource = iFileService.loadFile(filename);
-    // return ResponseEntity.ok()
-    // .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" +
-    // resource.getFilename() + "\"")
-    // .body(resource);
-    // } catch (BadRequestException e) {
-    // return handleBadRequestException(e);
-    // } catch (Exception e) {
-    // return handleException(e);
-    // }
-    // }
+    @GetMapping("/by-user")
+    public ResponseEntity<?> getPromotionsByUserId(@RequestParam int userId) {
+        try {
+            List<PromotionDTO> promotions = iPromotionService.getPromotionsByUserId(userId);
+            ResponseData responseData = new ResponseData(HttpStatus.OK, "Get list promotion success", promotions);
+            return new ResponseEntity<>(responseData, HttpStatus.OK);
+        } catch (Exception e) {
+            return handleBadRequestException(e);
+        }
 
-    private ResponseEntity<ResponseData> handleBadRequestException(BadRequestException e) {
+    }
+
+    private ResponseEntity<?> handleBadRequestException(Exception e) {
         ResponseData responseData = new ResponseData();
         responseData.setStatus(HttpStatus.BAD_REQUEST);
-        responseData.setDesc("Bad request: " + e.getErrorString());
+        responseData.setDesc(e.getMessage());
         return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
     }
 
-    private ResponseEntity<ResponseData> handleException(Exception e) {
+    private ResponseEntity<?> handleException(Exception e) {
         ResponseData responseData = new ResponseData();
         responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-        responseData.setDesc("An error occurred: " + e.getMessage());
+        responseData.setDesc("An unexpected error occurred: " + e.getMessage());
         return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

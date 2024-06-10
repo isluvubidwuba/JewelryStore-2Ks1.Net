@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.ks1dotnet.jewelrystore.dto.UserInfoDTO;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IUserInfoService;
 
@@ -61,19 +60,13 @@ public class UserInfoController {
             @RequestParam String email,
             @RequestParam int roleId,
             @RequestParam String address) {
-        ResponseData ResponseData = new ResponseData();
 
-        UserInfoDTO userInfoDTO = iUserInfoService.updateUserInfo(file, id, fullName, phoneNumber, email, roleId,
+        ResponseData responseData = iUserInfoService.updateUserInfo(file, id, fullName, phoneNumber, email, roleId,
                 address);
-        if (userInfoDTO != null) {
-            ResponseData.setDesc("Update successful");
-            ResponseData.setData(userInfoDTO);
-            ResponseData.setStatus(HttpStatus.OK);
-            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
+        if (responseData.getStatus() == HttpStatus.OK) {
+            return new ResponseEntity<>(responseData, HttpStatus.OK);
         } else {
-            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-            ResponseData.setDesc("Update failed. Internal Server Error");
-            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(responseData, responseData.getStatus());
         }
     }
 
@@ -146,7 +139,7 @@ public class UserInfoController {
         }
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/findcustomer/{id}")
     public ResponseEntity<?> getUserInfo(@PathVariable("id") int id) {
         ResponseData ResponseData = new ResponseData();
         ResponseData.setStatus(HttpStatus.OK);

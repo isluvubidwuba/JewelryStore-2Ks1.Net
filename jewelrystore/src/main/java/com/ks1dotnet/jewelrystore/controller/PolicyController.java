@@ -55,6 +55,23 @@ public class PolicyController {
         }
     }
 
+    @GetMapping("/getExchangeApply")
+    public ResponseEntity<?> getAllPolicyByInvoiceId(int invoiceType) {
+        ResponseData ResponseData = new ResponseData();
+        try {
+            return new ResponseEntity<>(
+                    iExchangeRatePolicyService.getListExchangeRatePoliciesByInvoiceType(invoiceType),
+                    HttpStatus.OK);
+        } catch (Exception e) {
+            // Log the exception (consider using a logging framework)
+            System.err.println("Error retrieving policy for invoice (method getAllPolicyByInvoiceId): "
+                    + e.getMessage());
+            ResponseData.setDesc("Failed to retrieve policies.");
+            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping("/infor")
     public ResponseEntity<?> inforExchangeRate(@RequestParam String idExchangeRate) {
         ResponseData ResponseData;

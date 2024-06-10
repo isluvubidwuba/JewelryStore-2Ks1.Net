@@ -65,7 +65,8 @@ public class UserInfoService implements IUserInfoService {
             int roleId,
             String address) {
         ResponseData responseData = new ResponseData();
-
+        phoneNumber.trim();
+        email.trim();
         // Check if email or phone number already exists
         if (iUserInfoRepository.existsByEmail(email)) {
             responseData.setStatus(HttpStatus.CONFLICT);
@@ -82,24 +83,24 @@ public class UserInfoService implements IUserInfoService {
         boolean isSaveFileSuccess = true;
         String imageName;
         // Check if a file is provided
-        // if (file != null && !file.isEmpty()) {
-        // try {
-        // isSaveFileSuccess = iFileService.savefile(file);
-        // if (isSaveFileSuccess) {
-        // imageName = file.getOriginalFilename();
-        // } else {
-        // responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-        // responseData.setDesc("File save failed");
-        // return responseData;
-        // }
-        // } catch (Exception e) {
-        // responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-        // responseData.setDesc("File save failed: " + e.getMessage());
-        // return responseData;
-        // }
-        // } else {
-        // imageName = "default_image.png";
-        // }
+        if (file != null && !file.isEmpty()) {
+            try {
+                isSaveFileSuccess = iFileService.savefile(file);
+                if (isSaveFileSuccess) {
+                    imageName = file.getOriginalFilename();
+                } else {
+                    responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+                    responseData.setDesc("File save failed");
+                    return responseData;
+                }
+            } catch (Exception e) {
+                responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+                responseData.setDesc("File save failed: " + e.getMessage());
+                return responseData;
+            }
+        } else {
+            imageName = "default_image.png";
+        }
 
         UserInfo userInfo = new UserInfo();
         userInfo.setFullName(fullName);
@@ -117,30 +118,67 @@ public class UserInfoService implements IUserInfoService {
     }
 
     @Override
-    public UserInfoDTO updateUserInfo(MultipartFile file, int id, String fullName, String phoneNumber, String email,
+    public ResponseData updateUserInfo(MultipartFile file, int id, String fullName, String phoneNumber, String email,
             int roleId, String address) {
-        // boolean isSaveFileSuccess = iFileService.savefile(file);
-        Optional<UserInfo> userInfo = iUserInfoRepository.findById(id);
-        System.out.println(userInfo);
-        UserInfoDTO userInfoDTO = new UserInfoDTO();
-        if (userInfo.isPresent()) {
-            UserInfo userInfo1 = new UserInfo();
-            userInfo1.setId(id);
-            userInfo1.setFullName(fullName);
-            userInfo1.setPhoneNumber(phoneNumber);
-            userInfo1.setEmail(email);
-            userInfo1.setRole(iRoleService.findById(roleId));
-            userInfo1.setAddress(address);
+        ResponseData responseData = new ResponseData();
 
-            // if (isSaveFileSuccess) {
-            // userInfo1.setImage(file.getOriginalFilename());
-            // } else {
-            // userInfo1.setImage(userInfo.get().getImage());
-            // }
-            // iUserInfoRepository.save(userInfo1);
-            // userInfoDTO = userInfo1.getDTO();
+        Optional<UserInfo> existingUser = iUserInfoRepository.findById(id);
+        if (!existingUser.isPresent()) {
+            responseData.setStatus(HttpStatus.NOT_FOUND);
+            responseData.setDesc("User not found");
+            return responseData;
         }
-        return userInfoDTO;
+
+        UserInfo userInfo = existingUser.get();
+
+        // Check if email has changed and already exists for other users
+        if (!userInfo.getEmail().equals(email) && iUserInfoRepository.existsByEmail(email)) {
+            responseData.setStatus(HttpStatus.CONFLICT);
+            responseData.setDesc("Email already exists");
+            return responseData;
+        }
+
+        // Check if phone number has changed and already exists for other users
+        if (!userInfo.getPhoneNumber().equals(phoneNumber) && iUserInfoRepository.existsByPhoneNumber(phoneNumber)) {
+            responseData.setStatus(HttpStatus.CONFLICT);
+            responseData.setDesc("Phone number already exists");
+            return responseData;
+        }
+
+        boolean isSaveFileSuccess = true;
+        String imageName = userInfo.getImage(); // Keep existing image if no new file is provided
+
+        // Check if a file is provided
+        if (file != null && !file.isEmpty()) {
+            try {
+                isSaveFileSuccess = iFileService.savefile(file);
+                if (isSaveFileSuccess) {
+                    imageName = file.getOriginalFilename();
+                } else {
+                    responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+                    responseData.setDesc("File save failed");
+                    return responseData;
+                }
+            } catch (Exception e) {
+                responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+                responseData.setDesc("File save failed: " + e.getMessage());
+                return responseData;
+            }
+        }
+
+        userInfo.setFullName(fullName);
+        userInfo.setPhoneNumber(phoneNumber);
+        userInfo.setEmail(email);
+        userInfo.setAddress(address);
+        userInfo.setRole(iRoleService.findById(roleId));
+        userInfo.setImage(imageName); // Set the image name, default or uploaded
+
+        iUserInfoRepository.save(userInfo);
+
+        responseData.setStatus(HttpStatus.OK);
+        responseData.setDesc("Update successful");
+        responseData.setData(userInfo.getDTO()); // Assuming UserInfo has a method to convert to DTO
+        return responseData;
     }
 
     @Override

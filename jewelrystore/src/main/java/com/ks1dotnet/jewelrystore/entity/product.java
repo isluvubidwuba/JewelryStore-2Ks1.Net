@@ -29,16 +29,22 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     @Column(name = "product_code")
     private String productCode;
+
     @Column(name = "barcode", unique = true)
     private String barCode;
+
     @Column(name = "name")
     private String name;
+
     @Column(name = "fee")
     private double fee;
+
     @Column(name = "status")
     private boolean status;
+
     @Column(name = "weight")
     private float weight;
     @Column(name = "img")
@@ -96,4 +102,6 @@ public class Product {
         if (t.getImgPath() != null)
             this.imgPath = t.getImgPath();
     }
+
+    
 }

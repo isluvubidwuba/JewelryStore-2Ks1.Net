@@ -251,4 +251,17 @@ public class ExchangeRatePolicyService implements IExchangeRatePolicyService {
         return listDTO;
     }
 
+    @Override
+    public ResponseData getListExchangeRatePoliciesByInvoiceType(int invoiceTypeId) {
+        List<ExchangeRatePolicy> listExchangeRate = iExchangeRatePolicyRepository.findByInvoiceTypeId(invoiceTypeId);
+        List<ExchangeRatePolicyDTO> lRatePolicyDTOs = new ArrayList<>();
+        for (ExchangeRatePolicy exchangeRatePolicy : listExchangeRate) {
+            lRatePolicyDTOs.add(exchangeRatePolicy.getDTO());
+        }
+        if (listExchangeRate == null) {
+            return new ResponseData(HttpStatus.NOT_FOUND, "Not found with this invoice type", null);
+        }
+        return new ResponseData(HttpStatus.OK, "Found successs", lRatePolicyDTOs);
+    }
+
 }
