@@ -62,20 +62,44 @@
       <div class="w-full h-screen overflow-x-hidden border-t flex flex-col">
         <main class="w-full flex-grow p-6">
           <div class="flex items-center justify-between">
-            <h1 class="text-3xl text-black pb-6">View Promotion</h1>
+            <p class="text-xl pb-3 flex items-center">
+              <i class="fas fa-list mr-3"></i> Policies
+            </p>
             <div class="ml-auto flex space-x-4">
               <button
                 id="modalToggle"
                 class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
               >
-                Create Promotion
+                Add
               </button>
+            </div>
+            <div class="flex items-center">
+              <input
+                type="text"
+                id="keyword"
+                class="border rounded px-4 py-2"
+                placeholder="Search..."
+              />
             </div>
           </div>
           <div id="promotion-container" class="flex flex-wrap"></div>
+          <!-- Navigation here -->
+          <div class="w-full mt-1.5 px-1">
+            <div id="entries-info" class="text-lg mb-2">
+              <!-- Entry information will be dynamically updated here -->
+            </div>
+            <div class="flex justify-center">
+              <ul
+                class="pagination flex justify-center items-center gap-x-[10px] z-30"
+                role="navigation"
+                aria-label="Pagination"
+              >
+                <!-- Pagination buttons will be dynamically inserted here -->
+              </ul>
+            </div>
+          </div>
         </main>
       </div>
-
       <!-- Add Voucher Type Modal -->
       <div
         id="addVoucherTypeModal"
@@ -132,12 +156,6 @@
 
       <!-- Modal Placeholder -->
       <div id="modal-placeholder"></div>
-
-      <div class="max-w-8xl mx-auto container py-10">
-        <ul class="flex justify-center items-center pagination">
-          <!-- Nút phân trang sẽ được cập nhật ở đây bởi JavaScript -->
-        </ul>
-      </div>
 
       <!-- Modal update -->
       <div
@@ -256,7 +274,7 @@
                   />
                 </div>
                 <!-- Hiển thị promotionType bên ngoài form -->
-                <div class="col-span-2">
+                <div class="col-span-2 sm:col-span-1">
                   <label
                     for="display-promotionType"
                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -264,6 +282,17 @@
                   >
                   <span
                     id="display-promotionType"
+                    class="block w-full p-2.5 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg dark:bg-gray-600 dark:border-gray-500 dark:text-white"
+                  ></span>
+                </div>
+                <div class="col-span-2 sm:col-span-1">
+                  <label
+                    for="display-promotionType"
+                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    >Invoice Type</label
+                  >
+                  <span
+                    id="display-invoiceType"
                     class="block w-full p-2.5 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg dark:bg-gray-600 dark:border-gray-500 dark:text-white"
                   ></span>
                 </div>

@@ -1,11 +1,16 @@
 package com.ks1dotnet.jewelrystore.entity;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.ks1dotnet.jewelrystore.dto.InvoiceTypeDTO;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -36,6 +41,9 @@ public class InvoiceType {
     public InvoiceTypeDTO getDTO() {
         return new InvoiceTypeDTO(this.id, this.name);
     }
+
+    @OneToMany(mappedBy = "invoiceType", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Promotion> listForCustomer = new ArrayList<>();
 
     public InvoiceType(InvoiceTypeDTO i) {
         this.id = i.getId();

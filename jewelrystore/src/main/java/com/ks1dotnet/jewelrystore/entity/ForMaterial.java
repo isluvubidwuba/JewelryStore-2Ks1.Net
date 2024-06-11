@@ -1,6 +1,7 @@
 package com.ks1dotnet.jewelrystore.entity;
 
-import com.ks1dotnet.jewelrystore.dto.ForProductTypeDTO;
+import com.ks1dotnet.jewelrystore.dto.ForGemStoneTypeDTO;
+import com.ks1dotnet.jewelrystore.dto.ForMaterialDTO;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,29 +18,29 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "for_product_type")
-public class ForProductType {
+@Table(name = "for_material")
+public class ForMaterial {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id; // Đổi từ Id thành id
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "id_promotion")
     private Promotion promotion;
 
     @ManyToOne
-    @JoinColumn(name = "id_product_category")
-    private ProductCategory productCategory;
-
+    @JoinColumn(name = "id_material")
+    private Material material;
     private boolean status;
 
-    public ForProductType(Promotion promotion, ProductCategory productCategory, boolean status) {
-        this.promotion = promotion;
-        this.productCategory = productCategory;
-        this.status = status;
+    public ForMaterialDTO getDTO() {
+        return new ForMaterialDTO(this.id, this.promotion.getDTO(), this.material.getDTO(), this.status);
     }
 
-    public ForProductTypeDTO getDTO() {
-        return new ForProductTypeDTO(this.id, this.promotion.getDTO(), this.productCategory.getDTO(), this.status);
+    public ForMaterial(ForMaterialDTO m) {
+        this.id = m.getId();
+        this.promotion = new Promotion(m.getPromotionDTO());
+        this.material = new Material(m.getMaterialDTO());
+        this.status = m.isStatus();
     }
 }

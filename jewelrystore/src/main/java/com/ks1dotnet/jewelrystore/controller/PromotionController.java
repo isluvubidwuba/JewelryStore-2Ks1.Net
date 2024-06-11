@@ -9,7 +9,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.method.P;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 import com.ks1dotnet.jewelrystore.entity.ForProduct;
-import com.ks1dotnet.jewelrystore.entity.Product;
 import com.ks1dotnet.jewelrystore.entity.Promotion;
 import com.ks1dotnet.jewelrystore.exception.BadRequestException;
 import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
@@ -43,6 +41,12 @@ public class PromotionController {
     @Autowired
     private IFileService iFileService;
 
+    @GetMapping
+    public ResponseEntity<?> getAll() {
+        ResponseData responseData = iPromotionService.getAllPromotionDTO();
+        return new ResponseEntity<>(responseData, responseData.getStatus());
+    }
+
     @PostMapping("/create")
     public ResponseEntity<?> create(
             @RequestParam(required = false) MultipartFile file,
@@ -51,12 +55,13 @@ public class PromotionController {
             @RequestParam boolean status,
             @RequestParam String startDate,
             @RequestParam String endDate,
-            @RequestParam String promotionType) { // Thêm promotionType vào đây
+            @RequestParam String promotionType,
+            @RequestParam int invoiceType) { // Thêm invoiceTypeId vào đây
         try {
             LocalDate start = LocalDate.parse(startDate);
             LocalDate end = LocalDate.parse(endDate);
             ResponseData responseData = iPromotionService.insertPromotion(file, name, value, status, start, end,
-                    promotionType);
+                    promotionType, invoiceType); // Truyền invoiceTypeId vào đây
             if (responseData.getStatus() == HttpStatus.OK) {
                 return new ResponseEntity<>(responseData, HttpStatus.OK);
             } else {
@@ -71,18 +76,20 @@ public class PromotionController {
 
     @PostMapping("/update")
     public ResponseEntity<?> update(
-            @RequestParam MultipartFile file,
+            @RequestParam(required = false) MultipartFile file,
             @RequestParam int id,
             @RequestParam String name,
             @RequestParam double value,
             @RequestParam boolean status,
             @RequestParam String startDate,
-            @RequestParam String endDate) {
+            @RequestParam String endDate,
+            @RequestParam int invoiceTypeId) { // Thêm invoiceTypeId vào đây
         try {
             LocalDate start = LocalDate.parse(startDate);
             LocalDate end = LocalDate.parse(endDate);
             ResponseData responseData = new ResponseData();
-            PromotionDTO promotionDTO = iPromotionService.updatePromotion(file, id, name, value, status, start, end);
+            PromotionDTO promotionDTO = iPromotionService.updatePromotion(file, id, name, value, status, start, end,
+                    invoiceTypeId); // Truyền promotionType và invoiceTypeId vào đây
             responseData.setDesc("Update successful");
             responseData.setData(promotionDTO);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
@@ -142,19 +149,19 @@ public class PromotionController {
         }
     }
 
-    @GetMapping("/getHomePagePromotion")
-    public ResponseEntity<?> getHomePagePromotion(@RequestParam int page) {
-        iPromotionService.deleteExpiredPromotions();
-        try {
-            ResponseData responseData = new ResponseData();
-            responseData.setData(iPromotionService.getHomePagePromotion(page));
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
-        } catch (BadRequestException e) {
-            return handleBadRequestException(e);
-        } catch (Exception e) {
-            return handleException(e);
-        }
-    }
+    // @GetMapping("/getHomePagePromotion")
+    // public ResponseEntity<?> getHomePagePromotion(@RequestParam int page) {
+    // iPromotionService.deleteExpiredPromotions();
+    // try {
+    // ResponseData responseData = new ResponseData();
+    // responseData.setData(iPromotionService.getHomePagePromotion(page));
+    // return new ResponseEntity<>(responseData, HttpStatus.OK);
+    // } catch (BadRequestException e) {
+    // return handleBadRequestException(e);
+    // } catch (Exception e) {
+    // return handleException(e);
+    // }
+    // }
 
     @GetMapping("/files/{filename:.+}")
     @ResponseBody

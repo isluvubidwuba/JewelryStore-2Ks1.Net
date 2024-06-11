@@ -1,7 +1,7 @@
 package com.ks1dotnet.jewelrystore.entity;
 
 import java.util.Date;
-import java.util.Set;
+import java.util.List;
 
 import com.ks1dotnet.jewelrystore.dto.MaterialDTO;
 
@@ -35,7 +35,9 @@ public class Material {
     private Date lastModified;
 
     @OneToMany(mappedBy = "material")
-    Set<Product> listProduct;
+    List<Product> listProduct;
+    @OneToMany(mappedBy = "material")
+    List<ForMaterial> listForMaterials;
 
     public MaterialDTO getDTO() {
         return new MaterialDTO(this.id, this.name, this.purity, this.priceAtTime, this.lastModified);

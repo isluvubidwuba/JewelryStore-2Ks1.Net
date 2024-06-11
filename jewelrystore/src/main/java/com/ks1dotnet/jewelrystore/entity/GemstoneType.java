@@ -1,5 +1,6 @@
 package com.ks1dotnet.jewelrystore.entity;
 
+import java.util.List;
 import java.util.Set;
 
 import com.ks1dotnet.jewelrystore.dto.GemStoneTypeDTO;
@@ -29,6 +30,9 @@ public class GemStoneType {
 
     @OneToMany(mappedBy = "gemstoneType")
     Set<GemStoneOfProduct> listGemstoneOfProduct;
+
+    @OneToMany(mappedBy = "gemstoneType")
+    List<ForGemStoneType> listForGemStoneTypes;
 
     public GemStoneTypeDTO getDTO() {
         return new GemStoneTypeDTO(this.id, this.name);

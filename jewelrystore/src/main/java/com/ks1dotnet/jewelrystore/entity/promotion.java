@@ -15,6 +15,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -47,6 +49,10 @@ public class Promotion {
     @Column(name = "promotion_type")
     private String promotionType;
 
+    @ManyToOne
+    @JoinColumn(name = "id_invoice_type")
+    private InvoiceType invoiceType;
+
     @OneToMany(mappedBy = "promotion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<ForCustomer> listForCustomer = new HashSet<>();
 
@@ -62,9 +68,15 @@ public class Promotion {
     @OneToMany(mappedBy = "promotion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<VoucherOnInvoiceDetail> listVoucherOnInvoiceDetail = new HashSet<>();
 
+    @OneToMany(mappedBy = "promotion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<ForGemStoneType> listForGemStoneTypes;
+
+    @OneToMany(mappedBy = "promotion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<ForMaterial> listForMaterials;
+
     public PromotionDTO getDTO() {
         return new PromotionDTO(this.id, this.name, this.value, this.status, this.image, this.startDate, this.endDate,
-                this.lastModified, this.promotionType);
+                this.lastModified, this.promotionType, this.invoiceType.getDTO());
     }
 
     public Promotion(PromotionDTO p) {

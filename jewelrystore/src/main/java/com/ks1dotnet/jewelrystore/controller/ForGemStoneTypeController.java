@@ -13,56 +13,55 @@
 
 // import com.ks1dotnet.jewelrystore.dto.ApplyPromotionDTO;
 // import com.ks1dotnet.jewelrystore.payload.ResponseData;
-// import com.ks1dotnet.jewelrystore.service.serviceImp.IForProductService;
+// import com.ks1dotnet.jewelrystore.service.serviceImp.IForGemStoneTypeService;
 
 // @RestController
-// @RequestMapping("/promotion-for-product")
+// @RequestMapping("/promotion-for-gemstone")
 // @CrossOrigin("*")
-// public class ForProductController {
+// public class ForGemStoneTypeController {
 
 // @Autowired
-// IForProductService iForProductService;
+// IForGemStoneTypeService iForGemStoneTypeService;
 
 // @GetMapping("/promotion/{promotionId}")
-// public ResponseEntity<ResponseData> getProductsByPromotion(@PathVariable int
-// promotionId) {
-// ResponseData responseData =
-// iForProductService.getProductsByPromotionId(promotionId);
-// return new ResponseEntity<>(responseData, responseData.getStatus());
-// }
-
-// @GetMapping("/not-in-promotion/{promotionId}")
-// public ResponseEntity<ResponseData> getProductsNotInPromotion(@PathVariable
+// public ResponseEntity<ResponseData> getGemStoneTypesByPromotion(@PathVariable
 // int promotionId) {
 // ResponseData responseData =
-// iForProductService.getProductsNotInPromotion(promotionId);
+// iForGemStoneTypeService.getGemStoneTypesByPromotionId(promotionId);
 // return new ResponseEntity<>(responseData, responseData.getStatus());
 // }
 
 // @PostMapping("/apply-promotion")
-// public ResponseEntity<ResponseData> applyPromotionToProducts(@RequestBody
-// ApplyPromotionDTO applyPromotionDTO) {
+// public ResponseEntity<ResponseData> applyPromotionToGemStoneTypes(
+// @RequestBody ApplyPromotionDTO applyPromotionDTO) {
 // ResponseData responseData =
-// iForProductService.applyPromotionToProducts(applyPromotionDTO);
+// iForGemStoneTypeService.applyPromotionToGemStoneTypes(applyPromotionDTO);
 // return new ResponseEntity<>(responseData, responseData.getStatus());
 // }
 
 // @PostMapping("/remove-promotion")
-// public ResponseEntity<ResponseData> removePromotionFromProducts(@RequestBody
-// ApplyPromotionDTO applyPromotionDTO) {
+// public ResponseEntity<ResponseData> removePromotionFromGemStoneTypes(
+// @RequestBody ApplyPromotionDTO applyPromotionDTO) {
 // ResponseData responseData =
-// iForProductService.removePromotionFromProducts(applyPromotionDTO);
+// iForGemStoneTypeService.removePromotionFromGemStoneTypes(applyPromotionDTO);
 // return new ResponseEntity<>(responseData, responseData.getStatus());
 // }
 
-// @GetMapping("/check-product/{productId}/{promotionId}")
+// @GetMapping("/check-gemstone/{gemstoneTypeId}/{promotionId}")
 // public ResponseEntity<ResponseData>
-// checkProductInOtherActivePromotions(@PathVariable int productId,
+// checkGemStoneTypeInOtherActivePromotions(@PathVariable int gemstoneTypeId,
 // @PathVariable int promotionId) {
 // ResponseData responseData =
-// iForProductService.checkProductInOtherActivePromotions(productId,
+// iForGemStoneTypeService.checkGemStoneTypeInOtherActivePromotions(gemstoneTypeId,
 // promotionId);
 // return new ResponseEntity<>(responseData, HttpStatus.OK);
 // }
 
+// @GetMapping("/not-in-promotion/{promotionId}")
+// public ResponseEntity<ResponseData>
+// getGemStoneTypesNotInPromotion(@PathVariable int promotionId) {
+// ResponseData responseData =
+// iForGemStoneTypeService.getGemStoneTypesNotInPromotion(promotionId);
+// return new ResponseEntity<>(responseData, responseData.getStatus());
+// }
 // }

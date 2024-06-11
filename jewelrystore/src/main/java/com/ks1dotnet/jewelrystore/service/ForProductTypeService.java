@@ -1,11 +1,11 @@
 package com.ks1dotnet.jewelrystore.service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -22,12 +22,12 @@ import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IForProductTypeRepository;
 import com.ks1dotnet.jewelrystore.repository.IProductCategoryRepository;
 import com.ks1dotnet.jewelrystore.repository.IPromotionRepository;
-import com.ks1dotnet.jewelrystore.service.serviceImp.IForProductTypeService;
+import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionGenericService;
 
 import jakarta.transaction.Transactional;
 
 @Service
-public class ForProductTypeService implements IForProductTypeService {
+public class ForProductTypeService implements IPromotionGenericService<ProductCategory> {
 
     @Autowired
     IForProductTypeRepository iForProductTypeRepository;
@@ -38,148 +38,155 @@ public class ForProductTypeService implements IForProductTypeService {
     @Autowired
     IPromotionRepository iPromotionRepository;
 
+    @Transactional
     @Override
-    @Transactional // Thêm @Transactional
-    public ResponseData getCategoriesByPromotionId(int promotionId) {
-        try {
-            List<ForProductType> forProductTypes = iForProductTypeRepository.findCategoriesByPromotionId(promotionId);
-            if (forProductTypes == null || forProductTypes.isEmpty()) {
-                throw new ResourceNotFoundException("No categories found for the given promotion id: " + promotionId);
-            }
-
-            PromotionDTO promotionDTO = iPromotionRepository.findPromotionDTOById(promotionId);
-            if (promotionDTO == null) {
-                throw new ResourceNotFoundException("Promotion not found with id: " + promotionId);
-            }
-            if (!promotionDTO.getPromotionType().equals("category")) {
-                throw new BadRequestException("Not allow");
-            }
-
-            List<ForProductTypeDTO> forProductTypeDTOs = forProductTypes.stream().map(fp -> fp.getDTO())
-                    .collect(Collectors.toList());
-
-            return new ResponseData(HttpStatus.OK, "Categories found successfully", forProductTypeDTOs);
-        } catch (Exception e) {
-            throw new BadRequestException("Failed to get categories by promotion id", e.getMessage());
-        }
-    }
-
-    @Override
-    @Transactional // Thêm @Transactional
-    public ResponseData applyPromotionToCategories(ApplyPromotionDTO applyPromotionDTO) {
+    public ResponseData applyPromotion(ApplyPromotionDTO applyPromotionDTO) {
         try {
             int promotionId = applyPromotionDTO.getPromotionId();
-            List<Integer> categoryIds = applyPromotionDTO.getProductIds();
+            List<Integer> productCategoryIds = applyPromotionDTO.getEntityIds();
 
-            PromotionDTO promotionDTO = iPromotionRepository.findPromotionDTOById(promotionId);
+            Promotion promotion = iPromotionRepository.findById(promotionId)
+                    .orElseThrow(() -> new BadRequestException("Not found"));
+            PromotionDTO promotionDTO = promotion.getDTO();
             if (promotionDTO == null) {
                 throw new ResourceNotFoundException("Promotion not found with id: " + promotionId);
             } else if (!promotionDTO.getPromotionType().equals("category")) {
-                throw new BadRequestException("Not allow to apply this promotion type");
+                throw new BadRequestException("Not allowed to apply this promotion type");
             }
 
-            List<ProductCategory> categories = iProductCategoryRepository.findAllById(categoryIds);
-            if (categories.isEmpty()) {
-                throw new BadRequestException("No categories found with the given ids");
+            List<ProductCategory> productCategories = iProductCategoryRepository.findAllById(productCategoryIds);
+            if (productCategories.isEmpty()) {
+                throw new BadRequestException("No product categories found with the given ids");
             }
 
             List<ForProductType> forProductTypesToSave = new ArrayList<>();
-            for (ProductCategory category : categories) {
-                // Kiểm tra các khuyến mãi khác mà danh mục đang tham gia
-                ResponseData checkResponse = checkCategoryInOtherActivePromotions(category.getId(), promotionId);
-                if (checkResponse.getStatus() == HttpStatus.CONFLICT) {
-                    List<PromotionDTO> otherPromotions = (List<PromotionDTO>) checkResponse.getData();
-                    for (PromotionDTO otherPromotion : otherPromotions) {
-                        // Tắt trạng thái của danh mục trong các khuyến mãi khác
-                        ApplyPromotionDTO removeDTO = new ApplyPromotionDTO();
-                        removeDTO.setPromotionId(otherPromotion.getId());
-                        removeDTO.setProductIds(Collections.singletonList(category.getId()));
-                        removePromotionFromCategories(removeDTO);
-                    }
+            for (ProductCategory productCategory : productCategories) {
+                List<ForProductType> activePromotions = iForProductTypeRepository
+                        .findActiveProductTypePromotionsByProductCategoryIdAndInvoiceTypeId(productCategory.getId(),
+                                promotion.getInvoiceType().getId());
+
+                for (ForProductType activePromotion : activePromotions) {
+                    activePromotion.setStatus(false);
+                    forProductTypesToSave.add(activePromotion);
                 }
 
-                // Thêm hoặc cập nhật trạng thái khuyến mãi hiện tại cho danh mục
                 ForProductType existingForProductType = iForProductTypeRepository
-                        .findByPromotionIdAndCategoryId(promotionId, category.getId());
+                        .findByPromotionIdAndProductCategoryId(promotionId, productCategory.getId());
                 if (existingForProductType != null) {
-                    // Update status to true if it exists
                     existingForProductType.setStatus(true);
                     forProductTypesToSave.add(existingForProductType);
                 } else {
-                    // Create new record if it does not exist
-                    forProductTypesToSave.add(new ForProductType(new Promotion(promotionDTO), category, true));
+                    forProductTypesToSave.add(new ForProductType(promotion, productCategory, true));
                 }
             }
 
             iForProductTypeRepository.saveAll(forProductTypesToSave);
             List<ForProductTypeDTO> forProductTypeDTOs = forProductTypesToSave.stream()
-                    .map(fp -> fp.getDTO())
+                    .map(ForProductType::getDTO)
                     .collect(Collectors.toList());
 
-            return new ResponseData(HttpStatus.OK, "Promotion applied to categories successfully", forProductTypeDTOs);
+            return new ResponseData(HttpStatus.OK, "Promotion applied to product categories successfully",
+                    forProductTypeDTOs);
         } catch (Exception e) {
-            throw new BadRequestException("Failed to apply promotion to categories", e.getMessage());
+            throw new BadRequestException("Failed to apply promotion to product categories", e.getMessage());
         }
     }
 
     @Override
-    public ResponseData removePromotionFromCategories(ApplyPromotionDTO applyPromotionDTO) {
+    public ResponseData removePromotion(ApplyPromotionDTO applyPromotionDTO) {
         try {
             int promotionId = applyPromotionDTO.getPromotionId();
-            List<Integer> categoryIds = applyPromotionDTO.getProductIds();
+            List<Integer> productCategoryIds = applyPromotionDTO.getEntityIds();
 
             if (!iPromotionRepository.existsById(promotionId)) {
                 throw new ResourceNotFoundException("Promotion not found with id: " + promotionId);
             }
 
             List<ForProductType> forProductTypes = iForProductTypeRepository
-                    .findByPromotionIdAndCategoryIds(promotionId, categoryIds);
+                    .findByPromotionIdAndProductCategoryIds(promotionId, productCategoryIds);
 
             if (forProductTypes.isEmpty()) {
-                throw new BadRequestException("No categories found with the given ids in the promotion");
+                throw new BadRequestException("No product categories found with the given ids in the promotion");
             }
 
             forProductTypes.forEach(forProductType -> forProductType.setStatus(false));
             iForProductTypeRepository.saveAll(forProductTypes);
 
-            return new ResponseData(HttpStatus.OK, "Promotion removed from categories successfully", null);
+            return new ResponseData(HttpStatus.OK, "Promotion removed from product categories successfully", null);
         } catch (Exception e) {
-            throw new BadRequestException("Failed to remove promotion from categories", e.getMessage());
+            throw new BadRequestException("Failed to remove promotion from product categories", e.getMessage());
         }
     }
 
     @Override
-    public ResponseData checkCategoryInOtherActivePromotions(int categoryId, int currentPromotionId) {
-        List<ForProductType> forProductTypes = iForProductTypeRepository
-                .findActiveCategoryPromotionsByCategoryId(categoryId);
-
-        if (forProductTypes.isEmpty()) {
-            return new ResponseData(HttpStatus.OK, "Category is not in any other active promotions", null);
-        }
-
-        List<PromotionDTO> otherPromotions = new ArrayList<>();
-        for (ForProductType forProductType : forProductTypes) {
-            if (forProductType.getPromotion().getId() != currentPromotionId) {
-                otherPromotions.add(forProductType.getPromotion().getDTO());
-            }
-        }
-
-        if (otherPromotions.isEmpty()) {
-            return new ResponseData(HttpStatus.OK, "Category is not in any other active promotions", null);
-        } else {
-            return new ResponseData(HttpStatus.CONFLICT, "Category is active in other promotions", otherPromotions);
-        }
-    }
-
-    @Override
-    public ResponseData getCategoriesNotInPromotion(int promotionId) {
+    public ResponseData checkInOtherActivePromotions(int entityId, int promotionId) {
         try {
-            List<ProductCategory> categories = iForProductTypeRepository.findCategoriesNotInPromotion(promotionId);
-            List<ProductCategoryDTO> categoryDTOs = categories.stream().map(ProductCategory::getDTO)
+            List<ForProductType> forProductTypes = iForProductTypeRepository
+                    .findActiveProductTypePromotionsByProductCategoryIdAndInvoiceTypeId(entityId,
+                            iPromotionRepository.findById(promotionId)
+                                    .orElseThrow(() -> new ResourceNotFoundException("Promotion not found"))
+                                    .getInvoiceType().getId());
+
+            if (forProductTypes.isEmpty()) {
+                return new ResponseData(HttpStatus.OK, "Product category is not in any other active promotions", null);
+            }
+
+            List<PromotionDTO> otherPromotions = forProductTypes.stream()
+                    .filter(fg -> fg.getPromotion().getId() != promotionId)
+                    .map(fg -> fg.getPromotion().getDTO())
                     .collect(Collectors.toList());
-            return new ResponseData(HttpStatus.OK, "Categories not in promotion found successfully", categoryDTOs);
+
+            if (otherPromotions.isEmpty()) {
+                return new ResponseData(HttpStatus.OK, "Product category is not in any other active promotions", null);
+            } else {
+                return new ResponseData(HttpStatus.CONFLICT, "Product category is active in other promotions",
+                        otherPromotions);
+            }
         } catch (Exception e) {
-            throw new BadRequestException("Failed to get categories not in promotion", e.getMessage());
+            throw new BadRequestException("Failed to check product category in other active promotions",
+                    e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseData getEntitiesNotInPromotion(int promotionId) {
+        try {
+            List<ProductCategory> productCategories = iForProductTypeRepository
+                    .findProductCategoriesNotInPromotion(promotionId);
+            if (productCategories == null || productCategories.isEmpty()) {
+                throw new ResourceNotFoundException(
+                        "No product categories found not in the given promotion id: " + promotionId);
+            }
+
+            List<ProductCategoryDTO> productCategoryDTOs = productCategories.stream()
+                    .map(ProductCategory::getDTO)
+                    .collect(Collectors.toList());
+
+            return new ResponseData(HttpStatus.OK, "Product categories not in promotion found successfully",
+                    productCategoryDTOs);
+        } catch (Exception e) {
+            throw new BadRequestException("Failed to get product categories not in promotion", e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseData getEntitiesInPromotion(int promotionId) {
+        try {
+            Promotion promotion = iPromotionRepository.findById(promotionId)
+                    .orElseThrow(() -> new NotFoundException());
+            List<ForProductType> forProductTypes = iForProductTypeRepository.findByPromotionId(promotion.getId());
+            if (forProductTypes == null || forProductTypes.isEmpty()) {
+                throw new ResourceNotFoundException(
+                        "No product categories found for the given promotion id: " + promotionId);
+            }
+
+            List<ForProductTypeDTO> forProductTypeDTOs = forProductTypes.stream()
+                    .map(ForProductType::getDTO)
+                    .collect(Collectors.toList());
+
+            return new ResponseData(HttpStatus.OK, "Product categories found successfully", forProductTypeDTOs);
+        } catch (Exception e) {
+            throw new BadRequestException("Failed to get product categories by promotion id", e.getMessage());
         }
     }
 }

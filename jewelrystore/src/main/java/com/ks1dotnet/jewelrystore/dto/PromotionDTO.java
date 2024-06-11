@@ -19,6 +19,7 @@ public class PromotionDTO {
     private LocalDate endDate;
     private LocalDate lastModified;
     private String promotionType;
+    private InvoiceTypeDTO invoiceTypeDTO;
 
     public void setLastModified() {
         this.lastModified = LocalDate.now();
