@@ -42,13 +42,13 @@ public interface IProductRepository extends JpaRepository<Product, Integer> {
                         @Param("id_counter") String id_counter,
                         Pageable pageable);
 
-        @Query(value = "SELECT * FROM Product p WHERE p.name = :name AND p.id_material = :idMaterial AND p.id_product_category = :idProductCategory AND p.id_counter = :idCounter AND p.fee = :fee", nativeQuery = true)
-        public List<Product> findByAllFieldsExceptId(
-                        @Param("name") String name,
-                        @Param("idMaterial") Integer idMaterial,
-                        @Param("idProductCategory") Integer idProductCategory,
-                        @Param("idCounter") Integer idCounter,
-                        @Param("fee") Double fee);
+        // @Query(value = "SELECT * FROM Product p WHERE p.name = :name AND p.id_material = :idMaterial AND p.id_product_category = :idProductCategory AND p.id_counter = :idCounter AND p.fee = :fee", nativeQuery = true)
+        // public List<Product> findByAllFieldsExceptId(
+        //                 @Param("name") String name,
+        //                 @Param("idMaterial") Integer idMaterial,
+        //                 @Param("idProductCategory") Integer idProductCategory,
+        //                 @Param("idCounter") Integer idCounter,
+        //                 @Param("fee") Double fee);
 
         @Query(value = "SELECT MAX(p.id) FROM Product p")
         public Integer findMaxId();

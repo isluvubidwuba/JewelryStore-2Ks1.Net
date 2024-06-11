@@ -28,10 +28,10 @@ public class ProductController {
     private String filePath;
 
     @Autowired
-    private IProductService iProductService;
+    private FirebaseStorageService firebaseStorageService;
 
     @Autowired
-    private FirebaseStorageService firebaseStorageService;
+    private IProductService iProductService;
 
     @GetMapping
     public ResponseEntity<?> getById(@RequestParam int id) {

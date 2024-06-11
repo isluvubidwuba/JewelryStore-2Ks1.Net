@@ -28,7 +28,7 @@ import com.ks1dotnet.jewelrystore.exception.BadRequestException;
 import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IPromotionRepository;
-import com.ks1dotnet.jewelrystore.service.serviceImp.IFileService;
+import com.ks1dotnet.jewelrystore.service.FirebaseStorageService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionService;
 
 @RestController
@@ -39,6 +39,12 @@ public class PromotionController {
     private IPromotionRepository iPromotionRepository;
     @Autowired
     private IPromotionService iPromotionService;
+
+    @Value("${fileUpload.promotionPath}")
+    private String filePath;
+
+    @Autowired
+    private FirebaseStorageService firebaseStorageService;
 
     @GetMapping
     public ResponseEntity<?> getAll() {
@@ -59,7 +65,8 @@ public class PromotionController {
         try {
             LocalDate start = LocalDate.parse(startDate);
             LocalDate end = LocalDate.parse(endDate);
-            ResponseData responseData = iPromotionService.insertPromotion(file, name, value, status, start, end,
+            String fileName = firebaseStorageService.uploadImage(file, filePath).getData().toString();
+            ResponseData responseData = iPromotionService.insertPromotion(fileName, name, value, status, start, end,
                     promotionType, invoiceType); // Truyền invoiceTypeId vào đây
             if (responseData.getStatus() == HttpStatus.OK) {
                 return new ResponseEntity<>(responseData, HttpStatus.OK);
@@ -87,7 +94,8 @@ public class PromotionController {
             LocalDate start = LocalDate.parse(startDate);
             LocalDate end = LocalDate.parse(endDate);
             ResponseData responseData = new ResponseData();
-            PromotionDTO promotionDTO = iPromotionService.updatePromotion(file, id, name, value, status, start, end,
+            String fileName = firebaseStorageService.uploadImage(file, filePath).getData().toString();
+            PromotionDTO promotionDTO = iPromotionService.updatePromotion(fileName, id, name, value, status, start, end,
                     invoiceTypeId); // Truyền promotionType và invoiceTypeId vào đây
             responseData.setDesc("Update successful");
             responseData.setData(promotionDTO);
@@ -223,5 +231,12 @@ public class PromotionController {
         responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         responseData.setDesc("An unexpected error occurred: " + e.getMessage());
         return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @PostMapping("/upload")
+    public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
+        ResponseData response = firebaseStorageService.uploadImage(file, filePath);
+        return new ResponseEntity<>(response, response.getStatus());
+
     }
 }
