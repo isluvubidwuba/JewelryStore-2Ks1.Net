@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -13,14 +14,22 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+<<<<<<< HEAD
+=======
+import com.ks1dotnet.jewelrystore.dto.ApplyPromotionDTO;
+import com.ks1dotnet.jewelrystore.dto.ExchangeRatePolicyDTO;
+>>>>>>> main
 import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
+import com.ks1dotnet.jewelrystore.entity.ExchangeRatePolicy;
 import com.ks1dotnet.jewelrystore.entity.ForCustomer;
+import com.ks1dotnet.jewelrystore.entity.InvoiceType;
 import com.ks1dotnet.jewelrystore.entity.Promotion;
 import com.ks1dotnet.jewelrystore.exception.BadRequestException;
 import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IForCustomerRepository;
+import com.ks1dotnet.jewelrystore.repository.IInvoiceTypeRepository;
 import com.ks1dotnet.jewelrystore.repository.IPromotionRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IProductService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionService;
@@ -34,27 +43,40 @@ public class PromotionService implements IPromotionService {
     private IProductService iProductService;
     @Autowired
     private IForCustomerRepository iForCustomerRepository;
+    @Autowired
+    private IInvoiceTypeRepository iInvoiceTypeRepository;
+
+    // @Override
+    // public Map<String, Object> getHomePagePromotion(int page) {
+    // try {
+    // Map<String, Object> response = new HashMap<>();
+    // PageRequest pageRequest = PageRequest.of(page, 2);
+    // Page<PromotionDTO> listData =
+    // iPromotionRepository.findAllPromotions(pageRequest);
+
+    // response.put("promotions", listData.getContent());
+    // response.put("totalPages", listData.getTotalPages());
+    // response.put("currentPage", page);
+
+    // return response;
+    // } catch (Exception e) {
+    // throw new BadRequestException("Failed to get home page promotions with
+    // pagination", e.getMessage());
+    // }
+    // }
 
     @Override
-    public Map<String, Object> getHomePagePromotion(int page) {
-        try {
-            Map<String, Object> response = new HashMap<>();
-            PageRequest pageRequest = PageRequest.of(page, 2);
-            Page<PromotionDTO> listData = iPromotionRepository.findAllPromotions(pageRequest);
-
-            response.put("promotions", listData.getContent());
-            response.put("totalPages", listData.getTotalPages());
-            response.put("currentPage", page);
-
-            return response;
-        } catch (Exception e) {
-            throw new BadRequestException("Failed to get home page promotions with pagination", e.getMessage());
-        }
+    public ResponseData getAllPromotionDTO() {
+        List<PromotionDTO> promotionDTOs = iPromotionRepository.findAll().stream()
+                .map(Promotion::getDTO)
+                .collect(Collectors.toList());
+        return new ResponseData(HttpStatus.OK, "Fetched all exchange rate policies", promotionDTOs);
     }
 
     @Override
-    public ResponseData insertPromotion(String file, String name, double value, boolean status,
-            LocalDate startDate, LocalDate endDate, String promotionType) {
+    public ResponseData insertPromotion(MultipartFile file, String name, double value, boolean status,
+            LocalDate startDate, LocalDate endDate, String promotionType, int invoiceTypeId) { // Thêm invoiceTypeId vào
+                                                                                               // đây
         ResponseData responseData = new ResponseData();
         try {
             Promotion promotion = new Promotion();
@@ -63,9 +85,26 @@ public class PromotionService implements IPromotionService {
             promotion.setStatus(status);
             promotion.setStartDate(startDate);
             promotion.setEndDate(endDate);
-            promotion.setLastModified();
+            promotion.setLastModified(LocalDate.now());
             promotion.setPromotionType(promotionType);
-            promotion.setImage(file);
+
+            // Lấy InvoiceType từ cơ sở dữ liệu và thiết lập vào promotion
+            InvoiceType invoiceTypeC = iInvoiceTypeRepository.findById(invoiceTypeId)
+                    .orElseThrow(() -> new BadRequestException("Not found invoice type! Invalid invoice type ID. "));
+            promotion.setInvoiceType(invoiceTypeC);
+
+            if (file != null && !file.isEmpty()) {
+                boolean isSaveFileSuccess = iFileService.savefile(file);
+                if (isSaveFileSuccess) {
+                    promotion.setImage(file.getOriginalFilename());
+                } else {
+                    responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+                    responseData.setDesc("File upload failed.");
+                    return responseData;
+                }
+            } else {
+                promotion.setImage("default_image.jpg");
+            }
 
             PromotionDTO promotionDTO = iPromotionRepository.save(promotion).getDTO();
             responseData.setData(promotionDTO);
@@ -79,8 +118,8 @@ public class PromotionService implements IPromotionService {
     }
 
     @Override
-    public PromotionDTO updatePromotion(String file, int id, String name, double value, boolean status,
-            LocalDate startDate, LocalDate endDate) {
+    public PromotionDTO updatePromotion(MultipartFile file, int id, String name, double value, boolean status,
+            LocalDate startDate, LocalDate endDate, int invoiceTypeId) {
         try {
             Promotion promotion = iPromotionRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Promotion not found with id: " + id));
@@ -90,8 +129,18 @@ public class PromotionService implements IPromotionService {
             promotion.setStatus(status);
             promotion.setStartDate(startDate);
             promotion.setEndDate(endDate);
-            promotion.setLastModified();
-            promotion.setImage(file);
+            promotion.setLastModified(LocalDate.now());
+
+            InvoiceType invoiceTypeC = iInvoiceTypeRepository.findById(invoiceTypeId)
+                    .orElseThrow(() -> new BadRequestException("Not found invoice type! Invalid invoice type ID. "));
+            promotion.setInvoiceType(invoiceTypeC);
+
+            if (file != null && !file.isEmpty()) {
+                boolean isSaveFileSuccess = iFileService.savefile(file);
+                if (isSaveFileSuccess) {
+                    promotion.setImage(file.getOriginalFilename());
+                }
+            }
 
             promotion = iPromotionRepository.save(promotion);
             return promotion.getDTO();
@@ -102,7 +151,9 @@ public class PromotionService implements IPromotionService {
 
     @Override
     public PromotionDTO findById(int id) {
-        PromotionDTO promotionDTO = iPromotionRepository.findPromotionDTOById(id);
+        // PromotionDTO promotionDTO = iPromotionRepository.findPromotionDTOById(id);
+        Promotion promotion = iPromotionRepository.findById(id).orElseThrow(() -> new BadRequestException("Not found"));
+        PromotionDTO promotionDTO = promotion.getDTO();
         if (promotionDTO == null) {
             throw new ResourceNotFoundException("Promotion not found with id: " + id);
         }

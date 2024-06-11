@@ -10,14 +10,15 @@ import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 
 public interface IPromotionService {
+        public ResponseData getAllPromotionDTO();
 
-        Map<String, Object> getHomePagePromotion(int page);
+        // Map<String, Object> getHomePagePromotion(int page);
 
-        ResponseData insertPromotion(String file, String name, double value, boolean status, LocalDate start,
-                        LocalDate end, String promotionType); // Thêm promotionType
+        ResponseData insertPromotion(MultipartFile file, String name, double value, boolean status, LocalDate start,
+                        LocalDate end, String promotionType, int invoiceTypeId);
 
-        PromotionDTO updatePromotion(String file, int id, String name, double value, boolean status,
-                        LocalDate start, LocalDate end);
+        PromotionDTO updatePromotion(MultipartFile file, int id, String name, double value, boolean status,
+                        LocalDate start, LocalDate end, int invoiceTypeId);
 
         PromotionDTO findById(int id);
 

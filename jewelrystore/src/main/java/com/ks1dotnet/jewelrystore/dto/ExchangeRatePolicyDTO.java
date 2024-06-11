@@ -12,8 +12,10 @@ public class ExchangeRatePolicyDTO {
     private float rate;
     private boolean status;
     private LocalDate lastModified;
+    public InvoiceTypeDTO invoiceTypeDTO;
 
     public void setLastModified() {
         this.lastModified = LocalDate.now();
     }
+
 }

@@ -1,14 +1,22 @@
 $(document).ready(function () {
   setupEventListeners();
-  fetchPromotions(0);
+  fetchPromotions();
   loadComponents2();
   setupModalToggles();
   submitInsertForm();
   submitUpdateForm(); // Call the function to handle update form submission
+
+  // Add search event listener
+  $("#keyword").on("input", function () {
+    const keyword = $(this).val().toLowerCase();
+    fetchPromotions(keyword); // Gọi lại hàm fetchPromotions với từ khóa tìm kiếm
+  });
 });
 
 const token = localStorage.getItem("token");
-let currentPage = 0; // Biến toàn cục lưu trữ trang hiện tại
+let currentPage = 0;
+const itemsPerPage = 2; // Số lượng mục trên mỗi trang
+let promotions = []; // Lưu trữ danh sách promotions đã tải về
 
 // load components
 function loadComponents2() {
@@ -33,157 +41,37 @@ function loadComponents2() {
   });
 }
 
-// fetch promotion by page
-function fetchPromotions(page = 0) {
-  currentPage = page; // Cập nhật trang hiện tại
+// fetch all promotions
+function fetchPromotions(keyword = "") {
   const linkPromotion = "http://localhost:8080/promotion";
   $.ajax({
-    url: `http://localhost:8080/promotion/getHomePagePromotion?page=${page}`,
+    url: linkPromotion,
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
     },
     success: function (response) {
-      $("#promotion-container").empty(); // Clear existing promotions
-
       if (response && response.data) {
-        const { promotions, totalPages, currentPage } = response.data;
-
-        promotions.forEach(function (promotion) {
-          const statusText = promotion.status
-            ? "Đang hoạt động"
-            : "Không hoạt động";
-          const statusColor = promotion.status
-            ? "text-green-500"
-            : "text-red-500";
-
-          const promotionCard = `
-            <div id="promotion-card-${
-              promotion.id
-            }" class="bg-white rounded-lg shadow-lg w-full mb-3">
-              <div class="p-4">
-                <div class="flex space-x-4">
-                  <div class="w-1/3">
-                    <img
-                      src="${linkPromotion}/files/${promotion.image}"
-                      alt="${promotion.name}"
-                      class="w-auto h-64 object-cover mx-auto promotion-image"
-                    />
-                  </div>
-                  <div class="w-2/3">
-                    <input type="hidden" name="id" value="${promotion.id}" />
-                    <div class="mb-4 flex space-x-4">
-                      <div class="w-full">
-                        <label class="block text-gray-700">Name</label>
-                        <input
-                          type="text"
-                          value="${promotion.name}"
-                          class="w-full px-3 py-2 outline-none promotion-name"
-                          readonly
-                        />
-                      </div>
-                      
-                      
-                    </div>
-                    <div class="mb-4 flex space-x-4">
-                      <div class="w-full">
-                        <label class="block text-gray-700">Value</label>
-                        <input
-                          type="number"
-                          value="${promotion.value}"
-                          class="w-full px-3 py-2 outline-none promotion-value"
-                          readonly
-                        />
-                      </div>
-                      <div class="w-full">
-                        <label class="block">Status</label>
-                        <input
-                          type="text"
-                          value="${
-                            promotion.status
-                              ? "Đang hoạt động"
-                              : "Không hoạt động"
-                          }"
-                          class="w-full outline-none px-3 py-2 promotion-status ${
-                            promotion.status ? "text-green-600" : "text-red-700"
-                          }"
-                          readonly
-                        />
-                      </div>
-                      <div class="w-full">
-                        <label class="block text-gray-700">Promotion for</label>
-                        <input
-                          type="text"
-                          value="${promotion.promotionType}"
-                          class="w-full px-3 py-2 outline-none promotion-type"
-                          readonly
-                        />
-                      </div>
-                      
-                    </div>
-                    <div class="mb-4 flex space-x-4">
-                      <div class="w-full">
-                      <label class="block text-gray-700">Start Date</label>
-                      <input
-                        type="text"
-                        value="${promotion.startDate}"
-                        class="w-full px-3 py-2 outline-none promotion-start-date"
-                        readonly
-                      />
-                      </div>
-                      <div class="w-full">
-                        <label class="block text-gray-700">End Date</label>
-                        <input
-                          type="text"
-                          value="${promotion.endDate}"
-                          class="w-full px-3 py-2 outline-none promotion-end-date"
-                          readonly
-                        />
-                      </div>
-                      <div class="w-full">
-                        <label class="block text-gray-700">Last Modified</label>
-                        <input
-                          type="text"
-                          value="${promotion.lastModified}"
-                          class="w-full px-3 py-2 outline-none promotion-last-modified"
-                          readonly
-                        />
-                      </div>
-                      
-                    </div>
-                    <div class="flex justify-end space-x-4 relative">
-                    ${
-                      promotion.status
-                        ? `
-                    <button
-                      id="bttn-delete-promotion"
-                      type="button"
-                      data-id="${promotion.id}"
-                      class="bg-red-500 text-white px-4 py-2 rounded"
-                    >
-                      Disable
-                    </button>
-                  `
-                        : ""
-                    }
-                      <button
-                        type="button"
-                        class="bg-blue-500 text-white px-4 py-2 rounded promotion-update-btn"
-                        data-id="${promotion.id}"
-                      >
-                        Update
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          `;
-
-          $("#promotion-container").append(promotionCard);
-        });
-
-        updatePagination(totalPages, currentPage); // Update pagination
+        promotions = response.data;
+        if (keyword) {
+          const filteredPromotions = promotions.filter((promotion) => {
+            const invoiceTypeName = promotion.invoiceTypeDTO
+              ? promotion.invoiceTypeDTO.name
+              : "";
+            return (
+              promotion.name.toLowerCase().includes(keyword) ||
+              promotion.startDate.toLowerCase().includes(keyword) ||
+              promotion.endDate.toLowerCase().includes(keyword) ||
+              promotion.promotionType.toLowerCase().includes(keyword) ||
+              invoiceTypeName.toLowerCase().includes(keyword)
+            );
+          });
+          renderPromotions(0, filteredPromotions); // Render promotions cho trang đầu tiên của kết quả tìm kiếm
+          updatePagination(filteredPromotions); // Cập nhật phân trang cho kết quả tìm kiếm
+        } else {
+          renderPromotions(currentPage, promotions);
+          updatePagination(promotions);
+        }
       }
     },
     error: function (error) {
@@ -192,9 +80,154 @@ function fetchPromotions(page = 0) {
   });
 }
 
-function updatePagination(totalPages, currentPage) {
+// Render promotions theo trang
+function renderPromotions(page, promotionsToRender) {
+  $("#promotion-container").empty(); // Clear existing promotions
+  const start = page * itemsPerPage;
+  const end = start + itemsPerPage;
+  const promotionsToShow = promotionsToRender.slice(start, end);
+
+  promotionsToShow.forEach(function (promotion) {
+    const statusText = promotion.status ? "Đang hoạt động" : "Không hoạt động";
+    const statusColor = promotion.status ? "text-green-500" : "text-red-500";
+
+    const promotionCard = `
+      <div id="promotion-card-${
+        promotion.id
+      }" class="bg-white rounded-lg shadow-lg w-full mb-3">
+        <div class="p-4">
+          <div class="flex space-x-4">
+            <div class="w-1/3">
+              <img
+                src="http://localhost:8080/promotion/files/${promotion.image}"
+                alt="${promotion.name}"
+                class="w-auto h-64 object-cover mx-auto promotion-image"
+              />
+            </div>
+            <div class="w-2/3">
+              <input type="hidden" name="id" value="${promotion.id}" />
+              <div class="mb-4 flex space-x-4">
+                <div class="w-full">
+                  <label class="block text-gray-700">Name</label>
+                  <input
+                    type="text"
+                    value="${promotion.name}"
+                    class="w-full px-3 py-2 outline-none promotion-name"
+                    readonly
+                  />
+                </div>
+                <div class="w-full">
+                  <label class="block text-gray-700">Applied for Invoice:</label>
+                  <input
+                    type="text"
+                    value="${promotion.invoiceTypeDTO.name}"
+                    class="w-full px-3 py-2 outline-none promotion-name"
+                    readonly
+                  />
+                </div>
+              </div>
+              <div class="mb-4 flex space-x-4">
+                <div class="w-full">
+                  <label class="block text-gray-700">Value</label>
+                  <input
+                    type="number"
+                    value="${promotion.value}"
+                    class="w-full px-3 py-2 outline-none promotion-value"
+                    readonly
+                  />
+                </div>
+                <div class="w-full">
+                  <label class="block">Status</label>
+                  <input
+                    type="text"
+                    value="${statusText}"
+                    class="w-full outline-none px-3 py-2 promotion-status ${statusColor}"
+                    readonly
+                  />
+                </div>
+                <div class="w-full">
+                  <label class="block text-gray-700">Promotion for</label>
+                  <input
+                    type="text"
+                    value="${promotion.promotionType}"
+                    class="w-full px-3 py-2 outline-none promotion-type"
+                    readonly
+                  />
+                </div>
+              </div>
+              <div class="mb-4 flex space-x-4">
+                <div class="w-full">
+                  <label class="block text-gray-700">Start Date</label>
+                  <input
+                    type="text"
+                    value="${promotion.startDate}"
+                    class="w-full px-3 py-2 outline-none promotion-start-date"
+                    readonly
+                  />
+                </div>
+                <div class="w-full">
+                  <label class="block text-gray-700">End Date</label>
+                  <input
+                    type="text"
+                    value="${promotion.endDate}"
+                    class="w-full px-3 py-2 outline-none promotion-end-date"
+                    readonly
+                  />
+                </div>
+                <div class="w-full">
+                  <label class="block text-gray-700">Last Modified</label>
+                  <input
+                    type="text"
+                    value="${promotion.lastModified}"
+                    class="w-full px-3 py-2 outline-none promotion-last-modified"
+                    readonly
+                  />
+                </div>
+              </div>
+              <div class="flex justify-end space-x-4 relative">
+                ${
+                  promotion.status
+                    ? `
+                <button
+                  id="bttn-delete-promotion"
+                  type="button"
+                  data-id="${promotion.id}"
+                  class="bg-red-500 text-white px-4 py-2 rounded"
+                >
+                  Disable
+                </button>`
+                    : ""
+                }
+                <button
+                  type="button"
+                  class="bg-blue-500 text-white px-4 py-2 rounded promotion-update-btn"
+                  data-id="${promotion.id}"
+                >
+                  Update
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    $("#promotion-container").append(promotionCard);
+  });
+
+  // Cập nhật thông tin số lượng mục
+  const entriesInfo = `Showing ${start + 1} to ${Math.min(
+    end,
+    promotionsToRender.length
+  )} of ${promotionsToRender.length} entries`;
+  $("#entries-info").text(entriesInfo);
+}
+
+function updatePagination(promotionsToRender) {
   let pagination = $(".pagination");
   pagination.empty();
+
+  const totalPages = Math.ceil(promotionsToRender.length / itemsPerPage);
 
   if (currentPage > 0) {
     pagination.append(`
@@ -204,7 +237,7 @@ function updatePagination(totalPages, currentPage) {
           aria-label="backward"
           role="button"
           class="focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 p-1 flex rounded transition duration-150 ease-in-out text-base leading-tight font-bold text-gray-500 hover:text-indigo-700 focus:outline-none mr-1 sm:mr-3"
-          onclick="fetchPromotions(${currentPage - 1})"
+          onclick="changePage(${currentPage - 1})"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <path stroke="none" d="M0 0h24v24H0z"/>
@@ -215,7 +248,19 @@ function updatePagination(totalPages, currentPage) {
     `);
   }
 
-  for (let i = 0; i < totalPages; i++) {
+  let startPage = Math.max(0, currentPage - 1);
+  let endPage = Math.min(totalPages, currentPage + 2);
+
+  if (currentPage === 0) {
+    endPage = Math.min(totalPages, currentPage + 2);
+  } else if (currentPage === totalPages - 1) {
+    startPage = Math.max(0, totalPages - 3);
+  } else {
+    startPage = Math.max(0, currentPage - 1);
+    endPage = Math.min(totalPages, currentPage + 2);
+  }
+
+  for (let i = startPage; i < endPage; i++) {
     pagination.append(`
       <li>
         <span
@@ -224,10 +269,8 @@ function updatePagination(totalPages, currentPage) {
             i === currentPage
               ? "bg-gray-400 text-white"
               : "bg-white dark:bg-gray-700 hover:bg-indigo-600 hover:text-white"
-          } ${
-      i < currentPage - 1 || i > currentPage + 1 ? "hidden" : " "
-    } text-base leading-tight font-bold cursor-pointer shadow transition duration-150 ease-in-out mx-2 sm:mx-4 rounded px-3 py-2"
-          onclick="fetchPromotions(${i})"
+          } text-base leading-tight font-bold cursor-pointer shadow transition duration-150 ease-in-out mx-2 sm:mx-4 rounded px-3 py-2"
+          onclick="changePage(${i})"
         >
           ${i + 1}
         </span>
@@ -243,7 +286,7 @@ function updatePagination(totalPages, currentPage) {
           aria-label="forward"
           role="button"
           class="focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 focus:outline-none flex rounded transition duration-150 ease-in-out text-base leading-tight font-bold text-gray-500 hover:text-indigo-700 p-1 focus:outline-none ml-1 sm:ml-3"
-          onclick="fetchPromotions(${currentPage + 1})"
+          onclick="changePage(${currentPage + 1})"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <path stroke="none" d="M0 0h24v24H0z"/>
@@ -255,7 +298,30 @@ function updatePagination(totalPages, currentPage) {
   }
 }
 
-// get in4 about promotion detal
+function changePage(page) {
+  currentPage = page;
+  const keyword = $("#keyword").val().toLowerCase();
+  const promotionsToRender = keyword
+    ? promotions.filter((promotion) => {
+        const invoiceTypeName = promotion.invoiceTypeDTO
+          ? promotion.invoiceTypeDTO.name
+          : "";
+        return (
+          promotion.name.toLowerCase().includes(keyword) ||
+          promotion.startDate.toLowerCase().includes(keyword) ||
+          promotion.endDate.toLowerCase().includes(keyword) ||
+          promotion.promotionType.toLowerCase().includes(keyword) ||
+          invoiceTypeName.toLowerCase().includes(keyword)
+        );
+      })
+    : promotions;
+  renderPromotions(page, promotionsToRender);
+  updatePagination(promotionsToRender);
+}
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+}
+// Các hàm khác không thay đổi
 function fetchPromotionDetails(promotionId) {
   $.ajax({
     url: "http://localhost:8080/promotion/getById",
@@ -275,8 +341,11 @@ function fetchPromotionDetails(promotionId) {
       $("#update-end-date").val(promotion.endDate);
       $("#update-status").val(promotion.status == true ? 1 : 0);
 
-      // Hiển thị giá trị cho promotionType mà không cho chỉnh sửa
-      $("#display-promotionType").text(promotion.promotionType);
+      // Hiển thị giá trị cho promotionType và  mà không cho chỉnh sửa
+      $("#display-promotionType").text(
+        capitalizeFirstLetter(promotion.promotionType)
+      );
+      $("#display-invoiceType").text(promotion.invoiceTypeDTO.name);
 
       // Hiển thị các nút tương ứng với loại promotionType
       let buttonHtml = "";
@@ -321,6 +390,20 @@ function fetchPromotionDetails(promotionId) {
              View type customers applied
           </button>
         `;
+      } else if (promotion.promotionType === "gemstone") {
+        buttonHtml = `
+          <button
+            type="button"
+            id="modalToggle_Customer_Apply"
+            class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            data-promotion-id="${promotion.id}"
+            data-promotion-name = "${promotion.name}"
+
+            style="width: 100%"
+          >
+             View type customers applied
+          </button>
+        `;
       }
 
       $("#button-container").html(buttonHtml);
@@ -333,7 +416,7 @@ function fetchPromotionDetails(promotionId) {
   });
 }
 
-//open modal
+// Các hàm khác giữ nguyên như trước
 function setupEventListeners() {
   // Open update promotion modal
   $(document).on("click", ".promotion-update-btn", function () {
@@ -391,7 +474,7 @@ function deletePromotion(promotionId) {
     success: function (response) {
       alert(response.desc); // Hiển thị thông báo trả về từ API
       $("#deleteModal").addClass("hidden");
-      fetchPromotions(currentPage); // Tải lại danh sách promotion với trang hiện tại
+      fetchPromotions(currentPage); // Tải lại danh sách promotion
     },
     error: function (error) {
       $("#deleteModal").addClass("hidden");
@@ -401,8 +484,7 @@ function deletePromotion(promotionId) {
   });
 }
 
-//update promotion
-
+// update promotion
 function submitUpdateForm() {
   $(document).on("click", "#submit-update", function (event) {
     event.preventDefault();
@@ -429,7 +511,7 @@ function submitUpdateForm() {
           clearForm("#form-update");
           $("#crud-update-modal").addClass("hidden");
           alert(response.desc);
-          fetchPromotions(currentPage); // Tải lại danh sách promotion với trang hiện tại
+          fetchPromotions(currentPage); // Tải lại danh sách promotion
         },
         error: function (xhr, status, error) {
           alert("An error occurred while submitting the form.");
@@ -448,14 +530,15 @@ function submitUpdateForm() {
   });
 }
 
-//close modal update
+// close modal update
 function closeModal() {
   $("#crud-update-modal").removeClass("flex").addClass("hidden");
 }
 
-//open close modal
+// open close modal
 function setupModalToggles() {
   $(document).on("click", "#modalToggle", function () {
+    fetchInvoiceType();
     $("#crud-modal").removeClass("hidden");
   });
 
@@ -512,8 +595,8 @@ function validateForm(formId, isUpdate = false) {
 
   return { allFieldsFilled, numberFieldValid, datesValid };
 }
-// submit form create
 
+// submit form create
 function submitInsertForm() {
   $(document).on("click", "#submit-insert", function (event) {
     event.preventDefault();
@@ -537,7 +620,7 @@ function submitInsertForm() {
           clearForm("#form-insert");
           $("#crud-modal").addClass("hidden");
           alert(response.desc);
-          fetchPromotions(currentPage); // Tải lại danh sách promotion với trang hiện tại
+          fetchPromotions(currentPage); // Tải lại danh sách promotion
         },
         error: function (xhr, status, error) {
           alert("An error occurred while submitting the form.");
@@ -548,7 +631,7 @@ function submitInsertForm() {
       if (!allFieldsFilled) {
         alert("You must fill all fields.");
       } else if (!numberFieldValid) {
-        alert("Number must be greater than 0 and less than 100.");
+        alert("Number must be greater than 0 và less than 100.");
       } else if (!datesValid) {
         alert(
           "Start date and end date must be greater than the current date and end date must be after start date."
@@ -565,4 +648,34 @@ function clearForm(formId) {
     )
     .val("");
   $(formId).find("select").prop("selectedIndex", 0);
+}
+
+function fetchInvoiceType() {
+  $.ajax({
+    url: "http://localhost:8080/invoice-type",
+    type: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    success: function (response) {
+      let invoiceTypeSelect = $("#invoiceType");
+      invoiceTypeSelect.empty();
+      invoiceTypeSelect.append(
+        '<option value="" selected>Select invoice type</option>'
+      );
+      if (response.status === "OK") {
+        $.each(response.data, function (index, invoiceType) {
+          invoiceTypeSelect.append(
+            `<option value="${invoiceType.id}">${invoiceType.name}</option>`
+          );
+        });
+      } else {
+        alert("Failed to fetch invoice types.");
+      }
+    },
+    error: function (xhr, status, error) {
+      alert("An error occurred while loading invoice types.");
+      console.log(xhr.responseText);
+    },
+  });
 }

@@ -6,10 +6,13 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+import com.ks1dotnet.jewelrystore.dto.Enum.EntityType;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class ApplyPromotionDTO {
     private int promotionId;
-    private List<Integer> productIds;
+    private List<Integer> entityIds;
+    private EntityType entityType;
 }

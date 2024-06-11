@@ -60,9 +60,9 @@
       <section class="p-6">
         <div class="flex justify-between items-center">
           <h2 class="text-xl font-semibold">Overview</h2>
-          <div class="flex justify-end items-center">
+          <!-- <div class="flex justify-end items-center">
             <button
-              id="modalOpen"
+              id="insert-button"
               class="bg-green-500 text-white py-2 px-4 rounded mr-3"
             >
               Add New Policy
@@ -73,7 +73,7 @@
             >
               Add Invoice Type
             </button>
-          </div>
+          </div> -->
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
           <div class="bg-white p-4 shadow rounded">
@@ -149,6 +149,11 @@
                   <th
                     class="text-left py-3 px-4 uppercase font-semibold text-sm"
                   >
+                    Applied
+                  </th>
+                  <th
+                    class="text-left py-3 px-4 uppercase font-semibold text-sm"
+                  >
                     Actions
                   </th>
                 </tr>
@@ -181,6 +186,7 @@
     </div>
 
     <!-- Modals -->
+
     <!-- Insert Modal -->
     <div
       id="insert-modal"
@@ -273,6 +279,20 @@
                   <option value="" selected>Select status</option>
                   <option value="true">Active</option>
                   <option value="false">Inactive</option>
+                </select>
+              </div>
+              <div class="col-span-2">
+                <label
+                  for="invoiceType"
+                  class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >Invoice Type</label
+                >
+                <select
+                  id="invoiceType"
+                  name="invoiceType"
+                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                >
+                  <option value="" selected>Select Invoice Type</option>
                 </select>
               </div>
             </div>
@@ -381,6 +401,20 @@
                   <option value="" selected>Select status</option>
                   <option value="true">Active</option>
                   <option value="false">Inactive</option>
+                </select>
+              </div>
+              <div class="col-span-2">
+                <label
+                  for="update-invoiceType"
+                  class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >Invoice Type</label
+                >
+                <select
+                  id="update-invoiceType"
+                  name="invoiceType"
+                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                >
+                  <option value="" selected>Select Invoice Type</option>
                 </select>
               </div>
             </div>

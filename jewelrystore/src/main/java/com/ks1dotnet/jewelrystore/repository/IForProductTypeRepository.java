@@ -13,20 +13,21 @@ import com.ks1dotnet.jewelrystore.entity.ProductCategory;
 @Repository
 public interface IForProductTypeRepository extends JpaRepository<ForProductType, Integer> {
 
-        @Query("SELECT fp FROM ForProductType fp WHERE fp.promotion.id = :promotionId")
-        List<ForProductType> findCategoriesByPromotionId(@Param("promotionId") int promotionId);
-
-        @Query("SELECT fp FROM ForProductType fp WHERE fp.promotion.id = :promotionId AND fp.productCategory.id = :categoryId")
-        ForProductType findByPromotionIdAndCategoryId(@Param("promotionId") int promotionId,
-                        @Param("categoryId") int categoryId);
-
-        @Query("SELECT fp FROM ForProductType fp WHERE fp.promotion.id = :promotionId AND fp.productCategory.id IN :categoryIds")
-        List<ForProductType> findByPromotionIdAndCategoryIds(@Param("promotionId") int promotionId,
-                        @Param("categoryIds") List<Integer> categoryIds);
-
-        @Query("SELECT fp FROM ForProductType fp JOIN fp.promotion p WHERE fp.productCategory.id = :categoryId AND fp.status = true AND p.status = true AND p.promotionType = 'category'")
-        List<ForProductType> findActiveCategoryPromotionsByCategoryId(@Param("categoryId") int categoryId);
+        @Query("SELECT f FROM ForProductType f WHERE f.promotion.id = :promotionId")
+        List<ForProductType> findByPromotionId(@Param("promotionId") int promotionId);
 
         @Query("SELECT pc FROM ProductCategory pc WHERE pc.id NOT IN (SELECT fpt.productCategory.id FROM ForProductType fpt WHERE fpt.promotion.id = :promotionId)")
-        List<ProductCategory> findCategoriesNotInPromotion(@Param("promotionId") int promotionId);
+        List<ProductCategory> findProductCategoriesNotInPromotion(@Param("promotionId") int promotionId);
+
+        @Query("SELECT f FROM ForProductType f WHERE f.promotion.id = :promotionId AND f.productCategory.id = :productCategoryId")
+        ForProductType findByPromotionIdAndProductCategoryId(@Param("promotionId") int promotionId,
+                        @Param("productCategoryId") int productCategoryId);
+
+        @Query("SELECT f FROM ForProductType f WHERE f.promotion.id = :promotionId AND f.productCategory.id IN :productCategoryIds")
+        List<ForProductType> findByPromotionIdAndProductCategoryIds(@Param("promotionId") int promotionId,
+                        @Param("productCategoryIds") List<Integer> productCategoryIds);
+
+        @Query("SELECT f FROM ForProductType f JOIN f.promotion p WHERE f.productCategory.id = :productCategoryId AND f.status = true AND p.status = true AND p.promotionType = 'category' AND p.invoiceType.id = :invoiceTypeId")
+        List<ForProductType> findActiveProductTypePromotionsByProductCategoryIdAndInvoiceTypeId(
+                        @Param("productCategoryId") int productCategoryId, @Param("invoiceTypeId") int invoiceTypeId);
 }

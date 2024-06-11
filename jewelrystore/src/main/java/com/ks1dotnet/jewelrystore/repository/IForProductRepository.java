@@ -29,9 +29,4 @@ public interface IForProductRepository extends JpaRepository<ForProduct, Integer
         @Query("SELECT fp FROM ForProduct fp JOIN fp.promotion p WHERE fp.product.id = :productId AND fp.status = true AND p.status = true AND p.promotionType = 'product'")
         List<ForProduct> findActiveProductPromotionsByProductId(@Param("productId") int productId);
 
-        // @Query("SELECT fp FROM ForProduct fp WHERE fp.product.id = :productId AND
-        // fp.status = true")
-        // List<ForProduct> findByProductIdAndStatusTrue(@Param("productId") int
-        // productId);
-
 }

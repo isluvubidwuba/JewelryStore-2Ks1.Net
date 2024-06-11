@@ -1,6 +1,7 @@
 package com.ks1dotnet.jewelrystore.controller;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,26 +20,31 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
+import com.ks1dotnet.jewelrystore.entity.ForProduct;
+import com.ks1dotnet.jewelrystore.entity.Promotion;
 import com.ks1dotnet.jewelrystore.exception.BadRequestException;
 import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
-import com.ks1dotnet.jewelrystore.service.FirebaseStorageService;
+import com.ks1dotnet.jewelrystore.repository.IPromotionRepository;
+import com.ks1dotnet.jewelrystore.service.serviceImp.IFileService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionService;
 
 @RestController
 @RequestMapping("/promotion")
 @CrossOrigin("*")
 public class PromotionController {
-
-    @Value("${fileUpload.promotionPath}")
-    private String filePath;
-
     @Autowired
-    private FirebaseStorageService firebaseStorageService;
-
+    private IPromotionRepository iPromotionRepository;
     @Autowired
     private IPromotionService iPromotionService;
+
+    @GetMapping
+    public ResponseEntity<?> getAll() {
+        ResponseData responseData = iPromotionService.getAllPromotionDTO();
+        return new ResponseEntity<>(responseData, responseData.getStatus());
+    }
 
     @PostMapping("/create")
     public ResponseEntity<?> create(
@@ -48,13 +54,13 @@ public class PromotionController {
             @RequestParam boolean status,
             @RequestParam String startDate,
             @RequestParam String endDate,
-            @RequestParam String promotionType) { // Thêm promotionType vào đây
+            @RequestParam String promotionType,
+            @RequestParam int invoiceType) { // Thêm invoiceTypeId vào đây
         try {
             LocalDate start = LocalDate.parse(startDate);
             LocalDate end = LocalDate.parse(endDate);
-            String filename = firebaseStorageService.uploadImage(file, filePath).getData().toString();
-            ResponseData responseData = iPromotionService.insertPromotion(filename, name, value, status, start, end,
-                    promotionType);
+            ResponseData responseData = iPromotionService.insertPromotion(file, name, value, status, start, end,
+                    promotionType, invoiceType); // Truyền invoiceTypeId vào đây
             if (responseData.getStatus() == HttpStatus.OK) {
                 return new ResponseEntity<>(responseData, HttpStatus.OK);
             } else {
@@ -69,18 +75,20 @@ public class PromotionController {
 
     @PostMapping("/update")
     public ResponseEntity<?> update(
-            @RequestParam String file,
+            @RequestParam(required = false) MultipartFile file,
             @RequestParam int id,
             @RequestParam String name,
             @RequestParam double value,
             @RequestParam boolean status,
             @RequestParam String startDate,
-            @RequestParam String endDate) {
+            @RequestParam String endDate,
+            @RequestParam int invoiceTypeId) { // Thêm invoiceTypeId vào đây
         try {
             LocalDate start = LocalDate.parse(startDate);
             LocalDate end = LocalDate.parse(endDate);
             ResponseData responseData = new ResponseData();
-            PromotionDTO promotionDTO = iPromotionService.updatePromotion(file, id, name, value, status, start, end);
+            PromotionDTO promotionDTO = iPromotionService.updatePromotion(file, id, name, value, status, start, end,
+                    invoiceTypeId); // Truyền promotionType và invoiceTypeId vào đây
             responseData.setDesc("Update successful");
             responseData.setData(promotionDTO);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
@@ -140,19 +148,19 @@ public class PromotionController {
         }
     }
 
-    @GetMapping("/getHomePagePromotion")
-    public ResponseEntity<?> getHomePagePromotion(@RequestParam int page) {
-        iPromotionService.deleteExpiredPromotions();
-        try {
-            ResponseData responseData = new ResponseData();
-            responseData.setData(iPromotionService.getHomePagePromotion(page));
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
-        } catch (BadRequestException e) {
-            return handleBadRequestException(e);
-        } catch (Exception e) {
-            return handleException(e);
-        }
-    }
+    // @GetMapping("/getHomePagePromotion")
+    // public ResponseEntity<?> getHomePagePromotion(@RequestParam int page) {
+    // iPromotionService.deleteExpiredPromotions();
+    // try {
+    // ResponseData responseData = new ResponseData();
+    // responseData.setData(iPromotionService.getHomePagePromotion(page));
+    // return new ResponseEntity<>(responseData, HttpStatus.OK);
+    // } catch (BadRequestException e) {
+    // return handleBadRequestException(e);
+    // } catch (Exception e) {
+    // return handleException(e);
+    // }
+    // }
 
     // @GetMapping("/files/{filename:.+}")
     // @ResponseBody
@@ -173,8 +181,17 @@ public class PromotionController {
     @GetMapping("/all-promotion-on-product")
     public ResponseEntity<?> getPromotionsByProductId(@RequestParam int productId) {
         try {
-            List<PromotionDTO> lPromotionDTOs = iPromotionService.getAllPromotionByIdProduct(productId);
-            return new ResponseEntity<>(new ResponseData(null, "Get list promotion success", lPromotionDTOs),
+            // List<PromotionDTO> lPromotionDTOs =
+            // iPromotionService.getAllPromotionByIdProduct(productId);
+            Promotion list = iPromotionRepository.findById(45).get();
+            List<ProductDTO> list2 = new ArrayList<>();
+            List<ForProduct> list3 = list.getListForProduct();
+            for (ForProduct fp : list3) {
+                if (fp.isStatus()) {
+                    list2.add(fp.getProduct().getDTO());
+                }
+            }
+            return new ResponseEntity<>(new ResponseData(null, "Get list promotion success", list2),
                     HttpStatus.OK);
         } catch (Exception e) {
             return handleBadRequestException(e);
