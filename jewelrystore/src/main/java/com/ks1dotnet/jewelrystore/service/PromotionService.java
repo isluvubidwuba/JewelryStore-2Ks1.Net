@@ -14,11 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-<<<<<<< HEAD
-=======
-import com.ks1dotnet.jewelrystore.dto.ApplyPromotionDTO;
-import com.ks1dotnet.jewelrystore.dto.ExchangeRatePolicyDTO;
->>>>>>> main
 import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 import com.ks1dotnet.jewelrystore.entity.ExchangeRatePolicy;
