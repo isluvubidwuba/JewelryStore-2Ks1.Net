@@ -22,45 +22,8 @@
   <style>
     @import url("https://fonts.googleapis.com/css?family=Karla:400,700&display=swap");
 
-    .font-family-karla {
-      font-family: karla;
-    }
 
-    .bg-sidebar {
-      background: #3d68ff;
-    }
-
-    .cta-btn {
-      color: #3d68ff;
-    }
-
-    .upgrade-btn {
-      background: #1947ee;
-    }
-
-    .upgrade-btn:hover {
-      background: #0038fd;
-    }
-
-    .active-nav-link {
-      background: #1947ee;
-    }
-
-    .nav-item:hover {
-      background: #1947ee;
-    }
-
-    .account-link:hover {
-      background: #3d68ff;
-    }
-
-    /* Ensure buttons are visible and not affected by overflow */
-    .editBtn,
-    .deleteBtn {
-      display: inline-block;
-      position: relative;
-      z-index: 1;
-    }
+    
 
     .table-container {
       overflow: auto;
@@ -85,7 +48,7 @@
             Manager Employee
           </h1>
           <button id="openInsertModalBtn"
-            class="bg-green-500 text-white px-4 py-2 rounded mx-2 mb-2 col-span-1 self-end justify-self-end">
+            class="bg-gray-600 hover:bg-black text-white px-4 py-2 rounded mx-2 mb-2 col-span-1 self-end justify-self-end">
             Insert Employee
           </button>
         </div>
@@ -146,7 +109,7 @@
               class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-r-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500"
               placeholder="Search..." />
             <button id="searchButton" type="submit"
-              class="top-0 right-0 p-2.5 text-sm font-medium text-white bg-blue-700 rounded-r-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+              class="top-0 right-0 p-2.5 text-sm font-medium text-white bg-gray-700 rounded-r-lg border border-gray-700 hover:bg-black focus:ring-4 focus:outline-none focus:ring-black dark:bg-gray-600 dark:hover:bg-black dark:focus:ring-gray-800">
               <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                 viewBox="0 0 20 20">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -178,15 +141,20 @@
 
         <!-- Pagination Controls -->
         <div class="flex justify-center items-center mt-4">
-          <button id="prevPageBtn" class="bg-blue-500 text-white px-6 py-2 rounded mx-2" disabled>Prev</button>
-          <span id="currentPageIndicator" class="text-gray-700"></span>
-          <button id="nextPageBtn" class="bg-blue-500 text-white px-6 py-2 rounded mx-2" disabled>Next</button>
+          <button id="prevPageBtn" class="bg-gray-900 text-white p-2 rounded-full mx-2" disabled>
+            <i class="fas fa-chevron-left"></i> Previous
+          </button>
+          <span id="currentPageIndicator" class="text-black mx-2"></span>
+          <button id="nextPageBtn" class="bg-gray-900 text-white p-2 rounded-full mx-2" disabled>
+            Next <i class="fas fa-chevron-right"></i>
+          </button>
         </div>
 
 
 
         <!-- View Employee Modal -->
-        <div id="viewEmployeeModal" class="fixed inset-0 flex items-center justify-center z-50 hidden bg-gray-800 bg-opacity-75">
+        <div id="viewEmployeeModal"
+          class="fixed inset-0 flex items-center justify-center z-50 hidden bg-gray-800 bg-opacity-75">
           <div class="bg-white rounded-lg shadow-lg w-2/3">
             <div class="px-4 py-2 flex justify-between items-center bg-gray-800 text-white rounded-t-lg">
               <h2 class="text-lg">View Employee</h2>
@@ -261,7 +229,7 @@
                       <button type="button" id="updateEmployeeBtn"
                         class="bg-blue-500 text-white px-4 py-2 rounded">Update</button>
                       <button type="button" id="deleteEmployeeBtn"
-                        class="bg-red-500 text-white px-4 py-2 rounded">Delete</button>
+                        class="bg-red-500 text-white px-4 py-2 rounded hidden">Delete</button>
                     </div>
                   </form>
                 </div>
@@ -278,7 +246,8 @@
 
 
         <!-- Insert Employee Modal -->
-        <div id="insertEmployeeModal" class="fixed inset-0 flex items-center justify-center z-50 hidden bg-gray-800 bg-opacity-75">
+        <div id="insertEmployeeModal"
+          class="fixed inset-0 flex items-center justify-center z-50 hidden bg-gray-800 bg-opacity-75">
           <div class="bg-white rounded-lg shadow-lg w-2/3">
             <div class="px-4 py-2 flex justify-between items-center bg-gray-800 text-white rounded-t-lg">
               <h2 class="text-lg">Insert Employee</h2>
@@ -286,7 +255,7 @@
             </div>
             <div class="p-4">
               <form id="insertEmployeeForm" class="flex space-x-4">
-                <div class="w-1/3 border-r-4 border-gray-100 mr-2 pr-2">
+                <div class="w-1/3 border-r-4 border-gray-800 mr-2 pr-2">
                   <div class="flex flex-col items-center justify-center">
                     <img id="insertEmployeeImagePreview" src="#" alt="Employee Image"
                       class="w-64 h-64 object-cover border border-gray-300 rounded-md mb-4">
@@ -350,10 +319,10 @@
                     </div>
                     <div class="w-1/2">
                       <label for="insertStatus" class="block text-gray-700">Status</label>
-                      <select id="insertStatus" name="status" class="w-full px-3 py-2 border rounded" required>
-                        <option value="true">Active</option>
-                        <option value="false">Inactive</option>
-                      </select>
+                      <div class="w-full px-3 py-2 border rounded bg-white text-green-500">
+                        ACTIVE
+                      </div>
+                      <input type="hidden" id="insertStatus" name="status" value="true">
                     </div>
                   </div>
                   <div class="flex justify-end">

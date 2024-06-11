@@ -1,5 +1,6 @@
 package com.ks1dotnet.jewelrystore.service;
 
+// jewelrystore-1c5a9
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -19,6 +20,9 @@ import com.ks1dotnet.jewelrystore.payload.ResponseData;
 public class FirebaseStorageService {
     @Value("${firebase.img-url}")
     private String img_url;
+
+    @Value("${fileUpload.userPath}")
+    private String filePath;
 
     public ResponseData uploadImage(MultipartFile file, String folder) {
         try {
@@ -47,6 +51,27 @@ public class FirebaseStorageService {
             return new ResponseData(HttpStatus.OK, a ? "Delete image succesfully" : "Delete image failed", a);
         } catch (Exception e) {
             throw new RunTimeExceptionV1("Delete imgae fail ", e.getMessage());
+        }
+    }
+
+    public String getFileUrl(String fileName) {
+        String fullPath = filePath + fileName;
+        System.out.println("Getting file URL for: " + fullPath);
+        try {
+            Bucket bucket = StorageClient.getInstance().bucket();
+            System.out.println("Bucket name: " + bucket.getName());
+            Blob blob = bucket.get(fullPath);
+            if (blob != null && blob.exists()) {
+                String fileUrl = img_url + fullPath;
+                System.out.println("File URL: " + fileUrl);
+                return fileUrl;
+            } else {
+                System.out.println("Blob is null or does not exist");
+                throw new RunTimeExceptionV1("File not found: " + fullPath);
+            }
+        } catch (Exception e) {
+            System.out.println("Error getting file URL: " + e.getMessage());
+            throw new RunTimeExceptionV1("Error getting file URL", e.getMessage());
         }
     }
 }

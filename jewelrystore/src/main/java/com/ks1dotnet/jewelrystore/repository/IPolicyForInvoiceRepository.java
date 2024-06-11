@@ -14,7 +14,7 @@ import jakarta.transaction.Transactional;
 public interface IPolicyForInvoiceRepository extends JpaRepository<PolicyForInvoice, Integer> {
     @Modifying
     @Transactional
-    @Query(value = "DELETE FROM policy_for_invoice WHERE id_invoice_type = :invoiceTypeId AND id_rate_policy = :ratePolicyId", nativeQuery = true)
+    // @Query(value = "DELETE FROM policy_for_invoice WHERE id_invoice_type = :invoiceTypeId AND id_rate_policy = :ratePolicyId", nativeQuery = true)
     void deleteByExchangeRatePolicyAndInvoiceType(@Param("ratePolicyId") String idExchangeRate,
             @Param("invoiceTypeId") int invoiceType);
 
