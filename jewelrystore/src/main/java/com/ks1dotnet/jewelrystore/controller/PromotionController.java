@@ -82,14 +82,17 @@ public class PromotionController {
             @RequestParam double value,
             @RequestParam boolean status,
             @RequestParam String startDate,
-            @RequestParam String endDate,
-            @RequestParam int invoiceTypeId) { // Thêm invoiceTypeId vào đây
+            @RequestParam String endDate) { // Thêm invoiceTypeId vào đây
         try {
             LocalDate start = LocalDate.parse(startDate);
             LocalDate end = LocalDate.parse(endDate);
             ResponseData responseData = new ResponseData();
-            PromotionDTO promotionDTO = iPromotionService.updatePromotion(file, id, name, value, status, start, end,
-                    invoiceTypeId); // Truyền promotionType và invoiceTypeId vào đây
+            PromotionDTO promotionDTO = iPromotionService.updatePromotion(file, id, name, value, status, start, end); // Truyền
+                                                                                                                      // promotionType
+                                                                                                                      // và
+                                                                                                                      // invoiceTypeId
+                                                                                                                      // vào
+                                                                                                                      // đây
             responseData.setDesc("Update successful");
             responseData.setData(promotionDTO);
             return new ResponseEntity<>(responseData, HttpStatus.OK);

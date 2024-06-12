@@ -86,7 +86,7 @@ $(document).ready(function () {
 });
 function checkProductInOtherActivePromotions(productId, promotionId, checkbox) {
   $.ajax({
-    url: `http://localhost:8080/promotion-for-product/check-product/${productId}/${promotionId}`,
+    url: `http://localhost:8080/promotion-generic/check/PRODUCT/${productId}/${promotionId}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -111,6 +111,9 @@ function displayConflictModal(conflictPromotions, desc, checkbox) {
           <div class="mb-4 p-4 border rounded shadow-sm">
               <p><strong>ID:</strong> ${promotion.id}</p>
               <p><strong>Name:</strong> ${promotion.name}</p>
+              <p><strong>Promotion for invoice:</strong> ${
+                promotion.invoiceTypeDTO.name
+              }</p>
               <p><strong>Value:</strong> ${promotion.value}</p>
               <p><strong>Status:</strong> ${
                 promotion.status ? "Active" : "Inactive"
@@ -136,10 +139,10 @@ function activeSelectedProducts(promotionId) {
   $(".product-checkbox:checked").each(function () {
     selectedProductIds.push($(this).val());
   });
-
+  var entity = "PRODUCT";
   if (selectedProductIds.length > 0) {
     $.ajax({
-      url: "http://localhost:8080/promotion-for-product/apply-promotion", // URL mới cho chức năng inactive
+      url: "http://localhost:8080/promotion-generic/apply", // URL mới cho chức năng inactive
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -147,7 +150,8 @@ function activeSelectedProducts(promotionId) {
       contentType: "application/json",
       data: JSON.stringify({
         promotionId: promotionId,
-        productIds: selectedProductIds,
+        entityIds: selectedProductIds,
+        entityType: entity,
       }),
       success: function (response) {
         // Sau khi thực hiện thành công, tải lại danh sách sản phẩm
@@ -260,7 +264,7 @@ function fetchProductsByPromotion(promotionId, promotionName) {
   var productTableBody = $("#product-apply-promotion");
   productTableBody.empty(); // Clear existing rows
   $.ajax({
-    url: `http://localhost:8080/promotion-for-product/promotion/${promotionId}`,
+    url: `http://localhost:8080/promotion-generic/in-promotion/PRODUCT/${promotionId}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -347,7 +351,7 @@ function fetchProductsNotInPromotion(promotionId) {
   var itemTableBody = $("#itemTableBody");
   itemTableBody.empty(); // Clear existing rows
   $.ajax({
-    url: `http://localhost:8080/promotion-for-product/not-in-promotion/${promotionId}`,
+    url: `http://localhost:8080/promotion-generic/not-in-promotion/PRODUCT/${promotionId}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -393,10 +397,10 @@ function addSelectedProductsToPromotion(promotionId) {
   $("#itemTableBody .item-checkbox:checked").each(function () {
     selectedProductIds.push($(this).val());
   });
-
+  var entity = "PRODUCT";
   if (selectedProductIds.length > 0) {
     $.ajax({
-      url: "http://localhost:8080/promotion-for-product/apply-promotion",
+      url: "http://localhost:8080/promotion-generic/apply",
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -404,7 +408,8 @@ function addSelectedProductsToPromotion(promotionId) {
       contentType: "application/json",
       data: JSON.stringify({
         promotionId: promotionId,
-        productIds: selectedProductIds,
+        entityIds: selectedProductIds,
+        entityType: entity,
       }),
       success: function (response) {
         // Sau khi thêm thành công, tải lại danh sách sản phẩm

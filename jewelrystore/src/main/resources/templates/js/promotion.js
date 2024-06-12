@@ -394,14 +394,28 @@ function fetchPromotionDetails(promotionId) {
         buttonHtml = `
           <button
             type="button"
-            id="modalToggle_Customer_Apply"
+            id="modalToggle_Gemstone_Apply"
             class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             data-promotion-id="${promotion.id}"
             data-promotion-name = "${promotion.name}"
 
             style="width: 100%"
           >
-             View type customers applied
+             View type gemstone applied
+          </button>
+        `;
+      } else if (promotion.promotionType === "material") {
+        buttonHtml = `
+          <button
+            type="button"
+            id="modalToggle_Material_Apply"
+            class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            data-promotion-id="${promotion.id}"
+            data-promotion-name = "${promotion.name}"
+
+            style="width: 100%"
+          >
+             View type material applied
           </button>
         `;
       }

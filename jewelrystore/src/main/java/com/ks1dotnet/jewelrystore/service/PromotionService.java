@@ -39,25 +39,6 @@ public class PromotionService implements IPromotionService {
     @Autowired
     private IInvoiceTypeRepository iInvoiceTypeRepository;
 
-    // @Override
-    // public Map<String, Object> getHomePagePromotion(int page) {
-    // try {
-    // Map<String, Object> response = new HashMap<>();
-    // PageRequest pageRequest = PageRequest.of(page, 2);
-    // Page<PromotionDTO> listData =
-    // iPromotionRepository.findAllPromotions(pageRequest);
-
-    // response.put("promotions", listData.getContent());
-    // response.put("totalPages", listData.getTotalPages());
-    // response.put("currentPage", page);
-
-    // return response;
-    // } catch (Exception e) {
-    // throw new BadRequestException("Failed to get home page promotions with
-    // pagination", e.getMessage());
-    // }
-    // }
-
     @Override
     public ResponseData getAllPromotionDTO() {
         List<PromotionDTO> promotionDTOs = iPromotionRepository.findAll().stream()
@@ -112,7 +93,7 @@ public class PromotionService implements IPromotionService {
 
     @Override
     public PromotionDTO updatePromotion(MultipartFile file, int id, String name, double value, boolean status,
-            LocalDate startDate, LocalDate endDate, int invoiceTypeId) {
+            LocalDate startDate, LocalDate endDate) {
         try {
             Promotion promotion = iPromotionRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Promotion not found with id: " + id));
@@ -124,9 +105,10 @@ public class PromotionService implements IPromotionService {
             promotion.setEndDate(endDate);
             promotion.setLastModified(LocalDate.now());
 
-            InvoiceType invoiceTypeC = iInvoiceTypeRepository.findById(invoiceTypeId)
-                    .orElseThrow(() -> new BadRequestException("Not found invoice type! Invalid invoice type ID. "));
-            promotion.setInvoiceType(invoiceTypeC);
+            // InvoiceType invoiceTypeC = iInvoiceTypeRepository.findById(invoiceTypeId)
+            // .orElseThrow(() -> new BadRequestException("Not found invoice type! Invalid
+            // invoice type ID. "));
+            // promotion.setInvoiceType(invoiceTypeC);
 
             if (file != null && !file.isEmpty()) {
                 boolean isSaveFileSuccess = iFileService.savefile(file);

@@ -62,7 +62,7 @@ function fetchCustomersByPromotion(promotionId) {
   var customerTableBody = $("#customer-apply-promotion");
   customerTableBody.empty();
   $.ajax({
-    url: `http://localhost:8080/promotion-for-customer/promotion/${promotionId}`,
+    url: `http://localhost:8080/promotion-generic/in-promotion/CUSTOMER/${promotionId}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -107,7 +107,7 @@ function fetchCustomersNotInPromotion(promotionId) {
   var customerTableBody = $("#customer-not-apply-voucher");
   customerTableBody.empty();
   $.ajax({
-    url: `http://localhost:8080/promotion-for-customer/not-in-promotion/${promotionId}`,
+    url: `http://localhost:8080/promotion-generic/not-in-promotion/CUSTOMER/${promotionId}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -151,7 +151,7 @@ function applyPromotionToSelectedCustomers(promotionId) {
 
   if (selectedCustomerIds.length > 0) {
     $.ajax({
-      url: "http://localhost:8080/promotion-for-customer/apply-promotion",
+      url: "http://localhost:8080/promotion-generic/apply",
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -159,7 +159,8 @@ function applyPromotionToSelectedCustomers(promotionId) {
       contentType: "application/json",
       data: JSON.stringify({
         promotionId: promotionId,
-        productIds: selectedCustomerIds,
+        entityIds: selectedCustomerIds,
+        entityType: "CUSTOMER",
       }),
       success: function (response) {
         fetchCustomersByPromotion(promotionId);
@@ -182,7 +183,7 @@ function removePromotionFromSelectedCustomers(promotionId) {
 
   if (selectedCustomerIds.length > 0) {
     $.ajax({
-      url: "http://localhost:8080/promotion-for-customer/remove-promotion",
+      url: "http://localhost:8080/promotion-generic/remove",
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -190,7 +191,8 @@ function removePromotionFromSelectedCustomers(promotionId) {
       contentType: "application/json",
       data: JSON.stringify({
         promotionId: promotionId,
-        productIds: selectedCustomerIds,
+        entityIds: selectedCustomerIds,
+        entityType: "CUSTOMER",
       }),
       success: function (response) {
         if (response.status === "OK") {
@@ -215,7 +217,7 @@ function activateSelectedCustomers(promotionId) {
 
   if (selectedCustomerIds.length > 0) {
     $.ajax({
-      url: "http://localhost:8080/promotion-for-customer/apply-promotion",
+      url: "http://localhost:8080/promotion-generic/apply",
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -223,7 +225,8 @@ function activateSelectedCustomers(promotionId) {
       contentType: "application/json",
       data: JSON.stringify({
         promotionId: promotionId,
-        productIds: selectedCustomerIds,
+        entityIds: selectedCustomerIds,
+        entityType: "CUSTOMER",
       }),
       success: function (response) {
         if (response.status === "OK") {
@@ -242,7 +245,7 @@ function activateSelectedCustomers(promotionId) {
 
 function checkCustomerInOtherPromotions(customerTypeId, promotionId, checkbox) {
   $.ajax({
-    url: `http://localhost:8080/promotion-for-customer/check-customer/${customerTypeId}/${promotionId}`,
+    url: `http://localhost:8080/promotion-generic/check/CUSTOMER/${customerTypeId}/${promotionId}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,

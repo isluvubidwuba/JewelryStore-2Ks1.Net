@@ -43,4 +43,10 @@ public class ForMaterial {
         this.material = new Material(m.getMaterialDTO());
         this.status = m.isStatus();
     }
+
+    public ForMaterial(Promotion promotion2, Material material2, boolean b) {
+        this.promotion = promotion2;
+        this.material = material2;
+        this.status = b;
+    }
 }
