@@ -2,8 +2,6 @@ package com.ks1dotnet.jewelrystore.entity;
 
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Value;
-
 import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 
 import jakarta.persistence.Column;
@@ -102,6 +100,4 @@ public class Product {
         if (t.getImgPath() != null)
             this.imgPath = t.getImgPath();
     }
-
-    
 }

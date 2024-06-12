@@ -12,9 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import com.ks1dotnet.jewelrystore.dto.GemStoneOfProductDTO;
 import com.ks1dotnet.jewelrystore.dto.ProductDTO;
-import com.ks1dotnet.jewelrystore.entity.GemStoneOfProduct;
 import com.ks1dotnet.jewelrystore.entity.Product;
 import com.ks1dotnet.jewelrystore.exception.BadRequestException;
 import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;

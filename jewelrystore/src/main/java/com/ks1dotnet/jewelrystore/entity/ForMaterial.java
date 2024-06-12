@@ -1,6 +1,5 @@
 package com.ks1dotnet.jewelrystore.entity;
 
-import com.ks1dotnet.jewelrystore.dto.ForGemStoneTypeDTO;
 import com.ks1dotnet.jewelrystore.dto.ForMaterialDTO;
 
 import jakarta.persistence.Entity;
@@ -42,5 +41,11 @@ public class ForMaterial {
         this.promotion = new Promotion(m.getPromotionDTO());
         this.material = new Material(m.getMaterialDTO());
         this.status = m.isStatus();
+    }
+
+    public ForMaterial(Promotion promotion2, Material material2, boolean b) {
+        this.promotion = promotion2;
+        this.material = material2;
+        this.status = b;
     }
 }

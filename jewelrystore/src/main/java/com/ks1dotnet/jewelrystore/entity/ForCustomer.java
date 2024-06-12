@@ -1,5 +1,7 @@
 package com.ks1dotnet.jewelrystore.entity;
 
+import com.ks1dotnet.jewelrystore.dto.ForCustomerDTO;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -35,5 +37,9 @@ public class ForCustomer {
         this.promotion = promotion;
         this.customerType = customerType;
         this.status = status;
+    }
+
+    public ForCustomerDTO getDTO() {
+        return new ForCustomerDTO(this.id, this.promotion.getDTO(), this.customerType.getDTO(), this.isStatus());
     }
 }

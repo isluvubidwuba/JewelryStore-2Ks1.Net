@@ -6,8 +6,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -16,7 +14,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -88,15 +85,14 @@ public class PromotionController {
             @RequestParam double value,
             @RequestParam boolean status,
             @RequestParam String startDate,
-            @RequestParam String endDate,
-            @RequestParam int invoiceTypeId) { // Thêm invoiceTypeId vào đây
+            @RequestParam String endDate) { // Thêm invoiceTypeId vào đây
         try {
             LocalDate start = LocalDate.parse(startDate);
             LocalDate end = LocalDate.parse(endDate);
             ResponseData responseData = new ResponseData();
             String fileName = firebaseStorageService.uploadImage(file, filePath).getData().toString();
-            PromotionDTO promotionDTO = iPromotionService.updatePromotion(fileName, id, name, value, status, start, end,
-                    invoiceTypeId); // Truyền promotionType và invoiceTypeId vào đây
+            PromotionDTO promotionDTO = iPromotionService.updatePromotion(fileName, id, name, value, status, start,
+                    end); // Truyền promotionType và invoiceTypeId vào đây
             responseData.setDesc("Update successful");
             responseData.setData(promotionDTO);
             return new ResponseEntity<>(responseData, HttpStatus.OK);

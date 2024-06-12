@@ -4,5 +4,6 @@ public enum EntityType {
     GEMSTONE,
     PRODUCT,
     CATEGORY,
-    CUSTOMER
+    CUSTOMER,
+    MATERIAL
 }
