@@ -44,6 +44,15 @@ public class GemStoneOfProductService implements IGemStoneOfProductService {
         return new PageImpl<>(dtoList, productPage.getPageable(), productPage.getTotalElements());
     }
 
+    private Page<GemStoneOfProductDTO> convertToDtoPage(List<GemStoneOfProduct> productPage) {
+        List<GemStoneOfProductDTO> dtoList = productPage
+                .stream()
+                .map(GemStoneOfProduct::getDTO)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(dtoList, PageRequest.of(0, productPage.size()), productPage.size());
+    }
+
     @Override
     public ResponseData findById(Integer id) {
         GemStoneOfProduct gsc = iGemStoneOfProductRepository.findById(id)
@@ -53,23 +62,29 @@ public class GemStoneOfProductService implements IGemStoneOfProductService {
 
     @Override
     public ResponseData insert(GemStoneOfProductDTO t) {
+        validateGemStoneOfProduct(t, "create");
+
+        if (iGemStoneOfProductRepository.existsById(t.getId())) {
+            throw new BadRequestException("Cannot create gemstone of product that already exists.");
+        }
+
         try {
-            if (t.getId() != 0 && iGemStoneOfProductRepository.existsById(t.getId()))
-                throw new BadRequestException("Can not create gem stone of product that already exsist failed!");
             iGemStoneOfProductRepository.save(new GemStoneOfProduct(t));
-            return new ResponseData(HttpStatus.CREATED, "Create gem stone of product successfully", t);
+            return new ResponseData(HttpStatus.CREATED, "Create gemstone of product successfully", t);
         } catch (Exception e) {
-            throw new BadRequestException("Create gem stone of product failed");
+            throw new BadRequestException("Create gemstone of product failed", e.getMessage());
         }
     }
 
     @Override
     public ResponseData update(GemStoneOfProductDTO t) {
+        validateGemStoneOfProduct(t, "update");
         try {
-            if (t.getId() == 0 && !iGemStoneOfProductRepository.existsById(t.getId()))
-                throw new BadRequestException("Can not update gem stone of product that not exsist failed!");
-            iGemStoneOfProductRepository.save(new GemStoneOfProduct(t));
-            return new ResponseData(HttpStatus.OK, "Update gem stone of product successfully", t);
+            if (!iGemStoneOfProductRepository.existsById(t.getId()))
+                throw new BadRequestException("Can not update gem stone of product that not exsist !");
+
+            return new ResponseData(HttpStatus.OK, "Update gem stone of product successfully",
+                    iGemStoneOfProductRepository.save(new GemStoneOfProduct(t)).getDTO());
         } catch (Exception e) {
             throw new BadRequestException("Update gem stone of product failed");
         }
@@ -85,10 +100,51 @@ public class GemStoneOfProductService implements IGemStoneOfProductService {
 
     @Override
     public ResponseData getGemStonesByProductId(int id) {
-        List<GemStoneOfProductDTO> listDto = iGemStoneOfProductRepository.findGemStonesByProductId(id).stream()
-                .map(GemStoneOfProduct::getDTO).collect(Collectors.toList());
+        List<GemStoneOfProduct> list = iGemStoneOfProductRepository.findGemStonesByProductId(id);
+        if (list.isEmpty())
+            return new ResponseData(HttpStatus.NOT_FOUND,
+                    "No gem stone of product id: " + id + " found!",
+                    null);
         return new ResponseData(HttpStatus.OK,
-                "Gem stone of product id: " + id + " found!", listDto);
+                "Gem stone of product id: " + id + " found!",
+                convertToDtoPage(list));
+    }
+
+    private void validateGemStoneOfProduct(GemStoneOfProductDTO t, String type) {
+        if (t.getId() != 0 && type.compareTo("create") == 0) {
+            throw new BadRequestException("Create gemstone of product failed");
+        }
+        if (t.getGemstoneType() == null || t.getGemstoneType().getId() == 0) {
+            throw new BadRequestException("Cannot " + type + " gemstone of product without type.");
+        }
+        if (t.getGemstoneCategory() == null || t.getGemstoneCategory().getId() == 0) {
+            throw new BadRequestException("Cannot " + type + " gemstone of product without category.");
+        }
+        if (t.getProduct() == null || t.getProduct().getId() == 0) {
+            throw new BadRequestException("Cannot " + type + " gemstone of product without associated product.");
+        }
+        if (isNullOrEmpty(t.getColor())) {
+            throw new BadRequestException("Cannot " + type + " gemstone of product without color.");
+        }
+        if (isNullOrEmpty(t.getClarity())) {
+            throw new BadRequestException("Cannot " + type + " gemstone of product without clarity.");
+        }
+        if (t.getCarat() <= 0) {
+            throw new BadRequestException(
+                    "Cannot " + type + " gemstone of product with carat less than or equal to 0.");
+        }
+        if (t.getPrice() <= 0) {
+            throw new BadRequestException(
+                    "Cannot " + type + " gemstone of product with price less than or equal to 0.");
+        }
+        if (t.getQuantity() <= 0) {
+            throw new BadRequestException(
+                    "Cannot " + type + " gemstone of product with quantity less than or equal to 0.");
+        }
+    }
+
+    private boolean isNullOrEmpty(String str) {
+        return str == null || str.isEmpty();
     }
 
 }

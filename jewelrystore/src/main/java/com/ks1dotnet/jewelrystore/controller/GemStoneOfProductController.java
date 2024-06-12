@@ -5,10 +5,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ks1dotnet.jewelrystore.dto.GemStoneOfProductDTO;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IGemStoneCategoryService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IGemStoneOfProductService;
@@ -34,6 +36,12 @@ public class GemStoneOfProductController {
     @GetMapping("/product")
     public ResponseEntity<?> getByProductId(@RequestParam int id) {
         ResponseData response = iGemStoneOfProductService.getGemStonesByProductId(id);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/product")
+    public ResponseEntity<?> addGemStoneToProduct(@RequestParam GemStoneOfProductDTO t) {
+        ResponseData response = iGemStoneOfProductService.insert(t);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

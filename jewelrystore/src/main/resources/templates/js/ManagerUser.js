@@ -251,49 +251,73 @@ function fetchSuppliers(page) {
   });
 }
 
+async function fetchImageURL(fileName) {
+  try {
+    const response = await fetch(`http://localhost:8080/employee/uploadget?fileName=${fileName}`);
+    const data = await response.json();
+    if (data.status === 'OK') {
+      return data.data; // Trả về URL hình ảnh
+    } else {
+      console.error('Failed to fetch image URL:', data.message);
+      return '';
+    }
+  } catch (error) {
+    console.error('Error fetching image URL:', error);
+    return '';
+  }
+}
+
+
 function populateCustomerTable(customers, ranks, currentPage, role) {
   const tableBody = $(`#${role.toLowerCase()}-table tbody`);
   tableBody.empty();
   let count = currentPage * 5 + 1;
+
   customers.forEach(customer => {
-    let rankInfo = '';
-    if (role === 'Customer') {
-      const rankDetail = ranks.find(r => r.customerId === customer.id);
-      const rank = rankDetail ? rankDetail.rank : 'N/A';
-      const points = rankDetail ? rankDetail.points : 'N/A';
-      rankInfo = `<td class="py-2 px-4 border-b">${rank} (${points} points)</td>`;
-    }
-    const row = `<tr class="text-center">
-                  <td class="py-2 px-4 border-b">${count++}</td>
-                  <td class="py-2 px-4 border-b"><img src="http://localhost:8080/employee/files/${customer.image}" alt="${customer.fullName}" class="h-10 w-10"></td>
-                  <td class="py-2 px-4 border-b">${customer.fullName}</td>
-                  <td class="py-2 px-4 border-b">${customer.phoneNumber}</td>
-                  <td class="py-2 px-4 border-b">${customer.email}</td>
-                  <td class="py-2 px-4 border-b">${customer.address}</td>
-                  ${rankInfo}
-                  <td class="py-2 px-4 border-b"><button class="edit-btn" data-id="${customer.id}"><i class="fas fa-edit"></i></button></td>
-                </tr>`;
-    tableBody.append(row);
+    fetchImage(customer.image).then(imageUrl => {
+      let rankInfo = '';
+      if (role === 'Customer') {
+        const rankDetail = ranks.find(r => r.customerId === customer.id);
+        const rank = rankDetail ? rankDetail.rank : 'N/A';
+        const points = rankDetail ? rankDetail.points : 'N/A';
+        rankInfo = `<td class="py-2 px-4 border-b">${rank} (${points} points)</td>`;
+      }
+      const row = `<tr class="text-center">
+                    <td class="py-2 px-4 border-b">${count++}</td>
+                    <td class="py-2 px-4 border-b"><img src="${imageUrl}" alt="${customer.fullName}" class="h-10 w-10"></td>
+                    <td class="py-2 px-4 border-b">${customer.fullName}</td>
+                    <td class="py-2 px-4 border-b">${customer.phoneNumber}</td>
+                    <td class="py-2 px-4 border-b">${customer.email}</td>
+                    <td class="py-2 px-4 border-b">${customer.address}</td>
+                    ${rankInfo}
+                    <td class="py-2 px-4 border-b"><button class="edit-btn" data-id="${customer.id}"><i class="fas fa-edit"></i></button></td>
+                  </tr>`;
+      tableBody.append(row);
+    });
   });
 
   setupEditButtons();
 }
 
+
 function populateSupplierTable(suppliers, currentPage) {
   const tableBody = $('#supplier-table tbody');
   tableBody.empty();
   let count = currentPage * 5 + 1;
+
   suppliers.forEach(supplier => {
-    const row = `<tr class="text-center">
-                  <td class="py-2 px-4 border-b">${count++}</td>
-                  <td class="py-2 px-4 border-b"><img src="http://localhost:8080/employee/files/${supplier.image}" alt="${supplier.fullName}" class="h-10 w-10"></td>
-                  <td class="py-2 px-4 border-b">${supplier.fullName}</td>
-                  <td class="py-2 px-4 border-b">${supplier.phoneNumber}</td>
-                  <td class="py-2 px-4 border-b">${supplier.email}</td>
-                  <td class="py-2 px-4 border-b">${supplier.address}</td>
-                  <td class="py-2 px-4 border-b"><button class="edit-btn" data-id="${supplier.id}"><i class="fas fa-edit"></i></button></td>
-                </tr>`;
-    tableBody.append(row);
+    fetchImage(supplier.image).then(imageUrl => {
+      const row = `<tr class="text-center">
+                    <td class="py-2 px-4 border-b">${count++}</td>
+                    <td class="py-2 px-4 border-b"><img src="${imageUrl}" alt="${supplier.fullName}" class="h-10 w-10"></td>
+                    <td class="py-2 px-4 border-b">${supplier.fullName}</td>
+                    <td class="py-2 px-4 border-b">${supplier.phoneNumber}</td>
+                    <td class="py-2 px-4 border-b">${supplier.email}</td>
+                    <td class="py-2 px-4 border-b">${supplier.address}</td>
+                    <td class="py-2 px-4 border-b"><button class="edit-btn" data-id="${supplier.id}"><i class="fas fa-edit"></i></button></td>
+                  </tr>`;
+      tableBody.append(row);
+    });
   });
 
   setupEditButtons();
@@ -644,6 +668,8 @@ function isValidPhoneNumber(phoneNumber) {
   const phonePattern = /^\d{10,12}$/;
   return phonePattern.test(phoneNumber);
 }
+
+
 
 // Fetch rank data and populate the table
 function fetchUniqueRankData() {

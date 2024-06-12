@@ -18,6 +18,7 @@ import lombok.*;
 @Table(name = "employee")
 public class Employee {
     @Id
+    @Column(name = "id")
     private String id;
 
     @Column(name = "first_name")
@@ -58,4 +59,18 @@ public class Employee {
         return new EmployeeDTO(id, firstName, lastName, pinCode, status, phoneNumber, email, address, role.getDTO(),
                 image);
     }
+
+    public Employee(EmployeeDTO e) {
+        this.id = e.getId();
+        this.firstName = e.getFirstName();
+        this.lastName = e.getLastName();
+        this.pinCode = e.getPinCode();
+        this.status = e.isStatus();
+        this.phoneNumber = e.getPhoneNumber();
+        this.email = e.getEmail();
+        this.address = e.getAddress();
+        this.role = new Role(e.getRole());
+        this.image = e.getImage();
+    }
+
 }

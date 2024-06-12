@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -16,10 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ks1dotnet.jewelrystore.dto.UserInfoDTO;
+import com.ks1dotnet.jewelrystore.entity.Employee;
 import com.ks1dotnet.jewelrystore.entity.UserInfo;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IUserInfoRepository;
-import com.ks1dotnet.jewelrystore.service.serviceImp.IFileService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IRoleService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IUserInfoService;
 
@@ -28,9 +29,16 @@ public class UserInfoService implements IUserInfoService {
     @Autowired
     private IUserInfoRepository iUserInfoRepository;
     @Autowired
-    private IFileService iFileService;
-    @Autowired
     private IRoleService iRoleService;
+
+    @Value("${fileUpload.userPath}")
+    private String filePath;
+
+    @Value("${firebase.img-url}")
+    private String url;
+
+    @Autowired
+    private FirebaseStorageService firebaseStorageService;
 
     @Override
     public List<UserInfo> findAll() {
@@ -70,6 +78,28 @@ public class UserInfoService implements IUserInfoService {
         ResponseData responseData = new ResponseData();
         phoneNumber.trim();
         email.trim();
+
+        String fileName = null;
+
+        // Upload hình ảnh nếu có
+        if (file != null && !file.isEmpty()) {
+            responseData = firebaseStorageService.uploadImage(file, filePath);
+            if (responseData.getStatus() == HttpStatus.OK) {
+                fileName = (String) responseData.getData();
+                responseData.setStatus(HttpStatus.OK);
+                responseData.setDesc("Find Image Successfully !!!");
+            } else {
+                responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+                responseData.setDesc("Upload image error ! System Error !");
+                return responseData;
+            }
+        }
+        responseData = firebaseStorageService.uploadImage(file, filePath);
+        fileName = "31ab6d6b-86cf-443f-9041-3c394b17ac0b_2024-06-10";
+        if (responseData.getStatus() == HttpStatus.OK)
+            fileName = (String) responseData.getData();
+
+
         // Check if email or phone number already exists
         if (iUserInfoRepository.existsByEmail(email)) {
             responseData.setStatus(HttpStatus.CONFLICT);
@@ -83,35 +113,14 @@ public class UserInfoService implements IUserInfoService {
             return responseData;
         }
 
-        boolean isSaveFileSuccess = true;
-        String imageName;
-        // Check if a file is provided
-        if (file != null && !file.isEmpty()) {
-            try {
-                isSaveFileSuccess = iFileService.savefile(file);
-                if (isSaveFileSuccess) {
-                    imageName = file.getOriginalFilename();
-                } else {
-                    responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-                    responseData.setDesc("File save failed");
-                    return responseData;
-                }
-            } catch (Exception e) {
-                responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-                responseData.setDesc("File save failed: " + e.getMessage());
-                return responseData;
-            }
-        } else {
-            imageName = "default_image.png";
-        }
-
         UserInfo userInfo = new UserInfo();
         userInfo.setFullName(fullName);
         userInfo.setPhoneNumber(phoneNumber);
         userInfo.setEmail(email);
         userInfo.setAddress(address);
         userInfo.setRole(iRoleService.findById(roleId));
-        userInfo.setImage(imageName); // Set the image name, default or uploaded
+        userInfo.setImage(fileName);
+        // userInfo.setImage(imageName); // Set the image name, default or uploaded
         iUserInfoRepository.save(userInfo);
 
         responseData.setStatus(HttpStatus.OK);
@@ -124,6 +133,33 @@ public class UserInfoService implements IUserInfoService {
     public ResponseData updateUserInfo(MultipartFile file, int id, String fullName, String phoneNumber, String email,
             int roleId, String address) {
         ResponseData responseData = new ResponseData();
+
+        String fileName = null;
+
+        // Upload hình ảnh nếu có
+        if (file != null && !file.isEmpty()) {
+            responseData = firebaseStorageService.uploadImage(file, filePath);
+            if (responseData.getStatus() == HttpStatus.OK) {
+                fileName = (String) responseData.getData();
+            } else {
+                responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+                responseData.setDesc("Upload image error ! System Error !");
+                return responseData;
+            }
+        }
+
+        // Nếu hình ảnh không được upload, lấy hình ảnh cũ
+        if (fileName == null) {
+            Optional<UserInfo> existingUserInfoOpt = iUserInfoRepository.findById(id);
+            if (existingUserInfoOpt.isPresent()) {
+                UserInfo existingUserinfo = existingUserInfoOpt.get();
+                fileName = existingUserinfo.getImage();
+            } else {
+                responseData.setStatus(HttpStatus.NOT_FOUND);
+                responseData.setDesc("Not found User Information");
+                return responseData;
+            }
+        }
 
         Optional<UserInfo> existingUser = iUserInfoRepository.findById(id);
         if (!existingUser.isPresent()) {
@@ -148,33 +184,12 @@ public class UserInfoService implements IUserInfoService {
             return responseData;
         }
 
-        boolean isSaveFileSuccess = true;
-        String imageName = userInfo.getImage(); // Keep existing image if no new file is provided
-
-        // Check if a file is provided
-        if (file != null && !file.isEmpty()) {
-            try {
-                isSaveFileSuccess = iFileService.savefile(file);
-                if (isSaveFileSuccess) {
-                    imageName = file.getOriginalFilename();
-                } else {
-                    responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-                    responseData.setDesc("File save failed");
-                    return responseData;
-                }
-            } catch (Exception e) {
-                responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-                responseData.setDesc("File save failed: " + e.getMessage());
-                return responseData;
-            }
-        }
-
         userInfo.setFullName(fullName);
         userInfo.setPhoneNumber(phoneNumber);
         userInfo.setEmail(email);
         userInfo.setAddress(address);
         userInfo.setRole(iRoleService.findById(roleId));
-        userInfo.setImage(imageName); // Set the image name, default or uploaded
+        userInfo.setImage(fileName); // Set the image name, default or uploaded
 
         iUserInfoRepository.save(userInfo);
 

@@ -61,7 +61,7 @@ public class CustomSecurityFilter {
 
                                                 // Những phần permit all của counter employe userinfo
                                                 .requestMatchers("/authentication/**", "/role/list",
-                                                                "/employee/files/**", "/earnpoints/**", "/gemStone/**")
+                                                                "/employee/upload/**", "/earnpoints/**", "/gemStone/**", "/employee/uploadget/**")
                                                 .permitAll()
                                                 // Employee
                                                 .requestMatchers("/employee/listpage", "/employee/search",
@@ -95,7 +95,7 @@ public class CustomSecurityFilter {
                                                 // User Information
                                                 .requestMatchers("/userinfo/listcustomer", "/userinfo/listpage",
                                                                 "/userinfo/findcustomer/{id}",
-                                                                "/userinfo/searchcustomer")
+                                                                "/userinfo/searchcustomer", "userinfo/upload", "userinfo/uploadget")
                                                 .hasAnyAuthority("STAFF", "MANAGER", "ADMIN")
 
                                                 .requestMatchers("/userinfo/update", "/userinfo/insert")

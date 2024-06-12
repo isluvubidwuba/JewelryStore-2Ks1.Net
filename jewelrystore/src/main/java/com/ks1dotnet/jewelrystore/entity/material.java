@@ -44,13 +44,13 @@ public class Material {
     }
 
     public Material(MaterialDTO t) {
-        if (t.getId() != null)
+        if (t.getId() != 0)
             this.id = t.getId();
         if (t.getName() != null)
             this.name = t.getName();
         if (t.getPurity() != null)
             this.purity = t.getPurity();
-        if (t.getPriceAtTime() != null)
+        if (t.getPriceAtTime() != 0)
             this.priceAtTime = t.getPriceAtTime();
         if (t.getLastModified() != null)
             this.lastModified = t.getLastModified();

@@ -2,7 +2,8 @@ package com.ks1dotnet.jewelrystore.entity;
 
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.beans.factory.annotation.Value;
+
 import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 
 import jakarta.persistence.Column;
@@ -28,21 +29,26 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     @Column(name = "product_code")
     private String productCode;
+
     @Column(name = "barcode", unique = true)
     private String barCode;
+
     @Column(name = "name")
     private String name;
+
     @Column(name = "fee")
     private double fee;
+
     @Column(name = "status")
     private boolean status;
-    @Column(name = "weight")
-    private Float weight;
-    @Column(name = "img")
-    private String img;
 
+    @Column(name = "weight")
+    private float weight;
+    @Column(name = "img")
+    private String imgPath;
     @ManyToOne
     @JoinColumn(name = "id_material")
     private Material material;
@@ -69,8 +75,8 @@ public class Product {
 
     public ProductDTO getDTO() {
         return new ProductDTO(this.id, this.getProductCode(), this.getBarCode(), this.name, this.fee, this.status,
-                this.weight, this.img, this.material.getDTO(),
-                this.productCategory.getDTO(), this.counter.getDTO());
+                this.weight, this.material.getDTO(),
+                this.productCategory.getDTO(), this.counter.getDTO(), this.imgPath);
     }
 
     public Product(ProductDTO t) {
@@ -82,11 +88,10 @@ public class Product {
             this.barCode = t.getBarCode();
         if (t.getName() != null)
             this.name = t.getName();
-        if (t.getFee() != null)
+        if (t.getFee() != 0)
             this.fee = t.getFee();
-        if (t.getImg() != null)
-            this.img = t.getImg();
-
+        if (t.getWeight() != 0)
+            this.weight = t.getWeight();
         this.status = t.isStatus();
         if (t.getMaterialDTO() != null)
             this.material = new Material(t.getMaterialDTO());
@@ -94,5 +99,9 @@ public class Product {
             this.productCategory = new ProductCategory(t.getProductCategoryDTO());
         if (t.getCounterDTO() != null)
             this.counter = new Counter(t.getCounterDTO());
+        if (t.getImgPath() != null)
+            this.imgPath = t.getImgPath();
     }
+
+    
 }

@@ -18,7 +18,7 @@ public interface IUserInfoService {
 
         public Map<String, Object> getHomePageUser(int page);
 
-        public ResponseData insertUserInfo(MultipartFile file, String full_name, String phoneNumber, String email,
+        public ResponseData insertUserInfo(MultipartFile file, String fullName, String phoneNumber, String email,
                         int roleId,
                         String address);
 

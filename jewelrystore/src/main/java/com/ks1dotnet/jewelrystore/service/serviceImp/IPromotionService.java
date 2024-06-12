@@ -3,8 +3,6 @@ package com.ks1dotnet.jewelrystore.service.serviceImp;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.springframework.web.multipart.MultipartFile;
-
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 
@@ -13,11 +11,11 @@ public interface IPromotionService {
 
         // Map<String, Object> getHomePagePromotion(int page);
 
-        ResponseData insertPromotion(MultipartFile file, String name, double value, boolean status, LocalDate start,
+        ResponseData insertPromotion(String file, String name, double value, boolean status, LocalDate start,
                         LocalDate end, String promotionType, int invoiceTypeId);
 
-        PromotionDTO updatePromotion(MultipartFile file, int id, String name, double value, boolean status,
-                        LocalDate start, LocalDate end);
+        PromotionDTO updatePromotion(String file, int id, String name, double value, boolean status,
+                        LocalDate start, LocalDate end, int invoiceTypeId);
 
         PromotionDTO findById(int id);
 

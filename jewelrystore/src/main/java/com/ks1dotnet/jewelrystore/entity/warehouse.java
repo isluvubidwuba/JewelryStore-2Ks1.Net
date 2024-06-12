@@ -35,4 +35,22 @@ public class WareHouse {
     @ManyToOne
     @JoinColumn(name = "id_product_category")
     private ProductCategory productCategory;
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(id, quantity, total_import, total_sold);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        WareHouse wareHouse = (WareHouse) o;
+        return id == wareHouse.id &&
+                quantity == wareHouse.quantity &&
+                total_import == wareHouse.total_import &&
+                total_sold == wareHouse.total_sold;
+    }
 }

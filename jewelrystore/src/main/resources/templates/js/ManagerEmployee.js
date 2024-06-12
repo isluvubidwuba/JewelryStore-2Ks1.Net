@@ -22,6 +22,34 @@ function initializeInsertEmployee() {
   $("#insertEmployeeImageFile").change(previewInsertImage);
 }
 
+function fetchEmployeeImage(employeeId, imageName) {
+  console.log(`Fetching image for employeeId: ${employeeId}, imageName: ${imageName}`);
+  $.ajax({
+    url: `http://localhost:8080/employee/uploadget?fileName=${imageName}`,
+    type: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    success: function (response) {
+      console.log("Response received from server:", response);
+      if (response.status === "OK") {
+        const fileUrl = response.data;
+        console.log("File URL received:", fileUrl);
+        $(`#employee-image-${employeeId}`).html(`<img src="${fileUrl}" alt="Employee Image" class="w-10 h-10 rounded-full">`);
+      } else {
+        console.log("Failed to load image");
+        $(`#employee-image-${employeeId}`).html('Failed to load image');
+      }
+    },
+    error: function (xhr, status, error) {
+      console.log("Error while fetching image:", status, error);
+      console.log("Error response:", xhr.responseText);
+      $(`#employee-image-${employeeId}`).html('Failed to load image');
+    },
+  });
+}
+
+
 function fetchEmployees(page) {
   $.ajax({
     url: `http://localhost:8080/employee/listpage`,
@@ -45,6 +73,7 @@ function fetchEmployees(page) {
   });
 }
 
+
 function renderEmployees(employees) {
   const employeeTableBody = $("#employeeTableBody");
   employeeTableBody.empty();
@@ -53,21 +82,24 @@ function renderEmployees(employees) {
     const statusLabel = employee.status
       ? '<span class="text-green-600">Active</span>'
       : '<span class="text-red-600">Inactive</span>';
+
     const employeeRow = `
           <tr class="border-b dark:border-gray-700">
               <td class="px-6 py-3">${employee.id}</td>
-              <td class="px-6 py-4">
-                  <img src="http://localhost:8080/employee/files/${employee.image}" alt="Employee Image" class="w-10 h-10 rounded-full">
+              <td class="px-6 py-4" id="employee-image-${employee.id}">
+                  Loading...
               </td>
               <td class="px-6 py-3">${employee.lastName} ${employee.firstName}</td>
               <td class="px-6 py-3">${employee.role.name}</td>
               <td class="px-6 py-3">${statusLabel}</td>
               <td class="px-6 py-3">
-                  <button class="bg-blue-500 text-white px-4 py-2 rounded" onclick="viewEmployee('${employee.id}')">View</button>
+                  <button class="bg-gray-700 hover:bg-black text-white px-4 py-2 rounded" onclick="viewEmployee('${employee.id}')">View</button>
               </td>
           </tr>
       `;
     employeeTableBody.append(employeeRow);
+
+    fetchEmployeeImage(employee.id, employee.image);
   });
 }
 
@@ -132,10 +164,31 @@ function viewEmployee(id) {
     success: function (response) {
       if (response.status === "OK") {
         const employee = response.data;
-        $("#viewEmployeeImage").attr(
-          "src",
-          `http://localhost:8080/employee/files/${employee.image}`
-        );
+        // Lấy tên hình ảnh từ phản hồi API
+        const imageName = employee.image;
+        // Tạo URL hình ảnh từ tên hình ảnh
+        const imageUrl = `http://localhost:8080/employee/uploadget?fileName=${imageName}`;
+        $.ajax({
+          url: imageUrl,
+          type: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          success: function (imageResponse) {
+            if (imageResponse.status === "OK") {
+              const fullImageUrl = imageResponse.data;
+              console.log("Full Image URL:", fullImageUrl); // Ghi log URL hình ảnh đầy đủ
+              $("#viewEmployeeImage").attr("src", fullImageUrl);
+            } else {
+              $("#viewEmployeeImage").attr("src", ""); // Đặt src rỗng nếu không lấy được URL
+            }
+          },
+          error: function (error) {
+            console.error("Error while fetching image URL:", error);
+            $("#viewEmployeeImage").attr("src", ""); // Đặt src rỗng nếu có lỗi
+          }
+        });
+        $("#viewEmployeeImage").attr("src", imageUrl);
         $("#viewEmployeeId").val(employee.id);
         $("#viewPinCode").val(employee.pinCode);
         $("#viewFirstName").val(employee.firstName);
@@ -145,7 +198,16 @@ function viewEmployee(id) {
         $("#viewAddress").val(employee.address);
         $("#viewRole").val(employee.role.id);
         $("#viewStatus").val(employee.status ? "true" : "false");
+
+        // Kiểm tra trạng thái và ẩn/hiện nút "Delete"
+        if (employee.status) {
+          $("#deleteEmployeeBtn").removeClass("hidden");
+        } else {
+          $("#deleteEmployeeBtn").addClass("hidden");
+        }
         openModal();
+
+
       } else {
         alert("Failed to load employee details." + response.desc);
       }
@@ -169,6 +231,8 @@ function openModal() {
 
 function closeModal() {
   $("#viewEmployeeModal").addClass("hidden");
+  // Xóa ảnh khi đóng modal
+  $("#viewEmployeeImage").attr("src", "");
 }
 
 function updateEmployee() {
@@ -331,11 +395,12 @@ function deleteEmployee() {
   if (confirm("Are you sure you want to delete this employee?")) {
     $.ajax({
       url: `http://localhost:8080/employee/delete/${employeeId}`,
-      type: "DELETE",
+      type: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
       },
       success: function (response) {
+        console.log("Delete response:", response); // Ghi log phản hồi
         if (response.status === "OK") {
           alert(response.desc);
           closeModal();
@@ -345,13 +410,15 @@ function deleteEmployee() {
         }
       },
       error: function (error) {
+        console.error("Error while deleting employee:", error); // Ghi log lỗi
         if (error.responseJSON) {
           alert("Error while deleting employee: " + error.responseJSON.desc);
         } else {
-          console.error("Error while deleting employee: ", error);
           alert("Error deleting employee!");
         }
       },
     });
   }
 }
+
+

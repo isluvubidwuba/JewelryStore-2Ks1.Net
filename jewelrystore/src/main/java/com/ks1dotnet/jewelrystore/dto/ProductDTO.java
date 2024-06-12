@@ -1,5 +1,7 @@
 package com.ks1dotnet.jewelrystore.dto;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,12 +14,12 @@ public class ProductDTO {
     private String productCode;
     private String barCode;
     private String name;
-    private Double fee;
+    private double fee;
     private boolean status;
-    private Float weight;
-    private String img;
+    private float weight;
     private MaterialDTO materialDTO;
     private ProductCategoryDTO productCategoryDTO;
     private CounterDTO counterDTO;
+    private String imgPath;
 
 }
