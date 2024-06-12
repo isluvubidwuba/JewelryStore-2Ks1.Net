@@ -16,7 +16,7 @@ import com.ks1dotnet.jewelrystore.dto.OrderInvoiceDetailDTO;
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 import com.ks1dotnet.jewelrystore.entity.Counter;
 import com.ks1dotnet.jewelrystore.entity.Employee;
-import com.ks1dotnet.jewelrystore.entity.ExchangeRatePolicy;
+
 import com.ks1dotnet.jewelrystore.entity.OrderInvoice;
 import com.ks1dotnet.jewelrystore.entity.OrderInvoiceDetail;
 import com.ks1dotnet.jewelrystore.entity.Product;
@@ -29,7 +29,7 @@ import com.ks1dotnet.jewelrystore.exception.BadRequestException;
 import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IEmployeeRepository;
-import com.ks1dotnet.jewelrystore.repository.IExchangeRatePolicyRepository;
+
 import com.ks1dotnet.jewelrystore.repository.IInvoiceTypeRepository;
 import com.ks1dotnet.jewelrystore.repository.IOrderInvoiceDetailRepository;
 import com.ks1dotnet.jewelrystore.repository.IOrderInvoiceRepository;
@@ -58,8 +58,7 @@ public class OrderService implements IOrderService {
     private IUserInfoRepository iUserInfoRepository;
     @Autowired
     private IProductRepository iProductRepository;
-    @Autowired
-    private IExchangeRatePolicyRepository iExchangeRatePolicyRepository;
+  
     @Autowired
     private IInvoiceTypeRepository iInvoiceTypeRepository;
     @Autowired
@@ -108,10 +107,9 @@ public class OrderService implements IOrderService {
                 .orElseThrow(() -> new BadRequestException("Product not found"));
         List<PromotionDTO> listPromotionDTOs = iPromotionService.getAllPromotionByIdProduct(product.getId());
         // check get exchange rate
-        ExchangeRatePolicy exchangeRatePolicy = iExchangeRatePolicyRepository.findById(IdExchangeRate)
-                .orElseThrow(() -> new BadRequestException("Not found exchange rate"));
+
         // Giá bán = giá vốn sản phẩm * tỉ lệ áp giá
-        priceRaw = priceRaw * exchangeRatePolicy.getRate();
+
         double totalPrice = priceRaw;
         // giá tổng = giá bán - promotion giảm
         for (PromotionDTO promotionDTO : listPromotionDTOs) {

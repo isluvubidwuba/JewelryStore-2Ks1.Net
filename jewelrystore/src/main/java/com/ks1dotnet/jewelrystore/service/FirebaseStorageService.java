@@ -13,6 +13,7 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Bucket;
 import com.google.firebase.cloud.StorageClient;
+import com.ks1dotnet.jewelrystore.exception.BadRequestException;
 import com.ks1dotnet.jewelrystore.exception.RunTimeExceptionV1;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 
@@ -25,6 +26,8 @@ public class FirebaseStorageService {
     private String filePath;
 
     public ResponseData uploadImage(MultipartFile file, String folder) {
+        if (file.getSize() <= 0)
+            throw new BadRequestException("Update Image Because Not Found ");
         try {
             LocalDate myLocalDate = LocalDate.now();
             String fileName = UUID.randomUUID().toString() + "_" + myLocalDate.toString();
@@ -56,7 +59,6 @@ public class FirebaseStorageService {
 
     public String getFileUrl(String fileName) {
         String fullPath = filePath + fileName;
-        System.out.println("Getting file URL for: " + fullPath);
         try {
             Bucket bucket = StorageClient.getInstance().bucket();
             System.out.println("Bucket name: " + bucket.getName());
@@ -66,11 +68,9 @@ public class FirebaseStorageService {
                 System.out.println("File URL: " + fileUrl);
                 return fileUrl;
             } else {
-                System.out.println("Blob is null or does not exist");
                 throw new RunTimeExceptionV1("File not found: " + fullPath);
             }
         } catch (Exception e) {
-            System.out.println("Error getting file URL: " + e.getMessage());
             throw new RunTimeExceptionV1("Error getting file URL", e.getMessage());
         }
     }

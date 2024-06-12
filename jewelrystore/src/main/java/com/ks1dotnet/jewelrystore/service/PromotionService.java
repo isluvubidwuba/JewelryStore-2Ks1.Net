@@ -17,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
-import com.ks1dotnet.jewelrystore.entity.ExchangeRatePolicy;
+
 import com.ks1dotnet.jewelrystore.entity.ForCustomer;
 import com.ks1dotnet.jewelrystore.entity.InvoiceType;
 import com.ks1dotnet.jewelrystore.entity.Promotion;

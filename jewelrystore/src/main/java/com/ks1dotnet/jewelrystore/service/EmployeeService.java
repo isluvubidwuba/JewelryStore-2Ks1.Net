@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -74,87 +75,83 @@ public class EmployeeService implements IEmployeeService {
 
    @Override
    public Map<String, Object> getHomePageEmployee(int page) {
-      Map<String, Object> response = new HashMap<>();
-      PageRequest pageRequest = PageRequest.of(page, 5);
-      List<EmployeeDTO> employeeDTOs = new ArrayList<>();
-      Page<Employee> listData = iEmployeeRepository.findAll(pageRequest);
-
-      for (Employee e : listData) {
-         employeeDTOs.add(e.getDTO());
+      try {
+         Map<String, Object> response = new HashMap<>();
+         PageRequest pageRequest = PageRequest.of(page, 5);
+         List<EmployeeDTO> employeeDTOs = new ArrayList<>();
+         Page<Employee> listData = iEmployeeRepository.findAll(pageRequest);
+         employeeDTOs = convertToDTOPage(listData).getContent();
+         response.put("employees", employeeDTOs);
+         response.put("totalPages", listData.getTotalPages());
+         response.put("currentPage", page);
+         return response;
+      } catch (Exception e) {
+         throw new RunTimeExceptionV1("Can Not Loaded Page Employee", e.getMessage());
       }
-      response.put("employees", employeeDTOs);
-      response.put("totalPages", listData.getTotalPages());
-      response.put("currentPage", page);
-      return response;
+
    }
 
    @Override
    public ResponseData insertEmployee(MultipartFile file, String firstName, String lastName, String pinCode,
          String phoneNumber, String email, String address, int roleId, boolean status) {
       ResponseData responseData = new ResponseData();
+      try {
+         String fileName = null;
 
-      String fileName = null;
-
-      // Upload hình ảnh nếu có
-      if (file != null && !file.isEmpty()) {
+         // Upload hình ảnh nếu có
          responseData = firebaseStorageService.uploadImage(file, filePath);
          if (responseData.getStatus() == HttpStatus.OK) {
             fileName = (String) responseData.getData();
-            responseData.setStatus(HttpStatus.OK);
-            responseData.setDesc("Find Image Successfully !!!");
          } else {
-            responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-            responseData.setDesc("Upload image error ! System Error !");
+            fileName = "3428f415-1df9-499d-93d3-1ce159b12c06_2024-06-12";
+         }
+
+         // Check if email, phone number, or ID already exists
+         if (iEmployeeRepository.existsByEmail(email)) {
+            responseData.setStatus(HttpStatus.CONFLICT);
+            responseData.setDesc("Email already exists");
             return responseData;
          }
-      }
-      responseData = firebaseStorageService.uploadImage(file, filePath);
-      fileName = "31ab6d6b-86cf-443f-9041-3c394b17ac0b_2024-06-10";
-      if (responseData.getStatus() == HttpStatus.OK)
-         fileName = (String) responseData.getData();
 
-      // Check if email, phone number, or ID already exists
-      if (iEmployeeRepository.existsByEmail(email)) {
-         responseData.setStatus(HttpStatus.CONFLICT);
-         responseData.setDesc("Email already exists");
+         if (iEmployeeRepository.existsByPhoneNumber(phoneNumber)) {
+            responseData.setStatus(HttpStatus.CONFLICT);
+            responseData.setDesc("Phone number already exists");
+            return responseData;
+         }
+
+         // Assuming generateUniqueEmployeeId() checks for uniqueness
+         String generatedId = generateUniqueEmployeeId();
+         if (iEmployeeRepository.existsById(generatedId)) {
+            responseData.setStatus(HttpStatus.CONFLICT);
+            responseData.setDesc("Generated ID already exists");
+            return responseData;
+         }
+
+         Employee employee = new Employee();
+         employee.setId(generatedId);
+         employee.setFirstName(firstName);
+         employee.setLastName(lastName);
+
+         // Mã hóa pinCode
+         String encodedPinCode = passwordEncoder.encode(pinCode);
+         employee.setPinCode(encodedPinCode);
+
+         employee.setPhoneNumber(phoneNumber);
+         employee.setEmail(email);
+         employee.setAddress(address);
+         employee.setStatus(status);
+         employee.setRole(iRoleService.findById(roleId));
+         employee.setImage(fileName);
+         iEmployeeRepository.save(employee);
+
+         responseData.setStatus(HttpStatus.OK);
+         responseData.setDesc("Insert successful");
+
          return responseData;
+      } catch (Exception e) {
+         throw new RunTimeExceptionV1("Insert Employee Fail", e.getMessage());
       }
 
-      if (iEmployeeRepository.existsByPhoneNumber(phoneNumber)) {
-         responseData.setStatus(HttpStatus.CONFLICT);
-         responseData.setDesc("Phone number already exists");
-         return responseData;
-      }
-
-      // Assuming generateUniqueEmployeeId() checks for uniqueness
-      String generatedId = generateUniqueEmployeeId();
-      if (iEmployeeRepository.existsById(generatedId)) {
-         responseData.setStatus(HttpStatus.CONFLICT);
-         responseData.setDesc("Generated ID already exists");
-         return responseData;
-      }
-
-      Employee employee = new Employee();
-      employee.setId(generatedId);
-      employee.setFirstName(firstName);
-      employee.setLastName(lastName);
-
-      // Mã hóa pinCode
-      String encodedPinCode = passwordEncoder.encode(pinCode);
-      employee.setPinCode(encodedPinCode);
-
-      employee.setPhoneNumber(phoneNumber);
-      employee.setEmail(email);
-      employee.setAddress(address);
-      employee.setStatus(status);
-      employee.setRole(iRoleService.findById(roleId));
-      employee.setImage(fileName);
-      iEmployeeRepository.save(employee);
-
-      responseData.setStatus(HttpStatus.OK);
-      responseData.setDesc("Insert successful");
-
-      return responseData;
    }
 
    public String generateUniqueEmployeeId() {
@@ -176,60 +173,66 @@ public class EmployeeService implements IEmployeeService {
    @Override
    public ResponseData updateEmployee(MultipartFile file, String id, String firstName, String lastName, int roleId,
          String pinCode, boolean status, String phoneNumber, String email, String address) {
-      ResponseData responseData = new ResponseData();
-      String fileName = null;
 
-      // Upload hình ảnh nếu có
-      if (file != null && !file.isEmpty()) {
-         responseData = firebaseStorageService.uploadImage(file, filePath);
-         if (responseData.getStatus() == HttpStatus.OK) {
-            fileName = (String) responseData.getData();
-         } else {
-            responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-            responseData.setDesc("Upload image error ! System Error !");
-            return responseData;
+      try {
+         ResponseData responseData = new ResponseData();
+         String fileName = null;
+
+         // Upload hình ảnh nếu có
+         if (file != null && !file.isEmpty()) {
+            responseData = firebaseStorageService.uploadImage(file, filePath);
+            if (responseData.getStatus() == HttpStatus.OK) {
+               fileName = (String) responseData.getData();
+            } else {
+               responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+               responseData.setDesc("Upload image error ! System Error !");
+               return responseData;
+            }
          }
-      }
 
-      // Nếu hình ảnh không được upload, lấy hình ảnh cũ
-      if (fileName == null) {
-         Optional<Employee> existingEmployeeOpt = iEmployeeRepository.findById(id);
-         if (existingEmployeeOpt.isPresent()) {
-            Employee existingEmployee = existingEmployeeOpt.get();
-            fileName = existingEmployee.getImage();
+         // Nếu hình ảnh không được upload, lấy hình ảnh cũ
+         if (fileName == null) {
+            Optional<Employee> existingEmployeeOpt = iEmployeeRepository.findById(id);
+            if (existingEmployeeOpt.isPresent()) {
+               Employee existingEmployee = existingEmployeeOpt.get();
+               fileName = existingEmployee.getImage();
+            } else {
+               responseData.setStatus(HttpStatus.NOT_FOUND);
+               responseData.setDesc("Not found employee");
+               return responseData;
+            }
+         }
+
+         // Cập nhật thông tin nhân viên
+         Optional<Employee> employeeOpt = iEmployeeRepository.findById(id);
+         if (employeeOpt.isPresent()) {
+            Employee employee = employeeOpt.get();
+            employee.setFirstName(firstName);
+            employee.setLastName(lastName);
+            employee.setPinCode(pinCode);
+            employee.setPhoneNumber(phoneNumber);
+            employee.setEmail(email);
+            employee.setAddress(address);
+            employee.setStatus(status);
+            employee.setRole(iRoleService.findById(roleId));
+            employee.setImage(fileName);
+
+            iEmployeeRepository.save(employee);
+            EmployeeDTO employeeDTO = employee.getDTO();
+
+            responseData.setStatus(HttpStatus.OK);
+            responseData.setDesc("Update Successful");
+            responseData.setData(employeeDTO);
          } else {
             responseData.setStatus(HttpStatus.NOT_FOUND);
-            responseData.setDesc("Not found employee");
-            return responseData;
+            responseData.setDesc("Not Found Employee");
          }
+
+         return responseData;
+      } catch (Exception e) {
+         throw new RunTimeExceptionV1("Fail To Update Employee", e.getMessage());
       }
 
-      // Cập nhật thông tin nhân viên
-      Optional<Employee> employeeOpt = iEmployeeRepository.findById(id);
-      if (employeeOpt.isPresent()) {
-         Employee employee = employeeOpt.get();
-         employee.setFirstName(firstName);
-         employee.setLastName(lastName);
-         employee.setPinCode(pinCode);
-         employee.setPhoneNumber(phoneNumber);
-         employee.setEmail(email);
-         employee.setAddress(address);
-         employee.setStatus(status);
-         employee.setRole(iRoleService.findById(roleId));
-         employee.setImage(fileName);
-
-         iEmployeeRepository.save(employee);
-         EmployeeDTO employeeDTO = employee.getDTO();
-
-         responseData.setStatus(HttpStatus.OK);
-         responseData.setDesc("Update Successful");
-         responseData.setData(employeeDTO);
-      } else {
-         responseData.setStatus(HttpStatus.NOT_FOUND);
-         responseData.setDesc("Not Found Employee");
-      }
-
-      return responseData;
    }
 
    @Override
@@ -273,18 +276,8 @@ public class EmployeeService implements IEmployeeService {
             throw new IllegalArgumentException("Invalid search criteria: " + criteria);
       }
 
-      List<EmployeeDTO> employeeDTOs = new ArrayList<>();
-      if (employeePage.hasContent()) {
-         for (Employee employee : employeePage) {
-            EmployeeDTO empDTO = employee.getDTO();
-            if (empDTO.getImage() != null && !empDTO.getImage().isEmpty()) {
-               empDTO.setImage(empDTO.getImage().trim());
-               System.out.println("Check URL Image in Search Function : " + empDTO.getImage());
-            }
-            employeeDTOs.add(empDTO);
-         }
-      }
-      response.put("employees", employeeDTOs);
+      Page<EmployeeDTO> employeeDTOPage = convertToDTOPage(employeePage);
+      response.put("employees", employeeDTOPage.getContent());
       response.put("totalPages", employeePage.getTotalPages());
       response.put("currentPage", page);
       return response;
@@ -305,6 +298,33 @@ public class EmployeeService implements IEmployeeService {
       } catch (RunTimeExceptionV1 e) {
          throw new RunTimeExceptionV1("Find all staff error", e.getMessage());
       }
+   }
+
+   @Override
+   public ResponseData deleteEmployee(String id) {
+      ResponseData responseData = new ResponseData();
+      try {
+         Employee employee = findById(id); // Giả sử bạn đã có phương thức findById trong service
+         employee.setStatus(false);
+         Employee updatedEmployee = save(employee); // Giả sử bạn đã có phương thức save trong service
+         responseData.setStatus(HttpStatus.OK);
+         responseData.setDesc("Delete successful");
+         responseData.setData(updatedEmployee);
+      } catch (Exception e) {
+         responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+         responseData.setDesc("Delete failed. Internal Server Error");
+      }
+      return responseData;
+
+   }
+
+   private Page<EmployeeDTO> convertToDTOPage(Page<Employee> empPage) {
+      List<EmployeeDTO> dtolist = empPage.getContent().stream().map(employee -> {
+         EmployeeDTO dto = employee.getDTO();
+         dto.setImage(url.trim() + filePath.trim() + dto.getImage());
+         return dto;
+      }).collect(Collectors.toList());
+      return new PageImpl<>(dtolist, empPage.getPageable(), empPage.getTotalElements());
    }
 
 }
