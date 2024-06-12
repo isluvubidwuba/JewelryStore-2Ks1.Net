@@ -27,14 +27,20 @@ import lombok.NoArgsConstructor;
 public class OrderInvoiceDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Integer id;
+
     @Column(name = "price")
     private Double price;
+
     @Column(name = "price_material_at_time")
     private Double priceMaterialAtTime;
+
     @Column(name = "quantity")
     private int quantity;
-    private double total_price;
+
+    @Column(name = "total_price")
+    private double totalPrice;
 
     @ManyToOne
     @JoinColumn(name = "id_order_invoice")
@@ -56,13 +62,8 @@ public class OrderInvoiceDetail {
         for (VoucherOnInvoiceDetail voucherOnInvoiceDetail : this.listVoucherOnInvoiceDetail) {
             listPromotion.add(voucherOnInvoiceDetail.getPromotion().getDTO());
         }
-        return new OrderInvoiceDetailDTO(this.product.getDTO(), this.price, this.quantity, this.total_price,
+        return new OrderInvoiceDetailDTO(this.product.getDTO(), this.price, this.quantity, this.totalPrice,
                 listPromotion);
     }
 
-    // private ProductDTO productDTO;
-    // private double price;
-    // private int quantity;
-    // private double totalPrice;
-    // private List<PromotionDTO> listPromotion;
 }

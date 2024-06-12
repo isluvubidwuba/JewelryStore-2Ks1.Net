@@ -22,7 +22,9 @@ import lombok.NoArgsConstructor;
 public class EarnPoints {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Integer id;
+
     @Column(name = "point")
     private Integer point;
 

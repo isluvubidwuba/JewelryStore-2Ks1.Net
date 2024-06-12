@@ -2,6 +2,7 @@ package com.ks1dotnet.jewelrystore.entity;
 
 import com.ks1dotnet.jewelrystore.dto.ForGemStoneTypeDTO;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,7 +22,11 @@ import lombok.NoArgsConstructor;
 public class ForGemStoneType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Integer id;
+
+    @Column(name = "status")
+    private boolean status;
 
     @ManyToOne
     @JoinColumn(name = "id_promotion")
@@ -30,7 +35,6 @@ public class ForGemStoneType {
     @ManyToOne
     @JoinColumn(name = "id_gemstone_type")
     private GemStoneType gemstoneType;
-    private boolean status;
 
     public ForGemStoneTypeDTO getDTO() {
         return new ForGemStoneTypeDTO(this.id, this.promotion.getDTO(), this.gemstoneType.getDTO(), this.status);

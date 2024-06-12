@@ -27,15 +27,21 @@ import lombok.NoArgsConstructor;
 public class AssignShiftForStaff {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Integer id;
+
     @Column(name = "date")
     private Date date;
+
     @Column(name = "check_in")
     private LocalDate checkIn;
+
     @Column(name = "check_out")
     private LocalDate checkOut;
+
     @Column(name = "is_late")
     private boolean isLate;
+    
     @Column(name = "note")
     private String note;
 

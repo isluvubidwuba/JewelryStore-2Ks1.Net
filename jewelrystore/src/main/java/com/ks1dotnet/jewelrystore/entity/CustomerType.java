@@ -23,9 +23,12 @@ import lombok.NoArgsConstructor;
 public class CustomerType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Integer id;
+
     @Column(name = "type")
     private String type;
+    
     @Column(name = "point_condition")
     private Integer pointCondition;
 

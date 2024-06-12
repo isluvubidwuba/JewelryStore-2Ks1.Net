@@ -29,12 +29,23 @@ import lombok.NoArgsConstructor;
 public class OrderInvoice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Integer id;
+
     @Column(name = "date")
     private Date date;
-    private double total_price_raw;
-    private double total_price;
-    private double discount_price;
+
+    @Column(name = "total_price_raw")
+    private double totalPriceRaw;
+
+    @Column(name = "total_price")
+    private double totalPrice;
+
+    @Column(name = "discount_price")
+    private double discountPrice;
+
+    @Column(name = "status")
+    private boolean status;
 
     @ManyToOne
     @JoinColumn(name = "id_user")
@@ -54,6 +65,9 @@ public class OrderInvoice {
     @OneToMany(mappedBy = "orderInvoice")
     List<OrderInvoiceDetail> listOrderInvoiceDetail;
 
+    @OneToMany(mappedBy = "orderInvoice")
+    List<WareHouse> listWareHouse;
+
     public OrderInvoiceResponseDTO gResponseDTO() {
         List<OrderInvoiceDetailDTO> listOrderInvoiceDetail = new ArrayList<>();
         for (OrderInvoiceDetail orderInvoiceDetail : this.listOrderInvoiceDetail) {
@@ -65,7 +79,7 @@ public class OrderInvoice {
         }
         return new OrderInvoiceResponseDTO(this.id, this.userInfo.getDTO(), this.employee.getDTO(),
                 this.invoiceType.getDTO(),
-                total_price_raw, total_price, discount_price, date, listOrderInvoiceDetail, promotions);
+                totalPriceRaw, totalPrice, discountPrice, date, listOrderInvoiceDetail, promotions);
 
     }
 

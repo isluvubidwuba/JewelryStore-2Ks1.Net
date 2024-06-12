@@ -2,6 +2,7 @@ package com.ks1dotnet.jewelrystore.entity;
 
 import com.ks1dotnet.jewelrystore.dto.ForCustomerDTO;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,6 +23,9 @@ public class ForCustomer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    
+    @Column(name = "status")
+    private boolean status;
 
     @ManyToOne
     @JoinColumn(name = "id_promotion")
@@ -30,8 +34,6 @@ public class ForCustomer {
     @ManyToOne
     @JoinColumn(name = "id_customer_type")
     private CustomerType customerType;
-
-    private boolean status;
 
     public ForCustomer(Promotion promotion, CustomerType customerType, boolean status) {
         this.promotion = promotion;

@@ -23,7 +23,9 @@ import lombok.NoArgsConstructor;
 public class ProductCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int id;
+
     @Column(name = "name")
     private String name;
 
@@ -32,9 +34,6 @@ public class ProductCategory {
 
     @OneToMany(mappedBy = "productCategory")
     Set<Product> list_product;
-
-    @OneToMany(mappedBy = "productCategory")
-    Set<WareHouse> listWareHouse;
 
     public ProductCategoryDTO getDTO() {
         return new ProductCategoryDTO(this.id, this.name);

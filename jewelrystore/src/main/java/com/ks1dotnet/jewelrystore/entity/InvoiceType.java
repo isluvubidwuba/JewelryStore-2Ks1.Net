@@ -27,15 +27,20 @@ import lombok.NoArgsConstructor;
 public class InvoiceType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Integer id;
+
     @Column(name = "name")
     private String name;
+
+    @Column(name = "rate")
+    private float rate;
 
     @OneToMany(mappedBy = "invoiceType")
     Set<OrderInvoice> listOrderInvoice;
 
     public InvoiceTypeDTO getDTO() {
-        return new InvoiceTypeDTO(this.id, this.name);
+        return new InvoiceTypeDTO(this.id, this.name, this.rate);
     }
 
     @OneToMany(mappedBy = "invoiceType", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -44,6 +49,7 @@ public class InvoiceType {
     public InvoiceType(InvoiceTypeDTO i) {
         this.id = i.getId();
         this.name = i.getName();
+        this.rate = i.getRate();
     }
 
 }
