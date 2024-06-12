@@ -5,10 +5,12 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import com.ks1dotnet.jewelrystore.entity.ForGemStoneType;
 import com.ks1dotnet.jewelrystore.entity.GemStoneType;
 
+@Repository
 public interface IForGemStoneTypeRepository extends JpaRepository<ForGemStoneType, Integer> {
         @Query("SELECT f FROM ForGemStoneType f WHERE f.promotion.id = :promotionId")
         List<ForGemStoneType> findByPromotionId(@Param("promotionId") int promotionId);

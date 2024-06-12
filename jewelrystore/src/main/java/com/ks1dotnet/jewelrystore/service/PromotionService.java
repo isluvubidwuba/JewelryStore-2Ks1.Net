@@ -2,23 +2,16 @@ package com.ks1dotnet.jewelrystore.service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.ks1dotnet.jewelrystore.dto.ApplyPromotionDTO;
-import com.ks1dotnet.jewelrystore.dto.ExchangeRatePolicyDTO;
 import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
-import com.ks1dotnet.jewelrystore.entity.ExchangeRatePolicy;
 import com.ks1dotnet.jewelrystore.entity.ForCustomer;
 import com.ks1dotnet.jewelrystore.entity.InvoiceType;
 import com.ks1dotnet.jewelrystore.entity.Promotion;
