@@ -13,6 +13,7 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Bucket;
 import com.google.firebase.cloud.StorageClient;
+import com.ks1dotnet.jewelrystore.exception.BadRequestException;
 import com.ks1dotnet.jewelrystore.exception.RunTimeExceptionV1;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 
@@ -25,6 +26,8 @@ public class FirebaseStorageService {
     private String filePath;
 
     public ResponseData uploadImage(MultipartFile file, String folder) {
+        if (file.getSize() <= 0)
+            throw new BadRequestException("Upload image failed because image not found");
         try {
             LocalDate myLocalDate = LocalDate.now();
             String fileName = UUID.randomUUID().toString() + "_" + myLocalDate.toString();

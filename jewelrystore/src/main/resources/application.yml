@@ -17,7 +17,7 @@ spring:
 fileUpload:
   promotionPath: Promotion/
   productPath: Product/
-  userPath: Employee/
+  userPath: User/
 server:
   error:
     path: /error
