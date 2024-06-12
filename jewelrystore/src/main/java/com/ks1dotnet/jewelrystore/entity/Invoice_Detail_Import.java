@@ -15,7 +15,7 @@ import lombok.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "warehouse")
-public class WareHouse {
+public class Invoice_Detail_Import {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -33,12 +33,15 @@ public class WareHouse {
     @Column(name = "total_sold")
     private int totalSold;
 
+    @Column(name = "price_import")
+    private float price_import;
+
     @ManyToOne
     @JoinColumn(name = "id_product")
     private Product product;
 
     @ManyToOne
     @JoinColumn(name = "id_order_invoice")
-    private OrderInvoice orderInvoice;
+    private Invoice orderInvoice;
 
 }

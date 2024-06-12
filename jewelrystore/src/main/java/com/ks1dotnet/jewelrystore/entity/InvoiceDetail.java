@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 @Table(name = "order_invoice_detail")
-public class OrderInvoiceDetail {
+public class InvoiceDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -44,7 +44,7 @@ public class OrderInvoiceDetail {
 
     @ManyToOne
     @JoinColumn(name = "id_order_invoice")
-    private OrderInvoice orderInvoice;
+    private Invoice orderInvoice;
 
     @ManyToOne
     @JoinColumn(name = "id_product")

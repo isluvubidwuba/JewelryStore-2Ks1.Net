@@ -53,7 +53,7 @@ public class Employee {
     Set<AssignShiftForStaff> ListAssignShiftForStaff;
 
     @OneToMany(mappedBy = "employee")
-    Set<OrderInvoice> listOrderInvoice;
+    Set<Invoice> listOrderInvoice;
 
     public EmployeeDTO getDTO() {
         return new EmployeeDTO(id, firstName, lastName, pinCode, status, phoneNumber, email, address, role.getDTO(),

@@ -53,7 +53,7 @@ public class UserInfo {
     Set<EarnPoints> listEarnPoints;
 
     @OneToMany(mappedBy = "userInfo")
-    Set<OrderInvoice> listOrderInvoice;
+    Set<Invoice> listOrderInvoice;
 
     public UserInfoDTO getDTO() {
         return new UserInfoDTO(id, fullName, phoneNumber, email, address, role.getDTO(), image);

@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 @Table(name = "order_invoice")
-public class OrderInvoice {
+public class Invoice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -63,14 +63,14 @@ public class OrderInvoice {
     List<VoucherOnInvoice> listVoucherOnInvoice;
 
     @OneToMany(mappedBy = "orderInvoice")
-    List<OrderInvoiceDetail> listOrderInvoiceDetail;
+    List<InvoiceDetail> listOrderInvoiceDetail;
 
     @OneToMany(mappedBy = "orderInvoice")
-    List<WareHouse> listWareHouse;
+    List<Invoice_Detail_Import> listWareHouse;
 
     public OrderInvoiceResponseDTO gResponseDTO() {
         List<OrderInvoiceDetailDTO> listOrderInvoiceDetail = new ArrayList<>();
-        for (OrderInvoiceDetail orderInvoiceDetail : this.listOrderInvoiceDetail) {
+        for (InvoiceDetail orderInvoiceDetail : this.listOrderInvoiceDetail) {
             listOrderInvoiceDetail.add(orderInvoiceDetail.getDTO());
         }
         List<PromotionDTO> promotions = new ArrayList<>();

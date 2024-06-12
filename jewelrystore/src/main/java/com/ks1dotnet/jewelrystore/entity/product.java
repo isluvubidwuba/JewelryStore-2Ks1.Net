@@ -70,10 +70,10 @@ public class Product {
     List<ForProduct> listForProduct;
 
     @OneToMany(mappedBy = "product")
-    List<WareHouse> listWareHouse;
+    List<Invoice_Detail_Import> listInvoiceDetailImport;
 
     @OneToMany(mappedBy = "product")
-    List<OrderInvoiceDetail> listOrderInvoiceDetail;
+    List<InvoiceDetail> listOrderInvoiceDetail;
 
     public ProductDTO getDTO() {
         return new ProductDTO(this.id, this.getProductCode(), this.getBarCode(), this.name, this.fee, this.status,

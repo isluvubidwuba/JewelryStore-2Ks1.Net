@@ -42,7 +42,7 @@ public class Counter {
     Set<Product> listProduct;
 
     @OneToMany(mappedBy = "counter")
-    Set<OrderInvoiceDetail> listOrderInvoiceDetail;
+    Set<InvoiceDetail> listOrderInvoiceDetail;
 
     public CounterDTO getDTO() {
         return new CounterDTO(this.id, this.name, this.status);
