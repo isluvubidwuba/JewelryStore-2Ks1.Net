@@ -32,9 +32,6 @@ public class InvoiceType {
     private String name;
 
     @OneToMany(mappedBy = "invoiceType")
-    Set<ExchangeRatePolicy> listExchangeRatePolicy;
-
-    @OneToMany(mappedBy = "invoiceType")
     Set<OrderInvoice> listOrderInvoice;
 
     public InvoiceTypeDTO getDTO() {

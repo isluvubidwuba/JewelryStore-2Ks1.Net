@@ -100,6 +100,4 @@ public class Product {
         if (t.getImgPath() != null)
             this.imgPath = t.getImgPath();
     }
-
-    
-
+}
