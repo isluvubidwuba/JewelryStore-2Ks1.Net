@@ -5,13 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;<<<<<<<HEAD=======
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;>>>>>>>main
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
@@ -123,14 +120,9 @@ public class PromotionService implements IPromotionService {
     }
 
     @Override
-<<<<<<< HEAD
-    public PromotionDTO updatePromotion(MultipartFile file, int id, String name, double value, boolean status,
-            LocalDate startDate, LocalDate endDate) {
-=======
 
     public PromotionDTO updatePromotion(String file, int id, String name, double value, boolean status,
-            LocalDate startDate, LocalDate endDate, int invoiceTypeId) {
->>>>>>> main
+            LocalDate startDate, LocalDate endDate) {
         try {
             Promotion promotion = iPromotionRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Promotion not found with id: " + id));
@@ -142,25 +134,11 @@ public class PromotionService implements IPromotionService {
             promotion.setEndDate(endDate);
             promotion.setLastModified(LocalDate.now());
 
-<<<<<<< HEAD
             // InvoiceType invoiceTypeC = iInvoiceTypeRepository.findById(invoiceTypeId)
             // .orElseThrow(() -> new BadRequestException("Not found invoice type! Invalid
             // invoice type ID. "));
             // promotion.setInvoiceType(invoiceTypeC);
-
-            if (file != null && !file.isEmpty()) {
-                boolean isSaveFileSuccess = iFileService.savefile(file);
-                if (isSaveFileSuccess) {
-                    promotion.setImage(file.getOriginalFilename());
-                }
-            }
-
-=======
-            InvoiceType invoiceTypeC = iInvoiceTypeRepository.findById(invoiceTypeId)
-                    .orElseThrow(() -> new BadRequestException("Not found invoice type! Invalid invoice type ID. "));
-            promotion.setInvoiceType(invoiceTypeC);
             promotion.setImage(file);
->>>>>>> main
             promotion = iPromotionRepository.save(promotion);
             return promotion.getDTO();
         } catch (Exception e) {
@@ -174,9 +152,7 @@ public class PromotionService implements IPromotionService {
         Promotion promotion = iPromotionRepository.findById(id).orElseThrow(() -> new BadRequestException("Not found"));
         PromotionDTO promotionDTO = promotion.getDTO();
         promotionDTO.setImage(url.trim() + filePath.trim() + promotionDTO.getImage());
-        if (promotionDTO == null) {
-            throw new ResourceNotFoundException("Promotion not found with id: " + id);
-        }
+
         return promotionDTO;
     }
 

@@ -3,14 +3,10 @@ package com.ks1dotnet.jewelrystore.entity;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
-import com.ks1dotnet.jewelrystore.dto.EmployeeDTO;
-import com.ks1dotnet.jewelrystore.dto.InvoiceTypeDTO;
 import com.ks1dotnet.jewelrystore.dto.OrderInvoiceDetailDTO;
 import com.ks1dotnet.jewelrystore.dto.OrderInvoiceResponseDTO;
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
-import com.ks1dotnet.jewelrystore.dto.UserInfoDTO;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

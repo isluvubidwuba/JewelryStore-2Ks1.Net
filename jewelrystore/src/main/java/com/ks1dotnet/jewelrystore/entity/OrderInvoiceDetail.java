@@ -2,10 +2,8 @@ package com.ks1dotnet.jewelrystore.entity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import com.ks1dotnet.jewelrystore.dto.OrderInvoiceDetailDTO;
-import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 
 import jakarta.persistence.Column;

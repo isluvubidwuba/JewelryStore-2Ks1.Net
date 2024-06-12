@@ -1,7 +1,6 @@
 package com.ks1dotnet.jewelrystore.entity;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 

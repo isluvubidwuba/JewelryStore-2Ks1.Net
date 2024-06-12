@@ -1,6 +1,5 @@
 package com.ks1dotnet.jewelrystore.entity;
 
-import com.ks1dotnet.jewelrystore.dto.ForGemStoneTypeDTO;
 import com.ks1dotnet.jewelrystore.dto.ForMaterialDTO;
 
 import jakarta.persistence.Entity;

@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ks1dotnet.jewelrystore.dto.UserInfoDTO;
-import com.ks1dotnet.jewelrystore.entity.Employee;
 import com.ks1dotnet.jewelrystore.entity.UserInfo;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IUserInfoRepository;
@@ -98,7 +97,6 @@ public class UserInfoService implements IUserInfoService {
         fileName = "31ab6d6b-86cf-443f-9041-3c394b17ac0b_2024-06-10";
         if (responseData.getStatus() == HttpStatus.OK)
             fileName = (String) responseData.getData();
-
 
         // Check if email or phone number already exists
         if (iUserInfoRepository.existsByEmail(email)) {

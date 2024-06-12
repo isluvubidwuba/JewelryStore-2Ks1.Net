@@ -15,7 +15,7 @@ public interface IPromotionService {
                         LocalDate end, String promotionType, int invoiceTypeId);
 
         PromotionDTO updatePromotion(String file, int id, String name, double value, boolean status,
-                        LocalDate start, LocalDate end, int invoiceTypeId);
+                        LocalDate start, LocalDate end);
 
         PromotionDTO findById(int id);
 
