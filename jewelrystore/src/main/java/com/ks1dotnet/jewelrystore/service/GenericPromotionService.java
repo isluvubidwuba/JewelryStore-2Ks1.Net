@@ -37,6 +37,8 @@ public class GenericPromotionService implements IGenericPromotionService {
             return EntityType.PRODUCT;
         } else if (service instanceof ForProductTypeService) {
             return EntityType.CATEGORY;
+        } else if (service instanceof ForMaterialService) { // Thêm dòng này cho ForMaterialService
+            return EntityType.MATERIAL;
         } else {
             throw new IllegalArgumentException("Unknown service type: " + service.getClass().getName());
         }
@@ -44,14 +46,14 @@ public class GenericPromotionService implements IGenericPromotionService {
 
     @Override
     public ResponseData applyPromotion(ApplyPromotionDTO applyPromotionDTO) {
-        EntityType entityType = getEntityTypeFromDTO(applyPromotionDTO);
+        EntityType entityType = applyPromotionDTO.getEntityType();
         IPromotionGenericService<?> service = promotionServices.get(entityType);
         return service.applyPromotion(applyPromotionDTO);
     }
 
     @Override
     public ResponseData removePromotion(ApplyPromotionDTO applyPromotionDTO) {
-        EntityType entityType = getEntityTypeFromDTO(applyPromotionDTO);
+        EntityType entityType = applyPromotionDTO.getEntityType();
         IPromotionGenericService<?> service = promotionServices.get(entityType);
         return service.removePromotion(applyPromotionDTO);
     }
@@ -66,13 +68,6 @@ public class GenericPromotionService implements IGenericPromotionService {
     public ResponseData getEntitiesNotInPromotion(EntityType entityType, int promotionId) {
         IPromotionGenericService<?> service = promotionServices.get(entityType);
         return service.getEntitiesNotInPromotion(promotionId);
-    }
-
-    private EntityType getEntityTypeFromDTO(ApplyPromotionDTO applyPromotionDTO) {
-        // Implement logic to determine EntityType from DTO if needed
-        // For example, you can add a field in ApplyPromotionDTO to specify the entity
-        // type
-        return applyPromotionDTO.getEntityType(); // Placeholder
     }
 
     @Override

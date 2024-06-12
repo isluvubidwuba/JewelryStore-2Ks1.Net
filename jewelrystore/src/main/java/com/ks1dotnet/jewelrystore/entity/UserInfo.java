@@ -27,17 +27,22 @@ public class UserInfo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int id;
 
     @Column(name = "full_name")
     private String fullName;
+
     @Column(name = "phone_number")
     private String phoneNumber;
+
     @Column(name = "email")
     private String email;
+
     @Column(name = "address")
     private String address;
 
+    @Column(name = "image")
     private String image;
 
     @ManyToOne

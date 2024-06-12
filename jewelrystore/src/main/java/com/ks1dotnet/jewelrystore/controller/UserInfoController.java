@@ -23,7 +23,7 @@ import com.ks1dotnet.jewelrystore.service.serviceImp.IUserInfoService;
 @RequestMapping("/userinfo")
 @CrossOrigin("*")
 public class UserInfoController {
-    
+
     @Autowired
     private IUserInfoService iUserInfoService;
 
@@ -52,10 +52,8 @@ public class UserInfoController {
             @RequestParam int roleId,
             @RequestParam String address) {
 
-        ResponseData responseData = new ResponseData();
-        responseData = iUserInfoService.insertUserInfo(file, fullName, phoneNumber, email, roleId,
+        ResponseData responseData = iUserInfoService.insertUserInfo(file, fullName, phoneNumber, email, roleId,
                 address);
-
         return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
@@ -68,14 +66,10 @@ public class UserInfoController {
             @RequestParam String email,
             @RequestParam int roleId,
             @RequestParam String address) {
-        ResponseData responseData = new ResponseData();
-        responseData = iUserInfoService.updateUserInfo(file, id, fullName, phoneNumber, email, roleId,
+        ResponseData responseData = iUserInfoService.updateUserInfo(file, id, fullName, phoneNumber, email, roleId,
                 address);
-        if (responseData.getStatus() == HttpStatus.OK) {
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(responseData, responseData.getStatus());
-        }
+        return new ResponseEntity<>(responseData, responseData.getStatus());
+
     }
 
     @GetMapping("/listcustomer")
@@ -86,11 +80,11 @@ public class UserInfoController {
             ResponseData.setData(customers);
             ResponseData.setDesc("Fetch successful");
             ResponseData.setStatus(HttpStatus.OK);
-            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
+            return new ResponseEntity<>(ResponseData, ResponseData.getStatus());
         } catch (Exception e) {
             ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             ResponseData.setDesc("Fetch failed. Internal Server Error");
-            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(ResponseData, ResponseData.getStatus());
         }
     }
 
@@ -103,11 +97,11 @@ public class UserInfoController {
             ResponseData.setDesc("Fetch successful");
             ResponseData.setStatus(HttpStatus.OK);
 
-            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
+            return new ResponseEntity<>(ResponseData, ResponseData.getStatus());
         } catch (Exception e) {
             ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             ResponseData.setDesc("Fetch failed. Internal Server Error");
-            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(ResponseData, ResponseData.getStatus());
         }
     }
 
@@ -161,21 +155,6 @@ public class UserInfoController {
         System.out.println("Received file upload request for file: " + file.getOriginalFilename());
         ResponseData response = firebaseStorageService.uploadImage(file, filePath);
         return new ResponseEntity<>(response, response.getStatus());
-    }
-
-    @GetMapping("/uploadget")
-    public ResponseEntity<?> getImageUrl(@RequestParam("fileName") String fileName) {
-        System.out.println("Received request for file: " + fileName);
-        try {
-            String fileUrl = firebaseStorageService.getFileUrl(fileName);
-            System.out.println("File URL: " + fileUrl);
-            ResponseData response = new ResponseData(HttpStatus.OK, "Get image URL successfully", fileUrl);
-            return new ResponseEntity<>(response, response.getStatus());
-        } catch (Exception e) {
-            System.out.println("Error while getting image URL: " + e.getMessage());
-            ResponseData response = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to get image URL", null);
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 
 }

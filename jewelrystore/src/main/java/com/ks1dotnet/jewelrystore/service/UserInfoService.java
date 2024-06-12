@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ks1dotnet.jewelrystore.dto.UserInfoDTO;
-import com.ks1dotnet.jewelrystore.entity.Employee;
 import com.ks1dotnet.jewelrystore.entity.UserInfo;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IUserInfoRepository;
@@ -62,9 +62,8 @@ public class UserInfoService implements IUserInfoService {
         List<UserInfoDTO> userInfoDTO = new ArrayList<>();
         Page<UserInfo> listData = iUserInfoRepository.findAll(pageRequest);
 
-        for (UserInfo e : listData) {
-            userInfoDTO.add(e.getDTO());
-        }
+        userInfoDTO = convertToDTOPage(listData).getContent();
+
         response.put("employees", userInfoDTO);
         response.put("totalPages", listData.getTotalPages());
         response.put("currentPage", page);
@@ -98,7 +97,6 @@ public class UserInfoService implements IUserInfoService {
         fileName = "31ab6d6b-86cf-443f-9041-3c394b17ac0b_2024-06-10";
         if (responseData.getStatus() == HttpStatus.OK)
             fileName = (String) responseData.getData();
-
 
         // Check if email or phone number already exists
         if (iUserInfoRepository.existsByEmail(email)) {
@@ -203,20 +201,15 @@ public class UserInfoService implements IUserInfoService {
     public Map<String, Object> listCustomer(int page) {
         Map<String, Object> response = new HashMap<>();
         int pageSize = 5;
-        List<UserInfoDTO> userInfoDTOList = new ArrayList<>();
-        List<UserInfo> customers = iUserInfoRepository.findCustomersByRoleId();
+        PageRequest pageRequest = PageRequest.of(page, pageSize);
+        Page<UserInfo> customersPage = iUserInfoRepository.findCustomersByRoleId(pageRequest);
 
-        int start = page * pageSize;
-        int end = Math.min((page + 1) * pageSize, customers.size());
-        List<UserInfo> paginatedCustomers = customers.subList(start, end);
-
-        for (UserInfo userInfo : paginatedCustomers) {
-            UserInfoDTO dto = userInfo.getDTO();
-            userInfoDTOList.add(dto);
-        }
+        List<UserInfoDTO> userInfoDTOList = customersPage.getContent().stream()
+                .map(UserInfo::getDTO)
+                .collect(Collectors.toList());
 
         response.put("customers", userInfoDTOList);
-        response.put("totalPages", (customers.size() + pageSize - 1) / pageSize); // manually calculate total pages
+        response.put("totalPages", customersPage.getTotalPages());
         response.put("currentPage", page);
         return response;
     }
@@ -225,20 +218,15 @@ public class UserInfoService implements IUserInfoService {
     public Map<String, Object> listSupplier(int page) {
         Map<String, Object> response = new HashMap<>();
         int pageSize = 5;
-        List<UserInfoDTO> userInfoDTOList = new ArrayList<>();
-        List<UserInfo> supplier = iUserInfoRepository.findSuppliersByRoleId();
+        PageRequest pageRequest = PageRequest.of(page, pageSize);
+        Page<UserInfo> suppliersPage = iUserInfoRepository.findSuppliersByRoleId(pageRequest);
 
-        int start = page * pageSize;
-        int end = Math.min((page + 1) * pageSize, supplier.size());
-        List<UserInfo> paginatedCustomers = supplier.subList(start, end);
+        List<UserInfoDTO> userInfoDTOList = suppliersPage.getContent().stream()
+                .map(UserInfo::getDTO)
+                .collect(Collectors.toList());
 
-        for (UserInfo userInfo : paginatedCustomers) {
-            UserInfoDTO dto = userInfo.getDTO();
-            userInfoDTOList.add(dto);
-        }
-
-        response.put("customers", userInfoDTOList);
-        response.put("totalPages", (supplier.size() + pageSize - 1) / pageSize); // manually calculate total pages
+        response.put("suppliers", userInfoDTOList);
+        response.put("totalPages", suppliersPage.getTotalPages());
         response.put("currentPage", page);
         return response;
     }
@@ -334,6 +322,15 @@ public class UserInfoService implements IUserInfoService {
     @Override
     public UserInfo getUserInfo(int id) {
         return iUserInfoRepository.findById(id).orElse(null);
+    }
+
+    private Page<UserInfoDTO> convertToDTOPage(Page<UserInfo> userPage) {
+        List<UserInfoDTO> dtoList = userPage.getContent().stream().map(userinfo -> {
+            UserInfoDTO dto = userinfo.getDTO();
+            dto.setImage(url.trim() + filePath.trim() + dto.getImage());
+            return dto;
+        }).collect(Collectors.toList());
+        return new PageImpl<>(dtoList, userPage.getPageable(), userPage.getTotalElements());
     }
 
 }

@@ -76,7 +76,7 @@ function activeSelectedCategories(promotionId) {
 
   if (selectedCategoryIds.length > 0) {
     $.ajax({
-      url: "http://localhost:8080/promotion-for-category/apply-promotion",
+      url: "http://localhost:8080/promotion-generic/apply",
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -84,7 +84,8 @@ function activeSelectedCategories(promotionId) {
       contentType: "application/json",
       data: JSON.stringify({
         promotionId: promotionId,
-        productIds: selectedCategoryIds,
+        entityIds: selectedCategoryIds,
+        entityType: "CATEGORY",
       }),
       success: function (response) {
         if (response.status === "OK") {
@@ -105,7 +106,7 @@ function fetchCategoriesByPromotion(promotionId) {
   var categoryTableBody = $("#category-apply-promotion");
   categoryTableBody.empty(); // Clear existing rows
   $.ajax({
-    url: `http://localhost:8080/promotion-for-category/promotion/${promotionId}`,
+    url: `http://localhost:8080/promotion-generic/in-promotion/CATEGORY/${promotionId}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -151,7 +152,7 @@ function removePromotionFromSelectedCategories(promotionId) {
 
   if (selectedCategoryIds.length > 0) {
     $.ajax({
-      url: "http://localhost:8080/promotion-for-category/remove-promotion",
+      url: "http://localhost:8080/promotion-generic/remove",
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -159,7 +160,8 @@ function removePromotionFromSelectedCategories(promotionId) {
       contentType: "application/json",
       data: JSON.stringify({
         promotionId: promotionId,
-        productIds: selectedCategoryIds,
+        entityIds: selectedCategoryIds,
+        entityType: "CATEGORY",
       }),
       success: function (response) {
         if (response.status === "OK") {
@@ -180,7 +182,7 @@ function fetchCategoriesNotInPromotion(promotionId) {
   var categoryTableBody = $("#category-not-apply-promotion");
   categoryTableBody.empty(); // Clear existing rows
   $.ajax({
-    url: `http://localhost:8080/promotion-for-category/not-in-promotion/${promotionId}`,
+    url: `http://localhost:8080/promotion-generic/not-in-promotion/CATEGORY/${promotionId}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -223,7 +225,7 @@ function applyPromotionToSelectedCategories(promotionId) {
 
   if (selectedCategoryIds.length > 0) {
     $.ajax({
-      url: "http://localhost:8080/promotion-for-category/apply-promotion",
+      url: "http://localhost:8080/promotion-generic/apply",
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -231,7 +233,8 @@ function applyPromotionToSelectedCategories(promotionId) {
       contentType: "application/json",
       data: JSON.stringify({
         promotionId: promotionId,
-        productIds: selectedCategoryIds,
+        entityIds: selectedCategoryIds,
+        entityType: "CATEGORY",
       }),
       success: function (response) {
         fetchCategoriesByPromotion(promotionId);
@@ -248,7 +251,7 @@ function applyPromotionToSelectedCategories(promotionId) {
 
 function checkCategoryInOtherPromotions(categoryId, promotionId, checkbox) {
   $.ajax({
-    url: `http://localhost:8080/promotion-for-category/check-category/${categoryId}/${promotionId}`,
+    url: `http://localhost:8080/promotion-generic/check/CATEGORY/${categoryId}/${promotionId}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,

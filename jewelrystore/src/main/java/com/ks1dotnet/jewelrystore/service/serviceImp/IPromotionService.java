@@ -3,7 +3,6 @@ package com.ks1dotnet.jewelrystore.service.serviceImp;
 import java.time.LocalDate;
 import java.util.List;
 
-
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 
@@ -16,7 +15,7 @@ public interface IPromotionService {
                         LocalDate end, String promotionType, int invoiceTypeId);
 
         PromotionDTO updatePromotion(String file, int id, String name, double value, boolean status,
-                        LocalDate start, LocalDate end, int invoiceTypeId);
+                        LocalDate start, LocalDate end);
 
         PromotionDTO findById(int id);
 

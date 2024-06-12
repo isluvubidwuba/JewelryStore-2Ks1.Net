@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import com.ks1dotnet.jewelrystore.entity.ForGemStoneType;
 import com.ks1dotnet.jewelrystore.entity.GemStoneType;
+
 @Repository
 public interface IForGemStoneTypeRepository extends JpaRepository<ForGemStoneType, Integer> {
         @Query("SELECT f FROM ForGemStoneType f WHERE f.promotion.id = :promotionId")

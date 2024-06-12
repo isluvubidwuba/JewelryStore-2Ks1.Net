@@ -205,6 +205,7 @@ function fetchCustomers(page) {
     }
   });
 }
+
 function fetchCustomerRanks(callback) {
   $.ajax({
     url: 'http://localhost:8080/earnpoints/rank',
@@ -229,8 +230,6 @@ function fetchCustomerRanks(callback) {
   });
 }
 
-
-
 function fetchSuppliers(page) {
   $.ajax({
     url: `http://localhost:8080/userinfo/listsupplier?page=${page}`,
@@ -240,7 +239,7 @@ function fetchSuppliers(page) {
     },
     success: function (response) {
       if (response.status === "OK") {
-        const { customers: suppliers, totalPages, currentPage } = response.data;
+        const { suppliers, totalPages, currentPage } = response.data;
         populateSupplierTable(suppliers, currentPage);
         updatePagination(currentPage, totalPages, 'supplier');
       }
@@ -251,54 +250,35 @@ function fetchSuppliers(page) {
   });
 }
 
-async function fetchImageURL(fileName) {
-  try {
-    const response = await fetch(`http://localhost:8080/employee/uploadget?fileName=${fileName}`);
-    const data = await response.json();
-    if (data.status === 'OK') {
-      return data.data; // Trả về URL hình ảnh
-    } else {
-      console.error('Failed to fetch image URL:', data.message);
-      return '';
-    }
-  } catch (error) {
-    console.error('Error fetching image URL:', error);
-    return '';
-  }
-}
-
-
 function populateCustomerTable(customers, ranks, currentPage, role) {
   const tableBody = $(`#${role.toLowerCase()}-table tbody`);
   tableBody.empty();
   let count = currentPage * 5 + 1;
 
   customers.forEach(customer => {
-    fetchImage(customer.image).then(imageUrl => {
-      let rankInfo = '';
-      if (role === 'Customer') {
-        const rankDetail = ranks.find(r => r.customerId === customer.id);
-        const rank = rankDetail ? rankDetail.rank : 'N/A';
-        const points = rankDetail ? rankDetail.points : 'N/A';
-        rankInfo = `<td class="py-2 px-4 border-b">${rank} (${points} points)</td>`;
-      }
-      const row = `<tr class="text-center">
-                    <td class="py-2 px-4 border-b">${count++}</td>
-                    <td class="py-2 px-4 border-b"><img src="${imageUrl}" alt="${customer.fullName}" class="h-10 w-10"></td>
-                    <td class="py-2 px-4 border-b">${customer.fullName}</td>
-                    <td class="py-2 px-4 border-b">${customer.phoneNumber}</td>
-                    <td class="py-2 px-4 border-b">${customer.email}</td>
-                    <td class="py-2 px-4 border-b">${customer.address}</td>
-                    ${rankInfo}
-                    <td class="py-2 px-4 border-b"><button class="edit-btn" data-id="${customer.id}"><i class="fas fa-edit"></i></button></td>
-                  </tr>`;
-      tableBody.append(row);
-    });
+    const imageUrl = customer.image; // Assuming image URL is already complete
+    let rankInfo = '';
+    if (role === 'Customer') {
+      const rankDetail = ranks.find(r => r.customerId === customer.id);
+      const rank = rankDetail ? rankDetail.rank : 'N/A';
+      const points = rankDetail ? rankDetail.points : 'N/A';
+      rankInfo = `<td class="py-2 px-4 border-b">${rank} (${points} points)</td>`;
+    }
+    const row = `<tr class="text-center">
+                  <td class="py-2 px-4 border-b">${count++}</td>
+                  <td class="py-2 px-4 border-b"><img src="${imageUrl}" alt="${customer.fullName}" class="h-10 w-10"></td>
+                  <td class="py-2 px-4 border-b">${customer.fullName}</td>
+                  <td class="py-2 px-4 border-b">${customer.phoneNumber}</td>
+                  <td class="py-2 px-4 border-b">${customer.email}</td>
+                  <td class="py-2 px-4 border-b">${customer.address}</td>
+                  ${rankInfo}
+                  <td class="py-2 px-4 border-b"><button class="edit-btn" data-id="${customer.id}"><i class="fas fa-edit"></i></button></td>
+                </tr>`;
+    tableBody.append(row);
   });
 
   setupEditButtons();
 }
-
 
 function populateSupplierTable(suppliers, currentPage) {
   const tableBody = $('#supplier-table tbody');
@@ -306,18 +286,17 @@ function populateSupplierTable(suppliers, currentPage) {
   let count = currentPage * 5 + 1;
 
   suppliers.forEach(supplier => {
-    fetchImage(supplier.image).then(imageUrl => {
-      const row = `<tr class="text-center">
-                    <td class="py-2 px-4 border-b">${count++}</td>
-                    <td class="py-2 px-4 border-b"><img src="${imageUrl}" alt="${supplier.fullName}" class="h-10 w-10"></td>
-                    <td class="py-2 px-4 border-b">${supplier.fullName}</td>
-                    <td class="py-2 px-4 border-b">${supplier.phoneNumber}</td>
-                    <td class="py-2 px-4 border-b">${supplier.email}</td>
-                    <td class="py-2 px-4 border-b">${supplier.address}</td>
-                    <td class="py-2 px-4 border-b"><button class="edit-btn" data-id="${supplier.id}"><i class="fas fa-edit"></i></button></td>
-                  </tr>`;
-      tableBody.append(row);
-    });
+    const imageUrl = supplier.image; // Assuming image URL is already complete
+    const row = `<tr class="text-center">
+                  <td class="py-2 px-4 border-b">${count++}</td>
+                  <td class="py-2 px-4 border-b"><img src="${imageUrl}" alt="${supplier.fullName}" class="h-10 w-10"></td>
+                  <td class="py-2 px-4 border-b">${supplier.fullName}</td>
+                  <td class="py-2 px-4 border-b">${supplier.phoneNumber}</td>
+                  <td class="py-2 px-4 border-b">${supplier.email}</td>
+                  <td class="py-2 px-4 border-b">${supplier.address}</td>
+                  <td class="py-2 px-4 border-b"><button class="edit-btn" data-id="${supplier.id}"><i class="fas fa-edit"></i></button></td>
+                </tr>`;
+    tableBody.append(row);
   });
 
   setupEditButtons();
@@ -680,30 +659,34 @@ function fetchUniqueRankData() {
       Authorization: `Bearer ${token}`,
     },
     success: function (response) {
-      var tableBody = $('#rankTableBody');
-      tableBody.empty(); // Clear previous data
+      if (response.status === "OK") {
+        var tableBody = $('#rankTableBody');
+        tableBody.empty(); // Xóa dữ liệu cũ
 
-      var displayId = 1; // Start with 1
+        var displayId = 1; // Bắt đầu từ 1
 
-      response.data.forEach(function (rank) {
-        var row = '<tr>' +
-          '<td class="px-4 py-2 border">' + displayId + '</td>' + // Display incremental ID
-          '<td class="px-4 py-2 border">' + rank.type + '</td>' +
-          '<td class="px-4 py-2 border">' + rank.pointCondition + '</td>' +
-          '<td class="px-4 py-2 border text-center">' +
-          '<button class="edit-unique-btn text-blue-500 hover:text-blue-700" data-id="' + rank.id + '" data-type="' + rank.type + '" data-pointcondition="' + rank.pointCondition + '">' +
-          '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">' +
-          '<path d="M17.414 2.586a2 2 0 010 2.828l-10 10a2 2 0 01-.878.515l-4 1a1 1 0 01-1.263-1.263l1-4a2 2 0 01.515-.878l10-10a2 2 0 012.828 0zM5 13l-1 4 4-1 10-10-3-3L5 13zM3 17h2v2H3v-2z" />' +
-          '</svg>' +
-          '</button>' +
-          '</td>' +
-          '</tr>';
-        tableBody.append(row);
-        displayId++; // Increment the display ID
-      });
+        response.data.forEach(function (rank) {
+          var row = '<tr>' +
+            '<td class="px-4 py-2 border">' + displayId + '</td>' + // Hiển thị ID tăng dần
+            '<td class="px-4 py-2 border">' + rank.type + '</td>' +
+            '<td class="px-4 py-2 border">' + rank.pointCondition + '</td>' +
+            '<td class="px-4 py-2 border text-center">' +
+            '<button class="edit-unique-btn text-blue-500 hover:text-blue-700" data-id="' + rank.id + '" data-type="' + rank.type + '" data-pointcondition="' + rank.pointCondition + '">' +
+            '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">' +
+            '<path d="M17.414 2.586a2 2 0 010 2.828l-10 10a2 2 0 01-.878.515l-4 1a1 1 0 01-1.263-1.263l1-4a2 2 0 01.515-.878l10-10a2 2 0 012.828 0zM5 13l-1 4 4-1 10-10-3-3L5 13zM3 17h2v2H3v-2z" />' +
+            '</svg>' +
+            '</button>' +
+            '</td>' +
+            '</tr>';
+          tableBody.append(row);
+          displayId++; // Tăng ID hiển thị
+        });
 
-      // Attach click event to the edit buttons
-      attachUniqueEditButtonEvents();
+        // Gắn sự kiện click cho các nút chỉnh sửa
+        attachUniqueEditButtonEvents();
+      } else {
+        console.error("Error loading customer types:", response.desc);
+      }
     },
     error: function (error) {
       console.error("There was an error fetching the rank data: ", error);
@@ -711,19 +694,20 @@ function fetchUniqueRankData() {
   });
 }
 
-// Attach click event to the edit buttons
+
+// Gắn sự kiện click vào các nút chỉnh sửa
 function attachUniqueEditButtonEvents() {
   $('.edit-unique-btn').click(function () {
     var id = $(this).data('id');
     var type = $(this).data('type');
     var pointCondition = $(this).data('pointcondition');
 
-    // Fill the form with the existing data
+    // Điền dữ liệu hiện có vào form
     $('#updateUniqueId').val(id);
     $('#updateUniqueType').val(type);
     $('#updateUniquePointCondition').val(pointCondition);
 
-    // Show the update modal
+    // Hiển thị modal cập nhật
     $('#updateCustomerTypeModal').removeClass('hidden');
   });
 }

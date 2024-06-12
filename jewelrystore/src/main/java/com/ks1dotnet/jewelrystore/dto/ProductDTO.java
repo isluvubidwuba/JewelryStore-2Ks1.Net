@@ -1,7 +1,5 @@
 package com.ks1dotnet.jewelrystore.dto;
 
-import org.springframework.beans.factory.annotation.Value;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

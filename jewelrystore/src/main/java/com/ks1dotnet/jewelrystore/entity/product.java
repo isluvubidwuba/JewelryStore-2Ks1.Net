@@ -1,8 +1,7 @@
 package com.ks1dotnet.jewelrystore.entity;
 
+import java.util.List;
 import java.util.Set;
-
-import org.springframework.beans.factory.annotation.Value;
 
 import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 
@@ -28,6 +27,7 @@ import lombok.NoArgsConstructor;
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int id;
 
     @Column(name = "product_code")
@@ -47,8 +47,10 @@ public class Product {
 
     @Column(name = "weight")
     private float weight;
+
     @Column(name = "img")
     private String imgPath;
+
     @ManyToOne
     @JoinColumn(name = "id_material")
     private Material material;
@@ -62,16 +64,16 @@ public class Product {
     private Counter counter;
 
     @OneToMany(mappedBy = "product")
-    Set<GemStoneOfProduct> listGemStoneOfProduct;
+    List<GemStoneOfProduct> listGemStoneOfProduct;
 
     @OneToMany(mappedBy = "product")
-    Set<ForProduct> listForProduct;
-
-    @OneToOne(mappedBy = "product")
-    private WareHouse wareHouse;
+    List<ForProduct> listForProduct;
 
     @OneToMany(mappedBy = "product")
-    Set<OrderInvoiceDetail> listOrderInvoiceDetail;
+    List<WareHouse> listWareHouse;
+
+    @OneToMany(mappedBy = "product")
+    List<OrderInvoiceDetail> listOrderInvoiceDetail;
 
     public ProductDTO getDTO() {
         return new ProductDTO(this.id, this.getProductCode(), this.getBarCode(), this.name, this.fee, this.status,
@@ -102,6 +104,4 @@ public class Product {
         if (t.getImgPath() != null)
             this.imgPath = t.getImgPath();
     }
-
-    
 }

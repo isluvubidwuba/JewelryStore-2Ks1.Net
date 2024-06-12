@@ -59,7 +59,6 @@ public class FirebaseStorageService {
 
     public String getFileUrl(String fileName) {
         String fullPath = filePath + fileName;
-        System.out.println("Getting file URL for: " + fullPath);
         try {
             Bucket bucket = StorageClient.getInstance().bucket();
             System.out.println("Bucket name: " + bucket.getName());
@@ -69,11 +68,9 @@ public class FirebaseStorageService {
                 System.out.println("File URL: " + fileUrl);
                 return fileUrl;
             } else {
-                System.out.println("Blob is null or does not exist");
                 throw new RunTimeExceptionV1("File not found: " + fullPath);
             }
         } catch (Exception e) {
-            System.out.println("Error getting file URL: " + e.getMessage());
             throw new RunTimeExceptionV1("Error getting file URL", e.getMessage());
         }
     }

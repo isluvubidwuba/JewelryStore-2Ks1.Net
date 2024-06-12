@@ -1,8 +1,6 @@
 package com.ks1dotnet.jewelrystore.service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import com.ks1dotnet.jewelrystore.dto.InvoiceTypeDTO;
 import com.ks1dotnet.jewelrystore.entity.InvoiceType;
-import com.ks1dotnet.jewelrystore.exception.BadRequestException;
 import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IInvoiceTypeRepository;

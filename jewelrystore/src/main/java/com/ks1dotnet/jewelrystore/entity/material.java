@@ -24,13 +24,18 @@ import lombok.NoArgsConstructor;
 public class Material {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Integer id;
+
     @Column(name = "name")
     private String name;
+
     @Column(name = "purity")
     private String purity;
+
     @Column(name = "price_at_time")
     private Double priceAtTime;
+
     @Column(name = "last_modified")
     private Date lastModified;
 

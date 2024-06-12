@@ -31,21 +31,30 @@ import lombok.NoArgsConstructor;
 public class Promotion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int id;
+
     @Column(name = "name")
     private String name;
+
     @Column(name = "value")
     private double value;
+
     @Column(name = "status")
     private boolean status;
+
     @Column(name = "image")
     private String image;
+
     @Column(name = "start_date")
     private LocalDate startDate;
+
     @Column(name = "end_date")
     private LocalDate endDate;
+
     @Column(name = "last_modified")
     private LocalDate lastModified;
+
     @Column(name = "promotion_type")
     private String promotionType;
 

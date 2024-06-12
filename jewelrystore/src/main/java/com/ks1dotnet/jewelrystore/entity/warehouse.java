@@ -1,19 +1,14 @@
 package com.ks1dotnet.jewelrystore.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @AllArgsConstructor
@@ -23,34 +18,27 @@ import lombok.NoArgsConstructor;
 public class WareHouse {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int id;
-    private int quantity;
-    private int total_import;
-    private int total_sold;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_product", referencedColumnName = "id")
+    @Column(name = "barcode_import")
+    private String barcodeImport;
+
+    @Column(name = "quantity")
+    private int quantity;
+
+    @Column(name = "total_import")
+    private int totalImport;
+
+    @Column(name = "total_sold")
+    private int totalSold;
+
+    @ManyToOne
+    @JoinColumn(name = "id_product")
     private Product product;
 
     @ManyToOne
-    @JoinColumn(name = "id_product_category")
-    private ProductCategory productCategory;
+    @JoinColumn(name = "id_order_invoice")
+    private OrderInvoice orderInvoice;
 
-    @Override
-    public int hashCode() {
-        return java.util.Objects.hash(id, quantity, total_import, total_sold);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-        WareHouse wareHouse = (WareHouse) o;
-        return id == wareHouse.id &&
-                quantity == wareHouse.quantity &&
-                total_import == wareHouse.total_import &&
-                total_sold == wareHouse.total_sold;
-    }
 }

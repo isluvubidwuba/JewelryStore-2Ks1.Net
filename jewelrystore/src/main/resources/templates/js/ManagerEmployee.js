@@ -22,33 +22,10 @@ function initializeInsertEmployee() {
   $("#insertEmployeeImageFile").change(previewInsertImage);
 }
 
-function fetchEmployeeImage(employeeId, imageName) {
-  console.log(`Fetching image for employeeId: ${employeeId}, imageName: ${imageName}`);
-  $.ajax({
-    url: `http://localhost:8080/employee/uploadget?fileName=${imageName}`,
-    type: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
-      console.log("Response received from server:", response);
-      if (response.status === "OK") {
-        const fileUrl = response.data;
-        console.log("File URL received:", fileUrl);
-        $(`#employee-image-${employeeId}`).html(`<img src="${fileUrl}" alt="Employee Image" class="w-10 h-10 rounded-full">`);
-      } else {
-        console.log("Failed to load image");
-        $(`#employee-image-${employeeId}`).html('Failed to load image');
-      }
-    },
-    error: function (xhr, status, error) {
-      console.log("Error while fetching image:", status, error);
-      console.log("Error response:", xhr.responseText);
-      $(`#employee-image-${employeeId}`).html('Failed to load image');
-    },
-  });
+function fetchEmployeeImage(employeeId, imageUrl) {
+  console.log(`Fetching image for employeeId: ${employeeId}, imageUrl: ${imageUrl}`);
+  $(`#employee-image-${employeeId}`).html(`<img src="${imageUrl}" alt="Employee Image" class="w-10 h-10 rounded-full">`);
 }
-
 
 function fetchEmployees(page) {
   $.ajax({
@@ -72,7 +49,6 @@ function fetchEmployees(page) {
     },
   });
 }
-
 
 function renderEmployees(employees) {
   const employeeTableBody = $("#employeeTableBody");
@@ -296,10 +272,12 @@ function previewInsertImage() {
     const reader = new FileReader();
     reader.onload = function (e) {
       imagePreview.src = e.target.result;
+      imagePreview.style.display = 'block'; // Hiển thị hình ảnh
     };
     reader.readAsDataURL(file);
   } else {
     imagePreview.src = "#";
+    imagePreview.style.display = 'none'; // Ẩn hình ảnh khi không có file
   }
 }
 

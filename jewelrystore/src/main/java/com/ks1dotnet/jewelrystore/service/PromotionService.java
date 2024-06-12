@@ -2,22 +2,16 @@ package com.ks1dotnet.jewelrystore.service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
-import com.ks1dotnet.jewelrystore.entity.ExchangeRatePolicy;
 import com.ks1dotnet.jewelrystore.entity.ForCustomer;
 import com.ks1dotnet.jewelrystore.entity.InvoiceType;
 import com.ks1dotnet.jewelrystore.entity.Promotion;
@@ -45,11 +39,10 @@ public class PromotionService implements IPromotionService {
     private IInvoiceTypeRepository iInvoiceTypeRepository;
 
     @Value("${fileUpload.promotionPath}")
-   private String filePath;
+    private String filePath;
 
-   @Value("${firebase.img-url}")
-   private String url;
-
+    @Value("${firebase.img-url}")
+    private String url;
 
     // @Override
     // public Map<String, Object> getHomePagePromotion(int page) {
@@ -76,7 +69,8 @@ public class PromotionService implements IPromotionService {
                 .map(promotion -> {
                     PromotionDTO dto = promotion.getDTO();
                     dto.setImage(url.trim() + filePath.trim() + dto.getImage());
-                    return dto;})
+                    return dto;
+                })
                 .collect(Collectors.toList());
         return new ResponseData(HttpStatus.OK, "Fetched all exchange rate policies", promotionDTOs);
     }
@@ -102,16 +96,16 @@ public class PromotionService implements IPromotionService {
             promotion.setInvoiceType(invoiceTypeC);
 
             // if (file != null && !file.isEmpty()) {
-            //     boolean isSaveFileSuccess = iFileService.savefile(file);
-            //     if (isSaveFileSuccess) {
-            //         promotion.setImage(file.getOriginalFilename());
-            //     } else {
-            //         responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-            //         responseData.setDesc("File upload failed.");
-            //         return responseData;
-            //     }
+            // boolean isSaveFileSuccess = iFileService.savefile(file);
+            // if (isSaveFileSuccess) {
+            // promotion.setImage(file.getOriginalFilename());
             // } else {
-            //     promotion.setImage("default_image.jpg");
+            // responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            // responseData.setDesc("File upload failed.");
+            // return responseData;
+            // }
+            // } else {
+            // promotion.setImage("default_image.jpg");
             // }
             promotion.setImage(file);
             PromotionDTO promotionDTO = iPromotionRepository.save(promotion).getDTO();
@@ -126,8 +120,9 @@ public class PromotionService implements IPromotionService {
     }
 
     @Override
+
     public PromotionDTO updatePromotion(String file, int id, String name, double value, boolean status,
-            LocalDate startDate, LocalDate endDate, int invoiceTypeId) {
+            LocalDate startDate, LocalDate endDate) {
         try {
             Promotion promotion = iPromotionRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Promotion not found with id: " + id));
@@ -139,9 +134,10 @@ public class PromotionService implements IPromotionService {
             promotion.setEndDate(endDate);
             promotion.setLastModified(LocalDate.now());
 
-            InvoiceType invoiceTypeC = iInvoiceTypeRepository.findById(invoiceTypeId)
-                    .orElseThrow(() -> new BadRequestException("Not found invoice type! Invalid invoice type ID. "));
-            promotion.setInvoiceType(invoiceTypeC);
+            // InvoiceType invoiceTypeC = iInvoiceTypeRepository.findById(invoiceTypeId)
+            // .orElseThrow(() -> new BadRequestException("Not found invoice type! Invalid
+            // invoice type ID. "));
+            // promotion.setInvoiceType(invoiceTypeC);
             promotion.setImage(file);
             promotion = iPromotionRepository.save(promotion);
             return promotion.getDTO();
@@ -156,9 +152,7 @@ public class PromotionService implements IPromotionService {
         Promotion promotion = iPromotionRepository.findById(id).orElseThrow(() -> new BadRequestException("Not found"));
         PromotionDTO promotionDTO = promotion.getDTO();
         promotionDTO.setImage(url.trim() + filePath.trim() + promotionDTO.getImage());
-        if (promotionDTO == null) {
-            throw new ResourceNotFoundException("Promotion not found with id: " + id);
-        }
+
         return promotionDTO;
     }
 
@@ -203,8 +197,9 @@ public class PromotionService implements IPromotionService {
             List<PromotionDTO> promotions = getPromotionsByProductId(productId);
             promotions.stream().map(promotion -> {
                 promotion.setImage(url.trim() + filePath.trim() + promotion.getImage());
-                    return promotion;})
-                .collect(Collectors.toList());
+                return promotion;
+            })
+                    .collect(Collectors.toList());
             ProductDTO productDTO = (ProductDTO) iProductService.findById(productId).getData();
             promotions
                     .addAll(getPromotionsByProductCategoryId(productDTO.getProductCategoryDTO().getId()));
@@ -225,8 +220,9 @@ public class PromotionService implements IPromotionService {
         }
         promotionDTOs.stream().map(promotion -> {
             promotion.setImage(url.trim() + filePath.trim() + promotion.getImage());
-                return promotion;})
-            .collect(Collectors.toList());
+            return promotion;
+        })
+                .collect(Collectors.toList());
         return promotionDTOs;
     }
 

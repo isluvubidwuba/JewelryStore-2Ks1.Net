@@ -23,11 +23,13 @@ public interface IEmployeeService {
                         String phoneNumber, String email, String address, int roleId, boolean status);
 
         public ResponseData updateEmployee(MultipartFile file, String id, String firstName, String lastName, int roleId,
-         String pinCode, boolean status, String phoneNumber, String email, String address);
+                        String pinCode, boolean status, String phoneNumber, String email, String address);
 
         public Employee listEmployee(String id);
 
         public Map<String, Object> findByCriteria(String criteria, String query, int page);
 
         public ResponseData getStaff();
+
+        public ResponseData deleteEmployee(String id);
 }
