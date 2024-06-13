@@ -17,9 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.ks1dotnet.jewelrystore.dto.EarnPointsDTO;
 import com.ks1dotnet.jewelrystore.dto.UserInfoDTO;
-import com.ks1dotnet.jewelrystore.entity.CustomerType;
 import com.ks1dotnet.jewelrystore.entity.EarnPoints;
 import com.ks1dotnet.jewelrystore.entity.UserInfo;
 import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;

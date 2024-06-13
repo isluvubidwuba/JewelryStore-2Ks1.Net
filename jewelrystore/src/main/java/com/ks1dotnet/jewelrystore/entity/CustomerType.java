@@ -1,7 +1,6 @@
 package com.ks1dotnet.jewelrystore.entity;
 
 import java.util.List;
-import java.util.Set;
 
 import com.ks1dotnet.jewelrystore.dto.CustomerTypeDTO;
 
