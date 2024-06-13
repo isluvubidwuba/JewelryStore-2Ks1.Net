@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.ks1dotnet.jewelrystore.dto.InvoiceDTO;
 import com.ks1dotnet.jewelrystore.dto.InvoiceDetailDTO;
 import com.ks1dotnet.jewelrystore.entity.Employee;
 import com.ks1dotnet.jewelrystore.entity.Invoice;
@@ -57,6 +56,11 @@ public class InvoiceService implements IInvoiceService {
         @Autowired
         private IProductRepository iProductRepository;
 
+        @Value("${fileUpload.productPath}")
+        private String filePath;
+
+        @Value("${firebase.img-url}")
+        private String url;
         @Autowired
         private IEmployeeRepository iEmployeeRepository;
 
