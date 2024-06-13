@@ -14,5 +14,5 @@ public class MaterialDTO {
     private String name;
     private String purity;
     private double priceAtTime;
-    private Date lastModified;
+    private String lastModified;
 }

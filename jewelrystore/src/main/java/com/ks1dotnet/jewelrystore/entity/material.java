@@ -37,7 +37,7 @@ public class Material {
     private Double priceAtTime;
 
     @Column(name = "last_modified")
-    private Date lastModified;
+    private String lastModified;
 
     @OneToMany(mappedBy = "material")
     List<Product> listProduct;
