@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ks1dotnet.jewelrystore.dto.InvoiceDTO;
 import com.ks1dotnet.jewelrystore.dto.InvoiceDetailDTO;
 import com.ks1dotnet.jewelrystore.entity.Invoice;
 import com.ks1dotnet.jewelrystore.exception.BadRequestException;
