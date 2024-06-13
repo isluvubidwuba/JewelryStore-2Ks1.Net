@@ -1,7 +1,5 @@
 package com.ks1dotnet.jewelrystore.dto;
 
-import java.util.Date;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

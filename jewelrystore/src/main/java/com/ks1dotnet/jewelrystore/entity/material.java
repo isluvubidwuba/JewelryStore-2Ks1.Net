@@ -1,6 +1,5 @@
 package com.ks1dotnet.jewelrystore.entity;
 
-import java.util.Date;
 import java.util.List;
 
 import com.ks1dotnet.jewelrystore.dto.MaterialDTO;
