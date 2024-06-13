@@ -31,6 +31,12 @@ public class MaterialController {
         return new ResponseEntity<>(response, response.getStatus());
     }
 
+    @GetMapping("getGoldPrice")
+    public ResponseEntity<?> getGoldPrice() {
+        ResponseData response = iMaterialService.Page(0, 10);
+        return new ResponseEntity<>(response, response.getStatus());
+    }
+
     @PostMapping("nextPage")
     public ResponseEntity<?> getAll(@RequestParam int page, @RequestParam int size) {
         ResponseData response = iMaterialService.Page(page, size);

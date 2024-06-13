@@ -19,5 +19,5 @@ public class ProductDTO {
     private ProductCategoryDTO productCategoryDTO;
     private CounterDTO counterDTO;
     private String imgPath;
-
+    private InventoryDTO inventoryDTO;
 }

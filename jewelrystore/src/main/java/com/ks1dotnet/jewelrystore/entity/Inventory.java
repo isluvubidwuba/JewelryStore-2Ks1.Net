@@ -1,5 +1,7 @@
 package com.ks1dotnet.jewelrystore.entity;
 
+import com.ks1dotnet.jewelrystore.dto.InventoryDTO;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -29,5 +31,9 @@ public class Inventory {
     private int quantity;
     private int total_sold;
     private int total_import;
+
+    public InventoryDTO getDTO() {
+        return new InventoryDTO(this.quantity);
+    }
 
 }
