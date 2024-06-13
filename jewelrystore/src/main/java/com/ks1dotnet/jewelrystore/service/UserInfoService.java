@@ -56,21 +56,6 @@ public class UserInfoService implements IUserInfoService {
     }
 
     @Override
-    public Map<String, Object> getHomePageUser(int page) {
-        Map<String, Object> response = new HashMap<>();
-        PageRequest pageRequest = PageRequest.of(page, 5);
-        List<UserInfoDTO> userInfoDTO = new ArrayList<>();
-        Page<UserInfo> listData = iUserInfoRepository.findAll(pageRequest);
-
-        userInfoDTO = convertToDTOPage(listData).getContent();
-
-        response.put("employees", userInfoDTO);
-        response.put("totalPages", listData.getTotalPages());
-        response.put("currentPage", page);
-        return response;
-    }
-
-    @Override
     public ResponseData insertUserInfo(MultipartFile file, String fullName, String phoneNumber, String email,
             int roleId,
             String address) {
@@ -81,22 +66,12 @@ public class UserInfoService implements IUserInfoService {
         String fileName = null;
 
         // Upload hình ảnh nếu có
-        if (file != null && !file.isEmpty()) {
-            responseData = firebaseStorageService.uploadImage(file, filePath);
-            if (responseData.getStatus() == HttpStatus.OK) {
-                fileName = (String) responseData.getData();
-                responseData.setStatus(HttpStatus.OK);
-                responseData.setDesc("Find Image Successfully !!!");
-            } else {
-                responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-                responseData.setDesc("Upload image error ! System Error !");
-                return responseData;
-            }
-        }
         responseData = firebaseStorageService.uploadImage(file, filePath);
-        fileName = "31ab6d6b-86cf-443f-9041-3c394b17ac0b_2024-06-10";
-        if (responseData.getStatus() == HttpStatus.OK)
+        if (responseData.getStatus() == HttpStatus.OK) {
             fileName = (String) responseData.getData();
+        } else {
+            fileName = "3428f415-1df9-499d-93d3-1ce159b12c06_2024-06-12";
+        }
 
         // Check if email or phone number already exists
         if (iUserInfoRepository.existsByEmail(email)) {
@@ -133,30 +108,8 @@ public class UserInfoService implements IUserInfoService {
         ResponseData responseData = new ResponseData();
 
         String fileName = null;
-
-        // Upload hình ảnh nếu có
-        if (file != null && !file.isEmpty()) {
-            responseData = firebaseStorageService.uploadImage(file, filePath);
-            if (responseData.getStatus() == HttpStatus.OK) {
-                fileName = (String) responseData.getData();
-            } else {
-                responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-                responseData.setDesc("Upload image error ! System Error !");
-                return responseData;
-            }
-        }
-
-        // Nếu hình ảnh không được upload, lấy hình ảnh cũ
-        if (fileName == null) {
-            Optional<UserInfo> existingUserInfoOpt = iUserInfoRepository.findById(id);
-            if (existingUserInfoOpt.isPresent()) {
-                UserInfo existingUserinfo = existingUserInfoOpt.get();
-                fileName = existingUserinfo.getImage();
-            } else {
-                responseData.setStatus(HttpStatus.NOT_FOUND);
-                responseData.setDesc("Not found User Information");
-                return responseData;
-            }
+        if (file.getSize() > 0) {
+            fileName = firebaseStorageService.uploadImage(file, filePath).getData().toString();
         }
 
         Optional<UserInfo> existingUser = iUserInfoRepository.findById(id);
@@ -187,10 +140,8 @@ public class UserInfoService implements IUserInfoService {
         userInfo.setEmail(email);
         userInfo.setAddress(address);
         userInfo.setRole(iRoleService.findById(roleId));
-        userInfo.setImage(fileName); // Set the image name, default or uploaded
-
+        userInfo.setImage(fileName == null ? userInfo.getImage() : fileName); // Set the image name, default or uploaded
         iUserInfoRepository.save(userInfo);
-
         responseData.setStatus(HttpStatus.OK);
         responseData.setDesc("Update successful");
         responseData.setData(userInfo.getDTO()); // Assuming UserInfo has a method to convert to DTO
@@ -198,130 +149,166 @@ public class UserInfoService implements IUserInfoService {
     }
 
     @Override
-    public Map<String, Object> listCustomer(int page) {
-        Map<String, Object> response = new HashMap<>();
-        int pageSize = 5;
-        PageRequest pageRequest = PageRequest.of(page, pageSize);
-        Page<UserInfo> customersPage = iUserInfoRepository.findCustomersByRoleId(pageRequest);
+    public ResponseData listCustomer(int page) {
+        ResponseData responseData = new ResponseData();
+        try {
+            Map<String, Object> response = new HashMap<>();
+            int pageSize = 5;
+            PageRequest pageRequest = PageRequest.of(page, pageSize);
+            Page<UserInfo> customersPage = iUserInfoRepository.findCustomersByRoleId(pageRequest);
 
-        List<UserInfoDTO> userInfoDTOList = customersPage.getContent().stream()
-                .map(UserInfo::getDTO)
-                .collect(Collectors.toList());
+            Page<UserInfoDTO> customersDTOPage = convertToDTOPage(customersPage);
 
-        response.put("customers", userInfoDTOList);
-        response.put("totalPages", customersPage.getTotalPages());
-        response.put("currentPage", page);
-        return response;
+            response.put("customers", customersDTOPage.getContent());
+            response.put("totalPages", customersDTOPage.getTotalPages());
+            response.put("currentPage", page);
+
+            responseData.setStatus(HttpStatus.OK);
+            responseData.setData(response);
+            responseData.setDesc("Fetch successful");
+        } catch (Exception e) {
+            responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            responseData.setDesc("Fetch failed. Internal Server Error: " + e.getMessage());
+        }
+        return responseData;
     }
 
     @Override
-    public Map<String, Object> listSupplier(int page) {
-        Map<String, Object> response = new HashMap<>();
-        int pageSize = 5;
-        PageRequest pageRequest = PageRequest.of(page, pageSize);
-        Page<UserInfo> suppliersPage = iUserInfoRepository.findSuppliersByRoleId(pageRequest);
+    public ResponseData listSupplier(int page) {
+        ResponseData responseData = new ResponseData();
+        try {
+            Map<String, Object> response = new HashMap<>();
+            int pageSize = 5;
+            PageRequest pageRequest = PageRequest.of(page, pageSize);
+            Page<UserInfo> suppliersPage = iUserInfoRepository.findSuppliersByRoleId(pageRequest);
 
-        List<UserInfoDTO> userInfoDTOList = suppliersPage.getContent().stream()
-                .map(UserInfo::getDTO)
-                .collect(Collectors.toList());
+            Page<UserInfoDTO> suppliersDTOPage = convertToDTOPage(suppliersPage);
 
-        response.put("suppliers", userInfoDTOList);
-        response.put("totalPages", suppliersPage.getTotalPages());
-        response.put("currentPage", page);
-        return response;
+            response.put("suppliers", suppliersDTOPage.getContent());
+            response.put("totalPages", suppliersDTOPage.getTotalPages());
+            response.put("currentPage", page);
+
+            responseData.setStatus(HttpStatus.OK);
+            responseData.setData(response);
+            responseData.setDesc("Fetch successful");
+        } catch (Exception e) {
+            responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            responseData.setDesc("Fetch failed. Internal Server Error: " + e.getMessage());
+        }
+        return responseData;
     }
 
     @Override
-    public Map<String, Object> findByCriteriaCustomer(String criteria, String query, int page) {
-        Map<String, Object> response = new HashMap<>();
-        PageRequest pageRequest = PageRequest.of(page, 5);
-        Page<UserInfo> userInfoPage;
+    public ResponseData findByCriteriaCustomer(String criteria, String query, int page) {
+        ResponseData responseData = new ResponseData();
+        try {
+            Map<String, Object> response = new HashMap<>();
+            PageRequest pageRequest = PageRequest.of(page, 5);
+            Page<UserInfo> userInfoPage;
 
-        switch (criteria.toLowerCase()) {
-            case "id":
-                Optional<UserInfo> userInfoOpt = iUserInfoRepository.findById(Integer.parseInt(query));
-                if (userInfoOpt.isPresent() && userInfoOpt.get().getRole().getId() == 4) {
-                    List<UserInfo> userInfoList = Collections.singletonList(userInfoOpt.get());
-                    userInfoPage = new PageImpl<>(userInfoList, pageRequest, 1);
-                } else {
-                    userInfoPage = new PageImpl<>(Collections.emptyList(), pageRequest, 0);
-                }
-                break;
+            switch (criteria.toLowerCase()) {
+                case "id":
+                    Optional<UserInfo> userInfoOpt = iUserInfoRepository.findById(Integer.parseInt(query));
+                    if (userInfoOpt.isPresent() && userInfoOpt.get().getRole().getId() == 4) {
+                        List<UserInfo> userInfoList = new ArrayList<>();
+                        userInfoList.add(userInfoOpt.get());
+                        userInfoPage = new PageImpl<>(userInfoList, pageRequest, 1);
+                    } else {
+                        userInfoPage = new PageImpl<>(Collections.emptyList(), pageRequest, 0);
+                    }
+                    break;
 
-            case "name":
-                userInfoPage = iUserInfoRepository.findCustomersByNameContainingIgnoreCase(query, pageRequest);
-                break;
+                case "name":
+                    userInfoPage = iUserInfoRepository.findCustomersByNameContainingIgnoreCase(query, pageRequest);
+                    break;
 
-            case "numberphone":
-                userInfoPage = iUserInfoRepository.findCustomersByPhoneNumberContaining(query, pageRequest);
-                break;
+                case "numberphone":
+                    userInfoPage = iUserInfoRepository.findCustomersByPhoneNumberContaining(query, pageRequest);
+                    break;
 
-            case "email":
-                userInfoPage = iUserInfoRepository.findCustomersByEmailContainingIgnoreCase(query, pageRequest);
-                break;
+                case "email":
+                    userInfoPage = iUserInfoRepository.findCustomersByEmailContainingIgnoreCase(query, pageRequest);
+                    break;
 
-            default:
-                throw new IllegalArgumentException("Invalid search criteria: " + criteria);
+                default:
+                    throw new IllegalArgumentException("Tiêu chí tìm kiếm không hợp lệ: " + criteria);
+            }
+
+            Page<UserInfoDTO> userInfoDTOPage = convertToDTOPage(userInfoPage);
+
+            response.put("customers", userInfoDTOPage.getContent());
+            response.put("totalPages", userInfoDTOPage.getTotalPages());
+            response.put("currentPage", page);
+
+            responseData.setStatus(HttpStatus.OK);
+            responseData.setData(response);
+            responseData.setDesc("Fetch successful");
+        } catch (Exception e) {
+            responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            responseData.setDesc("Fetch failed. Internal Server Error: " + e.getMessage());
         }
-
-        List<UserInfoDTO> userInfoDTOList = new ArrayList<>();
-        for (UserInfo userInfo : userInfoPage) {
-            userInfoDTOList.add(userInfo.getDTO());
-        }
-
-        response.put("customers", userInfoDTOList);
-        response.put("totalPages", userInfoPage.getTotalPages());
-        response.put("currentPage", page);
-        return response;
+        return responseData;
     }
 
     @Override
-    public Map<String, Object> findByCriteriaSupplier(String criteria, String query, int page) {
-        Map<String, Object> response = new HashMap<>();
-        PageRequest pageRequest = PageRequest.of(page, 5);
-        Page<UserInfo> userInfoPage;
+    public ResponseData findByCriteriaSupplier(String criteria, String query, int page) {
+        ResponseData responseData = new ResponseData();
+        try {
+            Map<String, Object> response = new HashMap<>();
+            PageRequest pageRequest = PageRequest.of(page, 5);
+            Page<UserInfo> userInfoPage;
 
-        switch (criteria.toLowerCase()) {
-            case "id":
-                Optional<UserInfo> userInfoOpt = iUserInfoRepository.findById(Integer.parseInt(query));
-                if (userInfoOpt.isPresent() && userInfoOpt.get().getRole().getId() == 5) {
-                    List<UserInfo> userInfoList = Collections.singletonList(userInfoOpt.get());
-                    userInfoPage = new PageImpl<>(userInfoList, pageRequest, 1);
-                } else {
-                    userInfoPage = new PageImpl<>(Collections.emptyList(), pageRequest, 0);
-                }
-                break;
+            switch (criteria.toLowerCase()) {
+                case "id":
+                    Optional<UserInfo> userInfoOpt = iUserInfoRepository.findById(Integer.parseInt(query));
+                    if (userInfoOpt.isPresent() && userInfoOpt.get().getRole().getId() == 5) {
+                        List<UserInfo> userInfoList = new ArrayList<>();
+                        userInfoList.add(userInfoOpt.get());
+                        userInfoPage = new PageImpl<>(userInfoList, pageRequest, 1);
+                    } else {
+                        userInfoPage = new PageImpl<>(Collections.emptyList(), pageRequest, 0);
+                    }
+                    break;
 
-            case "name":
-                userInfoPage = iUserInfoRepository.findSuppliersByNameContainingIgnoreCase(query, pageRequest);
-                break;
+                case "name":
+                    userInfoPage = iUserInfoRepository.findSuppliersByNameContainingIgnoreCase(query, pageRequest);
+                    break;
 
-            case "numberphone":
-                userInfoPage = iUserInfoRepository.findSuppliersByPhoneNumberContaining(query, pageRequest);
-                break;
+                case "numberphone":
+                    userInfoPage = iUserInfoRepository.findSuppliersByPhoneNumberContaining(query, pageRequest);
+                    break;
 
-            case "email":
-                userInfoPage = iUserInfoRepository.findSuppliersByEmailContainingIgnoreCase(query, pageRequest);
-                break;
+                case "email":
+                    userInfoPage = iUserInfoRepository.findSuppliersByEmailContainingIgnoreCase(query, pageRequest);
+                    break;
 
-            default:
-                throw new IllegalArgumentException("Invalid search criteria: " + criteria);
+                default:
+                    throw new IllegalArgumentException("Tiêu chí tìm kiếm không hợp lệ: " + criteria);
+            }
+
+            Page<UserInfoDTO> userInfoDTOPage = convertToDTOPage(userInfoPage);
+
+            response.put("suppliers", userInfoDTOPage.getContent());
+            response.put("totalPages", userInfoDTOPage.getTotalPages());
+            response.put("currentPage", page);
+
+            responseData.setStatus(HttpStatus.OK);
+            responseData.setData(response);
+            responseData.setDesc("Fetch successful");
+        } catch (Exception e) {
+            responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            responseData.setDesc("Fetch failed. Internal Server Error: " + e.getMessage());
         }
-
-        List<UserInfoDTO> userInfoDTOList = new ArrayList<>();
-        for (UserInfo userInfo : userInfoPage) {
-            userInfoDTOList.add(userInfo.getDTO());
-        }
-
-        response.put("suppliers", userInfoDTOList);
-        response.put("totalPages", userInfoPage.getTotalPages());
-        response.put("currentPage", page);
-        return response;
+        return responseData;
     }
 
     @Override
-    public UserInfo getUserInfo(int id) {
-        return iUserInfoRepository.findById(id).orElse(null);
+    public ResponseData getUserInfo(int id) {
+        UserInfo userInfo = iUserInfoRepository.findById(id).orElse(null);
+        ResponseData responseData = new ResponseData();
+        responseData.setStatus(HttpStatus.OK);
+        responseData.setData(userInfo.getDTO());
+        return responseData;
     }
 
     private Page<UserInfoDTO> convertToDTOPage(Page<UserInfo> userPage) {

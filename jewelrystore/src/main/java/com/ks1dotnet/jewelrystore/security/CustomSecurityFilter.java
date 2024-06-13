@@ -61,11 +61,12 @@ public class CustomSecurityFilter {
 
                                                 // Những phần permit all của counter employe userinfo
                                                 .requestMatchers("/authentication/**", "/role/list",
-                                                                "/employee/upload/**", "/earnpoints/**", "/gemStone/**", "/customertype/**")
+                                                                "/employee/upload/**", "/earnpoints/**", "/gemStone/**",
+                                                                "/employee/listemployee/**")
                                                 .permitAll()
                                                 // Employee
                                                 .requestMatchers("/employee/listpage", "/employee/search",
-                                                                "/employee/listemployee/{id}", "/employee/upload")
+                                                                "/employee/upload")
                                                 .hasAnyAuthority("ADMIN", "MANAGER")
                                                 .requestMatchers("/employee/insert", "/employee/update",
                                                                 "/employee/delete/**")
@@ -87,15 +88,16 @@ public class CustomSecurityFilter {
                                                 .hasAuthority("ADMIN")
 
                                                 // Customer Type
-                                                .requestMatchers("/customertype/findall")
-                                                .hasAnyAuthority("MANAGER", "STAFF", "ADMIN")
-                                                .requestMatchers("/customertype/**")
-                                                .hasAuthority("ADMIN")
+                                                // .requestMatchers("/customertype/findall")
+                                                // .hasAnyAuthority("MANAGER", "STAFF", "ADMIN")
+                                                // .requestMatchers("/customertype/**")
+                                                // .hasAuthority("ADMIN")
 
                                                 // User Information
                                                 .requestMatchers("/userinfo/listcustomer", "/userinfo/listpage",
                                                                 "/userinfo/findcustomer/{id}",
-                                                                "/userinfo/searchcustomer", "userinfo/upload", "userinfo/uploadget")
+                                                                "/userinfo/searchcustomer", "userinfo/upload",
+                                                                "userinfo/uploadget", "/customertype/findall")
                                                 .hasAnyAuthority("STAFF", "MANAGER", "ADMIN")
 
                                                 .requestMatchers("/userinfo/update", "/userinfo/insert")
@@ -105,7 +107,7 @@ public class CustomSecurityFilter {
                                                                 "/userinfo/searchsupplier")
                                                 .hasAnyAuthority("MANAGER", "ADMIN")
 
-                                                .requestMatchers("/userinfo/**", "/role/insert")
+                                                .requestMatchers("/userinfo/**", "/role/insert", "/customertype/**")
                                                 .hasAuthority("ADMIN")
 
                                                 .anyRequest().authenticated())

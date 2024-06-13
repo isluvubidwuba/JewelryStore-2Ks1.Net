@@ -69,7 +69,7 @@ function renderEmployees(employees) {
               <td class="px-6 py-3">${employee.role.name}</td>
               <td class="px-6 py-3">${statusLabel}</td>
               <td class="px-6 py-3">
-                  <button class="bg-gray-700 hover:bg-black text-white px-4 py-2 rounded" onclick="viewEmployee('${employee.id}')">View</button>
+                  <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" onclick="viewEmployee('${employee.id}')">View</button>
               </td>
           </tr>
       `;
@@ -140,30 +140,10 @@ function viewEmployee(id) {
     success: function (response) {
       if (response.status === "OK") {
         const employee = response.data;
-        // Lấy tên hình ảnh từ phản hồi API
-        const imageName = employee.image;
-        // Tạo URL hình ảnh từ tên hình ảnh
-        const imageUrl = `http://localhost:8080/employee/uploadget?fileName=${imageName}`;
-        $.ajax({
-          url: imageUrl,
-          type: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          success: function (imageResponse) {
-            if (imageResponse.status === "OK") {
-              const fullImageUrl = imageResponse.data;
-              console.log("Full Image URL:", fullImageUrl); // Ghi log URL hình ảnh đầy đủ
-              $("#viewEmployeeImage").attr("src", fullImageUrl);
-            } else {
-              $("#viewEmployeeImage").attr("src", ""); // Đặt src rỗng nếu không lấy được URL
-            }
-          },
-          error: function (error) {
-            console.error("Error while fetching image URL:", error);
-            $("#viewEmployeeImage").attr("src", ""); // Đặt src rỗng nếu có lỗi
-          }
-        });
+        // Sử dụng URL hình ảnh từ phản hồi API
+        const imageUrl = employee.image;
+        console.log("Check URl hình ảnh gửi từ back end :" + imageUrl);
+
         $("#viewEmployeeImage").attr("src", imageUrl);
         $("#viewEmployeeId").val(employee.id);
         $("#viewPinCode").val(employee.pinCode);
@@ -183,7 +163,6 @@ function viewEmployee(id) {
         }
         openModal();
 
-
       } else {
         alert("Failed to load employee details." + response.desc);
       }
@@ -195,7 +174,7 @@ function viewEmployee(id) {
         );
       } else {
         console.error("Error while fetching employee details : ", error);
-        alert("Error  fetching employee details :!");
+        alert("Error fetching employee details :!");
       }
     },
   });
@@ -207,24 +186,14 @@ function openModal() {
 
 function closeModal() {
   $("#viewEmployeeModal").addClass("hidden");
-  // Xóa ảnh khi đóng modal
-  $("#viewEmployeeImage").attr("src", "");
+  // Xóa ảnh và form khi đóng modal
+  clearUpdateForm();
 }
 
 function updateEmployee() {
   var formData = new FormData($("#viewEmployeeForm")[0]);
 
-  const fileInput = document.getElementById("viewEmployeeImageFile");
-  if (fileInput && fileInput.files.length > 0) {
-    formData.append("file", fileInput.files[0]);
-  } else {
-    formData.append(
-      "file",
-      new Blob([""], { type: "application/octet-stream" })
-    );
-  }
-
-  formData.append("roleId", $("#viewRole").val());
+  formData.append("file", $("#viewEmployeeImageFile").val());
 
   $.ajax({
     url: `http://localhost:8080/employee/update`,
@@ -256,11 +225,17 @@ function updateEmployee() {
   });
 }
 
+
 function clearUpdateForm() {
   $("#viewEmployeeForm")[0].reset();
-  $("#viewEmployeeImage").attr("src", ""); // Clear image preview
+  $("#viewEmployeeImage").attr("src", ""); // Xóa ảnh xem trước
   $("#viewRole").val("");
   $("#viewStatus").val("");
+  // Xóa tệp tin đã chọn
+  const fileInput = document.getElementById("viewEmployeeImageFile");
+  if (fileInput) {
+    fileInput.value = "";
+  }
 }
 
 function previewInsertImage() {

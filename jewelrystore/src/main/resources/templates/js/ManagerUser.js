@@ -21,6 +21,7 @@ function fetchRoles() {
       if (response.status === "OK") {
         const roles = response.data.filter(role => !['STAFF', 'ADMIN', 'MANAGER'].includes(role.name));
         initTabs(roles);
+        roles.forEach(role => setupSearch(role.name));
         populateRoleSelect(roles, '#update-role'); // Populate role select for update modal
         populateRoleSelect(roles, '#insert-role');
       } else {
@@ -40,9 +41,9 @@ function initTabs(roles) {
   });
 
   // Append the insert role button
-  $('#role-tabs').append('<li class="ml-2"><button id="insert-role-button" class="tab-button bg-green-500 text-white font-semibold py-2 px-4 rounded hover:bg-green-700 transition duration-300">+</button></li>');
+  $('#role-tabs').append('<li class="ml-2"><button id="insert-role-button" class="tab-button bg-black text-white font-semibold py-2 px-4 rounded hover:bg-gray-700 transition duration-300">+</button></li>');
   // Append the insert user button
-  $('#role-tabs').append('<li class="ml-auto"><button id="insert-button" class="tab-button bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-700 transition duration-300">Insert User</button></li>');
+  $('#role-tabs').append('<li class="ml-auto"><button id="insert-button" class="tab-button bg-black text-white font-semibold py-2 px-4 rounded hover:bg-gray-700 transition duration-300">Insert User</button></li>');
 
   bindTabClickEvents();
   const firstRole = roles[0].name;
@@ -128,7 +129,7 @@ function createTabContent(role) {
                   </ul>
               </div>
               <input type="text" id="${role.name.toLowerCase()}-search-input" class="border rounded px-4 py-2 ml-2" placeholder="Search...">
-              <button id="${role.name.toLowerCase()}-search-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-2">Search</button>
+              <button id="${role.name.toLowerCase()}-search-button" class="bg-gray-800 hover:bg-black text-white font-bold py-2 px-4 rounded ml-2">Search</button>
           </div>
       </div>
       <table id="${role.name.toLowerCase()}-table" class="min-w-full bg-white">
@@ -149,9 +150,9 @@ function createTabContent(role) {
           </tbody>
       </table>
       <div id="pagination-${role.name.toLowerCase()}" class="mt-4">
-          <button id="prev-page-${role.name.toLowerCase()}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Previous</button>
+          <button id="prev-page-${role.name.toLowerCase()}" class="bg-black hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">Previous</button>
           <span id="page-info-${role.name.toLowerCase()}" class="mx-2"></span>
-          <button id="next-page-${role.name.toLowerCase()}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Next</button>
+          <button id="next-page-${role.name.toLowerCase()}" class="bg-black hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">Next</button>
       </div>
   `;
 
@@ -184,6 +185,12 @@ function setActiveTab(role) {
   $(`.tab-button[data-role=${role}]`).addClass('border-l border-t border-r rounded-t text-blue-700 font-semibold');
 }
 
+
+function fetchImage(elementId, imageUrl) {
+  console.log(`Fetching image for elementId: ${elementId}, imageUrl: ${imageUrl}`);
+  $(`#${elementId}`).html(`<img src="${imageUrl}" alt="Image" class="h-10 w-10">`);
+}
+
 function fetchCustomers(page) {
   $.ajax({
     url: `http://localhost:8080/userinfo/listcustomer?page=${page}`,
@@ -195,7 +202,7 @@ function fetchCustomers(page) {
       if (response.status === "OK") {
         const { customers, totalPages, currentPage } = response.data;
         fetchCustomerRanks(function (ranks) {
-          populateCustomerTable(customers, ranks, currentPage, 'Customer');
+          populateTable(customers, ranks, currentPage, 'Customer');
           updatePagination(currentPage, totalPages, 'customer');
         });
       }
@@ -240,7 +247,7 @@ function fetchSuppliers(page) {
     success: function (response) {
       if (response.status === "OK") {
         const { suppliers, totalPages, currentPage } = response.data;
-        populateSupplierTable(suppliers, currentPage);
+        populateTable(suppliers, [], currentPage, 'Supplier');
         updatePagination(currentPage, totalPages, 'supplier');
       }
     },
@@ -250,60 +257,45 @@ function fetchSuppliers(page) {
   });
 }
 
-function populateCustomerTable(customers, ranks, currentPage, role) {
+function populateTable(data, ranks, currentPage, role) {
+  if (!data || !Array.isArray(data)) {
+    console.error('Data is not an array or is undefined.');
+    return;
+  }
+
   const tableBody = $(`#${role.toLowerCase()}-table tbody`);
   tableBody.empty();
   let count = currentPage * 5 + 1;
 
-  customers.forEach(customer => {
-    const imageUrl = customer.image; // Assuming image URL is already complete
+  data.forEach(item => {
     let rankInfo = '';
     if (role === 'Customer') {
-      const rankDetail = ranks.find(r => r.customerId === customer.id);
+      const rankDetail = ranks.find(r => r.customerId === item.id);
       const rank = rankDetail ? rankDetail.rank : 'N/A';
       const points = rankDetail ? rankDetail.points : 'N/A';
       rankInfo = `<td class="py-2 px-4 border-b">${rank} (${points} points)</td>`;
     }
     const row = `<tr class="text-center">
                   <td class="py-2 px-4 border-b">${count++}</td>
-                  <td class="py-2 px-4 border-b"><img src="${imageUrl}" alt="${customer.fullName}" class="h-10 w-10"></td>
-                  <td class="py-2 px-4 border-b">${customer.fullName}</td>
-                  <td class="py-2 px-4 border-b">${customer.phoneNumber}</td>
-                  <td class="py-2 px-4 border-b">${customer.email}</td>
-                  <td class="py-2 px-4 border-b">${customer.address}</td>
+                  <td class="py-2 px-4 border-b" id="${role.toLowerCase()}-image-${item.id}">
+                    Loading...
+                  </td>
+                  <td class="py-2 px-4 border-b">${item.fullName}</td>
+                  <td class="py-2 px-4 border-b">${item.phoneNumber}</td>
+                  <td class="py-2 px-4 border-b">${item.email}</td>
+                  <td class="py-2 px-4 border-b">${item.address}</td>
                   ${rankInfo}
-                  <td class="py-2 px-4 border-b"><button class="edit-btn" data-id="${customer.id}"><i class="fas fa-edit"></i></button></td>
+                  <td class="py-2 px-4 border-b"><button class="edit-btn" data-id="${item.id}"><i class="fas fa-edit"></i></button></td>
                 </tr>`;
     tableBody.append(row);
-  });
 
-  setupEditButtons();
-}
-
-function populateSupplierTable(suppliers, currentPage) {
-  const tableBody = $('#supplier-table tbody');
-  tableBody.empty();
-  let count = currentPage * 5 + 1;
-
-  suppliers.forEach(supplier => {
-    const imageUrl = supplier.image; // Assuming image URL is already complete
-    const row = `<tr class="text-center">
-                  <td class="py-2 px-4 border-b">${count++}</td>
-                  <td class="py-2 px-4 border-b"><img src="${imageUrl}" alt="${supplier.fullName}" class="h-10 w-10"></td>
-                  <td class="py-2 px-4 border-b">${supplier.fullName}</td>
-                  <td class="py-2 px-4 border-b">${supplier.phoneNumber}</td>
-                  <td class="py-2 px-4 border-b">${supplier.email}</td>
-                  <td class="py-2 px-4 border-b">${supplier.address}</td>
-                  <td class="py-2 px-4 border-b"><button class="edit-btn" data-id="${supplier.id}"><i class="fas fa-edit"></i></button></td>
-                </tr>`;
-    tableBody.append(row);
+    fetchImage(`${role.toLowerCase()}-image-${item.id}`, item.image);
   });
 
   setupEditButtons();
 }
 
 function updatePagination(currentPage, totalPages, type) {
-  const paginationId = `#pagination-${type}`;
   const prevPageId = `#prev-page-${type}`;
   const nextPageId = `#next-page-${type}`;
   const pageInfoId = `#page-info-${type}`;
@@ -338,6 +330,8 @@ function setupEditButtons() {
 
   $('#close-update-modal').off('click').on('click', function () {
     $('#updateUserModal').addClass('hidden');
+    clearImagePreview(); // Xóa hình ảnh khi đóng modal
+    clearForm(); // Xóa dữ liệu trong form khi đóng modal
   });
 
   $('#updateEmployeeImageFile').on('change', function () {
@@ -397,6 +391,8 @@ function updateUser() {
       if (response.status === "OK") {
         alert('User updated successfully!');
         $('#updateUserModal').addClass('hidden');
+        clearImagePreview(); // Xóa hình ảnh sau khi cập nhật thành công
+        clearForm(); // Xóa dữ liệu trong form sau khi cập nhật thành công
         const activeTab = $('.tab-button.border-l').data('role'); // Đảm bảo lấy đúng tab hiện tại
 
         if (activeTab === 'CUSTOMER') {
@@ -419,8 +415,18 @@ function updateUser() {
   });
 }
 
+function clearImagePreview() {
+  $('#updateEmployeeImagePreview').attr('src', ''); // Xóa hình ảnh
+}
+
+function clearForm() {
+  $('#update-user-form')[0].reset(); // Đặt lại form
+  $('#updateEmployeeImageFile').val(''); // Xóa giá trị của input file
+}
+
+
 function setupSearch(role) {
-  // Setup search for a specific role
+  // Thiết lập tìm kiếm cho một vai trò cụ thể
   $(`#${role.toLowerCase()}-criteria-button`).off('click').on('click', function (e) {
     e.preventDefault();
     $(`#${role.toLowerCase()}-criteria-menu`).toggleClass('hidden');
@@ -438,17 +444,15 @@ function setupSearch(role) {
     e.preventDefault();
     const criteria = $(`#${role.toLowerCase()}-search-input`).data('criteria');
     const query = $(`#${role.toLowerCase()}-search-input`).val();
-    if (role === 'CUSTOMER') {
-      searchCustomers(criteria, query, 0);
-    } else if (role === 'SUPPLIER') {
-      searchSuppliers(criteria, query, 0);
-    }
+    searchByRole(role, criteria, query, 0);
   });
 }
 
-function searchCustomers(criteria, query, page) {
+function searchByRole(role, criteria, query, page) {
+  const searchUrl = role === 'CUSTOMER' ? 'http://localhost:8080/userinfo/searchcustomer' : 'http://localhost:8080/userinfo/searchsupplier';
+
   $.ajax({
-    url: 'http://localhost:8080/userinfo/searchcustomer',
+    url: searchUrl,
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -460,40 +464,21 @@ function searchCustomers(criteria, query, page) {
     },
     success: function (response) {
       if (response.status === "OK") {
-        const { customers, totalPages, currentPage } = response.data;
-        fetchCustomerRanks(function (ranks) {
-          populateCustomerTable(customers, ranks, currentPage, 'Customer');
-          updatePagination(currentPage, totalPages, 'customer');
-        });
+        const { customers, suppliers, totalPages, currentPage } = response.data;
+        const data = role === 'CUSTOMER' ? customers : suppliers;
+        if (role === 'CUSTOMER') {
+          fetchCustomerRanks(function (ranks) {
+            populateTable(data, ranks, currentPage, 'Customer');
+            updatePagination(currentPage, totalPages, 'customer');
+          });
+        } else {
+          populateTable(data, [], currentPage, 'Supplier');
+          updatePagination(currentPage, totalPages, 'supplier');
+        }
       }
     },
     error: function (error) {
-      console.error('Error searching customers:', error);
-    }
-  });
-}
-
-function searchSuppliers(criteria, query, page) {
-  $.ajax({
-    url: 'http://localhost:8080/userinfo/searchsupplier',
-    method: 'POST',
-    data: {
-      criteria: criteria,
-      query: query,
-      page: page
-    },
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
-      if (response.status === "OK") {
-        const { suppliers, totalPages, currentPage } = response.data;
-        populateSupplierTable(suppliers, currentPage);
-        updatePagination(currentPage, totalPages, 'supplier');
-      }
-    },
-    error: function (error) {
-      console.error('Error searching suppliers:', error);
+      console.error(`Error searching ${role.toLowerCase()}s:`, error);
     }
   });
 }
@@ -505,16 +490,17 @@ function setupInsertModalToggle() {
 
   $('#close-insert-modal').on('click', function () {
     $('#insertUserModal').addClass('hidden');
+    clearInsertForm(); // Xóa dữ liệu trong form khi đóng modal
   });
 
-  // Store the selected role when it changes
+  // Lưu lại vai trò đã chọn khi thay đổi
   let selectedRole = '';
 
   $('#insert-role').on('change', function () {
     selectedRole = $(this).find('option:selected').text().toUpperCase();
   });
 
-  // Update image preview when an image is selected
+  // Cập nhật hình ảnh xem trước khi chọn hình ảnh
   $('#insert-file').on('change', function (e) {
     const file = e.target.files[0];
     if (file) {
@@ -528,7 +514,6 @@ function setupInsertModalToggle() {
     }
   });
 
-
   $('#insert-user-form').off('submit').on('submit', function (e) {
     e.preventDefault();
 
@@ -538,7 +523,7 @@ function setupInsertModalToggle() {
 
     var formData = new FormData($("#insert-user-form")[0]);
 
-    // Add the file input manually
+    // Thêm input file vào formData
     var fileInput = $('#insert-file')[0].files[0];
     if (fileInput) {
       formData.append('file', fileInput);
@@ -554,20 +539,25 @@ function setupInsertModalToggle() {
       },
       success: function (response) {
         if (response.status === "OK") {
-          alert('User inserted successfully!');
+          alert('Insert Successful !');
           $('#insertUserModal').addClass('hidden');
-          clearInsertForm(); // Clear the form fields
+          clearInsertForm(); // Xóa các trường trong form
           switchTabByRole(selectedRole);
         } else {
-          alert('Error inserting user: ' + response.desc);
+          alert('Error while insert user ' + response.desc);
         }
       },
       error: function (error) {
-        console.error('Error inserting user:', error);
-        alert('Error inserting user: ' + (error.responseJSON ? error.responseJSON.desc : 'Internal Server Error'));
+        console.error('Error while insert user:', error);
+        alert('Error while insert user: ' + (error.responseJSON ? error.responseJSON.desc : 'System Error'));
       }
     });
   });
+}
+
+function clearInsertForm() {
+  $('#insert-user-form')[0].reset(); // Đặt lại form
+  $('#insertEmployeeImagePreview').attr('src', '#').hide(); // Xóa hình ảnh xem trước
 }
 
 function setupInsertRoleModalToggle() {
@@ -608,9 +598,7 @@ function setupInsertRoleModalToggle() {
   });
 }
 
-function clearInsertForm() {
-  $('#insert-user-form')[0].reset();
-}
+
 
 function switchTabByRole(role) {
   switchTab(role); // Switch the tab first
@@ -736,6 +724,7 @@ function updateUniqueCustomerType() {
         alert('Update successful!');
         $('#updateCustomerTypeModal').addClass('hidden');
         fetchUniqueRankData(); // Refresh the data in the main modal
+        location.reload();
       },
       error: function (error) {
         console.error("There was an error updating the rank data: ", error);
@@ -811,6 +800,7 @@ function addUniqueCustomerType() {
         alert('Customer Type added successfully!');
         $('#addCustomerTypeModal').addClass('hidden');
         fetchUniqueRankData(); // Refresh the data in the main modal
+        location.reload();
       },
       error: function (error) {
         console.error("There was an error adding the customer type: ", error);
@@ -848,6 +838,7 @@ function deleteUniqueCustomerType() {
           alert('Delete successful!');
           $('#updateCustomerTypeModal').addClass('hidden');
           fetchUniqueRankData(); // Refresh the data in the main modal
+          location.reload();
         },
         error: function (error) {
           console.error("There was an error deleting the customer type: ", error);

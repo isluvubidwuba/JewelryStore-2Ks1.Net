@@ -23,7 +23,7 @@
     @import url("https://fonts.googleapis.com/css?family=Karla:400,700&display=swap");
 
 
-    
+
 
     .table-container {
       overflow: auto;
@@ -48,7 +48,7 @@
             Manager Employee
           </h1>
           <button id="openInsertModalBtn"
-            class="bg-gray-600 hover:bg-black text-white px-4 py-2 rounded mx-2 mb-2 col-span-1 self-end justify-self-end">
+            class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded mx-2 mb-2 col-span-1 self-end justify-self-end">
             Insert Employee
           </button>
         </div>
@@ -109,7 +109,7 @@
               class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-r-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500"
               placeholder="Search..." />
             <button id="searchButton" type="submit"
-              class="top-0 right-0 p-2.5 text-sm font-medium text-white bg-gray-700 rounded-r-lg border border-gray-700 hover:bg-black focus:ring-4 focus:outline-none focus:ring-black dark:bg-gray-600 dark:hover:bg-black dark:focus:ring-gray-800">
+              class="top-0 right-0 p-2.5 text-sm font-medium text-white bg-black rounded-r-lg border border-gray-700 hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-black dark:bg-gray-600 dark:hover:bg-black dark:focus:ring-gray-800">
               <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                 viewBox="0 0 20 20">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -124,7 +124,7 @@
         <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
           <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-              <tr>
+              <tr class="bg-gray-300 shadow-sm">
                 <th scope="col" class="px-6 py-3">ID</th>
                 <th scope="col" class="px-6 py-3">Image</th>
                 <th scope="col" class="px-6 py-3">Full Name</th>
@@ -141,11 +141,11 @@
 
         <!-- Pagination Controls -->
         <div class="flex justify-center items-center mt-4">
-          <button id="prevPageBtn" class="bg-gray-900 text-white p-2 rounded-full mx-2" disabled>
+          <button id="prevPageBtn" class="bg-black hover:bg-gray-700 text-white p-2 rounded-full mx-2" disabled>
             <i class="fas fa-chevron-left"></i> Previous
           </button>
           <span id="currentPageIndicator" class="text-black mx-2"></span>
-          <button id="nextPageBtn" class="bg-gray-900 text-white p-2 rounded-full mx-2" disabled>
+          <button id="nextPageBtn" class="bg-black hover:bg-gray-700 text-white p-2 rounded-full mx-2" disabled>
             Next <i class="fas fa-chevron-right"></i>
           </button>
         </div>
@@ -178,7 +178,7 @@
                             upload</span> or drag and drop</p>
                         <p class="text-xs text-gray-500 dark:text-gray-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
                       </div>
-                      <input id="viewEmployeeImageFile" type="file" class="hidden" />
+                      <input id="viewEmployeeImageFile" name="file" type="file" class="hidden" />
                     </label>
                   </div>
                 </div>

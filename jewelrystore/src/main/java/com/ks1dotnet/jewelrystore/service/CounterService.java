@@ -97,10 +97,15 @@ public class CounterService implements ICounterSerivce {
 
     // Method to load all products with counter id 1
     @Override
-    public List<ProductDTO> getAllProductsInCounterOne() {
+    public ResponseData getAllProductsInCounterOne() {
         List<Product> products = iProductRepository.findByCounterId(1);
-        return products.stream().map(Product::getDTO).collect(Collectors.toList());
+        List<ProductDTO> productDTOs = products.stream().map(Product::getDTO).collect(Collectors.toList());
+        ResponseData responseData = new ResponseData();
+        responseData.setStatus(HttpStatus.OK);
+        responseData.setData(productDTOs);
+        return responseData;
     }
+
 
     @Override
     public ResponseData moveProductsToCounter(List<Integer> productIds, int newCounterId) {
@@ -132,6 +137,7 @@ public class CounterService implements ICounterSerivce {
         responseData.setStatus(HttpStatus.OK);
         return responseData;
     }
+
 
     @Override
     public ResponseData getProductDetails(int productId) {

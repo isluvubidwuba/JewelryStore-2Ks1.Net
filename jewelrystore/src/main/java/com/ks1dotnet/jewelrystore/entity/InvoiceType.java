@@ -37,7 +37,7 @@ public class InvoiceType {
     private float rate;
 
     @OneToMany(mappedBy = "invoiceType")
-    Set<OrderInvoice> listOrderInvoice;
+    List<OrderInvoice> listOrderInvoice;
 
     public InvoiceTypeDTO getDTO() {
         return new InvoiceTypeDTO(this.id, this.name, this.rate);

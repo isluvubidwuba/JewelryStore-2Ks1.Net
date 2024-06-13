@@ -1,10 +1,7 @@
 package com.ks1dotnet.jewelrystore.controller;
 
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,19 +33,15 @@ public class EmployeeControler {
     @GetMapping("/listpage")
     private ResponseEntity<?> getHomePageEmployee(
             @RequestParam int page) {
-        ResponseData ResponseData = new ResponseData();
-        ResponseData.setStatus(HttpStatus.OK);
-        ResponseData.setData(iEmployeeService.getHomePageEmployee(page));
-        return new ResponseEntity<>(ResponseData, ResponseData.getStatus());
+        ResponseData responseData = iEmployeeService.getHomePageEmployee(page);
+        return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
     @GetMapping("/listemployee/{id}")
     private ResponseEntity<?> findEmployee(
             @PathVariable String id) {
-        ResponseData ResponseData = new ResponseData();
-        ResponseData.setStatus(HttpStatus.OK);
-        ResponseData.setData(iEmployeeService.listEmployee(id).getDTO());
-        return new ResponseEntity<>(ResponseData, ResponseData.getStatus());
+        ResponseData responseData = iEmployeeService.listEmployee(id);
+        return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
     @PostMapping("/insert")
@@ -62,8 +55,7 @@ public class EmployeeControler {
             @RequestParam String address,
             @RequestParam int roleId,
             @RequestParam boolean status) {
-        ResponseData responseData = new ResponseData();
-        responseData = iEmployeeService.insertEmployee(file, firstName, lastName, pinCode, phoneNumber,
+        ResponseData responseData = iEmployeeService.insertEmployee(file, firstName, lastName, pinCode, phoneNumber,
                 email,
                 address, roleId, status);
 
@@ -73,7 +65,7 @@ public class EmployeeControler {
 
     @PostMapping("/update")
     public ResponseEntity<ResponseData> updateEmployee(
-            @RequestParam MultipartFile file,
+            @RequestParam(required = false) MultipartFile file,
             @RequestParam String id,
             @RequestParam String firstName,
             @RequestParam String lastName,
@@ -106,11 +98,8 @@ public class EmployeeControler {
             @RequestParam("criteria") String criteria,
             @RequestParam("query") String query,
             @RequestParam("page") int page) {
-        ResponseData ResponseData = new ResponseData();
-        Map<String, Object> response = iEmployeeService.findByCriteria(criteria, query, page);
-        ResponseData.setData(response);
-        ResponseData.setStatus(HttpStatus.OK);
-        return new ResponseEntity<>(ResponseData, HttpStatus.OK);
+        ResponseData responseData = iEmployeeService.findByCriteria(criteria, query, page);
+        return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
     @GetMapping("/getstaff")

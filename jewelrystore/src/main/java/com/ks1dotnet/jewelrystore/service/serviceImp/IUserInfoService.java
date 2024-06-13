@@ -1,7 +1,6 @@
 package com.ks1dotnet.jewelrystore.service.serviceImp;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,8 +15,6 @@ public interface IUserInfoService {
 
         public UserInfo findById(int id);
 
-        public Map<String, Object> getHomePageUser(int page);
-
         public ResponseData insertUserInfo(MultipartFile file, String fullName, String phoneNumber, String email,
                         int roleId,
                         String address);
@@ -26,14 +23,14 @@ public interface IUserInfoService {
                         String email,
                         int roleId, String address);
 
-        public Map<String, Object> listCustomer(int page);
+        public ResponseData listCustomer(int page);
 
-        public Map<String, Object> listSupplier(int page);
+        public ResponseData listSupplier(int page);
 
-        public Map<String, Object> findByCriteriaSupplier(String criteria, String query, int page);
+        public ResponseData findByCriteriaSupplier(String criteria, String query, int page);
 
-        public Map<String, Object> findByCriteriaCustomer(String criteria, String query, int page);
+        public ResponseData findByCriteriaCustomer(String criteria, String query, int page);
 
-        public UserInfo getUserInfo(int id);
+        public ResponseData getUserInfo(int id);
 
 }

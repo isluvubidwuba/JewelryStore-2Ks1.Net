@@ -1,5 +1,8 @@
 package com.ks1dotnet.jewelrystore.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,32 +33,35 @@ public class AuthenticationController {
 
     @PostMapping("/signup")
     private ResponseEntity<?> login(@RequestBody Employee emp) {
-        ResponseData ResponseData = new ResponseData();
+        ResponseData responseData = new ResponseData();
         try {
             Employee employee = iAuthenticationService.findById(emp.getId());
-            // SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-            // String encrypKey = Encoders.BASE64.encode(secretKey.getEncoded());
-            // System.out.println(encrypKey);
             if (employee == null) {
-                ResponseData.setDesc("SignUp fail. Not found employee");
-                ResponseData.setStatus(HttpStatus.NOT_FOUND);
-
+                responseData.setDesc("SignUp fail. Not found employee");
+                responseData.setStatus(HttpStatus.NOT_FOUND);
             } else if (passwordEncoder.matches(emp.getPinCode(), employee.getPinCode())) {
                 String token = jwtUtilsHelper.generateToken(employee.getId(), employee.getRole().getName());
-                ResponseData.setDesc("SignUp successful");
-                ResponseData.setStatus(HttpStatus.OK);
-                ResponseData.setData(token);
-            } else {
-                ResponseData.setDesc("SignUp fail. Pincode Error");
-                ResponseData.setStatus(HttpStatus.NOT_FOUND);
-                ResponseData.setData("");
+                responseData.setDesc("SignUp successful");
+                responseData.setStatus(HttpStatus.OK);
 
+                // Trả về token, id và role của người dùng
+                Map<String, Object> responseDataMap = new HashMap<>();
+                responseDataMap.put("token", token);
+                responseDataMap.put("id", employee.getId());
+                responseDataMap.put("role", employee.getRole().getName());
+                responseData.setData(responseDataMap);
+
+            } else {
+                responseData.setDesc("SignUp fail. Pincode Error");
+                responseData.setStatus(HttpStatus.NOT_FOUND);
+                responseData.setData("");
             }
         } catch (Exception e) {
-            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-            ResponseData.setDesc("SignUp fail. Internal Server Error");
-            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            responseData.setDesc("SignUp fail. Internal Server Error");
+            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(ResponseData, HttpStatus.OK);
+        return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
+
 }

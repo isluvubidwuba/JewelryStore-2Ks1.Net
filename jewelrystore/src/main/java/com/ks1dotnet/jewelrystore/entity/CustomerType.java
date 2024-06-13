@@ -1,5 +1,6 @@
 package com.ks1dotnet.jewelrystore.entity;
 
+import java.util.List;
 import java.util.Set;
 
 import com.ks1dotnet.jewelrystore.dto.CustomerTypeDTO;
@@ -28,15 +29,15 @@ public class CustomerType {
 
     @Column(name = "type")
     private String type;
-    
+
     @Column(name = "point_condition")
     private Integer pointCondition;
 
     @OneToMany(mappedBy = "customerType")
-    Set<ForCustomer> listForCustomer;
+    List<ForCustomer> listForCustomer;
 
     @OneToMany(mappedBy = "customerType")
-    Set<EarnPoints> listEarnPoints;
+    List<EarnPoints> listEarnPoints;
 
     public CustomerTypeDTO getDTO() {
         return new CustomerTypeDTO(this.id, this.type, this.pointCondition);

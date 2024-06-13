@@ -13,7 +13,7 @@ public interface ICounterSerivce {
 
     public Map<String, Object> listProductsByCounter(int counterId, int page);
 
-    public List<ProductDTO> getAllProductsInCounterOne();
+    public ResponseData getAllProductsInCounterOne();
 
     public ResponseData moveProductsToCounter(List<Integer> productIds, int newCounterId);
 

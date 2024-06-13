@@ -14,21 +14,6 @@ import com.ks1dotnet.jewelrystore.entity.Product;
 @Repository
 public interface IProductRepository extends JpaRepository<Product, Integer> {
 
-        // @Query(value = "SELECT * FROM Product p WHERE p.name = :name AND
-        // p.id_material = :idMaterial AND p.id_product_category = :idProductCategory
-        // AND p.id_counter = :idCounter AND p.fee = :fee", nativeQuery = true)
-        // List<Product> findByAllFieldsExceptId(
-        // @Param("name") String name,
-        // @Param("idMaterial") Integer idMaterial,
-        // @Param("idProductCategory") Integer idProductCategory,
-        // @Param("idCounter") Integer idCounter,
-        // @Param("fee") Double fee);
-
-        // @Transactional
-        // @Procedure(procedureName = "GET_DynamicSearch_Product")
-        // List<Product> dynamicSearchProduct(String search, String id_material, String
-        // id_product_category,
-        // String id_counter);
 
         @Query(value = "SELECT * FROM Product p WHERE " +
                         "(:search IS NULL OR p.product_code LIKE %:search% OR p.name COLLATE SQL_Latin1_General_CP1_CI_AI LIKE %:search% OR p.barcode LIKE %:search% OR p.fee LIKE %:search% OR p.weight LIKE %:search% ) AND "
@@ -42,13 +27,7 @@ public interface IProductRepository extends JpaRepository<Product, Integer> {
                         @Param("id_counter") String id_counter,
                         Pageable pageable);
 
-        // @Query(value = "SELECT * FROM Product p WHERE p.name = :name AND p.id_material = :idMaterial AND p.id_product_category = :idProductCategory AND p.id_counter = :idCounter AND p.fee = :fee", nativeQuery = true)
-        // public List<Product> findByAllFieldsExceptId(
-        //                 @Param("name") String name,
-        //                 @Param("idMaterial") Integer idMaterial,
-        //                 @Param("idProductCategory") Integer idProductCategory,
-        //                 @Param("idCounter") Integer idCounter,
-        //                 @Param("fee") Double fee);
+
 
         @Query(value = "SELECT MAX(p.id) FROM Product p")
         public Integer findMaxId();

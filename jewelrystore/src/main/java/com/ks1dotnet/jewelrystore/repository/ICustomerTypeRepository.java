@@ -14,3 +14,4 @@ public interface ICustomerTypeRepository extends JpaRepository<CustomerType, Int
     @Query("SELECT ct FROM CustomerType ct WHERE ct.id NOT IN :customerTypeIds")
     List<CustomerType> findByIdNotIn(@Param("customerTypeIds") List<Integer> customerTypeIds);
 }
+

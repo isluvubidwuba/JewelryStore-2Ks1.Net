@@ -1,7 +1,5 @@
 package com.ks1dotnet.jewelrystore.controller;
 
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -32,16 +30,6 @@ public class UserInfoController {
 
     @Autowired
     private FirebaseStorageService firebaseStorageService;
-
-    @GetMapping("/listpage")
-    private ResponseEntity<?> getHomePageUser(
-            @RequestParam int page) {
-        System.out.println("Requested page: " + page);
-        ResponseData ResponseData = new ResponseData();
-        ResponseData.setData(iUserInfoService.getHomePageUser(page));
-        ResponseData.setStatus(HttpStatus.OK);
-        return new ResponseEntity<>(ResponseData, HttpStatus.OK);
-    }
 
     @PostMapping("/insert")
     public ResponseEntity<?> insertUserInfo(
@@ -74,79 +62,33 @@ public class UserInfoController {
 
     @GetMapping("/listcustomer")
     public ResponseEntity<?> listCustomer(@RequestParam int page) {
-        ResponseData ResponseData = new ResponseData();
-        try {
-            Map<String, Object> customers = iUserInfoService.listCustomer(page);
-            ResponseData.setData(customers);
-            ResponseData.setDesc("Fetch successful");
-            ResponseData.setStatus(HttpStatus.OK);
-            return new ResponseEntity<>(ResponseData, ResponseData.getStatus());
-        } catch (Exception e) {
-            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-            ResponseData.setDesc("Fetch failed. Internal Server Error");
-            return new ResponseEntity<>(ResponseData, ResponseData.getStatus());
-        }
+        ResponseData responseData = iUserInfoService.listCustomer(page);
+        return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
     @GetMapping("/listsupplier")
     public ResponseEntity<?> Listsupplier(@RequestParam int page) {
-        ResponseData ResponseData = new ResponseData();
-        try {
-            Map<String, Object> customers = iUserInfoService.listSupplier(page);
-            ResponseData.setData(customers);
-            ResponseData.setDesc("Fetch successful");
-            ResponseData.setStatus(HttpStatus.OK);
-
-            return new ResponseEntity<>(ResponseData, ResponseData.getStatus());
-        } catch (Exception e) {
-            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-            ResponseData.setDesc("Fetch failed. Internal Server Error");
-            return new ResponseEntity<>(ResponseData, ResponseData.getStatus());
-        }
+        ResponseData responseData = iUserInfoService.listSupplier(page);
+        return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
     @PostMapping("/searchcustomer")
     public ResponseEntity<?> findByCriteriaCustomer(@RequestParam String criteria, @RequestParam String query,
             @RequestParam int page) {
-        ResponseData ResponseData = new ResponseData();
-        try {
-            Map<String, Object> customers = iUserInfoService.findByCriteriaCustomer(criteria, query, page);
-            ResponseData.setData(customers);
-            ResponseData.setStatus(HttpStatus.OK);
-
-            ResponseData.setDesc("Fetch successful");
-            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
-        } catch (Exception e) {
-            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-            ResponseData.setDesc("Fetch failed. Internal Server Error");
-            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        ResponseData responseData = iUserInfoService.findByCriteriaCustomer(criteria, query, page);
+        return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
     @PostMapping("/searchsupplier")
     public ResponseEntity<?> findByCriteriaSupplier(@RequestParam String criteria, @RequestParam String query,
             @RequestParam int page) {
-        ResponseData ResponseData = new ResponseData();
-        try {
-            Map<String, Object> suppliers = iUserInfoService.findByCriteriaSupplier(criteria, query, page);
-            ResponseData.setData(suppliers);
-            ResponseData.setStatus(HttpStatus.OK);
-
-            ResponseData.setDesc("Fetch successful");
-            return new ResponseEntity<>(ResponseData, HttpStatus.OK);
-        } catch (Exception e) {
-            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-            ResponseData.setDesc("Fetch failed. Internal Server Error");
-            return new ResponseEntity<>(ResponseData, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        ResponseData responseData = iUserInfoService.findByCriteriaSupplier(criteria, query, page);
+        return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
     @GetMapping("/findcustomer/{id}")
     public ResponseEntity<?> getUserInfo(@PathVariable("id") int id) {
-        ResponseData ResponseData = new ResponseData();
-        ResponseData.setStatus(HttpStatus.OK);
-        ResponseData.setData(iUserInfoService.getUserInfo(id).getDTO());
-        System.out.println(iUserInfoService.getUserInfo(id).getDTO());
+        ResponseData ResponseData = iUserInfoService.getUserInfo(id);
         return new ResponseEntity<>(ResponseData, HttpStatus.OK);
     }
 

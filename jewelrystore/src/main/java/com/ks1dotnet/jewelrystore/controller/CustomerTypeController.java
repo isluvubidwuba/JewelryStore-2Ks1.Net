@@ -1,6 +1,7 @@
 package com.ks1dotnet.jewelrystore.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,28 +20,32 @@ public class CustomerTypeController {
     private CustomerTypeService customerTypeService;
 
     @PostMapping("/updatepointcondition")
-    public ResponseData updatePointCondition(
+    public ResponseEntity<?> updatePointCondition(
             @RequestParam Integer id,
             @RequestParam String type,
             @RequestParam Integer pointCondition) {
-        return customerTypeService.updatePointCondition(id, type, pointCondition);
+        ResponseData responseData = customerTypeService.updatePointCondition(id, type, pointCondition);
+        return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
     @PostMapping("/add")
-    public ResponseData addCustomerType(
+    public ResponseEntity<?> addCustomerType(
             @RequestParam String type,
             @RequestParam Integer pointCondition) {
-        return customerTypeService.addCustomerType(type, pointCondition);
+        ResponseData responseData = customerTypeService.addCustomerType(type, pointCondition);
+        return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
     @PostMapping("/delete")
-    public ResponseData deleteCustomerType(@RequestParam Integer customerTypeId) {
-        return customerTypeService.deleteCustomerTypeAndUpdateRanks(customerTypeId);
+    public ResponseEntity<?> deleteCustomerType(@RequestParam Integer customerTypeId) {
+        ResponseData responseData = customerTypeService.deleteCustomerTypeAndUpdateRanks(customerTypeId);
+        return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
     @GetMapping("/findall")
-    public ResponseData findAll() {
-        return customerTypeService.findAll();
+    public ResponseEntity<?> findAll() {
+        ResponseData responseData = customerTypeService.findAll();
+        return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
 }

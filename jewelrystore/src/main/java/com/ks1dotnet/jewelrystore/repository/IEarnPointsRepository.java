@@ -14,4 +14,5 @@ public interface IEarnPointsRepository extends JpaRepository<EarnPoints, Integer
 
     @Query("SELECT e FROM EarnPoints e WHERE e.userInfo.id = :customerId")
     public Optional<EarnPoints> findByCustomerId(@Param("customerId") Integer customerId);
+
 }

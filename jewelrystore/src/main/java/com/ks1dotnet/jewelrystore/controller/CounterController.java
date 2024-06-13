@@ -37,9 +37,9 @@ public class CounterController {
 
     // 2 phướng này xử lý add các product nằm trong quầy kho
     @GetMapping("/products/counter1")
-    public ResponseEntity<List<ProductDTO>> getAllProductsInCounterOne() {
-        List<ProductDTO> products = iCounterSerivce.getAllProductsInCounterOne();
-        return ResponseEntity.ok(products);
+    public ResponseEntity<?> getAllProductsInCounterOne() {
+        ResponseData responseData = iCounterSerivce.getAllProductsInCounterOne();
+        return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
     @PostMapping("/addproductsforcounter")

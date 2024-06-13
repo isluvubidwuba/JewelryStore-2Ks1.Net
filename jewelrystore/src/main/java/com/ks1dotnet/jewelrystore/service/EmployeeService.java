@@ -74,7 +74,8 @@ public class EmployeeService implements IEmployeeService {
    }
 
    @Override
-   public Map<String, Object> getHomePageEmployee(int page) {
+   public ResponseData getHomePageEmployee(int page) {
+      ResponseData responseData = new ResponseData();
       try {
          Map<String, Object> response = new HashMap<>();
          PageRequest pageRequest = PageRequest.of(page, 5);
@@ -84,10 +85,14 @@ public class EmployeeService implements IEmployeeService {
          response.put("employees", employeeDTOs);
          response.put("totalPages", listData.getTotalPages());
          response.put("currentPage", page);
-         return response;
+
+         responseData.setStatus(HttpStatus.OK);
+         responseData.setData(response);
       } catch (Exception e) {
-         throw new RunTimeExceptionV1("Can Not Loaded Page Employee", e.getMessage());
+         responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+         responseData.setDesc("Can Not Loaded Page Employee: " + e.getMessage());
       }
+      return responseData;
 
    }
 
@@ -178,29 +183,8 @@ public class EmployeeService implements IEmployeeService {
          ResponseData responseData = new ResponseData();
          String fileName = null;
 
-         // Upload hình ảnh nếu có
-         if (file != null && !file.isEmpty()) {
-            responseData = firebaseStorageService.uploadImage(file, filePath);
-            if (responseData.getStatus() == HttpStatus.OK) {
-               fileName = (String) responseData.getData();
-            } else {
-               responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-               responseData.setDesc("Upload image error ! System Error !");
-               return responseData;
-            }
-         }
-
-         // Nếu hình ảnh không được upload, lấy hình ảnh cũ
-         if (fileName == null) {
-            Optional<Employee> existingEmployeeOpt = iEmployeeRepository.findById(id);
-            if (existingEmployeeOpt.isPresent()) {
-               Employee existingEmployee = existingEmployeeOpt.get();
-               fileName = existingEmployee.getImage();
-            } else {
-               responseData.setStatus(HttpStatus.NOT_FOUND);
-               responseData.setDesc("Not found employee");
-               return responseData;
-            }
+         if (file != null && file.isEmpty()) {
+            fileName = firebaseStorageService.uploadImage(file, filePath).getData().toString();
          }
 
          // Cập nhật thông tin nhân viên
@@ -215,7 +199,7 @@ public class EmployeeService implements IEmployeeService {
             employee.setAddress(address);
             employee.setStatus(status);
             employee.setRole(iRoleService.findById(roleId));
-            employee.setImage(fileName);
+            employee.setImage(fileName == null ? employee.getImage() : fileName);
 
             iEmployeeRepository.save(employee);
             EmployeeDTO employeeDTO = employee.getDTO();
@@ -236,51 +220,68 @@ public class EmployeeService implements IEmployeeService {
    }
 
    @Override
-   public Employee listEmployee(String id) {
-      return iEmployeeRepository.findById(id)
+   public ResponseData listEmployee(String id) {
+      Employee employee = iEmployeeRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Not Found Employee ID :" + id));
+
+      employee.setImage(url.trim() + filePath.trim() + employee.getImage());
+
+      ResponseData responseData = new ResponseData();
+      responseData.setStatus(HttpStatus.OK);
+      responseData.setData(employee.getDTO());
+      return responseData;
+
    }
 
    @Override
-   public Map<String, Object> findByCriteria(String criteria, String query, int page) {
-      Map<String, Object> response = new HashMap<>();
-      PageRequest pageRequest = PageRequest.of(page, 5); // Size cố định là 5
-      Page<Employee> employeePage;
+   public ResponseData findByCriteria(String criteria, String query, int page) {
+      ResponseData responseData = new ResponseData();
+      try {
+         Map<String, Object> response = new HashMap<>();
+         PageRequest pageRequest = PageRequest.of(page, 5); // Size cố định là 5
+         Page<Employee> employeePage;
 
-      switch (criteria.toLowerCase()) {
-         case "id":
-            Optional<Employee> employeeOpt = iEmployeeRepository.findById(query);
-            if (employeeOpt.isPresent()) {
-               List<Employee> employeeList = Collections.singletonList(employeeOpt.get());
-               employeePage = new PageImpl<>(employeeList, pageRequest, 1);
-            } else {
-               employeePage = new PageImpl<>(Collections.emptyList(), pageRequest, 0);
-            }
-            break;
+         switch (criteria.toLowerCase()) {
+            case "id":
+               Optional<Employee> employeeOpt = iEmployeeRepository.findById(query);
+               if (employeeOpt.isPresent()) {
+                  List<Employee> employeeList = Collections.singletonList(employeeOpt.get());
+                  employeePage = new PageImpl<>(employeeList, pageRequest, 1);
+               } else {
+                  employeePage = new PageImpl<>(Collections.emptyList(), pageRequest, 0);
+               }
+               break;
 
-         case "name":
-            employeePage = iEmployeeRepository.findByLastNameContainingIgnoreCaseOrFirstNameContainingIgnoreCase(query,
-                  query, pageRequest);
-            break;
+            case "name":
+               employeePage = iEmployeeRepository
+                     .findByLastNameContainingIgnoreCaseOrFirstNameContainingIgnoreCase(query, query, pageRequest);
+               break;
 
-         case "role":
-            employeePage = iEmployeeRepository.findByRoleNameContainingIgnoreCase(query, pageRequest);
-            break;
+            case "role":
+               employeePage = iEmployeeRepository.findByRoleNameContainingIgnoreCase(query, pageRequest);
+               break;
 
-         case "status":
-            Boolean status = "active".equalsIgnoreCase(query) ? true : false;
-            employeePage = iEmployeeRepository.findByStatus(status, pageRequest);
-            break;
+            case "status":
+               Boolean status = "active".equalsIgnoreCase(query);
+               employeePage = iEmployeeRepository.findByStatus(status, pageRequest);
+               break;
 
-         default:
-            throw new IllegalArgumentException("Invalid search criteria: " + criteria);
+            default:
+               throw new IllegalArgumentException("Invalid search criteria: " + criteria);
+         }
+
+         Page<EmployeeDTO> employeeDTOPage = convertToDTOPage(employeePage);
+         response.put("employees", employeeDTOPage.getContent());
+         response.put("totalPages", employeePage.getTotalPages());
+         response.put("currentPage", page);
+
+         responseData.setStatus(HttpStatus.OK);
+         responseData.setData(response);
+      } catch (Exception e) {
+         responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+         responseData.setDesc("Error during search: " + e.getMessage());
       }
-
-      Page<EmployeeDTO> employeeDTOPage = convertToDTOPage(employeePage);
-      response.put("employees", employeeDTOPage.getContent());
-      response.put("totalPages", employeePage.getTotalPages());
-      response.put("currentPage", page);
-      return response;
+      return responseData;
    }
 
    @Override
