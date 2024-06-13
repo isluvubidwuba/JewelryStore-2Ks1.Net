@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 import com.ks1dotnet.jewelrystore.entity.ForCustomer;
 import com.ks1dotnet.jewelrystore.entity.InvoiceType;
@@ -32,10 +31,6 @@ public class PromotionService implements IPromotionService {
     @Autowired
     private IPromotionRepository iPromotionRepository;
 
-    @Autowired
-    private IProductService iProductService;
-    @Autowired
-    private IProductRepository iProductRepository;
     @Autowired
     private FirebaseStorageService firebaseStorageService;
     @Autowired
