@@ -51,4 +51,10 @@ public class InvoiceTypeService implements IInvoiceTypeService {
         InvoiceType updatedInvoiceType = invoiceTypeRepository.save(invoiceType);
         return new ResponseData(HttpStatus.OK, "Updated invoice type", updatedInvoiceType.getDTO());
     }
+
+    @Override
+    public InvoiceType findById(Integer id) {
+        return invoiceTypeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("InvoiceType not found with id: " + id));
+    }
 }

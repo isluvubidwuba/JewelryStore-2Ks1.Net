@@ -33,4 +33,5 @@ public class VoucherOnInvoiceDetail {
         this.promotion = p;
         this.orderInvoiceDetail = o;
     }
+
 }

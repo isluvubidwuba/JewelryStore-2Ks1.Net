@@ -2,8 +2,9 @@ package com.ks1dotnet.jewelrystore.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import com.ks1dotnet.jewelrystore.dto.OrderInvoiceDetailDTO;
+import com.ks1dotnet.jewelrystore.dto.InvoiceDetailDTO;
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 
 import jakarta.persistence.Column;
@@ -23,7 +24,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "order_invoice_detail")
+@Table(name = "invoice_detail")
 public class InvoiceDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,8 +44,8 @@ public class InvoiceDetail {
     private double totalPrice;
 
     @ManyToOne
-    @JoinColumn(name = "id_order_invoice")
-    private Invoice orderInvoice;
+    @JoinColumn(name = "id_invoice")
+    private Invoice invoice;
 
     @ManyToOne
     @JoinColumn(name = "id_product")
@@ -57,13 +58,17 @@ public class InvoiceDetail {
     @OneToMany(mappedBy = "orderInvoiceDetail")
     List<VoucherOnInvoiceDetail> listVoucherOnInvoiceDetail;
 
-    public OrderInvoiceDetailDTO getDTO() {
-        List<PromotionDTO> listPromotion = new ArrayList<>();
-        for (VoucherOnInvoiceDetail voucherOnInvoiceDetail : this.listVoucherOnInvoiceDetail) {
-            listPromotion.add(voucherOnInvoiceDetail.getPromotion().getDTO());
-        }
-        return new OrderInvoiceDetailDTO(this.product.getDTO(), this.price, this.quantity, this.totalPrice,
-                listPromotion);
+    public InvoiceDetailDTO getDTO() {
+        InvoiceDetailDTO invoiceDetailDTO = new InvoiceDetailDTO();
+        invoiceDetailDTO.setProductDTO(product.getDTO());
+        invoiceDetailDTO.setQuantity(quantity);
+        invoiceDetailDTO.setPrice(price);
+        invoiceDetailDTO.setTotalPrice(totalPrice);
+        List<PromotionDTO> lPromotionDTOs = listVoucherOnInvoiceDetail.stream()
+                .map(voucherOnInvoiceDetail -> voucherOnInvoiceDetail.getPromotion().getDTO())
+                .collect(Collectors.toList());
+        invoiceDetailDTO.setListPromotion(lPromotionDTOs);
+        return invoiceDetailDTO;
     }
 
 }

@@ -1,12 +1,11 @@
 package com.ks1dotnet.jewelrystore.entity;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import com.ks1dotnet.jewelrystore.dto.OrderInvoiceDetailDTO;
-import com.ks1dotnet.jewelrystore.dto.OrderInvoiceResponseDTO;
-import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
+import com.ks1dotnet.jewelrystore.dto.InvoiceDTO;
+import com.ks1dotnet.jewelrystore.dto.InvoiceDetailDTO;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -25,7 +24,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "order_invoice")
+@Table(name = "invoice")
 public class Invoice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -59,39 +58,28 @@ public class Invoice {
     @JoinColumn(name = "id_invoice_type")
     private InvoiceType invoiceType;
 
-    @OneToMany(mappedBy = "orderInvoice")
+    @OneToMany(mappedBy = "invoice")
     List<VoucherOnInvoice> listVoucherOnInvoice;
 
-    @OneToMany(mappedBy = "orderInvoice")
+    @OneToMany(mappedBy = "invoice")
     List<InvoiceDetail> listOrderInvoiceDetail;
 
-    @OneToMany(mappedBy = "orderInvoice")
-    List<Invoice_Detail_Import> listWareHouse;
-
-    public OrderInvoiceResponseDTO gResponseDTO() {
-        List<OrderInvoiceDetailDTO> listOrderInvoiceDetail = new ArrayList<>();
-        for (InvoiceDetail orderInvoiceDetail : this.listOrderInvoiceDetail) {
-            listOrderInvoiceDetail.add(orderInvoiceDetail.getDTO());
-        }
-        List<PromotionDTO> promotions = new ArrayList<>();
-        for (VoucherOnInvoice voucherOnInvoice : this.listVoucherOnInvoice) {
-            promotions.add(voucherOnInvoice.getPromotion().getDTO());
-        }
-        return new OrderInvoiceResponseDTO(this.id, this.userInfo.getDTO(), this.employee.getDTO(),
-                this.invoiceType.getDTO(),
-                totalPriceRaw, totalPrice, discountPrice, date, listOrderInvoiceDetail, promotions);
-
+    public InvoiceDTO getDTO() {
+        InvoiceDTO inpDto = new InvoiceDTO();
+        inpDto.setId(id);
+        inpDto.setDate(date);
+        inpDto.setTotalPriceRaw(totalPriceRaw);
+        inpDto.setTotalPrice(totalPrice);
+        inpDto.setDiscountPrice(discountPrice);
+        inpDto.setStatus(status);
+        inpDto.setUserInfoDTO(userInfo.getDTO());
+        inpDto.setEmployeeDTO(employee.getDTO());
+        inpDto.setInvoiceTypeDTO(invoiceType.getDTO());
+        List<InvoiceDetailDTO> invoiceDetailDTOs = listOrderInvoiceDetail.stream()
+                .map(InvoiceDetail::getDTO)
+                .collect(Collectors.toList());
+        inpDto.setListOrderInvoiceDetail(invoiceDetailDTOs);
+        return inpDto;
     }
-
-    // private Integer id;
-    // private UserInfoDTO userInfo;
-    // private EmployeeDTO employee;
-    // private InvoiceTypeDTO invoiceType;
-    // private double totalPriceRaw;
-    // private double totalPrice;
-    // private double discountPrice;
-    // private Date date;
-    // private List<OrderInvoiceDetailDTO> listOrderInvoiceDetail;
-    // private List<PromotionDTO> promotions;
 
 }
