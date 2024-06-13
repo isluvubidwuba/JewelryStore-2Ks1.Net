@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.ks1dotnet.jewelrystore.dto.InvoiceDetailDTO;
@@ -51,8 +52,15 @@ public class InvoiceService implements IInvoiceService {
         @Autowired
         private IProductRepository iProductRepository;
 
+        @Value("${fileUpload.productPath}")
+        private String filePath;
+
+        @Value("${firebase.img-url}")
+        private String url;
+
         public InvoiceDetailDTO createInvoiceDetail(String barcode, Integer invoiceTypeId, Integer quantity) {
                 Product product = iProductRepository.findByBarCode(barcode);
+
                 if (product == null) {
                         throw new BadRequestException("Product not found.");
                 }
@@ -74,6 +82,7 @@ public class InvoiceService implements IInvoiceService {
         private InvoiceDetailDTO calculateInvoiceDetail(Product product, int quantity, List<Promotion> promotions,
                         InvoiceType invoiceType) {
                 double priceBefore = 0;
+
                 List<Promotion> promotionForGemstone = promotions.stream()
                                 .filter(promotion -> promotion.getPromotionType().equals("gemstone"))
                                 .collect(Collectors.toList());
@@ -125,7 +134,11 @@ public class InvoiceService implements IInvoiceService {
                 finalPrice *= invoiceType.getRate();
 
                 InvoiceDetailDTO invoiceDetailDTO = new InvoiceDetailDTO();
+
+                product.setImgPath(url.trim() + filePath.trim() + product.getImgPath());
+
                 invoiceDetailDTO.setProductDTO(product.getDTO());
+
                 invoiceDetailDTO.setPrice(priceBefore + product.getFee());
                 invoiceDetailDTO.setQuantity(quantity);
                 invoiceDetailDTO.setTotalPrice(finalPrice);

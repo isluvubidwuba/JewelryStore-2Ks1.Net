@@ -17,9 +17,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ks1dotnet.jewelrystore.dto.EarnPointsDTO;
 import com.ks1dotnet.jewelrystore.dto.UserInfoDTO;
+import com.ks1dotnet.jewelrystore.entity.CustomerType;
+import com.ks1dotnet.jewelrystore.entity.EarnPoints;
 import com.ks1dotnet.jewelrystore.entity.UserInfo;
+import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
+import com.ks1dotnet.jewelrystore.repository.ICustomerTypeRepository;
+import com.ks1dotnet.jewelrystore.repository.IEarnPointsRepository;
 import com.ks1dotnet.jewelrystore.repository.IUserInfoRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IRoleService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IUserInfoService;
@@ -28,6 +34,13 @@ import com.ks1dotnet.jewelrystore.service.serviceImp.IUserInfoService;
 public class UserInfoService implements IUserInfoService {
     @Autowired
     private IUserInfoRepository iUserInfoRepository;
+
+    @Autowired
+    private ICustomerTypeRepository iCustomerTypeRepository;
+
+    @Autowired
+    private IEarnPointsRepository iEarnPointsRepository;
+
     @Autowired
     private IRoleService iRoleService;
 
@@ -93,8 +106,18 @@ public class UserInfoService implements IUserInfoService {
         userInfo.setAddress(address);
         userInfo.setRole(iRoleService.findById(roleId));
         userInfo.setImage(fileName);
-        // userInfo.setImage(imageName); // Set the image name, default or uploaded
+
         iUserInfoRepository.save(userInfo);
+        // If role is 4, initialize and save EarnPoints
+        if (roleId == 4) {
+            EarnPoints earnPoints = new EarnPoints();
+            earnPoints.setPoint(0);
+            earnPoints.setCustomerType(iCustomerTypeRepository.findById(1)
+                    .orElseThrow(() -> new ResourceNotFoundException("Not Found Customer Type ID :")));
+            earnPoints.setUserInfo(userInfo);
+
+            iEarnPointsRepository.save(earnPoints);
+        }
 
         responseData.setStatus(HttpStatus.OK);
         responseData.setDesc("Insert successful");
