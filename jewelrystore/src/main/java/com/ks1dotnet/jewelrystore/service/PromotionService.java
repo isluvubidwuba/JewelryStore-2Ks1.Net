@@ -21,9 +21,7 @@ import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IForCustomerRepository;
 import com.ks1dotnet.jewelrystore.repository.IInvoiceTypeRepository;
-import com.ks1dotnet.jewelrystore.repository.IProductRepository;
 import com.ks1dotnet.jewelrystore.repository.IPromotionRepository;
-import com.ks1dotnet.jewelrystore.service.serviceImp.IProductService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionService;
 
 @Service
@@ -167,7 +165,6 @@ public class PromotionService implements IPromotionService {
         Promotion promotion = iPromotionRepository.findById(id).orElseThrow(() -> new BadRequestException("Not found"));
         PromotionDTO promotionDTO = promotion.getDTO();
         promotionDTO.setImage(url.trim() + filePath.trim() + promotionDTO.getImage());
-
         return promotionDTO;
     }
 
