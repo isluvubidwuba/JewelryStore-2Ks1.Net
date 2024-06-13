@@ -99,7 +99,7 @@ function renderPromotions(page, promotionsToRender) {
           <div class="flex space-x-4">
             <div class="w-1/3">
               <img
-                src="http://localhost:8080/promotion/files/${promotion.image}"
+                src="${promotion.image}"
                 alt="${promotion.name}"
                 class="w-auto h-64 object-cover mx-auto promotion-image"
               />

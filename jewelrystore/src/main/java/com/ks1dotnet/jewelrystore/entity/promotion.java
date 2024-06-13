@@ -1,10 +1,7 @@
 package com.ks1dotnet.jewelrystore.entity;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 
@@ -63,19 +60,19 @@ public class Promotion {
     private InvoiceType invoiceType;
 
     @OneToMany(mappedBy = "promotion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<ForCustomer> listForCustomer = new ArrayList<>();
+    private List<ForCustomer> listForCustomer;
 
     @OneToMany(mappedBy = "promotion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<ForProductType> listForProductType = new ArrayList<>();
+    private List<ForProductType> listForProductType;
 
     @OneToMany(mappedBy = "promotion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<ForProduct> listForProduct = new ArrayList<>();
+    private List<ForProduct> listForProduct;
 
     @OneToMany(mappedBy = "promotion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<VoucherOnInvoice> listVoucherOnInvoice = new ArrayList<>();
+    private List<VoucherOnInvoice> listVoucherOnInvoice;
 
     @OneToMany(mappedBy = "promotion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<VoucherOnInvoiceDetail> listVoucherOnInvoiceDetail = new ArrayList<>();
+    private List<VoucherOnInvoiceDetail> listVoucherOnInvoiceDetail;
 
     @OneToMany(mappedBy = "promotion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<ForGemStoneType> listForGemStoneTypes;

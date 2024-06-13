@@ -1,10 +1,10 @@
 package com.ks1dotnet.jewelrystore.entity;
 
 import java.util.List;
-import java.util.Set;
 
 import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -70,10 +70,13 @@ public class Product {
     List<ForProduct> listForProduct;
 
     @OneToMany(mappedBy = "product")
-    List<WareHouse> listWareHouse;
+    List<InvoiceDetail> listInvoiceDetails;
 
-    @OneToMany(mappedBy = "product")
-    List<OrderInvoiceDetail> listOrderInvoiceDetail;
+    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL)
+    private Inventory inventory;
+
+    // @OneToMany(mappedBy = "product")
+    // List<InvoiceDetail> listOrderInvoiceDetail;
 
     public ProductDTO getDTO() {
         return new ProductDTO(this.id, this.getProductCode(), this.getBarCode(), this.name, this.fee, this.status,

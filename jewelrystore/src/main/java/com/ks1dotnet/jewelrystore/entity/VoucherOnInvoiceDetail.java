@@ -27,10 +27,11 @@ public class VoucherOnInvoiceDetail {
 
     @ManyToOne
     @JoinColumn(name = "id_invoice_detail")
-    private OrderInvoiceDetail orderInvoiceDetail;
+    private InvoiceDetail orderInvoiceDetail;
 
-    public VoucherOnInvoiceDetail(Promotion p, OrderInvoiceDetail o) {
+    public VoucherOnInvoiceDetail(Promotion p, InvoiceDetail o) {
         this.promotion = p;
         this.orderInvoiceDetail = o;
     }
+
 }

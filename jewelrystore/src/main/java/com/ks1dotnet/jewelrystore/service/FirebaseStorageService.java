@@ -27,7 +27,7 @@ public class FirebaseStorageService {
 
     public ResponseData uploadImage(MultipartFile file, String folder) {
         if (file.getSize() <= 0)
-            throw new BadRequestException("Update Image Because Not Found ");
+            throw new BadRequestException("Upload image failed because image not found");
         try {
             LocalDate myLocalDate = LocalDate.now();
             String fileName = UUID.randomUUID().toString() + "_" + myLocalDate.toString();

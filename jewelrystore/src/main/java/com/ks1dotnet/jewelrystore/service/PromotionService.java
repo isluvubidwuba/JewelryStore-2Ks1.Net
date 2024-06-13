@@ -9,17 +9,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 import com.ks1dotnet.jewelrystore.entity.ForCustomer;
 import com.ks1dotnet.jewelrystore.entity.InvoiceType;
+import com.ks1dotnet.jewelrystore.entity.Product;
 import com.ks1dotnet.jewelrystore.entity.Promotion;
 import com.ks1dotnet.jewelrystore.exception.BadRequestException;
 import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IForCustomerRepository;
 import com.ks1dotnet.jewelrystore.repository.IInvoiceTypeRepository;
+import com.ks1dotnet.jewelrystore.repository.IProductRepository;
 import com.ks1dotnet.jewelrystore.repository.IPromotionRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IProductService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionService;
@@ -31,7 +34,10 @@ public class PromotionService implements IPromotionService {
 
     @Autowired
     private IProductService iProductService;
-
+    @Autowired
+    private IProductRepository iProductRepository;
+    @Autowired
+    private FirebaseStorageService firebaseStorageService;
     @Autowired
     private IForCustomerRepository iForCustomerRepository;
 
@@ -76,7 +82,7 @@ public class PromotionService implements IPromotionService {
     }
 
     @Override
-    public ResponseData insertPromotion(String file, String name, double value, boolean status,
+    public ResponseData insertPromotion(MultipartFile file, String name, double value, boolean status,
             LocalDate startDate, LocalDate endDate, String promotionType, int invoiceTypeId) { // Thêm invoiceTypeId vào
                                                                                                // đây
         ResponseData responseData = new ResponseData();
@@ -107,7 +113,13 @@ public class PromotionService implements IPromotionService {
             // } else {
             // promotion.setImage("default_image.jpg");
             // }
-            promotion.setImage(file);
+            String fileName;
+            if (file != null && !file.isEmpty()) {
+                fileName = firebaseStorageService.uploadImage(file, filePath).getData().toString();
+            } else {
+                fileName = "25b59396-a85d-4272-bdde-c547123f7832_2024-06-13";
+            }
+            promotion.setImage(fileName);
             PromotionDTO promotionDTO = iPromotionRepository.save(promotion).getDTO();
             responseData.setData(promotionDTO);
             responseData.setStatus(HttpStatus.OK);
@@ -121,7 +133,7 @@ public class PromotionService implements IPromotionService {
 
     @Override
 
-    public PromotionDTO updatePromotion(String file, int id, String name, double value, boolean status,
+    public PromotionDTO updatePromotion(MultipartFile file, int id, String name, double value, boolean status,
             LocalDate startDate, LocalDate endDate) {
         try {
             Promotion promotion = iPromotionRepository.findById(id)
@@ -138,7 +150,15 @@ public class PromotionService implements IPromotionService {
             // .orElseThrow(() -> new BadRequestException("Not found invoice type! Invalid
             // invoice type ID. "));
             // promotion.setInvoiceType(invoiceTypeC);
-            promotion.setImage(file);
+
+            String fileName;
+            if (file != null && !file.isEmpty()) {
+                fileName = firebaseStorageService.uploadImage(file, filePath).getData().toString();
+            } else {
+                fileName = promotion.getImage();
+            }
+
+            promotion.setImage(fileName);
             promotion = iPromotionRepository.save(promotion);
             return promotion.getDTO();
         } catch (Exception e) {
@@ -182,33 +202,27 @@ public class PromotionService implements IPromotionService {
     }
 
     @Override
-    public List<PromotionDTO> getPromotionsByProductId(int productId) {
-        return iPromotionRepository.findPromotionsByProductId(productId);
-    }
-
-    @Override
-    public List<PromotionDTO> getPromotionsByProductCategoryId(int productCategoryId) {
-        return iPromotionRepository.findPromotionsByProductCategoryId(productCategoryId);
-    }
-
-    @Override
-    public List<PromotionDTO> getAllPromotionByIdProduct(int productId) {
+    public List<Promotion> getAllPromotionByProductAndInvoiceType(Product product, int invoiceId) {
         try {
-            List<PromotionDTO> promotions = getPromotionsByProductId(productId);
-            promotions.stream().map(promotion -> {
-                promotion.setImage(url.trim() + filePath.trim() + promotion.getImage());
-                return promotion;
-            })
-                    .collect(Collectors.toList());
-            ProductDTO productDTO = (ProductDTO) iProductService.findById(productId).getData();
-            promotions
-                    .addAll(getPromotionsByProductCategoryId(productDTO.getProductCategoryDTO().getId()));
+            List<Promotion> promotions = iPromotionRepository
+                    .findPromotionsByCriteria(invoiceId, product.getId(),
+                            product.getProductCategory().getId());
+
+            // promotions.stream().map(promotion -> {
+            // promotion.setImage(url.trim() + filePath.trim() + promotion.getImage());
+            // return promotion;
+            // })
+            // .collect(Collectors.toList());
+            // ProductDTO productDTO = (ProductDTO)
+            // iProductService.findById(productId).getData();
+            // promotions
+            // .addAll(getPromotionsByProductCategoryId(productDTO.getProductCategoryDTO().getId()));
+
             return promotions;
         } catch (Exception e) {
             System.out.println("Failed get promotion by id product " + e.getMessage());
             throw new BadRequestException("Failed get promotion by id product", e.getMessage());
         }
-
     }
 
     @Override
@@ -224,6 +238,11 @@ public class PromotionService implements IPromotionService {
         })
                 .collect(Collectors.toList());
         return promotionDTOs;
+    }
+
+    @Override
+    public List<Promotion> findByInvoiceTypeAndStatusTrue(InvoiceType invoiceType) {
+        return iPromotionRepository.findByInvoiceTypeAndStatusTrue(invoiceType);
     }
 
 }

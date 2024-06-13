@@ -3,7 +3,7 @@ package com.ks1dotnet.jewelrystore.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.ks1dotnet.jewelrystore.dto.OrderInvoiceDetailDTO;
+import com.ks1dotnet.jewelrystore.dto.InvoiceDetailDTO;
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 
 import jakarta.persistence.Column;
@@ -23,8 +23,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "order_invoice_detail")
-public class OrderInvoiceDetail {
+@Table(name = "invoice_detail")
+public class InvoiceDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -43,8 +43,8 @@ public class OrderInvoiceDetail {
     private double totalPrice;
 
     @ManyToOne
-    @JoinColumn(name = "id_order_invoice")
-    private OrderInvoice orderInvoice;
+    @JoinColumn(name = "id_invoice")
+    private Invoice invoice;
 
     @ManyToOne
     @JoinColumn(name = "id_product")
@@ -56,14 +56,5 @@ public class OrderInvoiceDetail {
 
     @OneToMany(mappedBy = "orderInvoiceDetail")
     List<VoucherOnInvoiceDetail> listVoucherOnInvoiceDetail;
-
-    public OrderInvoiceDetailDTO getDTO() {
-        List<PromotionDTO> listPromotion = new ArrayList<>();
-        for (VoucherOnInvoiceDetail voucherOnInvoiceDetail : this.listVoucherOnInvoiceDetail) {
-            listPromotion.add(voucherOnInvoiceDetail.getPromotion().getDTO());
-        }
-        return new OrderInvoiceDetailDTO(this.product.getDTO(), this.price, this.quantity, this.totalPrice,
-                listPromotion);
-    }
 
 }
