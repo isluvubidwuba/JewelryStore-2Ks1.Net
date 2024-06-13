@@ -46,14 +46,14 @@ public class CustomSecurityFilter {
                                 .authorizeHttpRequests(authz -> authz
                                                 .requestMatchers("/authentication/**", "/proxy").permitAll()
                                                 .requestMatchers("/promotion/files/**").permitAll()
-                                                .requestMatchers("/policy/listpolicy", "/voucher/list")
+                                                .requestMatchers("/policy/listpolicy", "/promotion/by-user","/voucher/list")
                                                 .hasAnyAuthority("ADMIN", "MANAGER", "STAFF")
                                                 .requestMatchers("/policy/**").hasAuthority("ADMIN")
                                                 .requestMatchers("/promotion/getHomePagePromotion**",
                                                                 "/promotion/getById",
                                                                 "/promotion-for-product/promotion/**",
                                                                 "/promotion-for-product/not-in-promotion/**",
-                                                                "/voucher/list", "/voucher/*/categories")
+                                                                "/voucher/list", "/voucher/*/categories", "/invoice/**")
                                                 .hasAnyAuthority("STAFF", "ADMIN", "MANAGER")
                                                 .requestMatchers("/promotion/**", "/promotion-for-product/**",
                                                                 "/voucher/**")

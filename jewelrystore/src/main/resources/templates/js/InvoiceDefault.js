@@ -1,190 +1,390 @@
 $(document).ready(function () {
-    const productMap = new Map();
-    initAddBarcodeButton(productMap);
-    initProductClickHandler(productMap);
-});
+    const productSoldDiv = $('#product-sold');
+    const selectedProductsContainer = $('#selected-products');
+    const totalPriceRaw = $('#totalPriceRaw');
+    const discountPrice = $('#discountPrice');
+    const subtotal = $('#subtotal');
+    const token = localStorage.getItem("token");
+    const employeeID = localStorage.getItem("userId"); // ID của nhân viên từ token
 
-const token = localStorage.getItem("token");
+    let productMap = {};
+    let selectedUserId = null;
+    let selectedUserName = null;
+    let userPromotions = [];
+    let createdInvoiceId = null; // Biến để lưu ID của hóa đơn vừa được tạo
 
-function initAddBarcodeButton(productMap) {
     $('#add-barcode-button').click(function () {
-        addBarcodeToSell(productMap);
+        const barcode = $('#barcode-input').val().trim();
+        if (barcode) {
+            addProductByBarcode(barcode);
+            $('#barcode-input').val('');
+        }
     });
-}
 
-function addBarcodeToSell(productMap) {
-    const barcode = $('#barcode-input').val();
-    const invoiceTypeId = 1;
-    const quantity = 1;
+    function addProductByBarcode(barcode) {
+        if (productMap[barcode]) {
+            updateProductQuantity(barcode, productMap[barcode].quantity + 1);
+            return;
+        }
 
-    if (productMap.has(barcode)) {
-        alert('Sản phẩm đã tồn tại trong danh sách.');
-        return;
+        $.ajax({
+            url: 'http://localhost:8080/invoice/create-detail',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                barcode: barcode,
+                quantity: 1,
+                invoiceTypeId: 1
+            }),
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            success: function (response) {
+                if (response.status === 'OK') {
+                    const productData = response.data;
+                    console.log("Check link hình ảnh của card product : " + productData.productDTO.imgPath);
+                    productMap[barcode] = {
+                        product: productData.productDTO,
+                        price: productData.price,
+                        quantity: productData.quantity,
+                        totalPrice: productData.totalPrice,
+                        inventory: productData.productDTO.inventoryDTO.quantity
+                    };
+
+                    renderProductCard(barcode);
+                    renderSidebarProduct(barcode);
+                    updateTotalPrice();
+                }
+            },
+            error: function (error) {
+                console.error('Error fetching product data', error);
+            }
+        });
     }
 
-    $.ajax({
-        url: 'http://localhost:8080/invoice/create-detail',
-        method: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({
-            barcode: barcode,
-            invoiceTypeId: invoiceTypeId,
-            quantity: quantity
-        }),
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-        success: function (data) {
-            if (data.status === 'OK') {
-                const productData = {
-                    ...data.data,
-                    quantity: quantity,
-                    maxQuantity: data.data.quantity // lưu lại số lượng tồn kho tối đa
-                };
-                productMap.set(barcode, productData);
-                updateSidebar(productMap);
-                displayProductCard(productData);
-            } else {
-                alert('Lỗi: ' + data.desc);
-            }
-        },
-        error: function (error) {
-            console.error('Error:', error);
-        }
-    });
-}
+    function renderProductCard(barcode) {
+        const productData = productMap[barcode];
+        const productCard = $(`
+            <div id="product-${barcode}" class="product-card border p-4 mb-4 rounded-md shadow-md grid grid-cols-12 gap-4">
+                <div class="col-span-4">
+                    <img src="${productData.product.imgPath}" alt="${productData.product.name}" class="w-full h-auto rounded-md">
+                </div>
+                <div class="col-span-8">
+                    <h3 class="text-xl font-semibold mb-2">${productData.product.name}</h3>
+                    <p class="text-sm text-gray-600 mb-1"><strong>Mã sản phẩm:</strong> ${productData.product.productCode}</p>
+                    <p class="text-sm text-gray-600 mb-1"><strong>Chất liệu:</strong> ${productData.product.materialDTO.name}</p>
+                    <p class="text-sm text-gray-600 mb-1"><strong>Danh mục:</strong> ${productData.product.productCategoryDTO.name}</p>
+                    <p class="text-sm text-gray-600 mb-1"><strong>Barcode:</strong> ${productData.product.barCode}</p>
+                    <p class="text-sm text-gray-600 mb-1"><strong>Giá:</strong> ${productData.totalPrice}</p>
+                    <p class="text-sm text-gray-600 mb-1"><strong>Số lượng:</strong> <span id="quantity-${barcode}">${productData.quantity}</span></p>
+                </div>
+            </div>
+        `);
+        productSoldDiv.append(productCard);
+    }
 
-function displayProductCard(productData) {
-    const productInfo = productData.productDTO;
-    const productSoldDiv = $('#product-sold');
-
-    const card = `
-        <div class="product-card p-4 mb-4 border shadow-sm" data-barcode="${productInfo.barCode}">
-            <h3 class="font-bold text-lg">${productInfo.name}</h3>
-            <p>Mã sản phẩm: ${productInfo.productCode}</p>
-            <p>Barcode: ${productInfo.barCode}</p>
-            <p>Giá: ${productInfo.fee}</p>
-            <p>Trọng lượng: ${productInfo.weight}</p>
-            <p>Chất liệu: ${productInfo.materialDTO.name}</p>
-            <p>Độ tinh khiết: ${productInfo.materialDTO.purity}</p>
-            <p>Loại sản phẩm: ${productInfo.productCategoryDTO.name}</p>
-            <p>Quầy: ${productInfo.counterDTO.name}</p>
-            <img src="${productInfo.imgPath}" alt="${productInfo.name}" class="product-image mt-2">
-        </div>
-    `;
-
-    productSoldDiv.append(card);
-}
-
-function updateSidebar(productMap) {
-    const selectedProductsContainer = $('#selected-products');
-    selectedProductsContainer.empty();
-
-    productMap.forEach(function (productData, barcode) {
-        const productInfo = productData.productDTO;
-
-        const row = `
-            <tr data-barcode="${barcode}" class="product-row">
-                <td class="px-4 py-2">${productInfo.name}</td>
-                <td class="px-4 py-2">${productInfo.productCode}</td>
-                <td class="px-4 py-2">${productInfo.fee}</td>
+    function renderSidebarProduct(barcode) {
+        const productData = productMap[barcode];
+        const productRow = $(`
+            <tr id="sidebar-product-${barcode}">
+                <td class="px-4 py-2">${productData.product.name}</td>
+                <td class="px-4 py-2">${productData.product.productCode}</td>
+                <td class="px-4 py-2 total-price">${productData.totalPrice}</td>
                 <td class="px-4 py-2">
-                    <button class="bg-blue-500 text-white px-2 py-1 rounded increase-quantity">+</button>
-                    <span class="quantity mx-2">${productData.quantity}</span>
-                    <button class="bg-red-500 text-white px-2 py-1 rounded decrease-quantity">-</button>
+                    <input type="number" id="sidebar-quantity-${barcode}" class="quantity-input border p-1" value="${productData.quantity}" min="1" max="${productData.inventory}">
                 </td>
                 <td class="px-4 py-2">
-                    <button class="bg-red-500 text-white px-2 py-1 rounded remove-product">Xóa</button>
+                    <button class="remove-product-btn bg-red-500 text-white p-1" data-barcode="${barcode}">Xóa</button>
                 </td>
             </tr>
-        `;
+        `);
+        selectedProductsContainer.append(productRow);
 
-        selectedProductsContainer.append(row);
-    });
-
-    updateTotalPrice(productMap);
-}
-
-function initProductClickHandler(productMap) {
-    $('#selected-products').on('click', '.increase-quantity', function () {
-        const barcode = $(this).closest('.product-row').data('barcode');
-        const productData = productMap.get(barcode);
-        if (productData) {
-            if (productData.quantity < productData.maxQuantity) {
-                productData.quantity += 1;
-                $(this).siblings('.quantity').text(productData.quantity);
-                updateTotalPrice(productMap); // cập nhật lại giá sau khi thay đổi số lượng
+        $(`#sidebar-quantity-${barcode}`).on('change', function () {
+            const newQuantity = parseInt($(this).val());
+            if (newQuantity > 0 && newQuantity <= productData.inventory) {
+                updateProductQuantity(barcode, newQuantity);
             } else {
-                alert('Số lượng sản phẩm không được vượt quá định mức tồn kho.');
+                alert('Số lượng vượt quá số lượng tồn kho.');
+                $(this).val(productData.quantity);
             }
+        });
+
+        $(`.remove-product-btn[data-barcode="${barcode}"]`).click(function () {
+            removeProduct(barcode);
+        });
+    }
+
+    function updateProductQuantity(barcode, newQuantity) {
+        const productData = productMap[barcode];
+        productData.quantity = newQuantity;
+        productData.totalPrice = productData.price * newQuantity;
+
+        $(`#quantity-${barcode}`).text(newQuantity);
+        $(`#sidebar-quantity-${barcode}`).val(newQuantity);
+        $(`#sidebar-product-${barcode} .total-price`).text(productData.totalPrice.toFixed(2));
+
+        updateTotalPrice();
+
+        if (newQuantity === 0) {
+            removeProduct(barcode);
         }
-    });
+    }
 
-    $('#selected-products').on('click', '.decrease-quantity', function () {
-        const barcode = $(this).closest('.product-row').data('barcode');
-        const productData = productMap.get(barcode);
-        if (productData) {
-            productData.quantity -= 1;
+    function removeProduct(barcode) {
+        delete productMap[barcode];
+        $(`#product-${barcode}`).remove();
+        $(`#sidebar-product-${barcode}`).remove();
+        updateTotalPrice();
+    }
 
-            if (productData.quantity === 0) {
-                productMap.delete(barcode);
-                $(this).closest('.product-row').remove();
-            } else {
-                $(this).siblings('.quantity').text(productData.quantity);
+    function updateTotalPrice() {
+        let totalPrice = 0;
+        let discountTotal = 0;
+
+        for (const barcode in productMap) {
+            totalPrice += productMap[barcode].totalPrice;
+        }
+
+        if (userPromotions.length > 0) {
+            userPromotions.forEach(promotion => {
+                discountTotal += totalPrice * (promotion.value / 100);
+            });
+        }
+
+        const subtotalPrice = totalPrice - discountTotal;
+
+        totalPriceRaw.text(totalPrice.toFixed(2));
+        discountPrice.text(discountTotal.toFixed(2));
+        subtotal.text(subtotalPrice.toFixed(2));
+    }
+
+    function openUserModal() {
+        $.ajax({
+            url: 'http://localhost:8080/earnpoints/rank',
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            success: function (data) {
+                if (data.status === 'OK') {
+                    const userTableBody = $('#user-table-body');
+                    userTableBody.empty(); // Clear existing data
+
+                    data.data.forEach(user => {
+                        const row = `
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${user.userInfoDTO.fullName}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.point}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <button type="button" class="text-blue-600 hover:text-blue-900" onclick="selectUser(${user.userInfoDTO.id}, '${user.userInfoDTO.fullName}')">Select</button>
+                                </td>
+                            </tr>
+                        `;
+                        userTableBody.append(row);
+                    });
+
+                    $('#user-modal').removeClass('hidden');
+                } else {
+                    alert('Failed to load user data');
+                }
+            },
+            error: function (error) {
+                console.error('Error fetching user data:', error);
+                alert('Error fetching user data');
             }
+        });
+    }
 
-            updateTotalPrice(productMap); // cập nhật lại giá sau khi thay đổi số lượng
+    function selectUser(id, name) {
+        selectedUserId = id;
+        selectedUserName = name;
+        $('#user-modal').addClass('hidden');
+        $('#selected-user-info').removeClass('hidden').find('#user-details').html(`
+            <p>${name}</p>
+            <p>ID: ${id}</p>
+        `);
+
+        fetchUserPromotions(id); // Gọi hàm để lấy khuyến mãi của người dùng
+    }
+
+    function fetchUserPromotions(userId) {
+        $.ajax({
+            url: `http://localhost:8080/promotion/by-user`,
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            data: { userId: userId }, // Truyền ID người dùng vào đây
+            success: function (data) {
+                if (data.status === 'OK') {
+                    userPromotions = data.data;
+                    const promotionDetails = $('#promotion-details');
+                    promotionDetails.empty(); // Clear existing data
+
+                    userPromotions.forEach(promotion => {
+                        const promotionInfo = `
+                            <div class="p-2 border-b border-gray-200">
+                                <p><strong>Name:</strong> ${promotion.name}</p>
+                                <p><strong>Value:</strong> ${promotion.value}%</p>
+                            </div>
+                        `;
+                        promotionDetails.append(promotionInfo);
+                    });
+
+                    console.log('User promotions loaded successfully'); // Log for checking success
+                    updateTotalPrice(); // Cập nhật giá trị sau khi có khuyến mãi
+                } else {
+                    alert('Failed to load user promotions');
+                }
+            },
+            error: function (error) {
+                console.error('Error fetching user promotions:', error);
+                alert('Error fetching user promotions');
+            }
+        });
+    }
+
+    function closeModal() {
+        $('#user-modal').addClass('hidden');
+    }
+
+    function closeViewInvoiceModal() {
+        $('#view-invoice-modal').addClass('hidden');
+    }
+
+    // Tạo hóa đơn
+    $('#create-invoice-button').click(function () {
+        const invoiceDetails = {
+            barcodeQuantityMap: {},
+            invoiceTypeId: 1,
+            userId: selectedUserId,
+            employeeId: employeeID
+        };
+
+        for (const barcode in productMap) {
+            invoiceDetails.barcodeQuantityMap[barcode] = productMap[barcode].quantity.toString();
         }
+
+        $.ajax({
+            url: 'http://localhost:8080/invoice/create-invoice',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(invoiceDetails),
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            success: function (response) {
+                if (response.status === 'OK') {
+                    alert('Invoice created successfully');
+                    createdInvoiceId = response.data; // Lưu ID của hóa đơn vừa tạo
+                    viewInvoice(createdInvoiceId); // Gọi hàm để hiển thị hóa đơn
+
+                    // Reset lại các giá trị sau khi tạo hóa đơn thành công
+                    productMap = {};
+                    selectedUserId = null;
+                    selectedUserName = null;
+                    userPromotions = [];
+                    $('#selected-user-info').addClass('hidden');
+                    $('#user-details').empty();
+                    $('#promotion-details').empty();
+                    selectedProductsContainer.empty();
+                    updateTotalPrice();
+                } else {
+                    alert('Failed to create invoice');
+                }
+            },
+            error: function (error) {
+                console.error('Error creating invoice:', error);
+                alert('Error creating invoice');
+            }
+        });
     });
 
-    $('#selected-products').on('click', '.remove-product', function () {
-        const barcode = $(this).closest('.product-row').data('barcode');
-        productMap.delete(barcode);
-        $(this).closest('.product-row').remove();
-        updateTotalPrice(productMap); // cập nhật lại giá sau khi xoá sản phẩm
-    });
-}
+    function viewInvoice(invoiceId) {
+        $.ajax({
+            url: 'http://localhost:8080/invoice/view-invoice',
+            method: 'POST',
+            data: { invoice: invoiceId }, // Truyền tham số trực tiếp
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            success: function (response) {
+                if (response.status === 'OK') {
+                    const invoiceData = response.data;
+                    const invoiceDetails = $('#invoice-details');
+                    invoiceDetails.empty(); // Clear existing data
 
-function updateTotalPrice(productMap) {
-    let totalPriceRaw = 0;
-    let discountPrice = 0;
-    let subtotal = 0;
+                    const userInfo = invoiceData.userInfoDTO;
+                    const employeeInfo = invoiceData.employeeDTO;
+                    const orderDetails = invoiceData.listOrderInvoiceDetail;
 
-    productMap.forEach(function (productData) {
-        totalPriceRaw += productData.productDTO.fee * productData.quantity;
-        // Giả sử discount là một thuộc tính trong productData
-        discountPrice += (productData.productDTO.fee * productData.quantity) * (productData.discount || 0) / 100;
-        subtotal += productData.productDTO.fee * productData.quantity - discountPrice;
-    });
+                    invoiceDetails.append(`
+                        <div class="grid grid-cols-12 gap-4">
+                            <div class="col-span-6">
+                                <h3 class="text-lg font-medium">User Information</h3>
+                                <p><strong>ID:</strong> ${userInfo.id}</p>
+                                <p><strong>Name:</strong> ${userInfo.fullName}</p>
+                            </div>
+                            <div class="col-span-6">
+                                <h3 class="text-lg font-medium">Employee Information</h3>
+                                <p><strong>ID:</strong> ${employeeInfo.id}</p>
+                                <p><strong>Name:</strong> ${employeeInfo.firstName} ${employeeInfo.lastName}</p>
+                            </div>
+                        </div>
+                        <hr class="my-4">
+                    `);
 
-    $('#totalPriceRaw').text('$' + totalPriceRaw.toFixed(2));
-    $('#discountPrice').text('$' + discountPrice.toFixed(2));
-    $('#subtotal').text('$' + subtotal.toFixed(2));
-}
+                    // Add invoice info
+                    invoiceDetails.append(`
+                        <div class="grid grid-cols-12 gap-4">
+                            <div class="col-span-6">
+                                <h3 class="text-lg font-medium">Invoice Information</h3>
+                                <p><strong>ID:</strong> ${invoiceData.id}</p>
+                                <p><strong>Total Price Raw:</strong> ${invoiceData.totalPriceRaw}</p>
+                                <p><strong>Discount Price:</strong> ${invoiceData.discountPrice}</p>
+                                <p><strong>Total Price:</strong> ${invoiceData.totalPrice}</p>
+                            </div>
+                        </div>
+                        <hr class="my-4">
+                    `);
+
+                    // Add order details
+                    invoiceDetails.append('<div><h3 class="text-lg font-medium">Order Details</h3></div>');
+                    orderDetails.forEach(order => {
+                        const product = order.productDTO;
+                        invoiceDetails.append(`
+                            <div class="grid grid-cols-12 gap-4">
+                                <div class="col-span-6">
+                                    <p><strong>Product Name:</strong> ${product.name}</p>
+                                    <p><strong>Product Code:</strong> ${product.productCode}</p>
+                                    <p><strong>Quantity:</strong> ${order.quantity}</p>
+                                    <p><strong>Total Price:</strong> ${order.totalPrice}</p>
+                                </div>
+                                <div class="col-span-6">
+                                    <img src="${product.imgPath}" alt="${product.name}" class="w-full h-auto my-2 rounded-md">
+                                </div>
+                            </div>
+                            <hr class="my-4">
+                        `);
+                    });
+
+                    $('#view-invoice-modal').removeClass('hidden');
+                } else {
+                    alert('Failed to load invoice details');
+                }
+            },
+            error: function (error) {
+                console.error('Error loading invoice details:', error);
+                alert('Error loading invoice details');
+            }
+        });
+    }
 
 
-
-
-// Set up cho lưu hóa đơn
-$('#save-invoice-button').click(function () {
-    const invoiceDetails = Array.from(productMap.values()).map(productData => ({
-        barcode: productData.productDTO.barCode,
-        quantity: productData.quantity
-    }));
-
-    $.ajax({
-        url: 'http://localhost:8080/invoice/save',
-        method: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(invoiceDetails),
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-        success: function (response) {
-            alert('Hóa đơn đã được lưu thành công.');
-        },
-        error: function (error) {
-            console.error('Error:', error);
-        }
-    });
+    // Đảm bảo rằng các hàm đã được định nghĩa trước khi gọi sự kiện onclick
+    window.openUserModal = openUserModal;
+    window.closeModal = closeModal;
+    window.selectUser = selectUser;
+    window.closeViewInvoiceModal = closeViewInvoiceModal;
 });
