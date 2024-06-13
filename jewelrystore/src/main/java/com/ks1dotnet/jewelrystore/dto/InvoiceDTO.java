@@ -10,15 +10,15 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderInvoiceResponseDTO {
+public class InvoiceDTO {
     private Integer id;
-    private UserInfoDTO userInfo;
-    private EmployeeDTO employee;
-    private InvoiceTypeDTO invoiceType;
+    private UserInfoDTO userInfoDTO;
+    private EmployeeDTO employeeDTO;
+    private InvoiceTypeDTO invoiceTypeDTO;
+    private Date date;
+    private boolean status;
     private double totalPriceRaw;
     private double totalPrice;
     private double discountPrice;
-    private Date date;
-    private List<OrderInvoiceDetailDTO> listOrderInvoiceDetail;
-    private List<PromotionDTO> promotions;
+    private List<InvoiceDetailDTO> listOrderInvoiceDetail;
 }

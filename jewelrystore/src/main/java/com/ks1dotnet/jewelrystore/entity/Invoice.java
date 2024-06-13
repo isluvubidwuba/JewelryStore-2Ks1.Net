@@ -1,12 +1,7 @@
 package com.ks1dotnet.jewelrystore.entity;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import com.ks1dotnet.jewelrystore.dto.OrderInvoiceDetailDTO;
-import com.ks1dotnet.jewelrystore.dto.OrderInvoiceResponseDTO;
-import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -25,7 +20,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "order_invoice")
+@Table(name = "invoice")
 public class Invoice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -59,39 +54,37 @@ public class Invoice {
     @JoinColumn(name = "id_invoice_type")
     private InvoiceType invoiceType;
 
-    @OneToMany(mappedBy = "orderInvoice")
+    @OneToMany(mappedBy = "invoice")
     List<VoucherOnInvoice> listVoucherOnInvoice;
 
-    @OneToMany(mappedBy = "orderInvoice")
+    @OneToMany(mappedBy = "invoice")
     List<InvoiceDetail> listOrderInvoiceDetail;
 
-    @OneToMany(mappedBy = "orderInvoice")
-    List<Invoice_Detail_Import> listWareHouse;
-
-    public OrderInvoiceResponseDTO gResponseDTO() {
-        List<OrderInvoiceDetailDTO> listOrderInvoiceDetail = new ArrayList<>();
-        for (InvoiceDetail orderInvoiceDetail : this.listOrderInvoiceDetail) {
-            listOrderInvoiceDetail.add(orderInvoiceDetail.getDTO());
-        }
-        List<PromotionDTO> promotions = new ArrayList<>();
-        for (VoucherOnInvoice voucherOnInvoice : this.listVoucherOnInvoice) {
-            promotions.add(voucherOnInvoice.getPromotion().getDTO());
-        }
-        return new OrderInvoiceResponseDTO(this.id, this.userInfo.getDTO(), this.employee.getDTO(),
-                this.invoiceType.getDTO(),
-                totalPriceRaw, totalPrice, discountPrice, date, listOrderInvoiceDetail, promotions);
-
-    }
-
-    // private Integer id;
-    // private UserInfoDTO userInfo;
-    // private EmployeeDTO employee;
-    // private InvoiceTypeDTO invoiceType;
-    // private double totalPriceRaw;
-    // private double totalPrice;
-    // private double discountPrice;
-    // private Date date;
-    // private List<OrderInvoiceDetailDTO> listOrderInvoiceDetail;
-    // private List<PromotionDTO> promotions;
-
 }
+// public InvoiceResponseDTO gResponseDTO() {
+// List<InvoiceDetailDTO> listOrderInvoiceDetail = new ArrayList<>();
+// for (InvoiceDetail orderInvoiceDetail : this.listOrderInvoiceDetail) {
+// listOrderInvoiceDetail.add(InvoiceDetail.getDTO());
+// }
+// List<PromotionDTO> promotions = new ArrayList<>();
+// for (VoucherOnInvoice voucherOnInvoice : this.listVoucherOnInvoice) {
+// promotions.add(voucherOnInvoice.getPromotion().getDTO());
+// }
+// return new InvoiceResponseDTO(this.id, this.userInfo.getDTO(),
+// this.employee.getDTO(),
+// this.invoiceType.getDTO(),
+// totalPriceRaw, totalPrice, discountPrice, date, listOrderInvoiceDetail,
+// promotions);
+
+// }
+
+// private Integer id;
+// private UserInfoDTO userInfo;
+// private EmployeeDTO employee;
+// private InvoiceTypeDTO invoiceType;
+// private double totalPriceRaw;
+// private double totalPrice;
+// private double discountPrice;
+// private Date date;
+// private List<OrderInvoiceDetailDTO> listOrderInvoiceDetail;
+// private List<PromotionDTO> promotions;

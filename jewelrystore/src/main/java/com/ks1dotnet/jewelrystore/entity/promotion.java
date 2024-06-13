@@ -63,19 +63,19 @@ public class Promotion {
     private InvoiceType invoiceType;
 
     @OneToMany(mappedBy = "promotion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<ForCustomer> listForCustomer = new HashSet<>();
+    private List<ForCustomer> listForCustomer;
 
     @OneToMany(mappedBy = "promotion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<ForProductType> listForProductType = new HashSet<>();
+    private List<ForProductType> listForProductType;
 
     @OneToMany(mappedBy = "promotion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<ForProduct> listForProduct = new ArrayList<>();
+    private List<ForProduct> listForProduct;
 
     @OneToMany(mappedBy = "promotion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<VoucherOnInvoice> listVoucherOnInvoice = new HashSet<>();
+    private List<VoucherOnInvoice> listVoucherOnInvoice;
 
     @OneToMany(mappedBy = "promotion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<VoucherOnInvoiceDetail> listVoucherOnInvoiceDetail = new HashSet<>();
+    private List<VoucherOnInvoiceDetail> listVoucherOnInvoiceDetail;
 
     @OneToMany(mappedBy = "promotion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<ForGemStoneType> listForGemStoneTypes;

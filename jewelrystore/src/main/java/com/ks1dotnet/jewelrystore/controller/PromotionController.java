@@ -62,16 +62,15 @@ public class PromotionController {
         try {
             LocalDate start = LocalDate.parse(startDate);
             LocalDate end = LocalDate.parse(endDate);
-            String fileName = firebaseStorageService.uploadImage(file, filePath).getData().toString();
-            ResponseData responseData = iPromotionService.insertPromotion(fileName, name, value, status, start, end,
-                    promotionType, invoiceType); // Truyền invoiceTypeId vào đây
+            ResponseData responseData = iPromotionService.insertPromotion(file, name, value, status, start, end,
+                    promotionType, invoiceType);
             if (responseData.getStatus() == HttpStatus.OK) {
                 return new ResponseEntity<>(responseData, HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (BadRequestException e) {
-            return handleBadRequestException(e);
+            throw new BadRequestException("Nguuu vc , ", e.getMessage());
         } catch (Exception e) {
             return handleException(e);
         }
@@ -87,11 +86,11 @@ public class PromotionController {
             @RequestParam String startDate,
             @RequestParam String endDate) { // Thêm invoiceTypeId vào đây
         try {
+
             LocalDate start = LocalDate.parse(startDate);
             LocalDate end = LocalDate.parse(endDate);
             ResponseData responseData = new ResponseData();
-            String fileName = firebaseStorageService.uploadImage(file, filePath).getData().toString();
-            PromotionDTO promotionDTO = iPromotionService.updatePromotion(fileName, id, name, value, status, start,
+            PromotionDTO promotionDTO = iPromotionService.updatePromotion(file, id, name, value, status, start,
                     end); // Truyền promotionType và invoiceTypeId vào đây
             responseData.setDesc("Update successful");
             responseData.setData(promotionDTO);

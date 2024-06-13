@@ -1,5 +1,6 @@
 package com.ks1dotnet.jewelrystore.entity;
 
+import java.util.List;
 import java.util.Set;
 
 import com.ks1dotnet.jewelrystore.dto.UserInfoDTO;
@@ -50,7 +51,7 @@ public class UserInfo {
     private Role role;
 
     @OneToMany(mappedBy = "userInfo")
-    Set<EarnPoints> listEarnPoints;
+    List<EarnPoints> listEarnPoints;
 
     @OneToMany(mappedBy = "userInfo")
     Set<Invoice> listOrderInvoice;
