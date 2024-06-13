@@ -25,6 +25,7 @@ import com.ks1dotnet.jewelrystore.service.serviceImp.IInvoiceService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IInvoiceTypeService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IUserInfoService;
+import com.ks1dotnet.jewelrystore.utils.JwtUtilsHelper;
 
 @Service
 public class InvoiceService implements IInvoiceService {
@@ -42,12 +43,15 @@ public class InvoiceService implements IInvoiceService {
         private IInvoiceRepository invoiceRepository;
 
         @Autowired
+        JwtUtilsHelper jwtUtilsHelper;
+
+        @Autowired
         private IOrderInvoiceDetailRepository invoiceDetailRepository;
+
         @Autowired
         private IProductRepository iProductRepository;
 
         public InvoiceDetailDTO createInvoiceDetail(String barcode, Integer invoiceTypeId, Integer quantity) {
-
                 Product product = iProductRepository.findByBarCode(barcode);
                 if (product == null) {
                         throw new BadRequestException("Product not found.");
@@ -61,7 +65,6 @@ public class InvoiceService implements IInvoiceService {
                 }
 
                 InvoiceType invoiceType = invoiceTypeService.findById(invoiceTypeId);
-                // UserInfo userInfo = userInfoService.findById(userId);
                 List<Promotion> promotions = promotionService.getAllPromotionByProductAndInvoiceType(product,
                                 invoiceType.getId());
 
@@ -154,10 +157,11 @@ public class InvoiceService implements IInvoiceService {
         }
 
         public Invoice createInvoiceFromDetails(HashMap<String, Integer> barcodeQuantityMap,
-                        Integer invoiceTypeId, Integer userId) {
+                        Integer invoiceTypeId, Integer userId, String token) {
                 UserInfo userInfo = userInfoService.findById(userId);
                 InvoiceType invoiceType = invoiceTypeService.findById(invoiceTypeId);
                 Invoice invoice = new Invoice();
+
                 invoice.setUserInfo(userInfo);
                 invoice.setInvoiceType(invoiceType);
                 invoice.setDate(new Date());
@@ -178,7 +182,6 @@ public class InvoiceService implements IInvoiceService {
                 invoice.setDiscountPrice(discountPrice);
 
                 saveInvoice(invoice, invoiceDetails);
-
                 return invoice;
         }
 
