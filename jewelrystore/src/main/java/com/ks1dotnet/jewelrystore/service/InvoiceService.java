@@ -10,7 +10,9 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ks1dotnet.jewelrystore.dto.InvoiceDTO;
 import com.ks1dotnet.jewelrystore.dto.InvoiceDetailDTO;
+import com.ks1dotnet.jewelrystore.entity.Employee;
 import com.ks1dotnet.jewelrystore.entity.Invoice;
 import com.ks1dotnet.jewelrystore.entity.InvoiceDetail;
 import com.ks1dotnet.jewelrystore.entity.InvoiceType;
@@ -18,6 +20,7 @@ import com.ks1dotnet.jewelrystore.entity.Product;
 import com.ks1dotnet.jewelrystore.entity.Promotion;
 import com.ks1dotnet.jewelrystore.entity.UserInfo;
 import com.ks1dotnet.jewelrystore.exception.BadRequestException;
+import com.ks1dotnet.jewelrystore.repository.IEmployeeRepository;
 import com.ks1dotnet.jewelrystore.repository.IInvoiceRepository;
 import com.ks1dotnet.jewelrystore.repository.IOrderInvoiceDetailRepository;
 import com.ks1dotnet.jewelrystore.repository.IProductRepository;
@@ -26,6 +29,8 @@ import com.ks1dotnet.jewelrystore.service.serviceImp.IInvoiceTypeService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IUserInfoService;
 import com.ks1dotnet.jewelrystore.utils.JwtUtilsHelper;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class InvoiceService implements IInvoiceService {
@@ -51,6 +56,9 @@ public class InvoiceService implements IInvoiceService {
         @Autowired
         private IProductRepository iProductRepository;
 
+        @Autowired
+        private IEmployeeRepository iEmployeeRepository;
+
         public InvoiceDetailDTO createInvoiceDetail(String barcode, Integer invoiceTypeId, Integer quantity) {
                 Product product = iProductRepository.findByBarCode(barcode);
                 if (product == null) {
@@ -59,6 +67,8 @@ public class InvoiceService implements IInvoiceService {
 
                 if (product.getInventory().getQuantity() <= 0) {
                         throw new BadRequestException("Product is out of stock.");
+                } else if (product.getInventory().getQuantity() < quantity) {
+                        throw new BadRequestException("Product is not enought to sell.");
                 }
                 if (!product.isStatus()) {
                         throw new BadRequestException("Product is not sold.");
@@ -156,23 +166,26 @@ public class InvoiceService implements IInvoiceService {
                 return totalDiscount;
         }
 
-        public Invoice createInvoiceFromDetails(HashMap<String, Integer> barcodeQuantityMap,
-                        Integer invoiceTypeId, Integer userId, String token) {
+        @Transactional
+        public int createInvoiceFromDetails(HashMap<String, Integer> barcodeQuantityMap,
+                        Integer invoiceTypeId, Integer userId, String idEmp) {
                 UserInfo userInfo = userInfoService.findById(userId);
                 InvoiceType invoiceType = invoiceTypeService.findById(invoiceTypeId);
                 Invoice invoice = new Invoice();
-
+                Employee employee = iEmployeeRepository.findById(idEmp).orElseThrow(
+                                () -> new BadRequestException("NOT FOUND EMPlOYEE WITH THIS TOKEN:" + idEmp));
                 invoice.setUserInfo(userInfo);
                 invoice.setInvoiceType(invoiceType);
                 invoice.setDate(new Date());
-
+                invoice.setEmployee(employee);
                 List<InvoiceDetailDTO> invoiceDetails = new ArrayList<>();
                 for (Map.Entry<String, Integer> entry : barcodeQuantityMap.entrySet()) {
                         String barcode = entry.getKey();
                         Integer quantity = entry.getValue();
                         invoiceDetails.add(createInvoiceDetail(barcode, invoiceTypeId, quantity));
                 }
-
+                // Lưu Invoice trước để có ID
+                invoiceRepository.save(invoice);
                 double totalPriceRaw = invoiceDetails.stream().mapToDouble(InvoiceDetailDTO::getPrice).sum();
                 double totalPrice = invoiceDetails.stream().mapToDouble(InvoiceDetailDTO::getTotalPrice).sum();
                 double discountPrice = totalPriceRaw - totalPrice;
@@ -182,7 +195,7 @@ public class InvoiceService implements IInvoiceService {
                 invoice.setDiscountPrice(discountPrice);
 
                 saveInvoice(invoice, invoiceDetails);
-                return invoice;
+                return invoice.getId();
         }
 
         private void saveInvoice(Invoice invoice, List<InvoiceDetailDTO> invoiceDetails) {
@@ -199,11 +212,10 @@ public class InvoiceService implements IInvoiceService {
                                         product.getMaterial().getPriceAtTime() * product.getWeight());
                         invoiceDetail.setTotalPrice(detailDTO.getTotalPrice());
                         invoiceDetail.setInvoice(invoice);
-
+                        invoiceDetail.setCounter(product.getCounter());
                         invoiceDetailEntities.add(invoiceDetail);
                 }
 
                 invoiceDetailRepository.saveAll(invoiceDetailEntities);
-                invoiceRepository.save(invoice);
         }
 }

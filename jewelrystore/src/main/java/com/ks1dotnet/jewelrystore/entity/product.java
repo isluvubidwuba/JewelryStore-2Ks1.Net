@@ -81,7 +81,7 @@ public class Product {
     public ProductDTO getDTO() {
         return new ProductDTO(this.id, this.getProductCode(), this.getBarCode(), this.name, this.fee, this.status,
                 this.weight, this.material.getDTO(),
-                this.productCategory.getDTO(), this.counter.getDTO(), this.imgPath);
+                this.productCategory.getDTO(), this.counter.getDTO(), this.imgPath, this.inventory.getDTO());
     }
 
     public Product(ProductDTO t) {

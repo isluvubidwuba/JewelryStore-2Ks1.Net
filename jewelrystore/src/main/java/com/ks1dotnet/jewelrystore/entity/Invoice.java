@@ -2,6 +2,10 @@ package com.ks1dotnet.jewelrystore.entity;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import com.ks1dotnet.jewelrystore.dto.InvoiceDTO;
+import com.ks1dotnet.jewelrystore.dto.InvoiceDetailDTO;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -60,31 +64,22 @@ public class Invoice {
     @OneToMany(mappedBy = "invoice")
     List<InvoiceDetail> listOrderInvoiceDetail;
 
+    public InvoiceDTO getDTO() {
+        InvoiceDTO inpDto = new InvoiceDTO();
+        inpDto.setId(id);
+        inpDto.setDate(date);
+        inpDto.setTotalPriceRaw(totalPriceRaw);
+        inpDto.setTotalPrice(totalPrice);
+        inpDto.setDiscountPrice(discountPrice);
+        inpDto.setStatus(status);
+        inpDto.setUserInfoDTO(userInfo.getDTO());
+        inpDto.setEmployeeDTO(employee.getDTO());
+        inpDto.setInvoiceTypeDTO(invoiceType.getDTO());
+        List<InvoiceDetailDTO> invoiceDetailDTOs = listOrderInvoiceDetail.stream()
+                .map(InvoiceDetail::getDTO)
+                .collect(Collectors.toList());
+        inpDto.setListOrderInvoiceDetail(invoiceDetailDTOs);
+        return inpDto;
+    }
+
 }
-// public InvoiceResponseDTO gResponseDTO() {
-// List<InvoiceDetailDTO> listOrderInvoiceDetail = new ArrayList<>();
-// for (InvoiceDetail orderInvoiceDetail : this.listOrderInvoiceDetail) {
-// listOrderInvoiceDetail.add(InvoiceDetail.getDTO());
-// }
-// List<PromotionDTO> promotions = new ArrayList<>();
-// for (VoucherOnInvoice voucherOnInvoice : this.listVoucherOnInvoice) {
-// promotions.add(voucherOnInvoice.getPromotion().getDTO());
-// }
-// return new InvoiceResponseDTO(this.id, this.userInfo.getDTO(),
-// this.employee.getDTO(),
-// this.invoiceType.getDTO(),
-// totalPriceRaw, totalPrice, discountPrice, date, listOrderInvoiceDetail,
-// promotions);
-
-// }
-
-// private Integer id;
-// private UserInfoDTO userInfo;
-// private EmployeeDTO employee;
-// private InvoiceTypeDTO invoiceType;
-// private double totalPriceRaw;
-// private double totalPrice;
-// private double discountPrice;
-// private Date date;
-// private List<OrderInvoiceDetailDTO> listOrderInvoiceDetail;
-// private List<PromotionDTO> promotions;

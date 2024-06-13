@@ -2,6 +2,7 @@ package com.ks1dotnet.jewelrystore.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.ks1dotnet.jewelrystore.dto.InvoiceDetailDTO;
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
@@ -56,5 +57,18 @@ public class InvoiceDetail {
 
     @OneToMany(mappedBy = "orderInvoiceDetail")
     List<VoucherOnInvoiceDetail> listVoucherOnInvoiceDetail;
+
+    public InvoiceDetailDTO getDTO() {
+        InvoiceDetailDTO invoiceDetailDTO = new InvoiceDetailDTO();
+        invoiceDetailDTO.setProductDTO(product.getDTO());
+        invoiceDetailDTO.setQuantity(quantity);
+        invoiceDetailDTO.setPrice(price);
+        invoiceDetailDTO.setTotalPrice(totalPrice);
+        List<PromotionDTO> lPromotionDTOs = listVoucherOnInvoiceDetail.stream()
+                .map(voucherOnInvoiceDetail -> voucherOnInvoiceDetail.getPromotion().getDTO())
+                .collect(Collectors.toList());
+        invoiceDetailDTO.setListPromotion(lPromotionDTOs);
+        return invoiceDetailDTO;
+    }
 
 }
