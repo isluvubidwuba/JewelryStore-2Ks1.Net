@@ -30,7 +30,7 @@ public interface IPromotionService {
 
         public List<Promotion> getAllPromotionByProductAndInvoiceType(Product product, int invoiceId);
 
-        public List<PromotionDTO> getPromotionsByUserId(int userId);
+        public PromotionDTO getPromotionsByUserId(int userId);
 
         public List<Promotion> findByInvoiceTypeAndStatusTrue(InvoiceType invoiceType);
 

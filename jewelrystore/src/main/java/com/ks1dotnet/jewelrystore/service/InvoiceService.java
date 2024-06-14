@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.ks1dotnet.jewelrystore.dto.InvoiceDetailDTO;
+import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 import com.ks1dotnet.jewelrystore.entity.Employee;
 import com.ks1dotnet.jewelrystore.entity.Invoice;
@@ -157,10 +158,11 @@ public class InvoiceService implements IInvoiceService {
                         double finalPrice = productBasePrice + product.getFee();
                         finalPrice *= invoiceType.getRate();
                         InvoiceDetailDTO invoiceDetailDTO = new InvoiceDetailDTO();
+                        ProductDTO productDTO = product.getDTO();
 
-                        product.setImgPath(url.trim() + filePath.trim() + product.getImgPath());
+                        productDTO.setImgPath(url.trim() + filePath.trim() + productDTO.getImgPath());
 
-                        invoiceDetailDTO.setProductDTO(product.getDTO());
+                        invoiceDetailDTO.setProductDTO(productDTO);
                         invoiceDetailDTO.setPrice(
                                         ((priceBefore + product.getFee()) * invoiceType.getRate()) * quantity);
                         invoiceDetailDTO.setQuantity(quantity);
@@ -222,12 +224,14 @@ public class InvoiceService implements IInvoiceService {
                         }
                         // Lưu Invoice trước để có ID
                         // tìm ra được voucher for user
-                        PromotionDTO promotionDTO = promotionService.findById(userId);
+                        PromotionDTO promotionDTO = promotionService.getPromotionsByUserId(userId);
                         invoiceRepository.save(invoice);
                         double totalPriceRaw = invoiceDetails.stream().mapToDouble(InvoiceDetailDTO::getPrice).sum();
                         // giảm trên hóa đơn
-                        double totalPrice = invoiceDetails.stream().mapToDouble(InvoiceDetailDTO::getTotalPrice).sum()
-                                        * promotionDTO.getValue();
+                        double totalPrice = invoiceDetails.stream().mapToDouble(InvoiceDetailDTO::getTotalPrice).sum();
+                        if (promotionDTO != null) {
+                                totalPrice *= promotionDTO.getValue();
+                        }
                         double discountPrice = totalPriceRaw - totalPrice;
                         invoice.setTotalPriceRaw(totalPriceRaw);
                         invoice.setTotalPrice(totalPrice);
@@ -250,8 +254,9 @@ public class InvoiceService implements IInvoiceService {
                         List<InvoiceDetail> invoiceDetailEntities = new ArrayList<>();
 
                         for (InvoiceDetailDTO detailDTO : invoiceDetails) {
-                                Product product = new Product(detailDTO.getProductDTO());
-
+                                Product product = iProductRepository
+                                                .findByBarCode(detailDTO.getProductDTO().getBarCode());
+                                System.out.println("product.getImgPath() " + product.getImgPath());
                                 InvoiceDetail invoiceDetail = new InvoiceDetail();
                                 invoiceDetail.setProduct(product);
                                 invoiceDetail.setQuantity(detailDTO.getQuantity());
