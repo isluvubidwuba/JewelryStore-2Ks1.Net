@@ -44,9 +44,9 @@ $(document).ready(function () {
                     const productData = response.data;
                     productMap[barcode] = {
                         product: productData.productDTO,
-                        price: productData.price,
-                        quantity: productData.quantity,
-                        totalPrice: productData.totalPrice,
+                        unitPrice: productData.totalPrice, // Đơn giá mỗi sản phẩm
+                        quantity: 1,
+                        totalPrice: productData.totalPrice, // Giá tổng ban đầu
                         inventory: productData.productDTO.inventoryDTO.quantity
                     };
 
@@ -60,6 +60,8 @@ $(document).ready(function () {
             }
         });
     }
+
+
 
     function renderProductCard(barcode) {
         const productData = productMap[barcode];
@@ -88,7 +90,7 @@ $(document).ready(function () {
             <tr id="sidebar-product-${barcode}">
                 <td class="px-4 py-2">${productData.product.name}</td>
                 <td class="px-4 py-2">${productData.product.productCode}</td>
-                <td class="px-4 py-2 total-price">${productData.totalPrice}</td>
+                <td class="px-4 py-2 total-price">${productData.totalPrice.toFixed(2)}</td>
                 <td class="px-4 py-2">
                     <input type="number" id="sidebar-quantity-${barcode}" class="quantity-input border p-1" value="${productData.quantity}" min="1" max="${productData.inventory}">
                 </td>
@@ -114,10 +116,11 @@ $(document).ready(function () {
         });
     }
 
+
     function updateProductQuantity(barcode, newQuantity) {
         const productData = productMap[barcode];
         productData.quantity = newQuantity;
-        productData.totalPrice = productData.price * newQuantity;
+        productData.totalPrice = productData.unitPrice * newQuantity; // Tính lại giá tổng dựa trên đơn giá và số lượng mới
 
         $(`#quantity-${barcode}`).text(newQuantity);
         $(`#sidebar-quantity-${barcode}`).val(newQuantity);
@@ -130,6 +133,8 @@ $(document).ready(function () {
         }
     }
 
+
+
     function removeProduct(barcode) {
         delete productMap[barcode];
         $(`#product-${barcode}`).remove();
@@ -138,23 +143,25 @@ $(document).ready(function () {
     }
 
     function updateTotalPrice() {
-        let totalPrice = 0;
+        let totalPriceBeforeDiscount = 0;
         let discountTotal = 0;
 
         for (const barcode in productMap) {
-            totalPrice += productMap[barcode].totalPrice;
+            totalPriceBeforeDiscount += productMap[barcode].totalPrice;
         }
 
         if (userPromotion) {
-            discountTotal = totalPrice * (userPromotion.value / 100);
+            discountTotal = (totalPriceBeforeDiscount * userPromotion.value) / 100;
         }
 
-        const subtotalPrice = totalPrice - discountTotal;
+        const subtotalPrice = totalPriceBeforeDiscount - discountTotal;
 
-        totalPriceRaw.text(totalPrice.toFixed(2));
+        totalPriceRaw.text(totalPriceBeforeDiscount.toFixed(2));
         discountPrice.text(discountTotal.toFixed(2));
         subtotal.text(subtotalPrice.toFixed(2));
     }
+
+
 
     function openUserModal() {
         $.ajax({
@@ -319,27 +326,30 @@ $(document).ready(function () {
                     const orderDetails = invoiceData.listOrderInvoiceDetail;
 
                     invoiceDetails.append(`
-                    <div class="bg-white rounded-lg shadow-lg px-8 py-10 max-w-xl mx-auto">
+                    <div class="bg-white rounded-lg shadow-lg px-8 py-10 max-w-7xl mx-auto">
                         <div class="flex items-center justify-between mb-8">
                             <div class="flex items-center">
                                 <img class="h-8 w-8 mr-2" src="https://tailwindflex.com/public/images/logos/favicon-32x32.png" alt="Logo" />
                                 <div class="text-gray-700 font-semibold text-lg">2KS 1NET</div>
                             </div>
-                            <div class="text-gray-700">
+                            <div class="text-gray-700 text-right">
                                 <div class="font-bold text-xl mb-2">HÓA ĐƠN</div>
                                 <div class="text-sm">Date: ${new Date(invoiceData.createdDate).toLocaleDateString()}</div>
                                 <div class="text-sm">Invoice #: ${invoiceData.id}</div>
                             </div>
                         </div>
                         <div class="border-b-2 border-gray-300 pb-8 mb-8">
-                            <h2 class="text-2xl font-bold mb-4">Thông Tin Khách Hàng</h2>
-                            <div class="text-gray-700 mb-2">${userInfo.fullName}</div>
-                            <div class="text-gray-700 mb-2">ID: ${userInfo.id}</div>
-                        </div>
-                        <div class="border-b-2 border-gray-300 pb-8 mb-8">
-                            <h2 class="text-2xl font-bold mb-4">Thông Tin Nhân Viên</h2>
-                            <div class="text-gray-700 mb-2">${employeeInfo.firstName} ${employeeInfo.lastName}</div>
-                            <div class="text-gray-700 mb-2">ID: ${employeeInfo.id}</div>
+                            <h2 class="text-2xl font-bold mb-4">Thông Tin Khách Hàng và Nhân Viên</h2>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <div class="text-gray-700 mb-2"><strong>Khách Hàng:</strong> ${userInfo.fullName}</div>
+                                    <div class="text-gray-700 mb-2"><strong>ID:</strong> ${userInfo.id}</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-700 mb-2"><strong>Nhân Viên:</strong> ${employeeInfo.firstName} ${employeeInfo.lastName}</div>
+                                    <div class="text-gray-700 mb-2"><strong>ID:</strong> ${employeeInfo.id}</div>
+                                </div>
+                            </div>
                         </div>
                         <table class="w-full text-left mb-8">
                             <thead>
@@ -361,23 +371,15 @@ $(document).ready(function () {
                                 `).join('')}
                             </tbody>
                         </table>
-                        <div class="flex justify-end mb-8">
-                            <div class="text-gray-700 mr-2">Tổng giá gốc:</div>
-                            <div class="text-gray-700">${invoiceData.totalPriceRaw}</div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="text-gray-700">Tổng giá gốc:</div>
+                            <div class="text-gray-700 text-right">${invoiceData.totalPriceRaw}</div>
+                            <div class="text-gray-700">Giá giảm:</div>
+                            <div class="text-gray-700 text-right">${invoiceData.discountPrice}</div>
+                            <div class="text-gray-700 font-bold text-xl">Tổng giá:</div>
+                            <div class="text-gray-700 font-bold text-xl text-right">${invoiceData.totalPrice}</div>
                         </div>
-                        <div class="flex justify-end mb-8">
-                            <div class="text-gray-700 mr-2">Giá giảm:</div>
-                            <div class="text-gray-700">${invoiceData.discountPrice}</div>
-                        </div>
-                        <div class="flex justify-end mb-8">
-                            <div class="text-gray-700 mr-2">Tổng giá:</div>
-                            <div class="text-gray-700 font-bold text-xl">${invoiceData.totalPrice}</div>
-                        </div>
-                        <div class="border-t-2 border-gray-300 pt-8 mb-8">
-                            <div class="text-gray-700 mb-2">Thanh toán trong vòng 30 ngày. Thanh toán trễ sẽ bị tính phí.</div>
-                            <div class="text-gray-700 mb-2">Vui lòng viết séc thanh toán cho Tên Công Ty Của Bạn và gửi đến:</div>
-                            <div class="text-gray-700">FPT University</div>
-                        </div>
+                        
                     </div>
                     `);
 
@@ -396,6 +398,7 @@ $(document).ready(function () {
     // Hàm để đóng modal
     function closeViewInvoiceModal() {
         $('#view-invoice-modal').addClass('hidden');
+        location.reload()
     }
 
 

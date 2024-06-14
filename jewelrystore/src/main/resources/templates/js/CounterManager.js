@@ -8,7 +8,6 @@ $(document).ready(function () {
 
 const token = localStorage.getItem("token");
 
-
 function fetchCounters() {
     $.ajax({
         url: 'http://localhost:8080/counter/allactivecounter',
@@ -35,6 +34,7 @@ function fetchCounters() {
         }
     });
 }
+
 function generateTabs(counters) {
     const tabsContainer = $('#counter-tabs');
     counters.forEach((counter, index) => {
@@ -149,7 +149,6 @@ function generateTabContents(counters) {
     });
 }
 
-
 function fetchProductsByCounter(counterId, page = 1) {
     $.ajax({
         url: `http://localhost:8080/counter/listproductsbycounter?counterId=${counterId}&page=${page - 1}`,
@@ -198,7 +197,6 @@ function fetchProductsByCounter(counterId, page = 1) {
     });
 }
 
-
 function createCounterModal() {
     $('#openCreateCounterModal').on('click', function () {
         $('#createCounterModal').removeClass('hidden');
@@ -238,12 +236,6 @@ function createCounterModal() {
     });
 }
 
-
-
-
-
-
-
 function fetchProductsForCounter() {
     $.ajax({
         url: 'http://localhost:8080/counter/products/counter1',
@@ -256,13 +248,29 @@ function fetchProductsForCounter() {
             productTableBody.empty();
 
             // Thu thập các danh mục duy nhất từ sản phẩm
-            const categories = [...new Set(response.map(product => product.productCategoryDTO.name))];
-            const materials = [...new Set(response.map(product => product.materialDTO.name))];
+            const categories = [...new Set(response.data.map(product => {
+                if (product.productCategoryDTO && product.productCategoryDTO.name) {
+                    return product.productCategoryDTO.name;
+                } else {
+                    console.warn('Missing productCategoryDTO or name for product:', product);
+                    return 'Unknown';
+                }
+            }))];
+
+            const materials = [...new Set(response.data.map(product => {
+                if (product.materialDTO && product.materialDTO.name) {
+                    return product.materialDTO.name;
+                } else {
+                    console.warn('Missing materialDTO or name for product:', product);
+                    return 'Unknown';
+                }
+            }))];
+            console.log(materials);
 
             populateCategoryFilter(categories);
             populateMaterialFilter(materials);
 
-            response.forEach(product => {
+            response.data.forEach(product => {
                 const row = $('<tr>').append(
                     $('<td>', { class: 'px-6 py-4 whitespace-nowrap', text: product.productCode }),
                     $('<td>', { class: 'px-6 py-4 whitespace-nowrap', text: product.name }),
@@ -293,8 +301,6 @@ function fetchProductsForCounter() {
     });
 }
 
-
-
 function setupAddProductModal() {
     $('#openAddProductModal').on('click', function () {
         $('#modalTitle').text('Add Products to Counter');
@@ -302,7 +308,7 @@ function setupAddProductModal() {
         $('#selectCounterSection').addClass('hidden');
         $('#combinedModal').removeClass('hidden');
         fetchProductsForCounter();
-        setupCategoryFilter(); // Gọi hàm setupCategoryFilter tại đây
+        setupCategoryFilter();
     });
 
     $('#closeCombinedModal, #cancelAddProduct, #cancelSelectCounter').on('click', function () {
@@ -341,8 +347,6 @@ function setupAddProductModal() {
         $('#combinedModal').addClass('hidden');
     });
 }
-
-
 
 function fetchCountersForSelect() {
     $.ajax({
@@ -384,7 +388,6 @@ function populateCounterSelect(counters) {
     });
 }
 
-
 function setupFilters() {
     $('#categoryFilter').on('change', function () {
         const selectedCategory = $(this).val();
@@ -396,8 +399,6 @@ function setupFilters() {
         filterProducts();
     });
 }
-
-
 
 function populateCategoryFilter(categories) {
     const categoryFilter = $('#categoryFilter');
@@ -443,12 +444,9 @@ function filterProducts() {
     });
 }
 
-
-
 function switchToTab(counterId) {
     $(`#counter-tabs a[data-tab="tab-${counterId}"]`).trigger('click');
 }
-
 
 function deleteCounter(counterId) {
     $.ajax({
@@ -476,8 +474,6 @@ function deleteCounter(counterId) {
     });
 }
 
-
-// Fetch Inactive Counters
 function fetchInactiveCounters() {
     $.ajax({
         url: 'http://localhost:8080/counter/inactive',
@@ -497,7 +493,6 @@ function fetchInactiveCounters() {
     });
 }
 
-// Populate Inactive Counter Table
 function populateInactiveCounterTable(counters) {
     const tableBody = $('#counterTableBody');
     tableBody.empty();
@@ -523,7 +518,6 @@ function populateInactiveCounterTable(counters) {
     });
 }
 
-// Handle Update Counter
 function handleUpdateCounter() {
     const counterId = $(this).data('id'); // Added to retrieve the counter ID
     const newName = $(`.name-input[data-id="${counterId}"]`).val(); // Added to retrieve the counter name
@@ -547,19 +541,15 @@ function handleUpdateCounter() {
     });
 }
 
-
-// Show Maintenance Counter Modal
 function showMaintenanceModal() {
     $('#maintenanceModal').removeClass('hidden');
     fetchInactiveCounters();
 }
 
-// Hide Maintenance Counter Modal
 function hideMaintenanceModal() {
     $('#maintenanceModal').addClass('hidden');
 }
 
-// Setup Maintenance Counter Modal
 function setupMaintenanceCounterModal() {
     $('#openMaintenanceCounters').click(showMaintenanceModal);  // Corrected function name
     $('#closeModal').click(hideMaintenanceModal);
