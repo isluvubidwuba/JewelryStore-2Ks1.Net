@@ -10,7 +10,7 @@ $(document).ready(function () {
     let productMap = {};
     let selectedUserId = null;
     let selectedUserName = null;
-    let userPromotions = [];
+    let userPromotion = null; // Biến để lưu khuyến mãi của người dùng
     let createdInvoiceId = null; // Biến để lưu ID của hóa đơn vừa được tạo
 
     $('#add-barcode-button').click(function () {
@@ -42,7 +42,6 @@ $(document).ready(function () {
             success: function (response) {
                 if (response.status === 'OK') {
                     const productData = response.data;
-                    console.log("Check link hình ảnh của card product : " + productData.productDTO.imgPath);
                     productMap[barcode] = {
                         product: productData.productDTO,
                         price: productData.price,
@@ -105,7 +104,7 @@ $(document).ready(function () {
             if (newQuantity > 0 && newQuantity <= productData.inventory) {
                 updateProductQuantity(barcode, newQuantity);
             } else {
-                alert('Số lượng vượt quá số lượng tồn kho.');
+                alert('Quantity exceeds inventory quantity.');
                 $(this).val(productData.quantity);
             }
         });
@@ -146,10 +145,8 @@ $(document).ready(function () {
             totalPrice += productMap[barcode].totalPrice;
         }
 
-        if (userPromotions.length > 0) {
-            userPromotions.forEach(promotion => {
-                discountTotal += totalPrice * (promotion.value / 100);
-            });
+        if (userPromotion) {
+            discountTotal = totalPrice * (userPromotion.value / 100);
         }
 
         const subtotalPrice = totalPrice - discountTotal;
@@ -169,7 +166,7 @@ $(document).ready(function () {
             success: function (data) {
                 if (data.status === 'OK') {
                     const userTableBody = $('#user-table-body');
-                    userTableBody.empty(); // Clear existing data
+                    userTableBody.empty(); // Xóa dữ liệu cũ
 
                     data.data.forEach(user => {
                         const row = `
@@ -177,7 +174,7 @@ $(document).ready(function () {
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${user.userInfoDTO.fullName}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.point}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <button type="button" class="text-blue-600 hover:text-blue-900" onclick="selectUser(${user.userInfoDTO.id}, '${user.userInfoDTO.fullName}')">Select</button>
+                                    <button type="button" class="text-blue-600 hover:text-blue-900" onclick="selectUser(${user.userInfoDTO.id}, '${user.userInfoDTO.fullName}')">Chọn</button>
                                 </td>
                             </tr>
                         `;
@@ -186,12 +183,12 @@ $(document).ready(function () {
 
                     $('#user-modal').removeClass('hidden');
                 } else {
-                    alert('Failed to load user data');
+                    alert('Unable to load user data');
                 }
             },
             error: function (error) {
-                console.error('Error fetching user data:', error);
-                alert('Error fetching user data');
+                console.error('Error loading user data', error);
+                alert('Error loading user data');
             }
         });
     }
@@ -216,31 +213,33 @@ $(document).ready(function () {
                 'Authorization': `Bearer ${token}`
             },
             data: { userId: userId }, // Truyền ID người dùng vào đây
-            success: function (data) {
-                if (data.status === 'OK') {
-                    userPromotions = data.data;
+            success: function (response) {
+                if (response.status === 'OK') {
+                    userPromotion = response.data;
                     const promotionDetails = $('#promotion-details');
-                    promotionDetails.empty(); // Clear existing data
+                    promotionDetails.empty(); // Xóa dữ liệu cũ
 
-                    userPromotions.forEach(promotion => {
+                    if (userPromotion) {
                         const promotionInfo = `
                             <div class="p-2 border-b border-gray-200">
-                                <p><strong>Name:</strong> ${promotion.name}</p>
-                                <p><strong>Value:</strong> ${promotion.value}%</p>
+                                <p><strong>Tên:</strong> ${userPromotion.name}</p>
+                                <p><strong>Value:</strong> ${userPromotion.value}%</p>
+                                <p><strong>Start day:</strong> ${userPromotion.startDate}</p>
+                                <p><strong>End date:</strong> ${userPromotion.endDate}</p>
                             </div>
                         `;
                         promotionDetails.append(promotionInfo);
-                    });
+                    }
 
-                    console.log('User promotions loaded successfully'); // Log for checking success
+                    console.log('Promotions Loading Successful'); // Log for checking success
                     updateTotalPrice(); // Cập nhật giá trị sau khi có khuyến mãi
                 } else {
-                    alert('Failed to load user promotions');
+                    alert('Can Not Load Information User');
                 }
             },
             error: function (error) {
-                console.error('Error fetching user promotions:', error);
-                alert('Error fetching user promotions');
+                console.error('Error While Loading Information User:', error);
+                alert('Error While Loading Information User!');
             }
         });
     }
@@ -276,7 +275,7 @@ $(document).ready(function () {
             },
             success: function (response) {
                 if (response.status === 'OK') {
-                    alert('Invoice created successfully');
+                    alert('The invoice has been created successfully');
                     createdInvoiceId = response.data; // Lưu ID của hóa đơn vừa tạo
                     viewInvoice(createdInvoiceId); // Gọi hàm để hiển thị hóa đơn
 
@@ -284,19 +283,19 @@ $(document).ready(function () {
                     productMap = {};
                     selectedUserId = null;
                     selectedUserName = null;
-                    userPromotions = [];
+                    userPromotion = null;
                     $('#selected-user-info').addClass('hidden');
                     $('#user-details').empty();
                     $('#promotion-details').empty();
                     selectedProductsContainer.empty();
                     updateTotalPrice();
                 } else {
-                    alert('Failed to create invoice');
+                    alert('Unable to create invoice');
                 }
             },
             error: function (error) {
-                console.error('Error creating invoice:', error);
-                alert('Error creating invoice');
+                console.error('Error when creating invoice:', error);
+                alert('Error when creating invoice:');
             }
         });
     });
@@ -305,7 +304,7 @@ $(document).ready(function () {
         $.ajax({
             url: 'http://localhost:8080/invoice/view-invoice',
             method: 'POST',
-            data: { invoice: invoiceId }, // Truyền tham số trực tiếp
+            data: { invoice: invoiceId },
             headers: {
                 'Authorization': `Bearer ${token}`
             },
@@ -313,72 +312,90 @@ $(document).ready(function () {
                 if (response.status === 'OK') {
                     const invoiceData = response.data;
                     const invoiceDetails = $('#invoice-details');
-                    invoiceDetails.empty(); // Clear existing data
+                    invoiceDetails.empty();
 
                     const userInfo = invoiceData.userInfoDTO;
                     const employeeInfo = invoiceData.employeeDTO;
                     const orderDetails = invoiceData.listOrderInvoiceDetail;
 
                     invoiceDetails.append(`
-                        <div class="grid grid-cols-12 gap-4">
-                            <div class="col-span-6">
-                                <h3 class="text-lg font-medium">User Information</h3>
-                                <p><strong>ID:</strong> ${userInfo.id}</p>
-                                <p><strong>Name:</strong> ${userInfo.fullName}</p>
+                    <div class="bg-white rounded-lg shadow-lg px-8 py-10 max-w-xl mx-auto">
+                        <div class="flex items-center justify-between mb-8">
+                            <div class="flex items-center">
+                                <img class="h-8 w-8 mr-2" src="https://tailwindflex.com/public/images/logos/favicon-32x32.png" alt="Logo" />
+                                <div class="text-gray-700 font-semibold text-lg">2KS 1NET</div>
                             </div>
-                            <div class="col-span-6">
-                                <h3 class="text-lg font-medium">Employee Information</h3>
-                                <p><strong>ID:</strong> ${employeeInfo.id}</p>
-                                <p><strong>Name:</strong> ${employeeInfo.firstName} ${employeeInfo.lastName}</p>
-                            </div>
-                        </div>
-                        <hr class="my-4">
-                    `);
-
-                    // Add invoice info
-                    invoiceDetails.append(`
-                        <div class="grid grid-cols-12 gap-4">
-                            <div class="col-span-6">
-                                <h3 class="text-lg font-medium">Invoice Information</h3>
-                                <p><strong>ID:</strong> ${invoiceData.id}</p>
-                                <p><strong>Total Price Raw:</strong> ${invoiceData.totalPriceRaw}</p>
-                                <p><strong>Discount Price:</strong> ${invoiceData.discountPrice}</p>
-                                <p><strong>Total Price:</strong> ${invoiceData.totalPrice}</p>
+                            <div class="text-gray-700">
+                                <div class="font-bold text-xl mb-2">HÓA ĐƠN</div>
+                                <div class="text-sm">Date: ${new Date(invoiceData.createdDate).toLocaleDateString()}</div>
+                                <div class="text-sm">Invoice #: ${invoiceData.id}</div>
                             </div>
                         </div>
-                        <hr class="my-4">
+                        <div class="border-b-2 border-gray-300 pb-8 mb-8">
+                            <h2 class="text-2xl font-bold mb-4">Thông Tin Khách Hàng</h2>
+                            <div class="text-gray-700 mb-2">${userInfo.fullName}</div>
+                            <div class="text-gray-700 mb-2">ID: ${userInfo.id}</div>
+                        </div>
+                        <div class="border-b-2 border-gray-300 pb-8 mb-8">
+                            <h2 class="text-2xl font-bold mb-4">Thông Tin Nhân Viên</h2>
+                            <div class="text-gray-700 mb-2">${employeeInfo.firstName} ${employeeInfo.lastName}</div>
+                            <div class="text-gray-700 mb-2">ID: ${employeeInfo.id}</div>
+                        </div>
+                        <table class="w-full text-left mb-8">
+                            <thead>
+                                <tr>
+                                    <th class="text-gray-700 font-bold uppercase py-2">Sản phẩm</th>
+                                    <th class="text-gray-700 font-bold uppercase py-2">Mã sản phẩm</th>
+                                    <th class="text-gray-700 font-bold uppercase py-2">Số lượng</th>
+                                    <th class="text-gray-700 font-bold uppercase py-2">Tổng giá</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${orderDetails.map(order => `
+                                <tr>
+                                    <td class="py-4 text-gray-700">${order.productDTO.name}</td>
+                                    <td class="py-4 text-gray-700">${order.productDTO.productCode}</td>
+                                    <td class="py-4 text-gray-700">${order.quantity}</td>
+                                    <td class="py-4 text-gray-700">${order.totalPrice}</td>
+                                </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        <div class="flex justify-end mb-8">
+                            <div class="text-gray-700 mr-2">Tổng giá gốc:</div>
+                            <div class="text-gray-700">${invoiceData.totalPriceRaw}</div>
+                        </div>
+                        <div class="flex justify-end mb-8">
+                            <div class="text-gray-700 mr-2">Giá giảm:</div>
+                            <div class="text-gray-700">${invoiceData.discountPrice}</div>
+                        </div>
+                        <div class="flex justify-end mb-8">
+                            <div class="text-gray-700 mr-2">Tổng giá:</div>
+                            <div class="text-gray-700 font-bold text-xl">${invoiceData.totalPrice}</div>
+                        </div>
+                        <div class="border-t-2 border-gray-300 pt-8 mb-8">
+                            <div class="text-gray-700 mb-2">Thanh toán trong vòng 30 ngày. Thanh toán trễ sẽ bị tính phí.</div>
+                            <div class="text-gray-700 mb-2">Vui lòng viết séc thanh toán cho Tên Công Ty Của Bạn và gửi đến:</div>
+                            <div class="text-gray-700">FPT University</div>
+                        </div>
+                    </div>
                     `);
-
-                    // Add order details
-                    invoiceDetails.append('<div><h3 class="text-lg font-medium">Order Details</h3></div>');
-                    orderDetails.forEach(order => {
-                        const product = order.productDTO;
-                        invoiceDetails.append(`
-                            <div class="grid grid-cols-12 gap-4">
-                                <div class="col-span-6">
-                                    <p><strong>Product Name:</strong> ${product.name}</p>
-                                    <p><strong>Product Code:</strong> ${product.productCode}</p>
-                                    <p><strong>Quantity:</strong> ${order.quantity}</p>
-                                    <p><strong>Total Price:</strong> ${order.totalPrice}</p>
-                                </div>
-                                <div class="col-span-6">
-                                    <img src="${product.imgPath}" alt="${product.name}" class="w-full h-auto my-2 rounded-md">
-                                </div>
-                            </div>
-                            <hr class="my-4">
-                        `);
-                    });
 
                     $('#view-invoice-modal').removeClass('hidden');
                 } else {
-                    alert('Failed to load invoice details');
+                    alert('Không thể tải chi tiết hóa đơn');
                 }
             },
             error: function (error) {
-                console.error('Error loading invoice details:', error);
-                alert('Error loading invoice details');
+                console.error('Không thể tải chi tiết hóa đơn', error);
+                alert('Không thể tải chi tiết hóa đơn !!!');
             }
         });
+    }
+
+    // Hàm để đóng modal
+    function closeViewInvoiceModal() {
+        $('#view-invoice-modal').addClass('hidden');
     }
 
 
