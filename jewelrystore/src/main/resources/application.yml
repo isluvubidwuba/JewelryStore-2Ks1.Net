@@ -13,6 +13,17 @@ spring:
   servlet:
     multipart:
       max-file-size: 10MB
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: nightfury455@gmail.com
+    password: qakfjurwmabkteza
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 fileUpload:
   promotionPath: Promotion/

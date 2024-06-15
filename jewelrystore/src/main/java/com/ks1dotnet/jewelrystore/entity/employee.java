@@ -1,5 +1,6 @@
 package com.ks1dotnet.jewelrystore.entity;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 import com.ks1dotnet.jewelrystore.dto.EmployeeDTO;
@@ -44,6 +45,13 @@ public class Employee {
 
     @Column(name = "image")
     private String image;
+
+    @Column(name = "otp")
+    private String otp;
+    @Column(name = "otp_generated_time")
+    private LocalDateTime otpGenerDateTime;
+    @Column(name = "token")
+    private String token;
 
     @ManyToOne
     @JoinColumn(name = "id_role")

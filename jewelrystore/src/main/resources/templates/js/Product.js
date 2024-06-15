@@ -626,6 +626,9 @@ function fetchProduct(page, size) {
   const linkProduct = `http://localhost:8080/product/all?page=${page}&size=${size}`;
   $.ajax({
     url: linkProduct,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     method: "GET",
     success: function (response) {
       if (response && response.data) {
@@ -1006,6 +1009,9 @@ function searchProducts(query) {
   $.ajax({
     url: "http://localhost:8080/product/search",
     type: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     data: $.param({
       search: query,
       id_material: "",
@@ -1048,7 +1054,13 @@ async function fetchGemStoneOfProduct(productId) {
 
 async function fetchData(url) {
   try {
-    const response = await $.ajax({ url, method: "GET" });
+    const response = await $.ajax({
+      url,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      method: "GET",
+    });
     if (response.status === "OK" && response.data) {
       return response.data.content;
     } else {
@@ -1092,6 +1104,9 @@ function setupFormSubmission(
       console.log(formData);
       await $.ajax({
         url,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         type: "POST",
         data: JSON.stringify(formData),
         processData: false,
@@ -1193,6 +1208,9 @@ async function uploadImage(file) {
       url: "http://localhost:8080/product/upload",
       type: "POST",
       data: formData,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       processData: false,
       contentType: false,
       error: function (xhr, status, error) {
