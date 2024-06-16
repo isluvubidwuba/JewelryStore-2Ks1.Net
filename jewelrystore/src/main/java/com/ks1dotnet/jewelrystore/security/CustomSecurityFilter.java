@@ -44,9 +44,12 @@ public class CustomSecurityFilter {
                                 .sessionManagement(session -> session
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .authorizeHttpRequests(authz -> authz
-                                                .requestMatchers("/authentication/**", "/proxy").permitAll()
+                                                .requestMatchers("/authentication/**", "/proxy", "/product/**",
+                                                                "/material/**")
+                                                .permitAll()
                                                 .requestMatchers("/promotion/files/**").permitAll()
-                                                .requestMatchers("/policy/listpolicy", "/promotion/by-user","/voucher/list")
+                                                .requestMatchers("/policy/listpolicy", "/promotion/by-user",
+                                                                "/voucher/list")
                                                 .hasAnyAuthority("ADMIN", "MANAGER", "STAFF")
                                                 .requestMatchers("/policy/**").hasAuthority("ADMIN")
                                                 .requestMatchers("/promotion/getHomePagePromotion**",
