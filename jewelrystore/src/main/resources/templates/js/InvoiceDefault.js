@@ -13,6 +13,9 @@ $(document).ready(function () {
     let userPromotion = null; // Biến để lưu khuyến mãi của người dùng
     let createdInvoiceId = null; // Biến để lưu ID của hóa đơn vừa được tạo
 
+
+
+
     $('#add-barcode-button').click(function () {
         const barcode = $('#barcode-input').val().trim();
         if (barcode) {
@@ -215,7 +218,7 @@ $(document).ready(function () {
                 <p class="text-sm text-gray-600 mb-1"><strong>Chất liệu:</strong> ${productData.product.materialDTO.name}</p>
                 <p class="text-sm text-gray-600 mb-1"><strong>Danh mục:</strong> ${productData.product.productCategoryDTO.name}</p>
                 <p class="text-sm text-gray-600 mb-1"><strong>Barcode:</strong> ${productData.product.barCode}</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Giá tổng:</strong> ${productData.totalPrice.toFixed(2)}</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Giá tổng:</strong> ${new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(productData.totalPrice)}</p>
                 <p class="text-sm text-gray-600 mb-1"><strong>Số lượng:</strong> <span id="quantity-${barcode}">${productData.quantity}</span></p>
             </div>
         </div>
@@ -229,7 +232,7 @@ $(document).ready(function () {
             <tr id="sidebar-product-${barcode}" data-id="${barcode}">
                 <td class="px-4 py-2">${productData.product.name}</td>
                 <td class="px-4 py-2">${productData.product.productCode}</td>
-                <td class="px-4 py-2 total-price">${productData.totalPrice.toFixed(2)}</td>
+                <td class="px-4 py-2 total-price">${new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(productData.totalPrice)}</td>
                 <td class="px-4 py-2">
                     <input type="number" id="sidebar-quantity-${barcode}" class="quantity-input border p-1" value="${productData.quantity}" min="1" max="${productData.inventory}">
                 </td>
@@ -263,8 +266,8 @@ $(document).ready(function () {
 
         $(`#quantity-${barcode}`).text(newQuantity);
         $(`#sidebar-quantity-${barcode}`).val(newQuantity);
-        $(`#sidebar-product-${barcode} .total-price`).text(productData.totalPrice.toFixed(2));
-        $(`#total-price-${barcode}`).text(productData.totalPrice.toFixed(2));
+        $(`#sidebar-product-${barcode} .total-price`).text(new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(productData.totalPrice));
+        $(`#total-price-${barcode}`).text(new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(productData.totalPrice));
 
         updateTotalPrice();
 
@@ -294,9 +297,10 @@ $(document).ready(function () {
 
         const subtotalPrice = totalPriceBeforeDiscount - discountTotal;
 
-        totalPriceRaw.text(totalPriceBeforeDiscount.toFixed(2));
-        discountPrice.text(discountTotal.toFixed(2));
-        subtotal.text(subtotalPrice.toFixed(2));
+        totalPriceRaw.text(new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(totalPriceBeforeDiscount));
+        discountPrice.text(new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(discountTotal));
+        subtotal.text(new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(subtotalPrice));
+
     }
 
     function openUserModal() {
@@ -526,18 +530,18 @@ $(document).ready(function () {
                                     <td class="py-4 text-gray-700">${order.productDTO.name}</td>
                                     <td class="py-4 text-gray-700">${order.productDTO.productCode}</td>
                                     <td class="py-4 text-gray-700">${order.quantity}</td>
-                                    <td class="py-4 text-gray-700">${order.totalPrice}</td>
+                                    <td class="py-4 text-gray-700">${new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(order.totalPrice)}</td>
                                 </tr>
                                 `).join('')}
                             </tbody>
                         </table>
                         <div class="grid grid-cols-2 gap-4">
                             <div class="text-gray-700">Tổng giá gốc:</div>
-                            <div class="text-gray-700 text-right">${invoiceData.totalPriceRaw}</div>
+                            <div class="text-gray-700 text-right">${new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(invoiceData.totalPriceRaw)}</div>
                             <div class="text-gray-700">Giá giảm:</div>
-                            <div class="text-gray-700 text-right">${invoiceData.discountPrice}</div>
+                            <div class="text-gray-700 text-right">${new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(invoiceData.discountPrice)}</div>
                             <div class="text-gray-700 font-bold text-xl">Tổng giá:</div>
-                            <div class="text-gray-700 font-bold text-xl text-right">${invoiceData.totalPrice}</div>
+                            <div class="text-gray-700 font-bold text-xl text-right">${new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(invoiceData.totalPrice)}</div>
                         </div>
                         
                     </div>
@@ -565,6 +569,7 @@ $(document).ready(function () {
     }
 
     function initiatePayment(amount, bankCode) {
+        amount = parseInt(amount.replace(/[.,\s₫]/g, ''), 10);
         console.log("Initiating payment with:");
         console.log("amount:", amount);
         console.log("bankCode:", bankCode);

@@ -94,12 +94,12 @@ public class InvoiceService implements IInvoiceService {
                                 throw new BadRequestException("Product not found.");
                         }
 
-                        if (product.getInventory().getQuantity() <= 0) {
+                        if (product.getInventory().getQuantity() <= 0 && invoiceTypeId == 1) {
                                 throw new BadRequestException("Product is out of stock.");
-                        } else if (product.getInventory().getQuantity() < quantity) {
+                        } else if (product.getInventory().getQuantity() < quantity && invoiceTypeId == 1) {
                                 throw new BadRequestException("Product is not enough to sell.");
                         }
-                        if (!product.isStatus()) {
+                        if (!product.isStatus() && invoiceTypeId == 1) {
                                 throw new BadRequestException("Product is not sold.");
                         }
 
