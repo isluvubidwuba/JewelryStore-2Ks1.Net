@@ -18,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -28,6 +30,8 @@ import com.ks1dotnet.jewelrystore.dto.MaterialDTO;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IMaterialService;
 
+@RestController
+@RequestMapping("proxy")
 @CrossOrigin("*")
 public class ProxyController {
     @Autowired
@@ -37,7 +41,8 @@ public class ProxyController {
     public ResponseEntity<String> getGoldPrices() {
         String url = "https://sjc.com.vn/xml/tygiavang.xml";
         RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+        restTemplate.getMessageConverters().add(0,
+                new StringHttpMessageConverter(StandardCharsets.UTF_8));
 
         try {
             String response = restTemplate.getForObject(url, String.class);
@@ -46,7 +51,8 @@ public class ProxyController {
             headers.set(HttpHeaders.CONTENT_TYPE, "application/xml; charset=UTF-8");
             return new ResponseEntity<>(response, headers, HttpStatus.OK);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching data");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error fetching data");
         }
     }
 
@@ -56,7 +62,8 @@ public class ProxyController {
         List<MaterialDTO> listMaterial = new ArrayList<>();
         String url = "https://sjc.com.vn/xml/tygiavang.xml";
         RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+        restTemplate.getMessageConverters().add(0,
+                new StringHttpMessageConverter(StandardCharsets.UTF_8));
         Date date = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -66,7 +73,8 @@ public class ProxyController {
             // Parse dữ liệu XML từ response
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.parse(new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8)));
+            Document document = builder
+                    .parse(new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8)));
             document.getDocumentElement().normalize();
 
             // Lấy thông tin thành phố Hồ Chí Minh
@@ -109,7 +117,8 @@ public class ProxyController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching gold price data");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error fetching gold price data");
         }
     }
 
