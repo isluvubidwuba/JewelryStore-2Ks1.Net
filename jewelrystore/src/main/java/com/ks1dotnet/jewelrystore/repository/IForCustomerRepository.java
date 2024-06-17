@@ -32,5 +32,5 @@ public interface IForCustomerRepository extends JpaRepository<ForCustomer, Integ
                         @Param("customerTypeId") int customerTypeId, @Param("invoiceTypeId") int invoiceTypeId);
 
         @Query("SELECT fc FROM ForCustomer fc JOIN fc.promotion p JOIN fc.customerType ct JOIN ct.listEarnPoints ep WHERE ep.userInfo.id = :userId AND p.status = true AND fc.status = true")
-        List<ForCustomer> findActivePromotionsByUserId(@Param("userId") int userId);
+        ForCustomer findActivePromotionsByUserId(@Param("userId") int userId);
 }

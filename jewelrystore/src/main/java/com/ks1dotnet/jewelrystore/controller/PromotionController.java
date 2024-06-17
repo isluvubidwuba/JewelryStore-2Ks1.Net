@@ -205,8 +205,8 @@ public class PromotionController {
     @GetMapping("/by-user")
     public ResponseEntity<?> getPromotionsByUserId(@RequestParam int userId) {
         try {
-            List<PromotionDTO> promotions = iPromotionService.getPromotionsByUserId(userId);
-            ResponseData responseData = new ResponseData(HttpStatus.OK, "Get list promotion success", promotions);
+            PromotionDTO promotion = iPromotionService.getPromotionsByUserId(userId);
+            ResponseData responseData = new ResponseData(HttpStatus.OK, "Get promotion success", promotion);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
         } catch (Exception e) {
             return handleBadRequestException(e);

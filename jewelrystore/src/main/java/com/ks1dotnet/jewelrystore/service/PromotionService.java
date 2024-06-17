@@ -218,18 +218,14 @@ public class PromotionService implements IPromotionService {
     }
 
     @Override
-    public List<PromotionDTO> getPromotionsByUserId(int userId) {
-        List<ForCustomer> forCustomers = iForCustomerRepository.findActivePromotionsByUserId(userId);
-        List<PromotionDTO> promotionDTOs = new ArrayList<>();
-        for (ForCustomer fc : forCustomers) {
-            promotionDTOs.add(fc.getPromotion().getDTO());
+    public PromotionDTO getPromotionsByUserId(int userId) {
+        ForCustomer forCustomers = iForCustomerRepository.findActivePromotionsByUserId(userId);
+        PromotionDTO promotionDTO = null;
+        if (forCustomers != null) {
+            promotionDTO = forCustomers.getPromotion().getDTO();
+            promotionDTO.setImage(url.trim() + filePath.trim() + promotionDTO.getImage());
         }
-        promotionDTOs.stream().map(promotion -> {
-            promotion.setImage(url.trim() + filePath.trim() + promotion.getImage());
-            return promotion;
-        })
-                .collect(Collectors.toList());
-        return promotionDTOs;
+        return promotionDTO;
     }
 
     @Override

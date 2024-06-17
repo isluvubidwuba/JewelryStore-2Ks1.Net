@@ -36,3 +36,15 @@ firebase:
 
 jwt:
   privateKey: wQwCoOrdAU3iyXZsqshyOKiC2xzW9C7R+/3HjwQ2cEk=
+
+
+payment:
+  vnPay:
+    url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+    tmnCode: OSJWY5E5
+    secretKey: RZ9X5FM7S4799PB3DIU0GOBIFMYC3ZGQ
+    returnUrl: http://localhost:8080/payment/vn-pay-callback
+    version: 2.1.0
+    command: pay
+    orderType: other
+    tokenUrl: https://sandbox.vnpayment.vn/token_ui/create-token.html

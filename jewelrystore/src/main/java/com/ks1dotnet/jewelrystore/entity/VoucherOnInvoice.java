@@ -1,5 +1,7 @@
 package com.ks1dotnet.jewelrystore.entity;
 
+import com.ks1dotnet.jewelrystore.dto.VoucherOnInvoiceDTO;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -32,5 +34,9 @@ public class VoucherOnInvoice {
     public VoucherOnInvoice(Promotion promotion, Invoice orderInvoice) {
         this.promotion = promotion;
         this.invoice = orderInvoice;
+    }
+
+    public VoucherOnInvoiceDTO getDTO() {
+        return new VoucherOnInvoiceDTO(id, promotion.getDTO(), invoice.getDTO());
     }
 }
