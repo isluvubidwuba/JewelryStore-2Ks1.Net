@@ -20,5 +20,8 @@ public class InvoiceDTO {
     private double totalPriceRaw;
     private double totalPrice;
     private double discountPrice;
+    private String payment;
+    private String note;
+    private List<PromotionDTO> listPromotionOnInvoice;
     private List<InvoiceDetailDTO> listOrderInvoiceDetail;
 }

@@ -59,7 +59,7 @@ public class InvoiceController {
 
             int isSuccessCreateInvoice = invoiceService.createInvoiceFromDetails(barcodeQuantity,
                     request.getInvoiceTypeId(),
-                    request.getUserId(), request.getEmployeeId());
+                    request.getUserId(), request.getEmployeeId(), request.getPayment(), request.getNote());
 
             ResponseData responseData = new ResponseData(HttpStatus.OK, "Invoice created successfully",
                     isSuccessCreateInvoice);

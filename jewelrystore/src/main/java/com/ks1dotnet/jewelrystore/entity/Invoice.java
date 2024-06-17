@@ -6,7 +6,9 @@ import java.util.stream.Collectors;
 
 import com.ks1dotnet.jewelrystore.dto.InvoiceDTO;
 import com.ks1dotnet.jewelrystore.dto.InvoiceDetailDTO;
+import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -44,7 +46,13 @@ public class Invoice {
     private double discountPrice;
 
     @Column(name = "status")
-    private boolean status;
+    private boolean status = true;
+
+    @Column(name = "note", nullable = true)
+    private String note;
+
+    @Column(name = "payment")
+    private String payment;
 
     @ManyToOne
     @JoinColumn(name = "id_user")
@@ -58,7 +66,7 @@ public class Invoice {
     @JoinColumn(name = "id_invoice_type")
     private InvoiceType invoiceType;
 
-    @OneToMany(mappedBy = "invoice")
+    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
     List<VoucherOnInvoice> listVoucherOnInvoice;
 
     @OneToMany(mappedBy = "invoice")
@@ -75,9 +83,15 @@ public class Invoice {
         inpDto.setUserInfoDTO(userInfo.getDTO());
         inpDto.setEmployeeDTO(employee.getDTO());
         inpDto.setInvoiceTypeDTO(invoiceType.getDTO());
+        inpDto.setPayment(payment);
+        inpDto.setNote(note);
+        List<PromotionDTO> listPromotionForInvoice = listVoucherOnInvoice.stream()
+                .map(VoucherOnInvoice -> VoucherOnInvoice.getPromotion().getDTO())
+                .collect(Collectors.toList());
         List<InvoiceDetailDTO> invoiceDetailDTOs = listOrderInvoiceDetail.stream()
                 .map(InvoiceDetail::getDTO)
                 .collect(Collectors.toList());
+        inpDto.setListPromotionOnInvoice(listPromotionForInvoice);
         inpDto.setListOrderInvoiceDetail(invoiceDetailDTOs);
         return inpDto;
     }
