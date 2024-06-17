@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resale Invoice</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="./js/ResaleInvoice.js"></script>
+</head>
+
+
+<body>
+    <div id="container" class="flex">
+        <!-- side bar -->
+        <div id="sidebarContainer" class="h-screen text-white">
+            <!-- Sidebar content -->
+        </div>
+
+        <div class="12bg-pink-100 p-8 w-10/12 h-screen">
+            <!-- Form nhập liệu -->
+            <div class="mb-8">
+                <label for="invoiceInput" class="block text-gray-700 text-sm font-bold mb-2">Nhập mã hóa đơn:</label>
+                <input type="text" id="invoiceInput" name="invoiceInput"
+                    class="shadow appearance-none border rounded w-1/4 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                <button id="submitInvoice"
+                    class="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Gửi</button>
+            </div>
+            <!-- Nội dung hóa đơn sẽ được cập nhật tại đây -->
+            <div id="invoiceContent">
+                <!-- Nội dung hóa đơn như mẫu đã cho -->
+            </div>
+        </div>
+
+    </div>
+</body>
+
+<script>
+    $(document).ready(function () {
+        $("#sidebarContainer").load("components/sidebarForStaff.html");
+    });
+</script>
+
+</html>
