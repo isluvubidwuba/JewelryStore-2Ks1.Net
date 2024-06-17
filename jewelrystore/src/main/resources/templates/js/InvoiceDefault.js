@@ -1,11 +1,11 @@
 $(document).ready(function () {
-    const productSoldDiv = $('#product-sold');
-    const selectedProductsContainer = $('#selected-products');
-    const totalPriceRaw = $('#totalPriceRaw');
-    const discountPrice = $('#discountPrice');
-    const subtotal = $('#subtotal');
-    const token = localStorage.getItem("token");
-    const employeeID = localStorage.getItem("userId"); // ID của nhân viên từ token
+    let productSoldDiv = $('#product-sold');
+    let selectedProductsContainer = $('#selected-products');
+    let totalPriceRaw = $('#totalPriceRaw');
+    let discountPrice = $('#discountPrice');
+    let subtotal = $('#subtotal');
+    let token = localStorage.getItem("token");
+    let employeeID = localStorage.getItem("userId"); // ID của nhân viên từ token
 
     let productMap = {};
     let selectedUserId = null;
@@ -19,6 +19,65 @@ $(document).ready(function () {
             addProductByBarcode(barcode);
             $('#barcode-input').val('');
         }
+    });
+
+    $('#open-user-modal').click(function () {
+        openUserModal();
+    });
+
+    $('#close-user-modal').click(function () {
+        closeModal();
+    });
+
+    $('#confirm-user-selection').click(function () {
+        const selectedUserElement = $('#user-table-body tr.selected');
+        const userId = selectedUserElement.data('id');
+        const userName = selectedUserElement.data('name');
+        selectUser(userId, userName);
+    });
+
+    $('#create-invoice-button').click(function () {
+        if (!checkUserSelection()) {
+            alert('Vui lòng chọn người dùng trước khi tạo hóa đơn.');
+            return;
+        }
+        createInvoice();
+    });
+
+    $('#open-payment-modal').click(function () {
+        $('#customer-info').text(`Khách hàng: ${selectedUserName}`);
+        $('#amount-info').text(`Số tiền: ${subtotal.text()} VND`);
+        $('#payment-modal').removeClass('hidden');
+    });
+
+    $('#close-payment-modal').click(function () {
+        $('#payment-modal').addClass('hidden');
+    });
+
+    $('#redirect-to-bank').click(function () {
+        let amount = subtotal.text().trim();
+        amount = amount.replace(/[.,]/g, ''); // Loại bỏ tất cả các dấu . và ,
+
+        const bankCode = $('#bank-select').val();
+
+        if (!bankCode) {
+            alert('Vui lòng chọn ngân hàng.');
+            return;
+        }
+
+        // Lưu trữ thông tin vào localStorage
+        localStorage.setItem('selectedUserId', selectedUserId);
+        localStorage.setItem('selectedUserName', selectedUserName);
+        localStorage.setItem('userPromotion', JSON.stringify(userPromotion));
+        localStorage.setItem('productMap', JSON.stringify(productMap));
+        localStorage.setItem('employeeID', employeeID);
+
+        initiatePayment(amount, bankCode);
+    });
+
+    $('.close-view-invoice-modal-btn').click(function () {
+        $('#view-invoice-modal').addClass('hidden');
+        clearAllData(); // Xóa thông tin sau khi xem hóa đơn
     });
 
     function addProductByBarcode(barcode) {
@@ -42,11 +101,11 @@ $(document).ready(function () {
             success: function (response) {
                 if (response.status === 'OK') {
                     const productData = response.data;
+
                     productMap[barcode] = {
                         product: productData.productDTO,
-                        unitPrice: productData.totalPrice, // Đơn giá mỗi sản phẩm
                         quantity: 1,
-                        totalPrice: productData.totalPrice, // Giá tổng ban đầu
+                        totalPrice: productData.totalPrice, // Giá tổng ban đầu từ API
                         inventory: productData.productDTO.inventoryDTO.quantity
                     };
 
@@ -61,33 +120,31 @@ $(document).ready(function () {
         });
     }
 
-
-
     function renderProductCard(barcode) {
         const productData = productMap[barcode];
         const productCard = $(`
-            <div id="product-${barcode}" class="product-card border p-4 mb-4 rounded-md shadow-md grid grid-cols-12 gap-4">
-                <div class="col-span-4">
-                    <img src="${productData.product.imgPath}" alt="${productData.product.name}" class="w-full h-auto rounded-md">
-                </div>
-                <div class="col-span-8">
-                    <h3 class="text-xl font-semibold mb-2">${productData.product.name}</h3>
-                    <p class="text-sm text-gray-600 mb-1"><strong>Mã sản phẩm:</strong> ${productData.product.productCode}</p>
-                    <p class="text-sm text-gray-600 mb-1"><strong>Chất liệu:</strong> ${productData.product.materialDTO.name}</p>
-                    <p class="text-sm text-gray-600 mb-1"><strong>Danh mục:</strong> ${productData.product.productCategoryDTO.name}</p>
-                    <p class="text-sm text-gray-600 mb-1"><strong>Barcode:</strong> ${productData.product.barCode}</p>
-                    <p class="text-sm text-gray-600 mb-1"><strong>Giá:</strong> ${productData.totalPrice}</p>
-                    <p class="text-sm text-gray-600 mb-1"><strong>Số lượng:</strong> <span id="quantity-${barcode}">${productData.quantity}</span></p>
-                </div>
+        <div id="product-${barcode}" class="product-card border p-4 mb-4 rounded-md shadow-md grid grid-cols-12 gap-4">
+            <div class="col-span-4">
+                <img src="${productData.product.imgPath}" alt="${productData.product.name}" class="w-full h-auto rounded-md">
             </div>
-        `);
+            <div class="col-span-8">
+                <h3 class="text-xl font-semibold mb-2">${productData.product.name}</h3>
+                <p class="text-sm text-gray-600 mb-1"><strong>Mã sản phẩm:</strong> ${productData.product.productCode}</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Chất liệu:</strong> ${productData.product.materialDTO.name}</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Danh mục:</strong> ${productData.product.productCategoryDTO.name}</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Barcode:</strong> ${productData.product.barCode}</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Giá tổng:</strong> ${productData.totalPrice.toFixed(2)}</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Số lượng:</strong> <span id="quantity-${barcode}">${productData.quantity}</span></p>
+            </div>
+        </div>
+    `);
         productSoldDiv.append(productCard);
     }
 
     function renderSidebarProduct(barcode) {
         const productData = productMap[barcode];
         const productRow = $(`
-            <tr id="sidebar-product-${barcode}">
+            <tr id="sidebar-product-${barcode}" data-id="${barcode}">
                 <td class="px-4 py-2">${productData.product.name}</td>
                 <td class="px-4 py-2">${productData.product.productCode}</td>
                 <td class="px-4 py-2 total-price">${productData.totalPrice.toFixed(2)}</td>
@@ -116,15 +173,16 @@ $(document).ready(function () {
         });
     }
 
-
     function updateProductQuantity(barcode, newQuantity) {
         const productData = productMap[barcode];
+
+        productData.totalPrice = (productData.totalPrice / productData.quantity) * newQuantity; // Tính lại giá tổng dựa trên số lượng mới
         productData.quantity = newQuantity;
-        productData.totalPrice = productData.unitPrice * newQuantity; // Tính lại giá tổng dựa trên đơn giá và số lượng mới
 
         $(`#quantity-${barcode}`).text(newQuantity);
         $(`#sidebar-quantity-${barcode}`).val(newQuantity);
         $(`#sidebar-product-${barcode} .total-price`).text(productData.totalPrice.toFixed(2));
+        $(`#total-price-${barcode}`).text(productData.totalPrice.toFixed(2));
 
         updateTotalPrice();
 
@@ -132,8 +190,6 @@ $(document).ready(function () {
             removeProduct(barcode);
         }
     }
-
-
 
     function removeProduct(barcode) {
         delete productMap[barcode];
@@ -150,7 +206,7 @@ $(document).ready(function () {
             totalPriceBeforeDiscount += productMap[barcode].totalPrice;
         }
 
-        if (userPromotion) {
+        if (selectedUserId && userPromotion) {
             discountTotal = (totalPriceBeforeDiscount * userPromotion.value) / 100;
         }
 
@@ -160,8 +216,6 @@ $(document).ready(function () {
         discountPrice.text(discountTotal.toFixed(2));
         subtotal.text(subtotalPrice.toFixed(2));
     }
-
-
 
     function openUserModal() {
         $.ajax({
@@ -177,15 +231,25 @@ $(document).ready(function () {
 
                     data.data.forEach(user => {
                         const row = `
-                            <tr>
+                            <tr data-id="${user.userInfoDTO.id}" data-name="${user.userInfoDTO.fullName}">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${user.userInfoDTO.fullName}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.point}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <button type="button" class="text-blue-600 hover:text-blue-900" onclick="selectUser(${user.userInfoDTO.id}, '${user.userInfoDTO.fullName}')">Chọn</button>
+                                    <button type="button" class="select-user-btn text-blue-600 hover:text-blue-900">Chọn</button>
                                 </td>
                             </tr>
                         `;
                         userTableBody.append(row);
+                    });
+
+                    // Thêm sự kiện click cho các nút "Chọn"
+                    $('.select-user-btn').click(function () {
+                        const tr = $(this).closest('tr');
+                        $('#user-table-body tr').removeClass('selected');
+                        tr.addClass('selected');
+                        const userId = tr.data('id');
+                        const userName = tr.data('name');
+                        selectUser(userId, userName);
                     });
 
                     $('#user-modal').removeClass('hidden');
@@ -205,9 +269,9 @@ $(document).ready(function () {
         selectedUserName = name;
         $('#user-modal').addClass('hidden');
         $('#selected-user-info').removeClass('hidden').find('#user-details').html(`
-            <p>${name}</p>
-            <p>ID: ${id}</p>
-        `);
+        <p>${name}</p>
+        <p>ID: ${id}</p>
+    `);
 
         fetchUserPromotions(id); // Gọi hàm để lấy khuyến mãi của người dùng
     }
@@ -238,7 +302,6 @@ $(document).ready(function () {
                         promotionDetails.append(promotionInfo);
                     }
 
-                    console.log('Promotions Loading Successful'); // Log for checking success
                     updateTotalPrice(); // Cập nhật giá trị sau khi có khuyến mãi
                 } else {
                     alert('Can Not Load Information User');
@@ -255,12 +318,12 @@ $(document).ready(function () {
         $('#user-modal').addClass('hidden');
     }
 
-    function closeViewInvoiceModal() {
-        $('#view-invoice-modal').addClass('hidden');
-    }
+    function createInvoice() {
+        if (!selectedUserId) {
+            alert('Vui lòng chọn người dùng trước khi tạo hóa đơn.');
+            return;
+        }
 
-    // Tạo hóa đơn
-    $('#create-invoice-button').click(function () {
         const invoiceDetails = {
             barcodeQuantityMap: {},
             invoiceTypeId: 1,
@@ -272,6 +335,8 @@ $(document).ready(function () {
             invoiceDetails.barcodeQuantityMap[barcode] = productMap[barcode].quantity.toString();
         }
 
+        console.log('Sending invoice details:', invoiceDetails);
+
         $.ajax({
             url: 'http://localhost:8080/invoice/create-invoice',
             method: 'POST',
@@ -282,30 +347,40 @@ $(document).ready(function () {
             },
             success: function (response) {
                 if (response.status === 'OK') {
-                    alert('The invoice has been created successfully');
+                    alert('Hóa đơn đã được tạo thành công');
                     createdInvoiceId = response.data; // Lưu ID của hóa đơn vừa tạo
                     viewInvoice(createdInvoiceId); // Gọi hàm để hiển thị hóa đơn
-
-                    // Reset lại các giá trị sau khi tạo hóa đơn thành công
-                    productMap = {};
-                    selectedUserId = null;
-                    selectedUserName = null;
-                    userPromotion = null;
-                    $('#selected-user-info').addClass('hidden');
-                    $('#user-details').empty();
-                    $('#promotion-details').empty();
-                    selectedProductsContainer.empty();
-                    updateTotalPrice();
                 } else {
-                    alert('Unable to create invoice');
+                    alert('Không thể tạo hóa đơn. Vui lòng thử lại.');
                 }
             },
             error: function (error) {
-                console.error('Error when creating invoice:', error);
-                alert('Error when creating invoice:');
+                console.error('Error khi tạo hóa đơn:', error);
+                alert('Error khi tạo hóa đơn.');
             }
         });
-    });
+    }
+
+    function clearAllData() {
+        // Xóa thông tin từ localStorage
+        localStorage.removeItem('selectedUserId');
+        localStorage.removeItem('selectedUserName');
+        localStorage.removeItem('userPromotion');
+        localStorage.removeItem('productMap');
+
+        // Reset các biến
+        productMap = {};
+        selectedUserId = null;
+        selectedUserName = null;
+        userPromotion = null;
+
+        // Xóa các thông tin trên giao diện
+        $('#selected-user-info').addClass('hidden');
+        $('#user-details').empty();
+        $('#promotion-details').empty();
+        $('#selected-products').empty();
+        updateTotalPrice();
+    }
 
     function viewInvoice(invoiceId) {
         $.ajax({
@@ -395,16 +470,65 @@ $(document).ready(function () {
         });
     }
 
-    // Hàm để đóng modal
     function closeViewInvoiceModal() {
         $('#view-invoice-modal').addClass('hidden');
-        location.reload()
+        clearAllData(); // Xóa thông tin sau khi xem hóa đơn
     }
 
+    function initiatePayment(amount, bankCode) {
+        $.ajax({
+            url: `http://localhost:8080/payment/vn-pay?amount=${amount}&bankCode=${bankCode}`,
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            success: function (response) {
+                if (response.code === 200 && response.data && response.data.paymentUrl) {
+                    window.location.href = response.data.paymentUrl;
+                } else {
+                    alert('Có lỗi xảy ra khi khởi tạo thanh toán. Vui lòng thử lại.');
+                }
+            },
+            error: function (error) {
+                console.error('Error initiating payment:', error);
+                alert('Error initiating payment.');
+            }
+        });
+    }
 
-    // Đảm bảo rằng các hàm đã được định nghĩa trước khi gọi sự kiện onclick
-    window.openUserModal = openUserModal;
-    window.closeModal = closeModal;
-    window.selectUser = selectUser;
-    window.closeViewInvoiceModal = closeViewInvoiceModal;
+    function handleVnPayCallback() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const paymentSuccess = urlParams.get('paymentSuccess');
+
+        if (paymentSuccess !== null) { // Chỉ thực thi nếu có tham số paymentSuccess
+            if (paymentSuccess === 'true') {
+                // Lấy các thông tin đã lưu trữ từ localStorage
+                selectedUserId = localStorage.getItem('selectedUserId');
+                selectedUserName = localStorage.getItem('selectedUserName');
+                userPromotion = JSON.parse(localStorage.getItem('userPromotion'));
+                productMap = JSON.parse(localStorage.getItem('productMap'));
+                employeeID = localStorage.getItem('employeeID');
+
+                // Tự động nhấn nút tạo hóa đơn
+                $('#create-invoice-button').click();
+
+                // Xóa các thông tin đã lưu trữ sau khi xử lý
+                localStorage.removeItem('selectedUserId');
+                localStorage.removeItem('selectedUserName');
+                localStorage.removeItem('userPromotion');
+                localStorage.removeItem('productMap');
+                localStorage.removeItem('employeeID');
+            } else {
+                alert('Thanh toán không thành công. Vui lòng thử lại.');
+            }
+        }
+    }
+
+    // Thêm hàm kiểm tra user đã chọn chưa
+    function checkUserSelection() {
+        return selectedUserId !== null;
+    }
+
+    // Xử lý callback từ VNPAY khi trang được tải
+    handleVnPayCallback();
 });
