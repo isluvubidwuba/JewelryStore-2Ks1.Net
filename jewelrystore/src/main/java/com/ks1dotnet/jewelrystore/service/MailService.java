@@ -6,11 +6,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.ks1dotnet.jewelrystore.dto.MailStructure;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
-
+import com.ks1dotnet.jewelrystore.utils.MailUtils;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
@@ -20,6 +21,8 @@ public class MailService {
     private JavaMailSender mailSender;
     @Value("${spring.mail.username}")
     private String fromMail;
+    @Autowired
+    private MailUtils mailUtils;
 
     public void sendMail(String mail, MailStructure mailStructure) {
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
@@ -30,7 +33,8 @@ public class MailService {
         mailSender.send(simpleMailMessage);
     }
 
-    public ResponseData sendAccountForEmployee(String mail, String username, String password, String EmployName) {
+    public ResponseData sendAccountForEmployee(String mail, String username, String password,
+            String EmployName) {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         try {
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
@@ -47,7 +51,8 @@ public class MailService {
             message.append("<p><strong>Mật khẩu: ").append(password).append("</strong></p>");
             message.append(
                     "<p>Quý vị vui lòng không chia sẻ tài khoản và mật khẩu này với bất kỳ ai để đảm bảo an toàn và bảo mật thông tin cá nhân.</p>");
-            message.append("<p>Xin vui lòng đăng nhập và thay đổi mật khẩu để bảo mật thông tin của mình.</p>");
+            message.append(
+                    "<p>Xin vui lòng đăng nhập và thay đổi mật khẩu để bảo mật thông tin của mình.</p>");
             message.append("<p>Trân trọng,</p>");
             message.append("<p>Phòng Nhân Sự</p>");
 
@@ -55,35 +60,70 @@ public class MailService {
             mailSender.send(mimeMessage);
         } catch (MessagingException e) {
             e.printStackTrace();
-            return new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to send email to " + username, null);
+            return new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Failed to send email to " + username, null);
         }
-        return new ResponseData(HttpStatus.OK, "Send account to employee have id " + username + " Successfully", null);
+        return new ResponseData(HttpStatus.OK,
+                "Send account to employee have id " + username + " Successfully", null);
     }
 
-    public ResponseData sendOtpEmail(String email, String otp) {
+    public void sendOtpEmailAsync(String email, String username) {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         try {
-            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-            mimeMessageHelper.setTo(email);
-            mimeMessageHelper.setSubject("Xác minh OTP");
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+            helper.setFrom(fromMail);
+            helper.setTo(email);
+            helper.setSubject("Mã OTP xác nhận đổi mật khẩu");
 
-            // Nội dung email
             StringBuilder message = new StringBuilder();
-            message.append("<p>Kính gửi Quý khách,</p>");
-            message.append("<p>Để hoàn tất việc xác minh tài khoản của bạn, vui lòng sử dụng mã OTP dưới đây:</p>");
-            message.append("<p><strong>").append(otp).append("</strong></p>");
-            message.append(
-                    "<p>Mã này sẽ hết hạn sau 5 phút, vui lòng không chia sẻ mã này với bất kỳ ai để đảm bảo an toàn và bảo mật thông tin cá nhân.</p>");
-            message.append("<p>Trân trọng,</p>");
-            message.append("<p>Đội ngũ Hỗ trợ Khách hàng</p>");
+            message.append("<html><body>");
 
-            mimeMessageHelper.setText(message.toString(), true);
+            // Banner
+            message.append(
+                    "<div style='text-align: center; background-color: #f2f2f2; padding: 20px;'>");
+            message.append("<h1 style='color: #333;'>Công ty 2ks1dotnet</h1>");
+            message.append("<p style='color: #666;'>Dịch vụ trang sức hàng đầu</p>");
+            message.append("</div>");
+
+            // Nội dung chính
+            message.append("<div style='padding: 20px; text-align: center;'>");
+            message.append("<p>Kính gửi ").append(username).append(",</p>");
+            message.append("<p>Để xác nhận đổi mật khẩu, vui lòng sử dụng mã OTP sau:</p>");
+            message.append("<p><strong>").append(mailUtils.generateOtp()).append("</strong></p>");
+            message.append("<p>Mã này sẽ hết hạn sau 5 phút.</p>");
+            message.append("<p>Trân trọng,</p>");
+            message.append("<p>Đội ngũ hỗ trợ kỹ thuật</p>");
+            message.append("</div>");
+
+            // Footer
+            message.append(
+                    "<div style='text-align: center; background-color: #f2f2f2; padding: 20px;'>");
+            message.append("<p style='color: #666;'>Công ty 2ks1dotnet</p>");
+            message.append("<p style='color: #666;'>Địa chỉ: Số 123, Đường ABC, Thành phố XYZ</p>");
+            message.append(
+                    "<p style='color: #666;'>Email: support@2ks1dotnet.com | Điện thoại: 0123 456 789</p>");
+            message.append("</div>");
+
+            message.append("</body></html>");
+
+            helper.setText(message.toString(), true);
             mailSender.send(mimeMessage);
+
         } catch (MessagingException e) {
             e.printStackTrace();
-            return new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, "Send OTP to " + email + " failed", null);
         }
-        return new ResponseData(HttpStatus.OK, "Send OTP to " + email + " successfully", null);
     }
+
+    public ResponseData sendOtpEmail(String email, String username) {
+        try {
+            sendOtpEmailAsync(email, username);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Failed to send OTP to " + username, null);
+        }
+        return new ResponseData(HttpStatus.OK, "OTP sent to " + username + " successfully", null);
+    }
+
 
 }
