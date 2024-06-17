@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,18 +18,24 @@ import com.ks1dotnet.jewelrystore.dto.InvoiceDetailDTO;
 import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 import com.ks1dotnet.jewelrystore.entity.Employee;
+import com.ks1dotnet.jewelrystore.entity.Inventory;
 import com.ks1dotnet.jewelrystore.entity.Invoice;
 import com.ks1dotnet.jewelrystore.entity.InvoiceDetail;
 import com.ks1dotnet.jewelrystore.entity.InvoiceType;
 import com.ks1dotnet.jewelrystore.entity.Product;
 import com.ks1dotnet.jewelrystore.entity.Promotion;
 import com.ks1dotnet.jewelrystore.entity.UserInfo;
+import com.ks1dotnet.jewelrystore.entity.VoucherOnInvoice;
+import com.ks1dotnet.jewelrystore.entity.VoucherOnInvoiceDetail;
 import com.ks1dotnet.jewelrystore.exception.BadRequestException;
 import com.ks1dotnet.jewelrystore.exception.RunTimeExceptionV1;
 import com.ks1dotnet.jewelrystore.repository.IEmployeeRepository;
+import com.ks1dotnet.jewelrystore.repository.IInventoryRepository;
 import com.ks1dotnet.jewelrystore.repository.IInvoiceRepository;
 import com.ks1dotnet.jewelrystore.repository.IOrderInvoiceDetailRepository;
 import com.ks1dotnet.jewelrystore.repository.IProductRepository;
+import com.ks1dotnet.jewelrystore.repository.IVoucherOnInvoiceDetailRepository;
+import com.ks1dotnet.jewelrystore.repository.IVoucherOnInvoiceRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IEarnPointsService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IInvoiceService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IInvoiceTypeService;
@@ -60,6 +67,14 @@ public class InvoiceService implements IInvoiceService {
 
         @Autowired
         private IProductRepository iProductRepository;
+
+        @Autowired
+        private IVoucherOnInvoiceDetailRepository iVoucherOnInvoiceDetailRepository;
+        @Autowired
+        private IVoucherOnInvoiceRepository iVoucherOnInvoiceRepository;
+
+        @Autowired
+        private IInventoryRepository iInventoryRepository;
 
         @Value("${fileUpload.productPath}")
         private String filePath;
@@ -124,8 +139,10 @@ public class InvoiceService implements IInvoiceService {
                                         .filter(promotion -> promotion.getPromotionType().equals("category"))
                                         .findFirst()
                                         .orElse(null);
+                        Double priceAtTime = product.getMaterial().getPriceAtTime();
+                        float weight = product.getWeight();
+                        double materialPrice = priceAtTime * weight;
 
-                        double materialPrice = product.getMaterial().getPriceAtTime() * product.getWeight();
                         priceBefore += materialPrice;
                         if (promotionForMaterial != null) {
                                 materialPrice = materialPrice - (materialPrice * promotionForMaterial.getValue() / 100);
@@ -139,7 +156,6 @@ public class InvoiceService implements IInvoiceService {
 
                         double gemstonePrice = gemstoneValues.values().stream().mapToDouble(Double::doubleValue).sum();
                         priceBefore += gemstonePrice;
-
                         double gemstoneDiscount = applyGemstonePromotions(gemstoneValues, promotionForGemstone);
 
                         double finalGemstonePrice = gemstonePrice - gemstoneDiscount;
@@ -204,7 +220,7 @@ public class InvoiceService implements IInvoiceService {
         @Transactional
         @Override
         public int createInvoiceFromDetails(HashMap<String, Integer> barcodeQuantityMap, Integer invoiceTypeId,
-                        Integer userId, String idEmp) {
+                        Integer userId, String idEmp, String payment, String note) {
                 try {
                         UserInfo userInfo = userInfoService.findById(userId);
                         InvoiceType invoiceType = invoiceTypeService.findById(invoiceTypeId);
@@ -216,6 +232,8 @@ public class InvoiceService implements IInvoiceService {
                         invoice.setInvoiceType(invoiceType);
                         invoice.setDate(new Date());
                         invoice.setEmployee(employee);
+                        invoice.setPayment(payment);
+                        invoice.setNote(note);
                         List<InvoiceDetailDTO> invoiceDetails = new ArrayList<>();
                         for (Map.Entry<String, Integer> entry : barcodeQuantityMap.entrySet()) {
                                 String barcode = entry.getKey();
@@ -224,20 +242,27 @@ public class InvoiceService implements IInvoiceService {
                         }
                         // Lưu Invoice trước để có ID
                         // tìm ra được voucher for user
+                        // policy cho invoice type
+                        //
+
                         PromotionDTO promotionDTO = promotionService.getPromotionsByUserId(userId);
                         invoiceRepository.save(invoice);
                         double totalPriceRaw = invoiceDetails.stream().mapToDouble(InvoiceDetailDTO::getPrice).sum();
                         // giảm trên hóa đơn
                         double totalPrice = invoiceDetails.stream().mapToDouble(InvoiceDetailDTO::getTotalPrice).sum();
-                        if (promotionDTO != null) {
-                                totalPrice *= promotionDTO.getValue();
+                        // chỉ trường hợp invoice type là 1 mới có policy dành cho user
+                        if (promotionDTO != null && invoice.getInvoiceType().getId() == 1) {
+                                totalPrice = totalPrice - totalPrice * promotionDTO.getValue() / 100;
+                                iVoucherOnInvoiceRepository
+                                                .save(new VoucherOnInvoice(new Promotion(promotionDTO), invoice));
                         }
+
                         double discountPrice = totalPriceRaw - totalPrice;
                         invoice.setTotalPriceRaw(totalPriceRaw);
                         invoice.setTotalPrice(totalPrice);
                         invoice.setDiscountPrice(discountPrice);
-                        // service add earn point bằng tổng tiêu / 1000
-                        iEarnPointsService.addPoints(userId, convertDoubleToInt(totalPrice / 1000));
+                        // service add earn point bằng tổng tiêu / 100000
+                        iEarnPointsService.addPoints(userId, convertDoubleToInt(totalPrice / 100000));
 
                         saveInvoice(invoice, invoiceDetails);
                         return invoice.getId();
@@ -251,25 +276,42 @@ public class InvoiceService implements IInvoiceService {
         @Override
         public void saveInvoice(Invoice invoice, List<InvoiceDetailDTO> invoiceDetails) {
                 try {
-                        List<InvoiceDetail> invoiceDetailEntities = new ArrayList<>();
-
                         for (InvoiceDetailDTO detailDTO : invoiceDetails) {
                                 Product product = iProductRepository
                                                 .findByBarCode(detailDTO.getProductDTO().getBarCode());
-                                System.out.println("product.getImgPath() " + product.getImgPath());
                                 InvoiceDetail invoiceDetail = new InvoiceDetail();
                                 invoiceDetail.setProduct(product);
                                 invoiceDetail.setQuantity(detailDTO.getQuantity());
                                 invoiceDetail.setPrice(detailDTO.getPrice());
                                 invoiceDetail.setPriceMaterialAtTime(
-                                                product.getMaterial().getPriceAtTime() * product.getWeight());
+                                                product.getMaterial().getPriceAtTime());
                                 invoiceDetail.setTotalPrice(detailDTO.getTotalPrice());
                                 invoiceDetail.setInvoice(invoice);
                                 invoiceDetail.setCounter(product.getCounter());
-                                invoiceDetailEntities.add(invoiceDetail);
+
+                                invoiceDetailRepository.save(invoiceDetail);
+
+                                // save promotion
+                                List<Promotion> promotions = promotionService.getAllPromotionByProductAndInvoiceType(
+                                                product, invoice.getInvoiceType().getId());
+                                List<VoucherOnInvoiceDetail> lVoucherOnInvoiceDetails = promotions.stream()
+                                                .map(p -> new VoucherOnInvoiceDetail(p, invoiceDetail))
+                                                .collect(Collectors.toList());
+                                if (!lVoucherOnInvoiceDetails.isEmpty()) {
+                                        iVoucherOnInvoiceDetailRepository.saveAll(lVoucherOnInvoiceDetails);
+                                }
+
+                                // change quantity
+                                Inventory inventory = product.getInventory();
+                                if (invoice.getInvoiceType().getId() == 1) {
+                                        inventory.setQuantity(inventory.getQuantity() - detailDTO.getQuantity());
+                                        inventory.setTotal_sold(inventory.getTotal_sold() + detailDTO.getQuantity());
+                                } else if (invoice.getInvoiceType().getId() == 3) {
+                                        inventory.setQuantity(inventory.getQuantity() + detailDTO.getQuantity());
+                                        inventory.setTotal_sold(inventory.getTotal_sold() - detailDTO.getQuantity());
+                                }
                         }
 
-                        invoiceDetailRepository.saveAll(invoiceDetailEntities);
                 } catch (Exception e) {
                         throw new RunTimeExceptionV1("Error saving invoice: ", e.getMessage());
                 }

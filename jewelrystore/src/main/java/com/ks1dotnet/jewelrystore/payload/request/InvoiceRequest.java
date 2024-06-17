@@ -14,4 +14,6 @@ public class InvoiceRequest {
     private Integer invoiceTypeId;
     private Integer userId;
     private String employeeId;
+    private String payment;
+    private String note;
 }
