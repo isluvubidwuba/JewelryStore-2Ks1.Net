@@ -1,10 +1,6 @@
 spring:
-  application:
-    name: jewelrystore
-  datasource:
-    url: jdbc:sqlserver://localhost\\LAPTOP-F98VSAGL:1433;databaseName=StoreManager;encrypt=true;trustServerCertificate=true
-    username: sa
-    password: 12345
+  profiles:
+    active: local
   jpa:
     show-sql: false
     properties:
@@ -13,6 +9,17 @@ spring:
   servlet:
     multipart:
       max-file-size: 10MB
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: 2ks1dotnet@gmail.com
+    password: oxzpcgzbjopyhvmu
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 fileUpload:
   promotionPath: Promotion/
@@ -29,3 +36,15 @@ firebase:
 
 jwt:
   privateKey: wQwCoOrdAU3iyXZsqshyOKiC2xzW9C7R+/3HjwQ2cEk=
+
+
+payment:
+  vnPay:
+    url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+    tmnCode: OSJWY5E5
+    secretKey: RZ9X5FM7S4799PB3DIU0GOBIFMYC3ZGQ
+    returnUrl: http://localhost:8080/payment/vn-pay-callback
+    version: 2.1.0
+    command: pay
+    orderType: other
+    tokenUrl: https://sandbox.vnpayment.vn/token_ui/create-token.html

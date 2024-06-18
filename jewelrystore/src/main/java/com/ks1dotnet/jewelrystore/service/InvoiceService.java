@@ -108,7 +108,7 @@ public class InvoiceService implements IInvoiceService {
                         } else if (product.getInventory().getQuantity() < quantity && invoiceTypeId == 1) {
                                 throw new BadRequestException("Product is not enough to sell.");
                         }
-                        if (!product.isStatus()) {
+                        if (!product.isStatus() && invoiceTypeId == 1) {
                                 throw new BadRequestException("Product is not sold.");
                         }
 

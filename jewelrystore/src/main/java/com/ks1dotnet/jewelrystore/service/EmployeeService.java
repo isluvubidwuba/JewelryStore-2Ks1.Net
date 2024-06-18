@@ -138,7 +138,7 @@ public class EmployeeService implements IEmployeeService {
          employee.setLastName(lastName);
 
          // Mã hóa pinCode
-         String encodedPinCode = passwordEncoder.encode(pinCode);
+         String encodedPinCode = passwordEncoder.encode(employee.getId());
          employee.setPinCode(encodedPinCode);
 
          employee.setPhoneNumber(phoneNumber);
@@ -151,7 +151,7 @@ public class EmployeeService implements IEmployeeService {
 
          responseData.setStatus(HttpStatus.OK);
          responseData.setDesc("Insert successful");
-
+         responseData.setData(employee.getId());
          return responseData;
       } catch (Exception e) {
          throw new RunTimeExceptionV1("Insert Employee Fail", e.getMessage());
