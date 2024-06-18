@@ -10,7 +10,7 @@
     <!-- Tailwind -->
     <link href="build/tailwind.css" rel="stylesheet" />
     <script src="jquery/dist/jquery.min.js"></script>
-
+    <script src="./js/test.js"></script>
     <script src="./js/DashboardAdmin.js"></script>
 
     <style>
@@ -49,299 +49,134 @@
       <!-- Desktop Header -->
       <div id="header-placeholder"></div>
 
-      <!-- Mobile Header & Nav -->
-      <header
-        x-data="{ isOpen: false }"
-        class="w-full bg-sidebar py-5 px-6 sm:hidden"
-      >
-        <div class="flex items-center justify-between">
-          <a
-            href="index.html"
-            class="text-white text-3xl font-semibold uppercase hover:text-gray-300"
-            >Admin</a
-          >
-          <button
-            @click="isOpen = !isOpen"
-            class="text-white text-3xl focus:outline-none"
-          >
-            <i x-show="!isOpen" class="fas fa-bars"></i>
-            <i x-show="isOpen" class="fas fa-times"></i>
-          </button>
-        </div>
-
-        <!-- Dropdown Nav -->
-        <nav :class="isOpen ? 'flex': 'hidden'" class="flex flex-col pt-4">
-          <a
-            href="index.html"
-            class="flex items-center active-nav-link text-white py-2 pl-4 nav-item"
-          >
-            <i class="fas fa-tachometer-alt mr-3"></i>
-            Dashboard
-          </a>
-          <a
-            href="../templates/ManagerEmployee.html"
-            class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item"
-          >
-            <i class="fas fa-sticky-note mr-3"></i>
-            Manager Employee
-          </a>
-          <a
-            href="tables.html"
-            class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item"
-          >
-            <i class="fas fa-table mr-3"></i>
-            Tables
-          </a>
-          <a
-            href="forms.html"
-            class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item"
-          >
-            <i class="fas fa-align-left mr-3"></i>
-            Forms
-          </a>
-          <a
-            href="tabs.html"
-            class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item"
-          >
-            <i class="fas fa-tablet-alt mr-3"></i>
-            Tabbed Content
-          </a>
-          <a
-            href="calendar.html"
-            class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item"
-          >
-            <i class="fas fa-calendar mr-3"></i>
-            Calendar
-          </a>
-          <a
-            href="#"
-            class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item"
-          >
-            <i class="fas fa-cogs mr-3"></i>
-            Support
-          </a>
-          <a
-            href="#"
-            class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item"
-          >
-            <i class="fas fa-user mr-3"></i>
-            My Account
-          </a>
-          <a
-            href="#"
-            class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item"
-          >
-            <i class="fas fa-sign-out-alt mr-3"></i>
-            Sign Out
-          </a>
-          <button
-            class="w-full bg-white cta-btn font-semibold py-2 mt-3 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-300 flex items-center justify-center"
-          >
-            <i class="fas fa-arrow-circle-up mr-3"></i> Upgrade to Pro!
-          </button>
-        </nav>
-        <!-- <button class="w-full bg-white cta-btn font-semibold py-2 mt-5 rounded-br-lg rounded-bl-lg rounded-tr-lg shadow-lg hover:shadow-xl hover:bg-gray-300 flex items-center justify-center">
-                <i class="fas fa-plus mr-3"></i> New Report
-            </button> -->
-      </header>
-
       <div class="w-full overflow-x-hidden border-t flex flex-col">
         <main class="w-full flex-grow p-6">
           <h1 class="text-3xl text-black pb-6">Dashboard</h1>
 
-          <div class="flex flex-wrap mt-6">
-            <div class="w-full lg:w-1/2 pr-0 lg:pr-2">
-              <p class="text-xl pb-3 flex items-center">
-                <i class="fas fa-plus mr-3"></i> Monthly Reports
-              </p>
-              <div class="p-6 bg-white">
-                <canvas id="chartOne" width="400" height="200"></canvas>
-              </div>
+          <div class="flex-1 p-6 bg-gray-100">
+            <h2 class="text-2xl font-semibold mb-4">View Performing</h2>
+            <div class="mb-4">
+              <label
+                for="revenuePeriod"
+                class="text-lg font-medium dark:text-white"
+                >Chọn khoảng thời gian:</label
+              >
+              <select id="revenuePeriod" class="ml-2 p-2 rounded">
+                <option value="month">Month</option>
+                <option value="year">Year</option>
+              </select>
             </div>
-            <div class="w-full lg:w-1/2 pl-0 lg:pl-2 mt-12 lg:mt-0">
-              <p class="text-xl pb-3 flex items-center">
-                <i class="fas fa-check mr-3"></i> Resolved Reports
-              </p>
-              <div class="p-6 bg-white">
-                <canvas id="chartTwo" width="400" height="200"></canvas>
-              </div>
-            </div>
-          </div>
 
-          <div class="w-full mt-12">
-            <p class="text-xl pb-3 flex items-center">
-              <i class="fas fa-list mr-3"></i> Latest Reports
-            </p>
-            <div class="bg-white overflow-auto">
-              <table class="min-w-full bg-white">
-                <thead class="bg-gray-800 text-white">
-                  <tr>
-                    <th
-                      class="w-1/3 text-left py-3 px-4 uppercase font-semibold text-sm"
+            <!-- Start Third Row -->
+            <div
+              class="grid grid-cols-1 md:grid-cols-5 items-start px-4 xl:p-0 gap-y-4 md:gap-6 mb-4"
+            >
+              <div class="col-start-1 col-end-5">
+                <h2
+                  class="text-xs md:text-sm text-gray-800 font-bold tracking-wide"
+                >
+                  Summary Transactions
+                </h2>
+              </div>
+              <div
+                class="col-span-2 bg-white p-6 rounded-xl border border-gray-50 flex flex-col space-y-6"
+              >
+                <canvas id="myChart"></canvas>
+              </div>
+              <div
+                class="col-span-3 bg-white p-6 rounded-xl border border-gray-50 flex flex-col space-y-6"
+              >
+                <h2 class="text-sm text-gray-600 font-bold tracking-wide">
+                  Counter Revenue
+                </h2>
+                <ul
+                  class="divide-y-2 divide-gray-100 overflow-x-auto w-full"
+                  id="counterList"
+                >
+                  <!-- Dữ liệu doanh thu các quầy sẽ được tải động -->
+                </ul>
+              </div>
+            </div>
+            <!-- End Third Row -->
+
+            <div
+              class="bg-white max-w-full mb-6 dark:bg-zinc-800 p-6 rounded-lg shadow-md"
+            >
+              <h2 class="text-xl font-semibold mb-4 dark:text-white">
+                Top Performing Reps
+              </h2>
+
+              <div
+                id="topReps"
+                class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4"
+              ></div>
+            </div>
+
+            <div
+              class="max-w-full mx-auto p-6 mb-6 bg-white dark:bg-zinc-800 rounded-lg shadow-md"
+            >
+              <h2
+                class="text-xl font-semibold mb-4 text-zinc-900 dark:text-zinc-100"
+              >
+                Top Performing Products
+              </h2>
+              <div
+                id="topProducts"
+                class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5"
+              ></div>
+            </div>
+
+            <div class="mb-6">
+              <h2 class="text-2xl font-semibold mb-4">Recent Invoice</h2>
+              <div class="bg-white dark:bg-zinc-800 p-4 rounded-lg shadow">
+                <table class="w-full" id="invoiceTable">
+                  <thead>
+                    <tr class="text-left">
+                      <th class="p-2">Date</th>
+                      <th class="p-2">Client</th>
+                      <th class="p-2">Employee</th>
+                      <th class="p-2">Invoice Type</th>
+                      <th class="p-2">Status</th>
+                      <th class="p-2">Total Price Raw</th>
+                      <th class="p-2">Total Price</th>
+                      <th class="p-2">Discount Price</th>
+                      <th class="p-2">Payment</th>
+                      <th class="p-2">Note</th>
+                    </tr>
+                  </thead>
+                  <tbody id="invoiceBody">
+                    <!-- Dữ liệu hóa đơn sẽ được tải động -->
+                  </tbody>
+                </table>
+                <div class="flex justify-center mt-4">
+                  <button
+                    id="loadMoreBtn"
+                    class="bg-white text-black rounded-full p-4 shadow-md flex items-center justify-center w-12 h-12 animate-bounce"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="2"
+                      stroke="currentColor"
+                      class="w-6 h-6"
                     >
-                      Name
-                    </th>
-                    <th
-                      class="w-1/3 text-left py-3 px-4 uppercase font-semibold text-sm"
-                    >
-                      Last name
-                    </th>
-                    <th
-                      class="text-left py-3 px-4 uppercase font-semibold text-sm"
-                    >
-                      Phone
-                    </th>
-                    <th
-                      class="text-left py-3 px-4 uppercase font-semibold text-sm"
-                    >
-                      Email
-                    </th>
-                  </tr>
-                </thead>
-                <tbody class="text-gray-700">
-                  <tr>
-                    <td class="w-1/3 text-left py-3 px-4">Lian</td>
-                    <td class="w-1/3 text-left py-3 px-4">Smith</td>
-                    <td class="text-left py-3 px-4">
-                      <a class="hover:text-blue-500" href="tel:622322662"
-                        >622322662</a
-                      >
-                    </td>
-                    <td class="text-left py-3 px-4">
-                      <a
-                        class="hover:text-blue-500"
-                        href="mailto:jonsmith@mail.com"
-                        >jonsmith@mail.com</a
-                      >
-                    </td>
-                  </tr>
-                  <tr class="bg-gray-200">
-                    <td class="w-1/3 text-left py-3 px-4">Emma</td>
-                    <td class="w-1/3 text-left py-3 px-4">Johnson</td>
-                    <td class="text-left py-3 px-4">
-                      <a class="hover:text-blue-500" href="tel:622322662"
-                        >622322662</a
-                      >
-                    </td>
-                    <td class="text-left py-3 px-4">
-                      <a
-                        class="hover:text-blue-500"
-                        href="mailto:jonsmith@mail.com"
-                        >jonsmith@mail.com</a
-                      >
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="w-1/3 text-left py-3 px-4">Oliver</td>
-                    <td class="w-1/3 text-left py-3 px-4">Williams</td>
-                    <td class="text-left py-3 px-4">
-                      <a class="hover:text-blue-500" href="tel:622322662"
-                        >622322662</a
-                      >
-                    </td>
-                    <td class="text-left py-3 px-4">
-                      <a
-                        class="hover:text-blue-500"
-                        href="mailto:jonsmith@mail.com"
-                        >jonsmith@mail.com</a
-                      >
-                    </td>
-                  </tr>
-                  <tr class="bg-gray-200">
-                    <td class="w-1/3 text-left py-3 px-4">Isabella</td>
-                    <td class="w-1/3 text-left py-3 px-4">Brown</td>
-                    <td class="text-left py-3 px-4">
-                      <a class="hover:text-blue-500" href="tel:622322662"
-                        >622322662</a
-                      >
-                    </td>
-                    <td class="text-left py-3 px-4">
-                      <a
-                        class="hover:text-blue-500"
-                        href="mailto:jonsmith@mail.com"
-                        >jonsmith@mail.com</a
-                      >
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="w-1/3 text-left py-3 px-4">Lian</td>
-                    <td class="w-1/3 text-left py-3 px-4">Smith</td>
-                    <td class="text-left py-3 px-4">
-                      <a class="hover:text-blue-500" href="tel:622322662"
-                        >622322662</a
-                      >
-                    </td>
-                    <td class="text-left py-3 px-4">
-                      <a
-                        class="hover:text-blue-500"
-                        href="mailto:jonsmith@mail.com"
-                        >jonsmith@mail.com</a
-                      >
-                    </td>
-                  </tr>
-                  <tr class="bg-gray-200">
-                    <td class="w-1/3 text-left py-3 px-4">Emma</td>
-                    <td class="w-1/3 text-left py-3 px-4">Johnson</td>
-                    <td class="text-left py-3 px-4">
-                      <a class="hover:text-blue-500" href="tel:622322662"
-                        >622322662</a
-                      >
-                    </td>
-                    <td class="text-left py-3 px-4">
-                      <a
-                        class="hover:text-blue-500"
-                        href="mailto:jonsmith@mail.com"
-                        >jonsmith@mail.com</a
-                      >
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="w-1/3 text-left py-3 px-4">Oliver</td>
-                    <td class="w-1/3 text-left py-3 px-4">Williams</td>
-                    <td class="text-left py-3 px-4">
-                      <a class="hover:text-blue-500" href="tel:622322662"
-                        >622322662</a
-                      >
-                    </td>
-                    <td class="text-left py-3 px-4">
-                      <a
-                        class="hover:text-blue-500"
-                        href="mailto:jonsmith@mail.com"
-                        >jonsmith@mail.com</a
-                      >
-                    </td>
-                  </tr>
-                  <tr class="bg-gray-200">
-                    <td class="w-1/3 text-left py-3 px-4">Isabella</td>
-                    <td class="w-1/3 text-left py-3 px-4">Brown</td>
-                    <td class="text-left py-3 px-4">
-                      <a class="hover:text-blue-500" href="tel:622322662"
-                        >622322662</a
-                      >
-                    </td>
-                    <td class="text-left py-3 px-4">
-                      <a
-                        class="hover:text-blue-500"
-                        href="mailto:jonsmith@mail.com"
-                        >jonsmith@mail.com</a
-                      >
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M19.5 13.5L12 21m0 0L4.5 13.5M12 21V3"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </main>
-
-        <footer class="w-full bg-white text-right p-4">
-          Built by
-          <a target="_blank" href="https://davidgrzyb.com" class="underline"
-            >David Grzyb</a
-          >.
-        </footer>
       </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.6.2/dist/chart.min.js"></script>
     <!-- AlpineJS -->
     <script
       src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"
@@ -353,97 +188,5 @@
       integrity="sha256-KzZiKy0DWYsnwMF+X1DvQngQ2/FxF7MF3Ff72XcpuPs="
       crossorigin="anonymous"
     ></script>
-    <!-- ChartJS -->
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"
-      integrity="sha256-R4pqcOYV8lt7snxMQO/HSbVCFRPMdrhAFMH+vr9giYI="
-      crossorigin="anonymous"
-    ></script>
-
-    <script>
-      var chartOne = document.getElementById("chartOne");
-      var myChart = new Chart(chartOne, {
-        type: "bar",
-        data: {
-          labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
-          datasets: [
-            {
-              label: "# of Votes",
-              data: [12, 19, 3, 5, 2, 3],
-              backgroundColor: [
-                "rgba(255, 99, 132, 0.2)",
-                "rgba(54, 162, 235, 0.2)",
-                "rgba(255, 206, 86, 0.2)",
-                "rgba(75, 192, 192, 0.2)",
-                "rgba(153, 102, 255, 0.2)",
-                "rgba(255, 159, 64, 0.2)",
-              ],
-              borderColor: [
-                "rgba(255, 99, 132, 1)",
-                "rgba(54, 162, 235, 1)",
-                "rgba(255, 206, 86, 1)",
-                "rgba(75, 192, 192, 1)",
-                "rgba(153, 102, 255, 1)",
-                "rgba(255, 159, 64, 1)",
-              ],
-              borderWidth: 1,
-            },
-          ],
-        },
-        options: {
-          scales: {
-            yAxes: [
-              {
-                ticks: {
-                  beginAtZero: true,
-                },
-              },
-            ],
-          },
-        },
-      });
-
-      var chartTwo = document.getElementById("chartTwo");
-      var myLineChart = new Chart(chartTwo, {
-        type: "line",
-        data: {
-          labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
-          datasets: [
-            {
-              label: "# of Votes",
-              data: [12, 19, 3, 5, 2, 3],
-              backgroundColor: [
-                "rgba(255, 99, 132, 0.2)",
-                "rgba(54, 162, 235, 0.2)",
-                "rgba(255, 206, 86, 0.2)",
-                "rgba(75, 192, 192, 0.2)",
-                "rgba(153, 102, 255, 0.2)",
-                "rgba(255, 159, 64, 0.2)",
-              ],
-              borderColor: [
-                "rgba(255, 99, 132, 1)",
-                "rgba(54, 162, 235, 1)",
-                "rgba(255, 206, 86, 1)",
-                "rgba(75, 192, 192, 1)",
-                "rgba(153, 102, 255, 1)",
-                "rgba(255, 159, 64, 1)",
-              ],
-              borderWidth: 1,
-            },
-          ],
-        },
-        options: {
-          scales: {
-            yAxes: [
-              {
-                ticks: {
-                  beginAtZero: true,
-                },
-              },
-            ],
-          },
-        },
-      });
-    </script>
   </body>
 </html>

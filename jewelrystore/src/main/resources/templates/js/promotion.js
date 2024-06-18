@@ -44,6 +44,8 @@ function loadComponents2() {
 // fetch all promotions
 function fetchPromotions(keyword = "") {
   const linkPromotion = "http://localhost:8080/promotion";
+  const deferred = $.Deferred();
+
   $.ajax({
     url: linkPromotion,
     method: "GET",
@@ -66,18 +68,24 @@ function fetchPromotions(keyword = "") {
               invoiceTypeName.toLowerCase().includes(keyword)
             );
           });
-          renderPromotions(0, filteredPromotions); // Render promotions cho trang đầu tiên của kết quả tìm kiếm
-          updatePagination(filteredPromotions); // Cập nhật phân trang cho kết quả tìm kiếm
+          renderPromotions(0, filteredPromotions);
+          updatePagination(filteredPromotions);
         } else {
           renderPromotions(currentPage, promotions);
           updatePagination(promotions);
         }
+        deferred.resolve();
+      } else {
+        deferred.reject("No data found");
       }
     },
     error: function (error) {
       console.error("Error fetching promotions:", error);
+      deferred.reject(error);
     },
   });
+
+  return deferred.promise();
 }
 
 // Render promotions theo trang
@@ -488,7 +496,7 @@ function deletePromotion(promotionId) {
     success: function (response) {
       alert(response.desc); // Hiển thị thông báo trả về từ API
       $("#deleteModal").addClass("hidden");
-      fetchPromotions(currentPage); // Tải lại danh sách promotion
+      fetchPromotions(0); // Tải lại danh sách promotion
     },
     error: function (error) {
       $("#deleteModal").addClass("hidden");
@@ -525,7 +533,7 @@ function submitUpdateForm() {
           clearForm("#form-update");
           $("#crud-update-modal").addClass("hidden");
           alert(response.desc);
-          fetchPromotions(currentPage); // Tải lại danh sách promotion
+          fetchPromotions(0); // Tải lại danh sách promotion
         },
         error: function (xhr, status, error) {
           alert("An error occurred while submitting the form.");
@@ -583,7 +591,7 @@ function validateForm(formId, isUpdate = false) {
 
       if ($(this).attr("type") === "number") {
         let numberValue = parseFloat($(this).val());
-        if (isNaN(numberValue) || numberValue <= 0 || numberValue >= 100) {
+        if (isNaN(numberValue) || numberValue <= 0 || numberValue > 100) {
           numberFieldValid = false;
           return false;
         }
@@ -634,7 +642,14 @@ function submitInsertForm() {
           clearForm("#form-insert");
           $("#crud-modal").addClass("hidden");
           alert(response.desc);
-          fetchPromotions(currentPage); // Tải lại danh sách promotion
+
+          // Fetch promotions và tính toán trang cuối cùng
+          fetchPromotions().then(() => {
+            const totalPages = Math.ceil(promotions.length / itemsPerPage);
+            currentPage = totalPages - 1; // Chuyển đến trang cuối cùng
+            renderPromotions(currentPage, promotions); // Render promotions cho trang cuối cùng
+            updatePagination(promotions); // Cập nhật phân trang
+          });
         },
         error: function (xhr, status, error) {
           alert("An error occurred while submitting the form.");
