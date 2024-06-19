@@ -94,18 +94,6 @@ public class PromotionService implements IPromotionService {
                     .orElseThrow(() -> new BadRequestException("Not found invoice type! Invalid invoice type ID. "));
             promotion.setInvoiceType(invoiceTypeC);
 
-            // if (file != null && !file.isEmpty()) {
-            // boolean isSaveFileSuccess = iFileService.savefile(file);
-            // if (isSaveFileSuccess) {
-            // promotion.setImage(file.getOriginalFilename());
-            // } else {
-            // responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-            // responseData.setDesc("File upload failed.");
-            // return responseData;
-            // }
-            // } else {
-            // promotion.setImage("default_image.jpg");
-            // }
             String fileName;
             if (file != null && !file.isEmpty()) {
                 fileName = firebaseStorageService.uploadImage(file, filePath).getData().toString();
@@ -199,16 +187,6 @@ public class PromotionService implements IPromotionService {
             List<Promotion> promotions = iPromotionRepository
                     .findPromotionsByCriteria(invoiceId, product.getId(),
                             product.getProductCategory().getId());
-
-            // promotions.stream().map(promotion -> {
-            // promotion.setImage(url.trim() + filePath.trim() + promotion.getImage());
-            // return promotion;
-            // })
-            // .collect(Collectors.toList());
-            // ProductDTO productDTO = (ProductDTO)
-            // iProductService.findById(productId).getData();
-            // promotions
-            // .addAll(getPromotionsByProductCategoryId(productDTO.getProductCategoryDTO().getId()));
 
             return promotions;
         } catch (Exception e) {

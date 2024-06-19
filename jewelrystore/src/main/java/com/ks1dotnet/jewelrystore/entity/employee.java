@@ -48,8 +48,10 @@ public class Employee {
 
     @Column(name = "otp")
     private String otp;
+
     @Column(name = "otp_generated_time")
     private LocalDateTime otpGenerDateTime;
+    
     @Column(name = "token")
     private String token;
 

@@ -23,8 +23,12 @@ function initializeInsertEmployee() {
 }
 
 function fetchEmployeeImage(employeeId, imageUrl) {
-  console.log(`Fetching image for employeeId: ${employeeId}, imageUrl: ${imageUrl}`);
-  $(`#employee-image-${employeeId}`).html(`<img src="${imageUrl}" alt="Employee Image" class="w-10 h-10 rounded-full">`);
+  console.log(
+    `Fetching image for employeeId: ${employeeId}, imageUrl: ${imageUrl}`
+  );
+  $(`#employee-image-${employeeId}`).html(
+    `<img src="${imageUrl}" alt="Employee Image" class="w-10 h-10 rounded-full">`
+  );
 }
 
 function fetchEmployees(page) {
@@ -162,7 +166,6 @@ function viewEmployee(id) {
           $("#deleteEmployeeBtn").addClass("hidden");
         }
         openModal();
-
       } else {
         alert("Failed to load employee details." + response.desc);
       }
@@ -225,7 +228,6 @@ function updateEmployee() {
   });
 }
 
-
 function clearUpdateForm() {
   $("#viewEmployeeForm")[0].reset();
   $("#viewEmployeeImage").attr("src", ""); // Xóa ảnh xem trước
@@ -247,12 +249,12 @@ function previewInsertImage() {
     const reader = new FileReader();
     reader.onload = function (e) {
       imagePreview.src = e.target.result;
-      imagePreview.style.display = 'block'; // Hiển thị hình ảnh
+      imagePreview.style.display = "block"; // Hiển thị hình ảnh
     };
     reader.readAsDataURL(file);
   } else {
     imagePreview.src = "#";
-    imagePreview.style.display = 'none'; // Ẩn hình ảnh khi không có file
+    imagePreview.style.display = "none"; // Ẩn hình ảnh khi không có file
   }
 }
 
@@ -373,5 +375,3 @@ function deleteEmployee() {
     });
   }
 }
-
-
