@@ -9,7 +9,7 @@ public class MailUtils {
 
     public String generateOtp() {
         Random random = new Random();
-        int randomNumber = random.nextInt(99999999);
+        int randomNumber = random.nextInt(999999);
         String output = Integer.toString(randomNumber);
         while (output.length() < 6)
             output = "0" + output;

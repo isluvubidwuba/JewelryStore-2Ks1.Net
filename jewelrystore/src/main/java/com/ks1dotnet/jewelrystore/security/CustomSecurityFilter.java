@@ -28,9 +28,10 @@ public class CustomSecurityFilter {
         CustomAccessDeniedHandler customAccessDeniedHandler;
 
         @Bean
-        public AuthenticationManager authenticationManager(HttpSecurity httpSecurity) throws Exception {
-                AuthenticationManagerBuilder authenticationManagerBuilder = httpSecurity
-                                .getSharedObject(AuthenticationManagerBuilder.class);
+        public AuthenticationManager authenticationManager(HttpSecurity httpSecurity)
+                        throws Exception {
+                AuthenticationManagerBuilder authenticationManagerBuilder =
+                                httpSecurity.getSharedObject(AuthenticationManagerBuilder.class);
                 authenticationManagerBuilder.userDetailsService(customUserDetailService)
                                 .passwordEncoder(passwordEncoder());
 
@@ -39,40 +40,50 @@ public class CustomSecurityFilter {
 
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-                http.cors(withDefaults())
-                                .csrf(csrf -> csrf.disable())
-                                .sessionManagement(session -> session
-                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                http.cors(withDefaults()).csrf(csrf -> csrf.disable())
+                                .sessionManagement(session -> session.sessionCreationPolicy(
+                                                SessionCreationPolicy.STATELESS))
                                 .authorizeHttpRequests(authz -> authz
-                                                .requestMatchers("/authentication/**", "/proxy", "/payment/**",
-                                                                "/product/**",
-                                                                "/material/**")
+                                                .requestMatchers("/authentication/**", "/proxy",
+                                                                "/payment/**", "/mail/sendOtp/**",
+                                                                "employee/validateOtp",
+                                                                "employee/changePass",
+                                                                "/product/**", "/material/**")
+                                                .permitAll().requestMatchers("/promotion/files/**")
                                                 .permitAll()
-                                                .requestMatchers("/promotion/files/**").permitAll()
-                                                .requestMatchers("/policy/listpolicy", "/promotion/by-user",
+                                                .requestMatchers("/policy/listpolicy",
+                                                                "/promotion/by-user",
                                                                 "/voucher/list")
                                                 .hasAnyAuthority("ADMIN", "MANAGER", "STAFF")
                                                 .requestMatchers("/policy/**").hasAuthority("ADMIN")
-                                                .requestMatchers("/promotion/getHomePagePromotion**",
+                                                .requestMatchers(
+                                                                "/promotion/getHomePagePromotion**",
                                                                 "/promotion/getById",
                                                                 "/promotion-for-product/promotion/**",
                                                                 "/promotion-for-product/not-in-promotion/**",
-                                                                "/voucher/list", "/voucher/*/categories", "/invoice/**")
+                                                                "/voucher/list",
+                                                                "/voucher/*/categories",
+                                                                "/invoice/**")
                                                 .hasAnyAuthority("STAFF", "ADMIN", "MANAGER")
-                                                .requestMatchers("/promotion/**", "/promotion-for-product/**",
+                                                .requestMatchers("/promotion/**",
+                                                                "/promotion-for-product/**",
                                                                 "/voucher/**")
                                                 .hasAuthority("ADMIN")
 
-                                                // Những phần permit all của counter employe userinfo
+                                                // Những phần permit all của counter employe
+                                                // userinfo
                                                 .requestMatchers("/authentication/**", "/role/list",
-                                                                "/employee/upload/**", "/earnpoints/**", "/gemStone/**",
+                                                                "/employee/upload/**",
+                                                                "/earnpoints/**", "/gemStone/**",
                                                                 "/employee/listemployee/**")
                                                 .permitAll()
                                                 // Employee
-                                                .requestMatchers("/employee/listpage", "/employee/search",
+                                                .requestMatchers("/employee/listpage",
+                                                                "/employee/search",
                                                                 "/employee/upload")
                                                 .hasAnyAuthority("ADMIN", "MANAGER")
-                                                .requestMatchers("/employee/insert", "/employee/update",
+                                                .requestMatchers("/employee/insert",
+                                                                "/employee/update",
                                                                 "/employee/delete/**")
                                                 .hasAuthority("ADMIN")
                                                 .requestMatchers("/employee/**")
@@ -83,11 +94,14 @@ public class CustomSecurityFilter {
                                                                 "/counter/listproductsbycounter",
                                                                 "/counter/addproductsforcounter",
                                                                 "/counter/products/counter1",
-                                                                "/counter/products/all", "/counter/product/details",
+                                                                "/counter/products/all",
+                                                                "/counter/product/details",
                                                                 "/counter/moveProductsToCounter")
                                                 .hasAnyAuthority("MANAGER", "STAFF", "ADMIN")
-                                                .requestMatchers("/counter/update", "/counter/inactive",
-                                                                "/counter/inactive", "/counter/delete/{id}",
+                                                .requestMatchers("/counter/update",
+                                                                "/counter/inactive",
+                                                                "/counter/inactive",
+                                                                "/counter/delete/{id}",
                                                                 "/counter/insert")
                                                 .hasAuthority("ADMIN")
 
@@ -98,26 +112,32 @@ public class CustomSecurityFilter {
                                                 // .hasAuthority("ADMIN")
 
                                                 // User Information
-                                                .requestMatchers("/userinfo/listcustomer", "/userinfo/listpage",
+                                                .requestMatchers("/userinfo/listcustomer",
+                                                                "/userinfo/listpage",
                                                                 "/userinfo/findcustomer/{id}",
-                                                                "/userinfo/searchcustomer", "userinfo/upload",
-                                                                "userinfo/uploadget", "/customertype/findall")
+                                                                "/userinfo/searchcustomer",
+                                                                "userinfo/upload",
+                                                                "userinfo/uploadget",
+                                                                "/customertype/findall")
                                                 .hasAnyAuthority("STAFF", "MANAGER", "ADMIN")
 
-                                                .requestMatchers("/userinfo/update", "/userinfo/insert")
+                                                .requestMatchers("/userinfo/update",
+                                                                "/userinfo/insert")
                                                 .hasAnyAuthority("STAFF", "MANAGER", "ADMIN")
 
                                                 .requestMatchers("/userinfo/listsupplier",
                                                                 "/userinfo/searchsupplier")
                                                 .hasAnyAuthority("MANAGER", "ADMIN")
 
-                                                .requestMatchers("/userinfo/**", "/role/insert", "/customertype/**")
+                                                .requestMatchers("/userinfo/**", "/role/insert",
+                                                                "/customertype/**")
                                                 .hasAuthority("ADMIN")
 
                                                 .anyRequest().authenticated())
-                                .exceptionHandling(
-                                                exception -> exception.accessDeniedHandler(customAccessDeniedHandler))
-                                .addFilterBefore(customJwtFilter, UsernamePasswordAuthenticationFilter.class);
+                                .exceptionHandling(exception -> exception
+                                                .accessDeniedHandler(customAccessDeniedHandler))
+                                .addFilterBefore(customJwtFilter,
+                                                UsernamePasswordAuthenticationFilter.class);
                 return http.build();
         }
 

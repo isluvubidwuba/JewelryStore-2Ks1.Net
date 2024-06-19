@@ -18,11 +18,13 @@ public interface IEmployeeService {
         // List<Employee> getHomePageEmployee(int page);
         public ResponseData getHomePageEmployee(int page);
 
-        public ResponseData insertEmployee(MultipartFile file, String firstName, String lastName, String pinCode,
-                        String phoneNumber, String email, String address, int roleId, boolean status);
+        public ResponseData insertEmployee(MultipartFile file, String firstName, String lastName,
+                        String pinCode, String phoneNumber, String email, String address,
+                        int roleId, boolean status);
 
-        public ResponseData updateEmployee(MultipartFile file, String id, String firstName, String lastName, int roleId,
-                        String pinCode, boolean status, String phoneNumber, String email, String address);
+        public ResponseData updateEmployee(MultipartFile file, String id, String firstName,
+                        String lastName, int roleId, String pinCode, boolean status,
+                        String phoneNumber, String email, String address);
 
         public ResponseData listEmployee(String id);
 
@@ -31,4 +33,6 @@ public interface IEmployeeService {
         public ResponseData getStaff();
 
         public ResponseData deleteEmployee(String id);
+
+        public ResponseData validateOtp(String otp, String idEmployee);
 }

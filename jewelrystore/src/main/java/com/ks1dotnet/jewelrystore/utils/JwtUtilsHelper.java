@@ -1,5 +1,6 @@
 package com.ks1dotnet.jewelrystore.utils;
 
+import java.util.Date;
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -21,15 +22,40 @@ public class JwtUtilsHelper {
         return jwt;
     }
 
+    public String generateToken(String idEmployeeAndOTpCode) {
+        SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(privateKey));
+        long currentTimeMillis = System.currentTimeMillis();
+        Date issueDate = new Date(currentTimeMillis);
+        Date expirationDate = new Date(currentTimeMillis + 5 * 60 * 1000); // 5 phút
+
+        return Jwts.builder().setSubject(idEmployeeAndOTpCode).setIssuedAt(issueDate)
+                .setExpiration(expirationDate).signWith(key).compact();
+    }
+
     public boolean verifyToken(String token) {
 
         try {
             SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(privateKey));
-            Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parse(token);
+            Jwts.parserBuilder().setSigningKey(key).build().parse(token);
             return true;
+        } catch (Exception e) {
+            System.out.println("Not have permission " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean verifyToken(String token, String idEmployeeAndOtpCode) {
+        try {
+            SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(privateKey));
+            String subject = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token)
+                    .getBody().getSubject();
+
+            if (subject.equals(idEmployeeAndOtpCode)) {
+                return true;
+            } else {
+                System.out.println("Subject does not match");
+                return false;
+            }
         } catch (Exception e) {
             System.out.println("Not have permission " + e.getMessage());
             return false;
@@ -38,22 +64,14 @@ public class JwtUtilsHelper {
 
     public String getRoleFromToken(String token) {
         SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(privateKey));
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody()
                 .get("role", String.class);
     }
 
     // Lấy id của employee từ token
     public String getEmployeeIdFromToken(String token) {
         SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(privateKey));
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody()
                 .getSubject();
     }
 }

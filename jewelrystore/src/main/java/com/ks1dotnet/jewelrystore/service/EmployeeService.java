@@ -1,5 +1,7 @@
 package com.ks1dotnet.jewelrystore.service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -97,8 +99,9 @@ public class EmployeeService implements IEmployeeService {
    }
 
    @Override
-   public ResponseData insertEmployee(MultipartFile file, String firstName, String lastName, String pinCode,
-         String phoneNumber, String email, String address, int roleId, boolean status) {
+   public ResponseData insertEmployee(MultipartFile file, String firstName, String lastName,
+         String pinCode, String phoneNumber, String email, String address, int roleId,
+         boolean status) {
       ResponseData responseData = new ResponseData();
       try {
          String fileName = null;
@@ -170,14 +173,16 @@ public class EmployeeService implements IEmployeeService {
             sb.append(randomDigit);
          }
          uniqueId = sb.toString();
-      } while (iEmployeeRepository.existsById(uniqueId)); // Giả sử bạn có phương thức kiểm tra ID trùng lặp
+      } while (iEmployeeRepository.existsById(uniqueId)); // Giả sử bạn có phương thức kiểm tra ID
+                                                          // trùng lặp
 
       return uniqueId;
    }
 
    @Override
-   public ResponseData updateEmployee(MultipartFile file, String id, String firstName, String lastName, int roleId,
-         String pinCode, boolean status, String phoneNumber, String email, String address) {
+   public ResponseData updateEmployee(MultipartFile file, String id, String firstName,
+         String lastName, int roleId, String pinCode, boolean status, String phoneNumber,
+         String email, String address) {
 
       try {
          ResponseData responseData = new ResponseData();
@@ -254,11 +259,13 @@ public class EmployeeService implements IEmployeeService {
 
             case "name":
                employeePage = iEmployeeRepository
-                     .findByLastNameContainingIgnoreCaseOrFirstNameContainingIgnoreCase(query, query, pageRequest);
+                     .findByLastNameContainingIgnoreCaseOrFirstNameContainingIgnoreCase(query,
+                           query, pageRequest);
                break;
 
             case "role":
-               employeePage = iEmployeeRepository.findByRoleNameContainingIgnoreCase(query, pageRequest);
+               employeePage =
+                     iEmployeeRepository.findByRoleNameContainingIgnoreCase(query, pageRequest);
                break;
 
             case "status":
@@ -307,7 +314,8 @@ public class EmployeeService implements IEmployeeService {
       try {
          Employee employee = findById(id); // Giả sử bạn đã có phương thức findById trong service
          employee.setStatus(false);
-         Employee updatedEmployee = save(employee); // Giả sử bạn đã có phương thức save trong service
+         Employee updatedEmployee = save(employee); // Giả sử bạn đã có phương thức save trong
+                                                    // service
          responseData.setStatus(HttpStatus.OK);
          responseData.setDesc("Delete successful");
          responseData.setData(updatedEmployee);
@@ -326,6 +334,21 @@ public class EmployeeService implements IEmployeeService {
          return dto;
       }).collect(Collectors.toList());
       return new PageImpl<>(dtolist, empPage.getPageable(), empPage.getTotalElements());
+   }
+
+   @Override
+   public ResponseData validateOtp(String otp, String idEmployee) {
+      Employee em = iEmployeeRepository.findById(idEmployee).orElse(null);
+      if (em == null)
+         return new ResponseData(HttpStatus.NOT_FOUND, "Not found employee with id " + idEmployee,
+               null);
+      if (em.getOtp().equals(otp) && Duration.between(em.getOtpGenerDateTime(), LocalDateTime.now())
+            .getSeconds() > (10 * 60)) {
+         return new ResponseData(HttpStatus.REQUEST_TIMEOUT, "OTP code is timeout ", null);
+      }
+      if (!em.getOtp().equals(otp))
+         return new ResponseData(HttpStatus.BAD_REQUEST, "OTP code is not correct ", null);
+      return new ResponseData(HttpStatus.OK, "OK ", null);
    }
 
 }

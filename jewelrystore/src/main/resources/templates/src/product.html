@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tailwind Admin Template</title>
+    <meta name="author" content="David Grzyb" />
+    <meta name="description" content="" />
+
+    <!-- Tailwind CSS -->
+    <link href="css/styles.css" rel="stylesheet" />
+    <script src="js/jquery.min.js"></script>
+
+    <script src="js/Product.js"></script>
+    <script src="js/DashboardAdmin.js"></script>
+
+    <style>
+      @import url("https://fonts.googleapis.com/css?family=Karla:400,700&display=swap");
+      .font-family-karla {
+        font-family: karla;
+      }
+      .bg-sidebar {
+        background: #3d68ff;
+      }
+      .cta-btn {
+        color: #3d68ff;
+      }
+      .upgrade-btn {
+        background: #1947ee;
+      }
+      .upgrade-btn:hover {
+        background: #0038fd;
+      }
+      .active-nav-link {
+        background: #1947ee;
+      }
+      .nav-item:hover {
+        background: #1947ee;
+      }
+      .account-link:hover {
+        background: #3d68ff;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 font-family-karla flex overflow-x-hidden">
+    <!-- Side bar -->
+    <div id="sidebar-placeholder">@@include('components/sidebar.html')</div>
+
+    <div class="relative w-full flex flex-col h-screen overflow-y-hidden">
+      <!-- Desktop Header -->
+      <div id="header-placeholder">@@include('components/header.html')</div>
+
+      <div class="overflow-x-hidden border-t flex flex-col">
+        <main class="w-full flex-grow p-6">
+          <div class="flex items-center justify-between mx-1">
+            <h1 class="text-3xl text-black pb-6">View Product</h1>
+            <button
+              id="modalToggle_Create"
+              class="ml-auto bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              Create Product
+            </button>
+          </div>
+
+          <form
+            class="max-w-xs my-1 ml-auto outline-none border shadow-sm rounded-xl hover:shadow-lg transition"
+          >
+            <div class="flex relative" id="searchProduct">
+              <input
+                type="search"
+                id="search-input"
+                class="outline-none block p-2.5 w-full z-10 text-sm bg-gray-50 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:placeholder-gray-400 dark:focus:border-blue-500 rounded-l-lg"
+                placeholder="Search..."
+              />
+              <button
+                type="submit"
+                class="top-0 right-0 p-2.5 text-sm font-medium text-white bg-blue-700 rounded-r-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              >
+                <svg
+                  class="w-4 h-4"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                  />
+                </svg>
+                <span class="sr-only">Search</span>
+              </button>
+            </div>
+          </form>
+          <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+            <table class="w-full h-full bg-blend-multiply text-sm text-center">
+              <thead class="text-xs uppercase bg-gray-200 dark:text-gray-600">
+                <tr>
+                  <th scope="col" class="px-6 py-3">Id</th>
+                  <th scope="col" class="px-6 py-3">Name</th>
+                  <th scope="col" class="px-6 py-3">Material</th>
+                  <th scope="col" class="px-6 py-3">Category</th>
+                  <th scope="col" class="px-6 py-3">Status</th>
+                  <th scope="col" class="px-6 py-3">Counter</th>
+                  <th scope="col" class="px-6 py-3"></th>
+                </tr>
+              </thead>
+              <tbody id="productTableBody" class="dark:text-gray-500">
+                <!-- Rows will be inserted here by jQuery -->
+              </tbody>
+            </table>
+            <div><p id="notiBlankProduct" class="text-center"></p></div>
+          </div>
+          <div class="flex justify-center">
+            <nav class="rounded-full px-4 py-1 my-7">
+              <ul
+                class="flex text-gray-600 gap-2 font-medium py-2"
+                id="pagination-wrapper"
+              ></ul>
+            </nav>
+          </div>
+        </main>
+      </div>
+
+      <!-- Modal insert -->
+      <div
+        id="create-modal"
+        class="hidden overflow-y-auto overflow-x-hidden fixed inset-0 z-50 items-center justify-center w-full h-full bg-gray-500/50"
+      >
+        <div class="relative p-4 w-full max-w-md max-h-full">
+          <!-- Modal content -->
+          <div class="relative bg-white rounded-lg shadow">
+            <!-- Modal header -->
+            <div
+              class="flex items-center justify-between p-4 border-b rounded-t"
+            >
+              <h3 class="text-lg font-semibold">Create New Product</h3>
+              <button
+                type="button"
+                id="modalClose_Create"
+                class="text-gray-400 bg-transparent hover:bg-gray-200 hover:rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                <svg
+                  class="w-3 h-3"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 14 14"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                  />
+                </svg>
+                <span class="sr-only">Close modal</span>
+              </button>
+            </div>
+            <!-- Modal body -->
+            <form
+              id="form-insert"
+              class="p-4 flex flex-col h-full"
+              action="/create"
+              method="post"
+              enctype="multipart/form-data"
+            >
+              <div class="grid gap-4 mb-4 grid-cols-2 flex-grow">
+                <div class="col-span-2">
+                  <label for="nameC" class="block mb-2 text-sm font-medium"
+                    >Name</label
+                  >
+                  <input
+                    type="text"
+                    name="name"
+                    id="nameC"
+                    class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    placeholder="Name of product"
+                    required
+                  />
+                </div>
+
+                <div class="col-span-2 sm:col-span-1">
+                  <label
+                    for="idMaterialC"
+                    class="block mb-2 text-sm font-medium"
+                    >Material</label
+                  >
+                  <select
+                    id="idMaterialC"
+                    name="idMaterialC"
+                    class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  >
+                    <option class="dark:placeholder-gray-400" selected>
+                      Select Material
+                    </option>
+                  </select>
+                </div>
+                <div class="col-span-2 sm:col-span-1">
+                  <label
+                    for="idCategoryC"
+                    class="block mb-2 text-sm font-medium"
+                    >Category</label
+                  >
+                  <select
+                    id="idCategoryC"
+                    name="idCategoryC"
+                    class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  >
+                    <option class="dark:placeholder-gray-400" selected>
+                      Select Category
+                    </option>
+                  </select>
+                </div>
+
+                <div class="col-span-2 sm:col-span-1">
+                  <label for="feeC" class="block mb-2 text-sm font-medium"
+                    >Fee</label
+                  >
+                  <input
+                    type="number"
+                    name="feeC"
+                    id="feeC"
+                    class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    placeholder="vnd"
+                    min="0"
+                    required
+                  />
+                </div>
+                <div class="col-span-2 sm:col-span-1">
+                  <label class="block mb-2 text-sm font-medium"
+                    >Material weight</label
+                  >
+                  <input
+                    type="number"
+                    name="materialWeightC"
+                    id="materialWeightC"
+                    class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    placeholder="gram"
+                    step="0.01"
+                    min="0"
+                    required
+                  />
+                </div>
+                <div class="col-span-2">
+                  <div class="flex items-center justify-center w-full">
+                    <label
+                      for="productImgC"
+                      id="ImgcLabel"
+                      class="flex flex-col items-center justify-center w-full h-3/6 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                    >
+                      <div
+                        class="flex flex-col items-center justify-center pt-5 pb-6"
+                        id="ImgcLabelPlaceHolder"
+                      >
+                        <svg
+                          class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 20 16"
+                        >
+                          <path
+                            stroke="currentColor"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                          />
+                        </svg>
+                        <p
+                          class="mb-2 text-sm text-gray-500 dark:text-gray-400"
+                        >
+                          <span class="font-semibold">Click to upload</span> or
+                          drag and drop
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                          SVG, PNG, JPG or GIF (MAX. 800x400px)
+                        </p>
+                      </div>
+                    </label>
+                    <input id="productImgC" type="file" class="hidden" />
+                  </div>
+                </div>
+              </div>
+              <div class="flex justify-end">
+                <button
+                  type="submit"
+                  id="submit-insert"
+                  class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                >
+                  Add new product
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <!-- Modal detail product -->
+      <div
+        id="detail-modal"
+        class="hidden mx-0 overflow-y-auto overflow-x-hidden fixed inset-0 z-50 items-center justify-center w-full h-full bg-gray-900 bg-opacity-50 bg-gray-500/50"
+      >
+        <!-- Modal content -->
+        <div class="bg-white rounded-lg shadow w-8/12">
+          <div
+            class="flex items-center justify-between p-4 border-b rounded-t w-full"
+          >
+            <h3 class="text-4xl font-black">Detail</h3>
+            <h5 id="productCode_detail" class="text-sm underline ml-2 mt-4">
+              #015215
+            </h5>
+            <button
+              type="button"
+              id="modalClose_Detail"
+              class="text-gray-400 bg-transparent hover:bg-gray-200 hover:rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+            >
+              <svg
+                class="w-3 h-3"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 14 14"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                />
+              </svg>
+              <span class="sr-only">Close modal</span>
+            </button>
+          </div>
+          <div class="grid grid-cols-3 shadow-md w-full bg-white rounded-lg">
+            <div
+              class="flex flex-col justify-center col-span-1 p-10 border-r-2 w-full"
+            >
+              <div class="flex justify-center">
+                <div class="relative group">
+                  <img
+                    id="imgDetail"
+                    class="w-16 md:w-32 lg:w-48 rounded-lg shadow-none transition-shadow duration-300 ease-in-out hover:shadow-2xl hover:shadow-slate-950"
+                    src=""
+                    onerror="this.src='https\://picsum.photos/180/100';"
+                    alt=""
+                  />
+                  <div
+                    class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <button type="button">edit</button>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center mt-5">
+                <svg
+                  class="h-6 mr-2 text-indigo-600"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="{1.5}"
+                  stroke="currentColor"
+                  className="size-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z"
+                  />
+                </svg>
+
+                <span class="text-sm">nha cung cap</span>
+              </div>
+              <div class="flex items-center mt-5">
+                <svg
+                  class="h-6 mr-2 text-indigo-600"
+                  fill="currentColor"
+                  version="1.1"
+                  id="Capa_1"
+                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns:xlink="http://www.w3.org/1999/xlink"
+                  x="0px"
+                  y="0px"
+                  viewBox="0 0 60.002 60.002"
+                  style="enable-background: new 0 0 60.002 60.002"
+                  xml:space="preserve"
+                >
+                  <g>
+                    <path
+                      d="M59.002,37.992c-3.69,0-6.693-3.003-6.693-6.693c0-0.553-0.447-1-1-1s-1,0.447-1,1c0,4.794,3.899,8.693,8.693,8.693
+                        c0.553,0,1-0.447,1-1S59.554,37.992,59.002,37.992z"
+                    ></path>
+                    <path
+                      d="M58.256,35.65c0.553,0,1-0.447,1-1s-0.447-1-1-1c-0.886,0-1.605-0.72-1.605-1.605c0-0.553-0.447-1-1-1s-1,0.447-1,1
+                        C54.65,34.033,56.267,35.65,58.256,35.65z"
+                    ></path>
+                    <path
+                      d="M20.002,2.992c3.691,0,6.693,3.003,6.693,6.693c0,0.553,0.448,1,1,1s1-0.447,1-1c0-4.794-3.9-8.693-8.693-8.693
+                        c-0.552,0-1,0.447-1,1S19.449,2.992,20.002,2.992z"
+                    ></path>
+                    <path
+                      d="M19.748,6.334c0,0.553,0.448,1,1,1c0.885,0,1.604,0.72,1.604,1.605c0,0.553,0.448,1,1,1s1-0.447,1-1
+                        c0-1.988-1.617-3.605-3.604-3.605C20.196,5.334,19.748,5.781,19.748,6.334z"
+                    ></path>
+                    <path
+                      d="M44.076,37.889c-1.276-0.728-2.597-0.958-3.721-0.646c-0.844,0.234-1.532,0.768-1.996,1.546
+                        c-1.02,1.22-2.286,2.646-2.592,2.867c-2.367,1.604-4.25,1.415-6.294-0.629L17.987,29.542c-2.045-2.045-2.233-3.928-0.631-6.291
+                        c0.224-0.31,1.65-1.575,2.87-2.596c0.778-0.464,1.312-1.152,1.546-1.996c0.311-1.123,0.082-2.444-0.652-3.731
+                        c-0.173-0.296-4.291-7.27-8.085-9.277c-1.926-1.019-4.255-0.669-5.796,0.872L4.7,9.059c-4.014,4.014-5.467,8.563-4.321,13.52
+                        c0.956,4.132,3.742,8.529,8.282,13.068l14.705,14.706c5.762,5.762,11.258,8.656,16.298,8.656c3.701,0,7.157-1.562,10.291-4.695
+                        l2.537-2.537c1.541-1.541,1.892-3.87,0.872-5.796C51.356,42.186,44.383,38.069,44.076,37.889z M51.078,50.363L48.541,52.9
+                        c-6.569,6.567-14.563,5.235-23.76-3.961L10.075,34.233c-4.271-4.271-6.877-8.344-7.747-12.104
+                        c-0.995-4.301,0.244-8.112,3.786-11.655l2.537-2.537c0.567-0.566,1.313-0.862,2.07-0.862c0.467,0,0.939,0.112,1.376,0.344
+                        c3.293,1.743,7.256,8.454,7.29,8.511c0.449,0.787,0.62,1.608,0.457,2.196c-0.1,0.36-0.324,0.634-0.684,0.836l-0.15,0.104
+                        c-0.853,0.712-2.883,2.434-3.308,3.061c-0.612,0.904-1.018,1.792-1.231,2.665c-0.711-1.418-1.286-3.06-1.475-4.881
+                        c-0.057-0.548-0.549-0.935-1.098-0.892c-0.549,0.058-0.949,0.549-0.892,1.099c0.722,6.953,6.129,11.479,6.359,11.668
+                        c0.025,0.02,0.054,0.028,0.08,0.045l10.613,10.613c0.045,0.045,0.092,0.085,0.137,0.129c0.035,0.051,0.058,0.108,0.104,0.154
+                        c0.189,0.187,4.704,4.567,11.599,5.283c0.035,0.003,0.07,0.005,0.104,0.005c0.506,0,0.94-0.383,0.994-0.896
+                        c0.057-0.55-0.342-1.041-0.892-1.099c-2.114-0.219-3.987-0.839-5.548-1.558c0.765-0.23,1.543-0.612,2.332-1.146
+                        c0.628-0.426,2.35-2.455,3.061-3.308l0.104-0.151c0.202-0.359,0.476-0.583,0.836-0.684c0.588-0.159,1.409,0.008,2.186,0.45
+                        c0.067,0.04,6.778,4.003,8.521,7.296C52.202,48.062,51.994,49.447,51.078,50.363z"
+                    ></path>
+                  </g>
+                </svg>
+                <span class="text-sm">+93 749 99 65 50</span>
+              </div>
+              <div class="flex items-center mt-5">
+                <svg
+                  class="h-6 mr-2 text-indigo-600"
+                  fill="currentColor"
+                  version="1.1"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 489.536 489.536"
+                  xmlns:xlink="http://www.w3.org/1999/xlink"
+                  enable-background="new 0 0 489.536 489.536"
+                >
+                  <g>
+                    <g>
+                      <path
+                        d="m488.554,476l-99-280.2c-1-4.2-5.2-7.3-9.4-7.3h-45.6c12.9-31.1 19.6-54.9 19.6-70.8 0-64.6-50-117.7-112.5-117.7-61.5,0-112.5,52.1-112.5,117.7 0,17.6 8.2,43.1 19.9,70.8h-39.7c-4.2,0-8.3,3.1-9.4,7.3l-99,280.2c-3.2,10.3 6.3,13.5 9.4,13.5h468.8c4.2,0.5 12.5-4.2 9.4-13.5zm-246.9-455.3c51,1.06581e-14 91.7,43.7 91.7,96.9 0,56.5-79.2,182.3-91.7,203.1-31.3-53.1-91.7-161.5-91.7-203.1 0-53.1 40.6-96.9 91.7-96.9zm-216.7,448l91.7-259.4h41.7c29.9,64.1 83.3,151 83.3,151s81.4-145.7 83.8-151h47.4l91.7,259.4h-439.6z"
+                      ></path>
+                      <rect
+                        width="136.5"
+                        x="177.054"
+                        y="379.1"
+                        height="20.8"
+                      ></rect>
+                      <path
+                        d="m289.554,108.2c0-26-21.9-47.9-47.9-47.9s-47.9,21.9-47.9,47.9 20.8,47.9 47.9,47.9c27.1,0 47.9-21.8 47.9-47.9zm-75-1c0-14.6 11.5-27.1 27.1-27.1s27.1,12.5 27.1,27.1-11.5,27.1-27.1,27.1c-14.6,2.84217e-14-27.1-12.5-27.1-27.1z"
+                      ></path>
+                    </g>
+                  </g>
+                </svg>
+                <span class="text-sm">Dia chi</span>
+              </div>
+
+              <div class="flex flex-col justify-center items-center">
+                <div id="barcode_detail" class="flex justify-center">
+                  <canvas id="barcode" class="w-4/5 mt-4 py-2 px-4"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-span-2 p-10 w-full">
+              <form
+                id="form-update"
+                class="col-span-2 p-10 w-full"
+                action="/update"
+                method="post"
+                enctype="multipart/form-data"
+              >
+                <div class="grid gap-4 mb-4 grid-cols-2">
+                  <input id="imgDetailInput" type="hidden" value="" />
+                  <input id="productCode_detailInput" type="hidden" value="" />
+                  <input id="productBarcode" type="hidden" value="" />
+                  <div class="col-span-2">
+                    <label for="update-name" class="block mb-2 font-extrabold"
+                      >Name</label
+                    >
+                    <p id="name_detail" for="update-name" class="text-sm">
+                      Le Hoang Nhat Tan
+                    </p>
+                    <input
+                      type="text"
+                      name="name"
+                      id="update-name"
+                      class="hidden bg-gray-50 border-gray-300 text-sm rounded-lg w-full p-2.5 dark:placeholder-gray-400 0 border-none outline-none"
+                      placeholder="Name of promotion"
+                      value=""
+                      required
+                    />
+                  </div>
+                  <div class="col-span-2 sm:col-span-1">
+                    <label class="block mb-2 font-extrabold">Fee</label>
+                    <p id="fee_detail" class="text-sm">152</p>
+                    <input
+                      type="number"
+                      name="value"
+                      id="update-fee"
+                      class="hidden bg-gray-50 border border-gray-300 text-sm rounded-lg w-full p-2.5 dark:placeholder-gray-400 border-none outline-none"
+                      placeholder="20%"
+                      value=""
+                      required
+                    />
+                  </div>
+                  <div class="col-span-2 sm:col-span-1">
+                    <label class="block mb-2 font-extrabold">Weight</label>
+                    <p id="weight_detail" class="text-sm">152</p>
+                    <input
+                      type="number"
+                      name="value"
+                      id="update-weight"
+                      class="hidden bg-gray-50 border border-gray-300 text-sm rounded-lg w-full p-2.5 dark:placeholder-gray-400 border-none outline-none"
+                      placeholder="g"
+                      value=""
+                      required
+                    />
+                  </div>
+                  <div class="col-span-2 sm:col-span-1">
+                    <label class="block mb-2 font-extrabold">Material</label>
+                    <p id="material_detail" class="text-sm">Vang 18k</p>
+                    <select
+                      id="update-material"
+                      value=""
+                      name="idMaterial"
+                      class="hidden bg-gray-50 border border-gray-300 text-sm rounded-lg w-full p-2.5 dark:placeholder-gray-400 border-none outline-none"
+                    ></select>
+                  </div>
+                  <div class="col-span-2 sm:col-span-1">
+                    <label class="block mb-2 font-extrabold">Status</label>
+                    <p id="status_detail" class="text-sm">Disable</p>
+                    <select
+                      id="update-status"
+                      value=""
+                      name="status"
+                      class="hidden bg-gray-50 border border-gray-300 text-sm rounded-lg w-full p-2.5 dark:placeholder-gray-400 border-none outline-none"
+                    >
+                      <option value="false">Inactive</option>
+                      <option value="trye">Active</option>
+                    </select>
+                  </div>
+                  <div class="col-span-2 sm:col-span-1">
+                    <label class="block mb-2 font-extrabold">Category</label>
+                    <p id="category_detail" class="text-sm">Necklage</p>
+                    <select
+                      id="update-category"
+                      value=""
+                      name="status"
+                      class="hidden bg-gray-50 border border-gray-300 text-sm rounded-lg w-full p-2.5 dark:placeholder-gray-400 border-none outline-none"
+                    ></select>
+                  </div>
+                  <div
+                    id="buttonSubmitUpdate"
+                    class="hidden col-span-1 mr-6 justify-end h-fit mt-8"
+                  >
+                    <button
+                      type="button"
+                      id="cancel-update"
+                      class="mr-2 bg-gray-100 hover:bg-gray-90 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:hover:bg-gray-200 dark:focus:ring-gray-200"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      id="submit-update"
+                      class="bg-gray-100 hover:bg-gray-90 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:hover:bg-gray-200 dark:focus:ring-gray-200"
+                      data-product-id=""
+                    >
+                      Update
+                    </button>
+                  </div>
+                </div>
+              </form>
+              <div class="col-span-2 w-full max-h-56">
+                <label for="update-status" class="mb-2 font-extrabold"
+                  >GemStone of this product</label
+                >
+                <div class="w-full mt-3 overflow-hidden">
+                  <div class="max-h-56 overflow-y-auto">
+                    <table class="w-full bg-blend-multiply text-sm text-center">
+                      <thead
+                        class="bg-gray-200 dark:text-gray-600 sticky top-0 z-10"
+                      >
+                        <tr>
+                          <th scope="col" class="px-6 py-3">Category</th>
+                          <th scope="col" class="px-6 py-3">Quantity</th>
+                          <th scope="col" class="px-6 py-3">Type</th>
+                          <th scope="col" class="px-6 py-3"></th>
+                        </tr>
+                      </thead>
+                      <tbody
+                        id="GemStone_detail_table"
+                        class="dark:text-gray-500"
+                      ></tbody>
+                    </table>
+                    <div><p id="notiBlank" class="text-center"></p></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Modal list gems -->
+      <div
+        id="list-gems-modal"
+        class="hidden fixed inset-0 z-50 items-center justify-center bg-gray-500/50"
+      >
+        <div class="relative p-4 w-full max-w-md" style="max-width: 550px">
+          <!-- Modal content -->
+          <div
+            class="relative bg-white rounded-lg shadow"
+            style="max-height: 550px"
+          >
+            <!-- Modal header -->
+            <div
+              class="flex items-center justify-between p-4 border-b rounded-t"
+            >
+              <h3 class="text-lg font-semibold">List gems</h3>
+              <button
+                type="button"
+                id="modalClose_listGems"
+                class="text-gray-400 bg-transparent hover:bg-gray-200 hover:rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                <svg
+                  class="w-3 h-3"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 14 14"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                  />
+                </svg>
+                <span class="sr-only">Close modal</span>
+              </button>
+            </div>
+            <!-- Modal body -->
+            <div class="p-4 flex flex-col h-full">
+              <div class="col-span-2 w-full max-h-80">
+                <label for="update-status" class="mb-2 font-extrabold"
+                  >GemStone of this product</label
+                >
+                <div class="w-full overflow-hidden">
+                  <div class="max-h-40 overflow-y-auto">
+                    <table class="w-full bg-blend-multiply text-sm text-center">
+                      <thead
+                        class="bg-gray-200 dark:text-gray-600 sticky top-0 z-10"
+                      >
+                        <tr>
+                          <th scope="col" class="px-6 py-3">Color</th>
+                          <th scope="col" class="px-6 py-3">Clarity</th>
+                          <th scope="col" class="px-6 py-3">Carat</th>
+                          <th scope="col" class="px-6 py-3">Price</th>
+                          <th scope="col" class="px-6 py-3">Quantity</th>
+                        </tr>
+                      </thead>
+                      <tbody
+                        id="Gems_detail_table"
+                        class="dark:text-gray-500"
+                      ></tbody>
+                    </table>
+                    <p id="notiGemsBlank" class="text-center"></p>
+                  </div>
+                </div>
+              </div>
+              <div class="flex justify-end mt-4">
+                <button
+                  type="submit"
+                  id="submit-insert"
+                  class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                >
+                  Add new gems
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- AlpineJS -->
+    <script
+      src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"
+      defer
+    ></script>
+    <!-- Font Awesome -->
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"
+      integrity="sha256-KzZiKy0DWYsnwMF+X1DvQngQ2/FxF7MF3Ff72XcpuPs="
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"
+      integrity="sha512-QEAheCz+x/VkKtxeGoDq6nsGyzTx/0LMINTgQjqZ0h3+NjP+bCsPYz3hn0HnBkGmkIFSr7QcEZT+KyEM7lbLPQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script
+      src="https://kit.fontawesome.com/15af1250d1.js"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>

@@ -1,0 +1,213 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LOGIN</title>
+    <style>
+      .loader {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-left-color: #3498db;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+
+    <!-- Tailwind -->
+    <link href="css/styles.css" rel="stylesheet" />
+    <script src="js/jquery.min.js"></script>
+    <script src="js/loginPage.js"></script>
+  </head>
+
+  <body>
+    <div
+      class="bg-purple-900 absolute top-0 left-0 bg-gradient-to-b from-gray-900 via-gray-900 to-purple-800 bottom-0 leading-5 h-full w-full overflow-hidden"
+    ></div>
+    <div
+      class="relative min-h-screen sm:flex sm:flex-row gap-x-20 justify-center bg-transparent rounded-3xl shadow-xl"
+    >
+      <div
+        class="flex-col flex self-center lg:px-14 sm:max-w-4xl xl:max-w-md z-10"
+      >
+        <div class="self-start hidden lg:flex flex-col text-gray-300">
+          <h1 class="my-3 font-semibold text-4xl">2KS1.NET</h1>
+        </div>
+      </div>
+      <div class="flex justify-center self-center z-10">
+        <div id="loginForm" class="p-12 bg-white mx-auto rounded-3xl w-96">
+          <div class="mb-7">
+            <h3 class="font-semibold text-2xl text-gray-800">Login</h3>
+          </div>
+
+          <div class="space-y-6">
+            <input
+              id="name"
+              class="w-full text-sm px-4 py-3 bg-gray-200 border border-gray-200 rounded-lg focus:outline-none focus:bg-gray-100 focus:border-purple-400"
+              type="text"
+              placeholder="Name"
+            />
+            <input
+              id="pincode"
+              class="w-full text-sm px-4 py-3 bg-gray-200 border border-gray-200 rounded-lg focus:outline-none focus:bg-gray-100 focus:border-purple-400"
+              type="password"
+              placeholder="Pincode"
+            />
+            <button
+              id="loginButton"
+              type="button"
+              class="w-full bg-purple-800 hover:bg-purple-700 text-gray-100 p-3 rounded-lg tracking-wide font-semibold cursor-pointer transition ease-in duration-500"
+            >
+              login
+            </button>
+            <div class="flex items-center justify-between">
+              <div class="text-sm ml-0">
+                <label
+                  id="forgetPassword"
+                  class="text-purple-700 hover:text-purple-600 hover:underline"
+                >
+                  Forgot password?
+                </label>
+              </div>
+              <!-- <div
+                class="flex items-center justify-center space-x-2 mb-5 mx-auto"
+              >
+                <span class="h-px w-16 bg-gray-200"></span>
+                <span class="text-gray-400 font-normal">or</span>
+                <span class="h-px w-16 bg-gray-200"></span>
+              </div> -->
+            </div>
+            <div class="w-1/3 mx-auto my-">
+              <a
+                href="goldPrice.html"
+                class="w-full flex items-center justify-center mb-6 md:mb-0 hover:border-gray-900 hover:bg-gray-900 text-sm text-gray-500 p-3 rounded-lg tracking-wide font-medium cursor-pointer transition ease-in duration-500"
+              >
+                <img
+                  src="https://www.pnj.com.vn/design/themes/responsive/media/images/footer/logo-meaning.png"
+                  alt=""
+                  class="h-6 mr-2"
+                />
+                <span class="w-full">price</span>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div
+          id="forgetPasswordForm"
+          class="p-12 bg-white mx-auto rounded-3xl w-96 h-96 hidden relative"
+        >
+          <div class="mb-7">
+            <h3 class="font-semibold text-2xl text-gray-800">
+              Find Your Account
+            </h3>
+          </div>
+
+          <div class="space-y-6">
+            <input
+              id="idEmployyee"
+              class="w-full text-sm px-4 py-3 bg-gray-200 border border-gray-200 rounded-lg focus:outline-none focus:bg-gray-100 focus:border-purple-400"
+              type="text"
+              placeholder="Your id"
+            />
+            <p class="text-gray-800">
+              Please enter your id employee to reset for your account password.
+            </p>
+            <button
+              id="sendOtp"
+              type="button"
+              class="w-full bg-purple-800 hover:bg-purple-700 text-gray-100 p-3 rounded-lg tracking-wide font-semibold cursor-pointer transition ease-in duration-500"
+            >
+              send
+            </button>
+          </div>
+        </div>
+        <div
+          id="otpForm"
+          class="p-12 bg-white mx-auto rounded-3xl w-96 h-96 hidden"
+        >
+          <h2 class="text-2xl font-bold mb-4">Reset your password</h2>
+          <p class="mb-4">
+            We just sent a 6 digit OTP to your email. Enter that code here to
+            proceed.
+          </p>
+          <div class="flex space-x-2 mb-4">
+            <input
+              id="OtpCode"
+              class="w-full text-sm px-4 py-3 bg-gray-200 border border-gray-200 rounded-lg focus:outline-none focus:bg-gray-100 focus:border-purple-400"
+              type="text"
+              placeholder="Your otp"
+            />
+          </div>
+          <p class="mt-4 text-sm">The OTP is only valid for 1 minute.</p>
+          <p id="countdown" class="text-zinc-500 mb-4">
+            Request resend OTP in 00:60
+          </p>
+
+          <p
+            id="resendButton"
+            data-idEm=""
+            class="hidden mb-4 text-purple-700 hover:text-purple-600 hover:underline"
+          >
+            Resend OTP
+          </p>
+
+          <button
+            id="validateOTP"
+            class="w-full bg-purple-800 hover:bg-purple-700 text-gray-100 p-3 rounded-lg tracking-wide font-semibold cursor-pointer transition ease-in duration-500"
+            type="button"
+          >
+            Validate OTP
+          </button>
+        </div>
+        <div
+          id="changePassForm"
+          class="p-12 bg-white mx-auto rounded-3xl h-96 w-96 hidden"
+        >
+          <div class="mb-7">
+            <h3 class="font-semibold text-2xl text-gray-800">
+              Change password
+            </h3>
+          </div>
+
+          <div class="space-y-6">
+            <input
+              id="passswordChange"
+              class="w-full text-sm px-4 py-3 bg-gray-200 border border-gray-200 rounded-lg focus:outline-none focus:bg-gray-100 focus:border-purple-400"
+              type="password"
+              placeholder="password"
+            />
+            <input
+              id="passswordChangeConfirm"
+              class="w-full text-sm px-4 py-3 bg-gray-200 border border-gray-200 rounded-lg focus:outline-none focus:bg-gray-100 focus:border-purple-400"
+              type="password"
+              placeholder="password confirm"
+            />
+            <button
+              id="changePassButton"
+              type="button"
+              class="w-full bg-purple-800 hover:bg-purple-700 text-gray-100 p-3 rounded-lg tracking-wide font-semibold cursor-pointer transition ease-in duration-500"
+            >
+              change
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <svg class="absolute bottom-0 left-0" xmlns="" viewBox="0 0 1440 320">
+      <path
+        fill="#fff"
+        fill-opacity="1"
+        d="M0,0L40,42.7C80,85,160,171,240,197.3C320,224,400,192,480,154.7C560,117,640,75,720,74.7C800,75,880,117,960,154.7C1040,192,1120,224,1200,213.3C1280,203,1360,149,1400,122.7L1440,96L1440,320L1400,320C1360,320,1280,320,1200,320C1120,320,1040,320,960,320C880,320,800,320,720,320C640,320,560,320,480,320C400,320,320,320,240,320C160,320,80,320,40,320L0,320Z"
+      ></path>
+    </svg>
+  </body>
+</html>

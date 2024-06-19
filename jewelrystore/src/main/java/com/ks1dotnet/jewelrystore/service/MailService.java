@@ -67,8 +67,9 @@ public class MailService {
                 "Send account to employee have id " + username + " Successfully", null);
     }
 
-    public void sendOtpEmailAsync(String email, String username) {
+    public ResponseData sendOtpEmail(String email, String username) {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
+        String otp = mailUtils.generateOtp();
         try {
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
             helper.setFrom(fromMail);
@@ -89,7 +90,7 @@ public class MailService {
             message.append("<div style='padding: 20px; text-align: center;'>");
             message.append("<p>Kính gửi ").append(username).append(",</p>");
             message.append("<p>Để xác nhận đổi mật khẩu, vui lòng sử dụng mã OTP sau:</p>");
-            message.append("<p><strong>").append(mailUtils.generateOtp()).append("</strong></p>");
+            message.append("<p><strong>").append(otp).append("</strong></p>");
             message.append("<p>Mã này sẽ hết hạn sau 5 phút.</p>");
             message.append("<p>Trân trọng,</p>");
             message.append("<p>Đội ngũ hỗ trợ kỹ thuật</p>");
@@ -108,22 +109,15 @@ public class MailService {
 
             helper.setText(message.toString(), true);
             mailSender.send(mimeMessage);
-
+            return new ResponseData(HttpStatus.OK, "OTP sent to " + username + " successfully",
+                    otp);
         } catch (MessagingException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public ResponseData sendOtpEmail(String email, String username) {
-        try {
-            sendOtpEmailAsync(email, username);
-        } catch (Exception e) {
             e.printStackTrace();
             return new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR,
                     "Failed to send OTP to " + username, null);
         }
-        return new ResponseData(HttpStatus.OK, "OTP sent to " + username + " successfully", null);
     }
+
 
 
 }
