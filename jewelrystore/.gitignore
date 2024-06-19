@@ -32,5 +32,5 @@ node_modules
 ### VS Code ###
 .vscode/
 
-src/main/resources/dist/
-src/main/resources/node_modules/
+src/main/resources/templates/dist/
+src/main/resources/templates/node_modules/
