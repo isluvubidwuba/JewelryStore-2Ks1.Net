@@ -70,7 +70,7 @@ gulp.task(
     "copy-jquery",
     "copy-js",
     "copy-css",
-    "copy-images",
+    "copy-images"
   )
 );
 
