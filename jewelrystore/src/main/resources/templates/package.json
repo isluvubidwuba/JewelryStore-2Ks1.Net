@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build:css": "npx postcss src/cssRaw/stylesRaw.css -o src/css/styles.css",
-    "build": "npm run build:css && gulp"
+    "build": "npm run build:css && gulp",
+    "watch": "gulp watch"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.7",

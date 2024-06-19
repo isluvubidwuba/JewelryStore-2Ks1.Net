@@ -170,9 +170,9 @@ function loadTop5EmployeesByRevenue() {
        }" 
        alt="${employee.firstName} ${employee.lastName}" />
   <div class="flex flex-col text-center md:text-left">
-    <div class="text-zinc-900 dark:text-zinc-100 text-lg font-semibold">${
-      employee.firstName
-    } ${employee.lastName}</div>
+    <div class="text-zinc-900 text-lg font-semibold">${employee.firstName} ${
+          employee.lastName
+        }</div>
     <div class="text-gray-500 mb-3 whitespace-nowrap">${formattedRevenue}</div>
   </div>
 </div>
@@ -297,11 +297,11 @@ function loadTop5ProductsByRevenue() {
 
         // Chỉnh sửa phần hiển thị thông tin sản phẩm
         const productCard = `
-            <div class="bg-white dark:bg-zinc-700 rounded-lg shadow-md p-4">
+            <div class="bg-white  rounded-lg shadow-md p-4">
                 <img src="https://storage.googleapis.com/jewelrystore-2ks1dotnet.appspot.com/Product/${product.imgPath}" 
                     alt="${product.name}" class="w-full h-32 object-cover rounded-md mb-4" />
-                <h3 class="text-zinc-900 dark:text-zinc-100 text-lg font-semibold">${product.name}</h3>
-                <p class="text-zinc-600 dark:text-zinc-400">${formattedRevenue}</p>
+                <h3 class="text-zinc-900  text-lg font-semibold">${product.name}</h3>
+                <p class="text-zinc-600 ">${formattedRevenue}</p>
             </div>
           `;
         topProductsContainer.append(productCard);
