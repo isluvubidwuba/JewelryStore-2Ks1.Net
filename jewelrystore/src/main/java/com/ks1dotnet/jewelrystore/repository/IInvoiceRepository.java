@@ -43,4 +43,8 @@ public interface IInvoiceRepository extends JpaRepository<Invoice, Integer> {
     // Quý 2 (Q2) bao gồm tháng 4, 5 và 6.
     // Quý 3 (Q3) bao gồm tháng 7, 8 và 9.
     // Quý 4 (Q4) bao gồm tháng 10, 11 và 12.
+
+    Page<Invoice> findByEmployeeIdAndInvoiceTypeIdAndStatusOrderByTotalPriceDesc(String employeeId, int i, boolean b,
+            Pageable pageable);
+
 }

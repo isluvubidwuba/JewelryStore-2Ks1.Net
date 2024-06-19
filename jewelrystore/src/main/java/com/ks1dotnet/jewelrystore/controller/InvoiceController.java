@@ -20,12 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ks1dotnet.jewelrystore.dto.CounterDTO;
 import com.ks1dotnet.jewelrystore.dto.EmployeeDTO;
+import com.ks1dotnet.jewelrystore.dto.EmployeeRevenueDTO;
 import com.ks1dotnet.jewelrystore.dto.InvoiceDTO;
 import com.ks1dotnet.jewelrystore.dto.InvoiceDetailDTO;
 import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 import com.ks1dotnet.jewelrystore.dto.RevenueDTO;
-import com.ks1dotnet.jewelrystore.entity.Counter;
-import com.ks1dotnet.jewelrystore.entity.Employee;
 import com.ks1dotnet.jewelrystore.entity.Invoice;
 import com.ks1dotnet.jewelrystore.exception.BadRequestException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
@@ -234,11 +233,10 @@ public class InvoiceController {
             @RequestParam int year,
             @RequestParam(required = false) Integer month, @RequestParam String employeeId) {
         try {
-            List<RevenueDTO<EmployeeDTO>> revenueByEmployee = invoiceService.calculateRevenueByEmployeeID(period, year,
-                    month,
+            EmployeeRevenueDTO revenueDTO = invoiceService.calculateRevenueByEmployeeID(period, year, month,
                     employeeId);
             ResponseData responseData = new ResponseData(HttpStatus.OK, "Retrieved revenue by employee successfully",
-                    revenueByEmployee);
+                    revenueDTO);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
         } catch (BadRequestException e) {
             ResponseData responseData = new ResponseData(HttpStatus.BAD_REQUEST, e.getMessage(), null);
@@ -254,6 +252,17 @@ public class InvoiceController {
         Page<InvoiceDTO> invoices = invoiceService.getInvoices(page, size);
         ResponseData responseData = new ResponseData(HttpStatus.OK,
                 "Get invoice page: " + page + " Size: " + size + " successfully", invoices);
+        return new ResponseEntity<>(responseData, HttpStatus.OK);
+    }
+
+    @GetMapping("/employee")
+    public ResponseEntity<?> getInvoicesByEmployeeId(@RequestParam String employeeId, @RequestParam int page,
+            @RequestParam int size) {
+        Page<InvoiceDTO> invoices = invoiceService.getInvoicesByEmployeeId(employeeId, page, size);
+        ResponseData responseData = new ResponseData(HttpStatus.OK,
+                "Get top invoices for employee ID: " + employeeId + " Page: " + page + " Size: " + size
+                        + " successfully",
+                invoices);
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
 

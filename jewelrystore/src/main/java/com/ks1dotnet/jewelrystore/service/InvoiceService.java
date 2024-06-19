@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import com.ks1dotnet.jewelrystore.dto.CounterDTO;
 import com.ks1dotnet.jewelrystore.dto.EmployeeDTO;
+import com.ks1dotnet.jewelrystore.dto.EmployeeRevenueDTO;
 import com.ks1dotnet.jewelrystore.dto.InvoiceDTO;
 import com.ks1dotnet.jewelrystore.dto.InvoiceDetailDTO;
 import com.ks1dotnet.jewelrystore.dto.ProductDTO;
@@ -505,10 +506,10 @@ public class InvoiceService implements IInvoiceService {
                         // Tính doanh thu cho từng quầy
                         Map<Integer, Double> revenueByCounter = new HashMap<>();
                         for (Invoice invoice : invoices) {
-                                if (invoice.isStatus()) {
+                                if (invoice.isStatus() && invoice.getInvoiceType().getId() == 1) {
                                         for (InvoiceDetail detail : invoice.getListOrderInvoiceDetail()) {
                                                 Counter counter = detail.getCounter();
-                                                if (counter.getId() != 0) { // Bỏ qua quầy có id = 0
+                                                if (counter.getId() != 1) { // Bỏ qua quầy có id = 0
                                                         revenueByCounter.put(counter.getId(),
                                                                         revenueByCounter.getOrDefault(counter.getId(),
                                                                                         0.0)
@@ -524,7 +525,7 @@ public class InvoiceService implements IInvoiceService {
                         List<RevenueDTO<CounterDTO>> revenueDTOs = new ArrayList<>();
 
                         for (Counter counter : counters) {
-                                if (counter.getId() != 0) { // Bỏ qua quầy có id = 0
+                                if (counter.getId() != 1) { // Bỏ qua quầy có id = 0
                                         double revenue = revenueByCounter.getOrDefault(counter.getId(), 0.0);
                                         revenueDTOs.add(new RevenueDTO<>(counter.getDTO(), revenue));
                                 }
@@ -537,7 +538,7 @@ public class InvoiceService implements IInvoiceService {
         }
 
         @Override
-        public List<RevenueDTO<EmployeeDTO>> calculateRevenueByEmployeeID(String period, int year, Integer month,
+        public EmployeeRevenueDTO calculateRevenueByEmployeeID(String period, int year, Integer month,
                         String employeeId) {
                 try {
                         List<Invoice> invoices;
@@ -549,21 +550,33 @@ public class InvoiceService implements IInvoiceService {
                                 throw new BadRequestException("Invalid period specified. Use 'month' or 'year'.");
                         }
 
-                        Map<EmployeeDTO, Double> revenueByEmployee = new HashMap<>();
-
-                        double totalRevenue = invoices.stream()
-                                        .filter(Invoice::isStatus)
-                                        .mapToDouble(Invoice::getTotalPrice)
-                                        .sum();
                         Employee employee = iEmployeeRepository.findById(employeeId)
                                         .orElseThrow(() -> new BadRequestException("Not found with id employee"));
-                        revenueByEmployee.put(employee.getDTO(), totalRevenue);
 
-                        List<RevenueDTO<EmployeeDTO>> revenueDTOList = revenueByEmployee.entrySet().stream()
-                                        .map(entry -> new RevenueDTO<>(entry.getKey(), entry.getValue()))
-                                        .collect(Collectors.toList());
+                        double totalRevenue = invoices.stream()
+                                        .filter(invoice -> invoice.isStatus() && invoice.getInvoiceType().getId() == 1)
+                                        .mapToDouble(Invoice::getTotalPriceRaw)
+                                        .sum();
 
-                        return revenueDTOList;
+                        double totalRevenueAfterDiscount = invoices.stream()
+                                        .filter(invoice -> invoice.isStatus() && invoice.getInvoiceType().getId() == 1)
+                                        .mapToDouble(Invoice::getTotalPrice)
+                                        .sum();
+
+                        int totalInvoices = (int) invoices.stream()
+                                        .filter(invoice -> invoice.isStatus() && invoice.getInvoiceType().getId() == 1)
+                                        .count();
+
+                        double averageRevenue = totalInvoices > 0 ? totalRevenueAfterDiscount / totalInvoices : 0;
+                        employee.setImage(url.trim() + filePath.trim() + employee.getImage());
+                        EmployeeRevenueDTO revenueDTO = new EmployeeRevenueDTO();
+                        revenueDTO.setEmployee(employee.getDTO());
+                        revenueDTO.setTotalRevenue(totalRevenue);
+                        revenueDTO.setTotalRevenueAfterDiscount(totalRevenueAfterDiscount);
+                        revenueDTO.setTotalInvoices(totalInvoices);
+                        revenueDTO.setAverageRevenue(averageRevenue);
+
+                        return revenueDTO;
                 } catch (Exception e) {
                         throw new RunTimeExceptionV1("Error calculating revenue by employee: ", e.getMessage());
                 }
@@ -584,7 +597,7 @@ public class InvoiceService implements IInvoiceService {
                         Map<EmployeeDTO, Double> revenueByEmployee = new HashMap<>();
 
                         for (Invoice invoice : invoices) {
-                                if (invoice.isStatus()) {
+                                if (invoice.isStatus() && invoice.getInvoiceType().getId() == 1) {
                                         Employee employee = invoice.getEmployee();
                                         double totalPrice = invoice.getTotalPrice();
                                         revenueByEmployee.put(employee.getDTO(),
@@ -611,6 +624,15 @@ public class InvoiceService implements IInvoiceService {
         }
 
         @Override
+        public Page<InvoiceDTO> getInvoicesByEmployeeId(String employeeId, int page, int size) {
+                Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+                Page<Invoice> invoices = invoiceRepository
+                                .findByEmployeeIdAndInvoiceTypeIdAndStatusOrderByTotalPriceDesc(employeeId, 1, true,
+                                                pageable);
+                return invoices.map(Invoice::getDTO);
+        }
+
+        @Override
         public List<RevenueDTO<EmployeeDTO>> getTop5EmployeesByRevenue(String period, int year, Integer month) {
                 try {
                         List<Invoice> invoices;
@@ -624,7 +646,7 @@ public class InvoiceService implements IInvoiceService {
 
                         Map<EmployeeDTO, Double> revenueByEmployee = new HashMap<>();
                         for (Invoice invoice : invoices) {
-                                if (invoice.isStatus()) {
+                                if (invoice.isStatus() && invoice.getInvoiceType().getId() == 1) {
                                         Employee employee = invoice.getEmployee();
                                         double totalPrice = invoice.getTotalPrice();
                                         EmployeeDTO employeeDTO = employee.getDTO();
@@ -661,7 +683,7 @@ public class InvoiceService implements IInvoiceService {
                         Map<ProductDTO, Double> revenueByProduct = new HashMap<>();
 
                         for (Invoice invoice : invoices) {
-                                if (invoice.isStatus()) {
+                                if (invoice.isStatus() && invoice.getInvoiceType().getId() == 1) {
                                         for (InvoiceDetail detail : invoice.getListOrderInvoiceDetail()) {
                                                 Product product = detail.getProduct();
                                                 ProductDTO productDTO = product.getDTO();

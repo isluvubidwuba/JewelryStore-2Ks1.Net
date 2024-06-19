@@ -31,3 +31,6 @@ build/
 node_modules
 ### VS Code ###
 .vscode/
+
+src/main/resources/dist/
+src/main/resources/node_modules/

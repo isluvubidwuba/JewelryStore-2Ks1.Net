@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 
 import com.ks1dotnet.jewelrystore.dto.CounterDTO;
 import com.ks1dotnet.jewelrystore.dto.EmployeeDTO;
+import com.ks1dotnet.jewelrystore.dto.EmployeeRevenueDTO;
 import com.ks1dotnet.jewelrystore.dto.InvoiceDTO;
 import com.ks1dotnet.jewelrystore.dto.InvoiceDetailDTO;
 import com.ks1dotnet.jewelrystore.dto.ProductDTO;
@@ -50,8 +51,7 @@ public interface IInvoiceService {
 
         List<RevenueDTO<CounterDTO>> calculateRevenueByCounter(String period, int year, Integer quarterOrMonth);
 
-        List<RevenueDTO<EmployeeDTO>> calculateRevenueByEmployeeID(String period, int year, Integer month,
-                        String employeeId);
+        EmployeeRevenueDTO calculateRevenueByEmployeeID(String period, int year, Integer month, String employeeId);
 
         public List<RevenueDTO<EmployeeDTO>> calculateRevenueByEmployee(String period, int year, Integer month);
 
@@ -62,5 +62,7 @@ public interface IInvoiceService {
         public List<RevenueDTO<ProductDTO>> getTop5ProductsByRevenue(String period, int year, Integer month);
 
         public int createImportInvoice(InvoiceRequest request, Map<String, Double> barcodePriceMap);
+
+        public Page<InvoiceDTO> getInvoicesByEmployeeId(String employeeId, int page, int size);
 
 }
