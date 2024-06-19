@@ -41,9 +41,6 @@ public class VNPAYConfig {
     @Value("${payment.vnPay.orderType}")
     private String orderType;
 
-    @Getter
-    @Value("${payment.vnPay.tokenUrl}")
-    private String tokenUrl;
 
     public Map<String, String> getVNPayConfig() {
         Map<String, String> vnpParamsMap = new HashMap<>();

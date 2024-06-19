@@ -405,6 +405,10 @@ $(document).ready(function () {
     }
 
     function createInvoice(paymentMethod, note) {
+        if (!checkProductSelection()) {
+            alert('Vui lòng chọn ít nhất một sản phẩm trước khi tạo hóa đơn.');
+            return;
+        }
         if (!selectedUserId) {
             alert('Vui lòng chọn người dùng trước khi tạo hóa đơn.');
             return;
@@ -435,7 +439,6 @@ $(document).ready(function () {
             },
             success: function (response) {
                 if (response.status === 'OK') {
-                    alert('Hóa đơn đã được tạo thành công');
                     createdInvoiceId = response.data; // Lưu ID của hóa đơn vừa tạo
                     viewInvoice(createdInvoiceId); // Gọi hàm để hiển thị hóa đơn
                 } else {
@@ -594,38 +597,71 @@ $(document).ready(function () {
         });
     }
 
+
+
+    $('[data-dismiss-target]').on('click', function () {
+        var target = $(this).data('dismiss-target');
+        $(target).addClass('hidden');
+    });
+
     function handleVnPayCallback() {
         const urlParams = new URLSearchParams(window.location.search);
-        const paymentSuccess = urlParams.get('paymentSuccess');
+        const vnpResponseCode = urlParams.get('vnp_ResponseCode');
+        console.log("Checking vnpResponseCode: " + vnpResponseCode);
 
-        if (paymentSuccess !== null) { // Chỉ thực thi nếu có tham số paymentSuccess
-            if (paymentSuccess === 'true') {
-                // Lấy các thông tin đã lưu trữ từ sessionStorage
-                selectedUserId = sessionStorage.getItem('selectedUserId');
-                selectedUserName = sessionStorage.getItem('selectedUserName');
-                userPromotion = JSON.parse(sessionStorage.getItem('userPromotion'));
-                productMap = JSON.parse(sessionStorage.getItem('productMap'));
-                employeeID = sessionStorage.getItem('employeeID');
+        if (vnpResponseCode !== null) {
+            fetch('http://localhost:8080/payment/vn-pay-callback?vnp_ResponseCode=' + vnpResponseCode)
+                .then(response => response.json())
+                .then(data => {
+                    const message = data.desc;
+                    const status = data.status;
+                    let notificationId;
 
-                // Tạo hóa đơn với thông tin thanh toán qua VNPAY
-                createInvoice("VNPAY", null);
+                    if (status === 'OK') {
+                        notificationId = 'toast-success';
+                        // Lấy các thông tin đã lưu trữ từ sessionStorage
+                        selectedUserId = sessionStorage.getItem('selectedUserId');
+                        selectedUserName = sessionStorage.getItem('selectedUserName');
+                        userPromotion = JSON.parse(sessionStorage.getItem('userPromotion'));
+                        productMap = JSON.parse(sessionStorage.getItem('productMap'));
+                        employeeID = sessionStorage.getItem('employeeID');
 
-                // Xóa các thông tin đã lưu trữ sau khi xử lý
-                sessionStorage.removeItem('selectedUserId');
-                sessionStorage.removeItem('selectedUserName');
-                sessionStorage.removeItem('userPromotion');
-                sessionStorage.removeItem('productMap');
-                sessionStorage.removeItem('employeeID');
-            } else {
-                alert('Thanh toán không thành công. Vui lòng thử lại.');
-            }
+                        // Tạo hóa đơn với thông tin thanh toán qua VNPAY và sử dụng các biến đã khai báo
+                        createInvoice("VNPAY", null);
+
+                        // Xóa các thông tin đã lưu trữ sau khi xử lý
+                        sessionStorage.removeItem('selectedUserId');
+                        sessionStorage.removeItem('selectedUserName');
+                        sessionStorage.removeItem('userPromotion');
+                        sessionStorage.removeItem('productMap');
+                        sessionStorage.removeItem('employeeID');
+                    } else {
+                        notificationId = 'toast-error';
+                    }
+
+                    const notification = document.getElementById(notificationId);
+                    notification.querySelector('.ml-3').textContent = message;
+                    notification.classList.remove('hidden');
+
+                    // Xóa các tham số URL sau khi xử lý
+                    const url = new URL(window.location);
+                    url.search = ''; // Xóa tất cả các tham số
+                    window.history.replaceState({}, document.title, url);
+                })
+                .catch(error => console.error('Error:', error));
         }
     }
+
 
     // Thêm hàm kiểm tra user đã chọn chưa
     function checkUserSelection() {
         return selectedUserId !== null;
     }
+    // Thêm hàm kiểm tra product đã chọn chưa
+    function checkProductSelection() {
+        return Object.keys(productMap).length > 0;
+    }
+
 
     $('#reset-order-button').click(function () {
         resetOrder();
