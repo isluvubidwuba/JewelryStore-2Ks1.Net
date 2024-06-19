@@ -67,10 +67,10 @@ gulp.task(
   gulp.series(
     "clean",
     "file-include",
+    "copy-jquery",
     "copy-js",
     "copy-css",
     "copy-images",
-    "watch"
   )
 );
 
