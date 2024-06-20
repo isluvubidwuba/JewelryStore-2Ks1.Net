@@ -77,6 +77,9 @@ $(document).ready(function () {
       changePasss($("#passswordChange").val());
     }
   });
+  $("[name='backToLoginButton']").click(function () {
+    toggleForms("#forgetPasswordForm, #otpForm, #changePassForm", "#loginForm");
+  });
 });
 
 const toggleForms = (hideSelector, showSelector) => {

@@ -11,13 +11,26 @@ const jqueryPath = path.join(
   "dist",
   "jquery.min.js"
 );
-
+const jbarcodePath = path.join(
+  __dirname,
+  "node_modules",
+  "jsbarcode",
+  "dist",
+  "JsBarcode.all.min.js"
+);
 // Đường dẫn đích đến thư mục src/js
 const destPath = path.join(__dirname, "src", "js");
 
 // Tạo một task để sao chép jQuery
 gulp.task("copy-jquery", function () {
   return gulp.src(jqueryPath).pipe(gulp.dest(destPath));
+});
+// Task để xóa thư mục 'dist'
+function clean() {
+  return del(["dist"]);
+}
+gulp.task("copy-jbarcode", function () {
+  return gulp.src(jbarcodePath).pipe(gulp.dest(destPath));
 });
 // Task để xóa thư mục 'dist'
 function clean() {
@@ -67,6 +80,7 @@ gulp.task(
   gulp.series(
     "clean",
     "file-include",
+    "copy-jbarcode",
     "copy-jquery",
     "copy-js",
     "copy-css",
