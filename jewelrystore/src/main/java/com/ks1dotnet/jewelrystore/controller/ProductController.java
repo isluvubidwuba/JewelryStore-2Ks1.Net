@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -116,4 +117,11 @@ public class ProductController {
         ResponseData response = firebaseStorageService.deleteImage(img, filePath);
         return new ResponseEntity<>(response, response.getStatus());
     }
+
+    @GetMapping("/{barcode}")
+    public ResponseEntity<?> getMethodName(@PathVariable String barcode) {
+        ResponseData responseData = iProductService.getProductByBarCode(barcode);
+        return new ResponseEntity<>(responseData, responseData.getStatus());
+    }
+
 }
