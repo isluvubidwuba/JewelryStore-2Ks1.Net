@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.ks1dotnet.jewelrystore.dto.ProductDTO;
+import com.ks1dotnet.jewelrystore.entity.Employee;
 import com.ks1dotnet.jewelrystore.entity.Product;
 import com.ks1dotnet.jewelrystore.exception.BadRequestException;
 import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
@@ -260,4 +261,14 @@ public class ProductService implements IProductService {
             throw new RunTimeExceptionV1("Failed search product", e.getMessage());
         }
     }
+
+    @Override
+    public ResponseData getProductByBarCode(String barCode) {
+        Product product = iProductRepository.findByBarCode(barCode);
+        ResponseData responseData = new ResponseData();
+        responseData.setStatus(HttpStatus.OK);
+        responseData.setData(product.getDTO());
+        return responseData;
+    }
+
 }

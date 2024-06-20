@@ -4,17 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tailwind Admin Template</title>
-    <meta name="author" content="David Grzyb" />
-    <meta name="description" content="" />
 
+    <script src="js/jquery.min.js"></script>
+    <script src="js/ManagerEmployee.js"></script>
+    <script src="js/revenueEmployee.js"></script>
     <!-- Tailwind CSS -->
     <link href="css/styles.css" rel="stylesheet" />
-    <script src="js/jquery.min.js"></script>
-
-    <!-- Custom JS files -->
-    <script src="js/ManagerEmployee.js"></script>
-    <script src="js/DashboardAdmin.js"></script>
-
     <!-- Google Fonts -->
     <style>
       @import url("https://fonts.googleapis.com/css?family=Karla:400,700&display=swap");
@@ -56,13 +51,13 @@
             <div class="flex relative">
               <label
                 for="search-dropdown"
-                class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white"
+                class="mb-2 text-sm font-medium text-gray-900 sr-only"
                 >Search</label
               >
               <button
                 id="dropdown-button"
                 data-dropdown-toggle="dropdown"
-                class="flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 rounded-l-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700 dark:text-white dark:border-gray-600"
+                class="flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 rounded-l-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100"
                 type="button"
               >
                 Search by <span id="selected-criteria" class="ml-1">ID</span>
@@ -86,16 +81,16 @@
               <!-- Dropdown -->
               <div
                 id="dropdown"
-                class="absolute z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700"
+                class="absolute z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44"
               >
                 <ul
-                  class="py-2 text-sm text-gray-700 dark:text-gray-200"
+                  class="py-2 text-sm text-gray-700"
                   aria-labelledby="dropdown-button"
                 >
                   <li>
                     <button
                       type="button"
-                      class="dropdown-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                      class="dropdown-item inline-flex w-full px-4 py-2 hover:bg-gray-100"
                       data-criteria="ID"
                     >
                       ID
@@ -104,7 +99,7 @@
                   <li>
                     <button
                       type="button"
-                      class="dropdown-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                      class="dropdown-item inline-flex w-full px-4 py-2 hover:bg-gray-100"
                       data-criteria="Name"
                     >
                       Name
@@ -113,7 +108,7 @@
                   <li>
                     <button
                       type="button"
-                      class="dropdown-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                      class="dropdown-item inline-flex w-full px-4 py-2 hover:bg-gray-100"
                       data-criteria="Role"
                     >
                       Role
@@ -122,7 +117,7 @@
                   <li>
                     <button
                       type="button"
-                      class="dropdown-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                      class="dropdown-item inline-flex w-full px-4 py-2 hover:bg-gray-100"
                       data-criteria="Status"
                     >
                       Status
@@ -135,13 +130,13 @@
               <input
                 type="search"
                 id="searchInput"
-                class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-r-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500"
+                class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-r-lg border border-gray-300"
                 placeholder="Search..."
               />
               <button
                 id="searchButton"
                 type="submit"
-                class="top-0 right-0 p-2.5 text-sm font-medium text-white bg-black rounded-r-lg border border-gray-700 hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-black dark:bg-gray-600 dark:hover:bg-black dark:focus:ring-gray-800"
+                class="top-0 right-0 p-2.5 text-sm font-medium text-white bg-black rounded-r-lg border border-gray-700 hover:bg-gray-700 focus:ring-4 focus:outline-none"
               >
                 <svg
                   class="w-4 h-4"
@@ -166,17 +161,16 @@
           <!-- Employee Table -->
           <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
             <table
-              class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
+              class="w-full text-sm text-left rtl:text-right text-gray-500"
             >
-              <thead
-                class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
-              >
+              <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                 <tr class="bg-gray-300 shadow-sm">
                   <th scope="col" class="px-6 py-3">ID</th>
                   <th scope="col" class="px-6 py-3">Image</th>
                   <th scope="col" class="px-6 py-3">Full Name</th>
                   <th scope="col" class="px-6 py-3">Role</th>
                   <th scope="col" class="px-6 py-3">Status</th>
+                  <th scope="col" class="px-6 py-3">Total Revenue</th>
                   <th scope="col" class="px-6 py-3">Action</th>
                 </tr>
               </thead>
@@ -231,13 +225,13 @@
                     <div class="flex items-center justify-center w-full mt-4">
                       <label
                         for="viewEmployeeImageFile"
-                        class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
+                        class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50"
                       >
                         <div
                           class="flex flex-col items-center justify-center pt-5 pb-6"
                         >
                           <svg
-                            class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
+                            class="w-8 h-8 mb-4 text-gray-500"
                             aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
@@ -251,13 +245,11 @@
                               d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
                             />
                           </svg>
-                          <p
-                            class="mb-2 text-sm text-gray-500 dark:text-gray-400"
-                          >
+                          <p class="mb-2 text-sm text-gray-500">
                             <span class="font-semibold">Click to upload</span>
                             or drag and drop
                           </p>
-                          <p class="text-xs text-gray-500 dark:text-gray-400">
+                          <p class="text-xs text-gray-500">
                             SVG, PNG, JPG or GIF (MAX. 800x400px)
                           </p>
                         </div>
@@ -411,13 +403,13 @@
                       <div class="flex items-center justify-center w-full">
                         <label
                           for="insertEmployeeImageFile"
-                          class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
+                          class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50"
                         >
                           <div
                             class="flex flex-col items-center justify-center pt-5 pb-6"
                           >
                             <svg
-                              class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
+                              class="w-8 h-8 mb-4 text-gray-500"
                               aria-hidden="true"
                               xmlns="http://www.w3.org/2000/svg"
                               fill="none"
@@ -431,13 +423,11 @@
                                 d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
                               />
                             </svg>
-                            <p
-                              class="mb-2 text-sm text-gray-500 dark:text-gray-400"
-                            >
+                            <p class="mb-2 text-sm text-gray-500">
                               <span class="font-semibold">Click to upload</span>
                               or drag and drop
                             </p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                            <p class="text-xs text-gray-500">
                               SVG, PNG, JPG or GIF (MAX. 800x400px)
                             </p>
                           </div>
@@ -573,19 +563,14 @@
           </div>
         </main>
       </div>
+      <div id="modal-placeholder">
+        @@include('components/viewEmployeeModal.html')
+      </div>
+      <!-- AlpineJS -->
+      <script
+        src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"
+        defer
+      ></script>
     </div>
-
-    <!-- AlpineJS -->
-    <script
-      src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"
-      defer
-    ></script>
-
-    <!-- Font Awesome -->
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"
-      integrity="sha256-KzZiKy0DWYsnwMF+X1DvQngQ2/FxF7MF3Ff72XcpuPs="
-      crossorigin="anonymous"
-    ></script>
   </body>
 </html>

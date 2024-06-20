@@ -1,11 +1,11 @@
-let currentPage = 0; // Trang hiện tại mặc định là 0
+let currentPage2 = 0; // Trang hiện tại mặc định là 0
 const pageSize2 = 5; // Kích thước trang mặc định là 5
 
 $(document).ready(function () {
-  $("#closeViewModalBtn").on("click", closeModal);
+  $("#closeViewModalBtn2").on("click", closeModalRevenue);
   $("#loadMoreInvoiceEmplBtn").on("click", function () {
     const employeeId = $("#employeeId").text().split(": ")[1];
-    loadInvoices(employeeId, currentPage, pageSize2);
+    loadInvoices(employeeId, currentPage2, pageSize2);
   });
 
   // Sự kiện thay đổi khoảng thời gian trong modal
@@ -66,7 +66,7 @@ function showEmployeeInfo(data) {
 // Hàm hiển thị danh sách hóa đơn
 function showInvoiceList(invoices) {
   const invoiceBody = document.getElementById("invoiceEmployeeBody");
-  const startIndex = currentPage * pageSize2; // Tính toán số thứ tự bắt đầu của trang hiện tại
+  const startIndex = currentPage2 * pageSize2; // Tính toán số thứ tự bắt đầu của trang hiện tại
   invoices.forEach((invoice, index) => {
     const row = document.createElement("tr");
 
@@ -97,7 +97,7 @@ function showInvoiceList(invoices) {
 }
 
 // Cập nhật hàm viewEmployee để nhận thêm tham số period và month cho modal
-function viewEmployee(
+function viewEmployee2(
   idEmployee,
   period = "month",
   year = new Date().getFullYear(),
@@ -105,7 +105,7 @@ function viewEmployee(
 ) {
   // Đặt giá trị mặc định cho tháng hiện tại
   $("#monthSelectModal").val(month);
-  currentPage = 0; // Reset lại trang hiện tại về 0 khi hiển thị nhân viên mới
+  currentPage2 = 0; // Reset lại trang hiện tại về 0 khi hiển thị nhân viên mới
   $("#invoiceEmployeeBody").empty(); // Xóa nội dung của bảng trước khi tải dữ liệu mới
   $.ajax({
     url: `http://localhost:8080/invoice/revenue/employeeId`,
@@ -122,8 +122,8 @@ function viewEmployee(
     success: function (response) {
       if (response.status === "OK") {
         showEmployeeInfo(response.data);
-        openModal();
-        loadInvoices(idEmployee, currentPage, pageSize2);
+        openModalRevenue();
+        loadInvoices(idEmployee, currentPage2, pageSize2);
       } else {
         alert("Không thể lấy dữ liệu doanh thu của nhân viên.");
       }
@@ -181,7 +181,7 @@ function loadInvoices(employeeId, page, size) {
     success: function (response) {
       if (response.status === "OK") {
         showInvoiceList(response.data.content);
-        currentPage++; // Tăng số trang sau mỗi lần tải
+        currentPage2++; // Tăng số trang sau mỗi lần tải
         // Kiểm tra xem đã đến trang cuối cùng chưa
         if (response.data.last) {
           $("#loadMoreInvoiceEmplBtn").addClass("hidden"); // Ẩn nút "Load More"
@@ -199,13 +199,13 @@ function loadInvoices(employeeId, page, size) {
 }
 
 // Hàm đóng modal
-function closeModal() {
-  $("#viewEmployeeModal").addClass("hidden");
+function closeModalRevenue() {
+  $("#viewEmployeeModal2").addClass("hidden");
 }
 
 // Hàm mở modal
-function openModal() {
-  $("#viewEmployeeModal").removeClass("hidden");
+function openModalRevenue() {
+  $("#viewEmployeeModal2").removeClass("hidden");
 }
 
 // Hàm định dạng tiền tệ

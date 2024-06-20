@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.ks1dotnet.jewelrystore.dto.UserInfoDTO;
 import com.ks1dotnet.jewelrystore.entity.UserInfo;
 
 @Repository
@@ -44,5 +45,8 @@ public interface IUserInfoRepository extends JpaRepository<UserInfo, Integer> {
         public boolean existsByEmailAndIdNot(String email, int id);
 
         public boolean existsByPhoneNumberAndIdNot(String phoneNumber, int id);
+
+        @Query("SELECT u FROM UserInfo u WHERE u.role.id = 5 AND u.id = :id")
+        public UserInfo findSupplierById(@Param("id") int id);
 
 }

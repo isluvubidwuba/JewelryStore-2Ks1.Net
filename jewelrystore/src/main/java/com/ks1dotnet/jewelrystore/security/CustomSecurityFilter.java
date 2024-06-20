@@ -115,22 +115,17 @@ public class CustomSecurityFilter {
                                                 .requestMatchers("/userinfo/listcustomer",
                                                                 "/userinfo/listpage",
                                                                 "/userinfo/findcustomer/{id}",
-                                                                "/userinfo/searchcustomer",
-                                                                "userinfo/upload",
-                                                                "userinfo/uploadget",
-                                                                "/customertype/findall")
+                                                                "/userinfo/searchcustomer", "userinfo/upload",
+                                                                "userinfo/uploadget", "/customertype/findall",
+                                                                "/userinfo/listsupplier",
+                                                                "/userinfo/searchsupplier")
                                                 .hasAnyAuthority("STAFF", "MANAGER", "ADMIN")
 
                                                 .requestMatchers("/userinfo/update",
                                                                 "/userinfo/insert")
                                                 .hasAnyAuthority("STAFF", "MANAGER", "ADMIN")
 
-                                                .requestMatchers("/userinfo/listsupplier",
-                                                                "/userinfo/searchsupplier")
-                                                .hasAnyAuthority("MANAGER", "ADMIN")
-
-                                                .requestMatchers("/userinfo/**", "/role/insert",
-                                                                "/customertype/**")
+                                                .requestMatchers("/userinfo/**", "/role/insert", "/customertype/**")
                                                 .hasAuthority("ADMIN")
 
                                                 .anyRequest().authenticated())

@@ -99,4 +99,10 @@ public class UserInfoController {
         return new ResponseEntity<>(response, response.getStatus());
     }
 
+    @GetMapping("findsupplier/{id}")
+    public ResponseEntity<?> getSupplierById(@PathVariable int id) {
+        ResponseData responseData = iUserInfoService.getSupplierInfo(id);
+        return new ResponseEntity<>(responseData.getData(), responseData.getStatus());
+    }
+
 }
