@@ -8,10 +8,13 @@
     <meta name="description" content="" />
 
     <!-- Tailwind CSS -->
-    <link href="css/styles.css" rel="stylesheet" />
-    <script src="js/jquery.min.js"></script>
-    <script src="js/Product.js"></script>
-    <script src="js/DashboardAdmin.js"></script>
+    <link href="build/tailwind.css" rel="stylesheet" />
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+
+    <!-- jQuery -->
+    <script src="jquery/dist/jquery.min.js"></script>
+    <script src="./js/Product.js"></script>
+    <script src="./js/DashboardAdmin.js"></script>
 
     <style>
       @import url("https://fonts.googleapis.com/css?family=Karla:400,700&display=swap");
@@ -43,11 +46,11 @@
   </head>
   <body class="bg-gray-100 font-family-karla flex overflow-x-hidden">
     <!-- Side bar -->
-    <div id="sidebar-placeholder">@@include('components/sidebar.html')</div>
+    <div id="sidebar-placeholder"></div>
 
     <div class="relative w-full flex flex-col h-screen overflow-y-hidden">
       <!-- Desktop Header -->
-      <div id="header-placeholder">@@include('components/header.html')</div>
+      <div id="header-placeholder"></div>
 
       <div class="overflow-x-hidden border-t flex flex-col">
         <main class="w-full flex-grow p-6">
