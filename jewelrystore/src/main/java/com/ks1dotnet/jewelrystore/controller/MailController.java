@@ -1,8 +1,9 @@
 package com.ks1dotnet.jewelrystore.controller;
 
 import java.time.LocalDateTime;
-import java.util.Date;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -62,8 +63,7 @@ public class MailController {
             return new ResponseEntity<>(response, response.getStatus());
 
         } catch (ResourceNotFoundException e) {
-            ResponseData errorResponse =
-                    new ResponseData(HttpStatus.NOT_FOUND, e.getMessage(), null);
+            ResponseData errorResponse = new ResponseData(HttpStatus.NOT_FOUND, e.getMessage(), null);
             return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             ResponseData errorResponse = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR,
@@ -71,6 +71,5 @@ public class MailController {
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
 }
