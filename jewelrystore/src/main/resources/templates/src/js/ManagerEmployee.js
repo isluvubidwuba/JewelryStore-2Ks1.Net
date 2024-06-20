@@ -23,9 +23,6 @@ function initializeInsertEmployee() {
 }
 
 function fetchEmployeeImage(employeeId, imageUrl) {
-  console.log(
-    `Fetching image for employeeId: ${employeeId}, imageUrl: ${imageUrl}`
-  );
   $(`#employee-image-${employeeId}`).html(
     `<img src="${imageUrl}" alt="Employee Image" class="w-10 h-10 rounded-full">`
   );
@@ -69,11 +66,21 @@ function renderEmployees(employees) {
               <td class="px-6 py-4" id="employee-image-${employee.id}">
                   Loading...
               </td>
-              <td class="px-6 py-3">${employee.lastName} ${employee.firstName}</td>
+              <td class="px-6 py-3">${employee.lastName} ${
+      employee.firstName
+    }</td>
               <td class="px-6 py-3">${employee.role.name}</td>
               <td class="px-6 py-3">${statusLabel}</td>
+              <td class="px-6 py-3">${formatCurrency(
+                employee.totalRevenue
+              )}</td>
               <td class="px-6 py-3">
-                  <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" onclick="viewEmployee('${employee.id}')">View</button>
+                  <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" onclick="viewEmployee('${
+                    employee.id
+                  }')">View</button>
+                  <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" onclick="viewEmployee2('${
+                    employee.id
+                  }')">Revenue</button>
               </td>
           </tr>
       `;
@@ -85,10 +92,17 @@ function renderEmployees(employees) {
 
 function handlePrevPage() {
   if (currentPage > 0) {
+    ``;
     fetchEmployees(currentPage - 1);
   }
 }
-
+// Hàm định dạng tiền tệ
+function formatCurrency(amount) {
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  }).format(amount);
+}
 function handleNextPage() {
   fetchEmployees(currentPage + 1);
 }
@@ -146,7 +160,6 @@ function viewEmployee(id) {
         const employee = response.data;
         // Sử dụng URL hình ảnh từ phản hồi API
         const imageUrl = employee.image;
-        console.log("Check URl hình ảnh gửi từ back end :" + imageUrl);
 
         $("#viewEmployeeImage").attr("src", imageUrl);
         $("#viewEmployeeId").val(employee.id);

@@ -13,7 +13,7 @@
 
     <!-- Custom JS files -->
     <script src="js/ManagerEmployee.js"></script>
-    <script src="js/DashboardAdmin.js"></script>
+    <script src="js/revenueEmployee.js"></script>
 
     <!-- Google Fonts -->
     <style>
@@ -177,6 +177,7 @@
                   <th scope="col" class="px-6 py-3">Full Name</th>
                   <th scope="col" class="px-6 py-3">Role</th>
                   <th scope="col" class="px-6 py-3">Status</th>
+                  <th scope="col" class="px-6 py-3">Total Revenue</th>
                   <th scope="col" class="px-6 py-3">Action</th>
                 </tr>
               </thead>
@@ -574,7 +575,9 @@
         </main>
       </div>
     </div>
-
+    <div id="modal-placeholder">
+      @@include('components/viewEmployeeModal.html')
+    </div>
     <!-- AlpineJS -->
     <script
       src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"

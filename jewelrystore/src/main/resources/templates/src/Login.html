@@ -42,162 +42,163 @@
         <div class="self-start hidden lg:flex flex-col text-gray-300">
           <h1 class="my-3 font-semibold text-4xl">2KS1.NET</h1>
         </div>
-      </div>
-      <div class="flex justify-center self-center z-10">
-        <div id="loginForm" class="p-12 bg-white mx-auto rounded-3xl w-96">
-          <div class="mb-7">
-            <h3 class="font-semibold text-2xl text-gray-800">Login</h3>
-          </div>
+        <div class="flex justify-center self-center z-10">
+          <div id="loginForm" class="p-12 bg-white mx-auto rounded-3xl w-96">
+            <div class="mb-7">
+              <h3 class="font-semibold text-2xl text-gray-800">Login</h3>
+            </div>
 
-          <div class="space-y-6">
-            <input
-              id="name"
-              class="w-full text-sm px-4 py-3 bg-gray-200 border border-gray-200 rounded-lg focus:outline-none focus:bg-gray-100 focus:border-purple-400"
-              type="text"
-              placeholder="Name"
-            />
-            <input
-              id="pincode"
-              class="w-full text-sm px-4 py-3 bg-gray-200 border border-gray-200 rounded-lg focus:outline-none focus:bg-gray-100 focus:border-purple-400"
-              type="password"
-              placeholder="Pincode"
-            />
-            <button
-              id="loginButton"
-              type="button"
-              class="w-full bg-purple-800 hover:bg-purple-700 text-gray-100 p-3 rounded-lg tracking-wide font-semibold cursor-pointer transition ease-in duration-500"
-            >
-              login
-            </button>
-            <div class="flex items-center justify-between">
-              <div class="text-sm ml-0">
-                <label
-                  id="forgetPassword"
-                  class="text-purple-700 hover:text-purple-600 hover:underline"
+            <div class="space-y-6">
+              <input
+                id="name"
+                class="w-full text-sm px-4 py-3 bg-gray-200 border border-gray-200 rounded-lg focus:outline-none focus:bg-gray-100 focus:border-purple-400"
+                type="text"
+                placeholder="Name"
+              />
+              <input
+                id="pincode"
+                class="w-full text-sm px-4 py-3 bg-gray-200 border border-gray-200 rounded-lg focus:outline-none focus:bg-gray-100 focus:border-purple-400"
+                type="password"
+                placeholder="Pincode"
+              />
+              <button
+                id="loginButton"
+                type="button"
+                class="w-full bg-purple-800 hover:bg-purple-700 text-gray-100 p-3 rounded-lg tracking-wide font-semibold cursor-pointer transition ease-in duration-500"
+              >
+                login
+              </button>
+              <div class="flex items-center justify-between">
+                <div class="text-sm ml-0">
+                  <label
+                    id="forgetPassword"
+                    class="text-purple-700 hover:text-purple-600 hover:underline"
+                  >
+                    Forgot password?
+                  </label>
+                </div>
+                <!-- <div
+                  class="flex items-center justify-center space-x-2 mb-5 mx-auto"
                 >
-                  Forgot password?
-                </label>
+                  <span class="h-px w-16 bg-gray-200"></span>
+                  <span class="text-gray-400 font-normal">or</span>
+                  <span class="h-px w-16 bg-gray-200"></span>
+                </div> -->
               </div>
-              <!-- <div
-                class="flex items-center justify-center space-x-2 mb-5 mx-auto"
-              >
-                <span class="h-px w-16 bg-gray-200"></span>
-                <span class="text-gray-400 font-normal">or</span>
-                <span class="h-px w-16 bg-gray-200"></span>
-              </div> -->
-            </div>
-            <div class="w-1/3 mx-auto my-">
-              <a
-                href="goldPrice.html"
-                class="w-full flex items-center justify-center mb-6 md:mb-0 hover:border-gray-900 hover:bg-gray-900 text-sm text-gray-500 p-3 rounded-lg tracking-wide font-medium cursor-pointer transition ease-in duration-500"
-              >
-                <img
-                  src="https://www.pnj.com.vn/design/themes/responsive/media/images/footer/logo-meaning.png"
-                  alt=""
-                  class="h-6 mr-2"
-                />
-                <span class="w-full">price</span>
-              </a>
+              <div class="w-1/3 mx-auto my-">
+                <a
+                  href="goldPrice.html"
+                  class="w-full flex items-center justify-center mb-6 md:mb-0 hover:border-gray-900 hover:bg-gray-900 text-sm text-gray-500 p-3 rounded-lg tracking-wide font-medium cursor-pointer transition ease-in duration-500"
+                >
+                  <img
+                    src="https://www.pnj.com.vn/design/themes/responsive/media/images/footer/logo-meaning.png"
+                    alt=""
+                    class="h-6 mr-2"
+                  />
+                  <span class="w-full">price</span>
+                </a>
+              </div>
             </div>
           </div>
-        </div>
-        <div
-          id="forgetPasswordForm"
-          class="p-12 bg-white mx-auto rounded-3xl w-96 h-96 hidden relative"
-        >
-          <div class="mb-7">
-            <h3 class="font-semibold text-2xl text-gray-800">
-              Find Your Account
-            </h3>
-          </div>
+          <div
+            id="forgetPasswordForm"
+            class="p-12 bg-white mx-auto rounded-3xl w-96 h-96 hidden relative"
+          >
+            <div class="mb-7">
+              <h3 class="font-semibold text-2xl text-gray-800">
+                Find Your Account
+              </h3>
+            </div>
 
-          <div class="space-y-6">
-            <input
-              id="idEmployyee"
-              class="w-full text-sm px-4 py-3 bg-gray-200 border border-gray-200 rounded-lg focus:outline-none focus:bg-gray-100 focus:border-purple-400"
-              type="text"
-              placeholder="Your id"
-            />
-            <p class="text-gray-800">
-              Please enter your id employee to reset for your account password.
+            <div class="space-y-6">
+              <input
+                id="idEmployyee"
+                class="w-full text-sm px-4 py-3 bg-gray-200 border border-gray-200 rounded-lg focus:outline-none focus:bg-gray-100 focus:border-purple-400"
+                type="text"
+                placeholder="Your id"
+              />
+              <p class="text-gray-800">
+                Please enter your id employee to reset for your account
+                password.
+              </p>
+              <button
+                id="sendOtp"
+                type="button"
+                class="w-full bg-purple-800 hover:bg-purple-700 text-gray-100 p-3 rounded-lg tracking-wide font-semibold cursor-pointer transition ease-in duration-500"
+              >
+                send
+              </button>
+            </div>
+          </div>
+          <div
+            id="otpForm"
+            class="p-12 bg-white mx-auto rounded-3xl w-96 h-96 hidden"
+          >
+            <h2 class="text-2xl font-bold mb-4">Reset your password</h2>
+            <p class="mb-4">
+              We just sent a 6 digit OTP to your email. Enter that code here to
+              proceed.
             </p>
-            <button
-              id="sendOtp"
-              type="button"
-              class="w-full bg-purple-800 hover:bg-purple-700 text-gray-100 p-3 rounded-lg tracking-wide font-semibold cursor-pointer transition ease-in duration-500"
+            <div class="flex space-x-2 mb-4">
+              <input
+                id="OtpCode"
+                class="w-full text-sm px-4 py-3 bg-gray-200 border border-gray-200 rounded-lg focus:outline-none focus:bg-gray-100 focus:border-purple-400"
+                type="text"
+                placeholder="Your otp"
+              />
+            </div>
+            <p class="mt-4 text-sm">The OTP is only valid for 1 minute.</p>
+            <p id="countdown" class="text-zinc-500 mb-4">
+              Request resend OTP in 00:60
+            </p>
+
+            <p
+              id="resendButton"
+              data-idEm=""
+              class="hidden mb-4 text-purple-700 hover:text-purple-600 hover:underline"
             >
-              send
+              Resend OTP
+            </p>
+
+            <button
+              id="validateOTP"
+              class="w-full bg-purple-800 hover:bg-purple-700 text-gray-100 p-3 rounded-lg tracking-wide font-semibold cursor-pointer transition ease-in duration-500"
+              type="button"
+            >
+              Validate OTP
             </button>
           </div>
-        </div>
-        <div
-          id="otpForm"
-          class="p-12 bg-white mx-auto rounded-3xl w-96 h-96 hidden"
-        >
-          <h2 class="text-2xl font-bold mb-4">Reset your password</h2>
-          <p class="mb-4">
-            We just sent a 6 digit OTP to your email. Enter that code here to
-            proceed.
-          </p>
-          <div class="flex space-x-2 mb-4">
-            <input
-              id="OtpCode"
-              class="w-full text-sm px-4 py-3 bg-gray-200 border border-gray-200 rounded-lg focus:outline-none focus:bg-gray-100 focus:border-purple-400"
-              type="text"
-              placeholder="Your otp"
-            />
-          </div>
-          <p class="mt-4 text-sm">The OTP is only valid for 1 minute.</p>
-          <p id="countdown" class="text-zinc-500 mb-4">
-            Request resend OTP in 00:60
-          </p>
-
-          <p
-            id="resendButton"
-            data-idEm=""
-            class="hidden mb-4 text-purple-700 hover:text-purple-600 hover:underline"
+          <div
+            id="changePassForm"
+            class="p-12 bg-white mx-auto rounded-3xl h-96 w-96 hidden"
           >
-            Resend OTP
-          </p>
+            <div class="mb-7">
+              <h3 class="font-semibold text-2xl text-gray-800">
+                Change password
+              </h3>
+            </div>
 
-          <button
-            id="validateOTP"
-            class="w-full bg-purple-800 hover:bg-purple-700 text-gray-100 p-3 rounded-lg tracking-wide font-semibold cursor-pointer transition ease-in duration-500"
-            type="button"
-          >
-            Validate OTP
-          </button>
-        </div>
-        <div
-          id="changePassForm"
-          class="p-12 bg-white mx-auto rounded-3xl h-96 w-96 hidden"
-        >
-          <div class="mb-7">
-            <h3 class="font-semibold text-2xl text-gray-800">
-              Change password
-            </h3>
-          </div>
-
-          <div class="space-y-6">
-            <input
-              id="passswordChange"
-              class="w-full text-sm px-4 py-3 bg-gray-200 border border-gray-200 rounded-lg focus:outline-none focus:bg-gray-100 focus:border-purple-400"
-              type="password"
-              placeholder="password"
-            />
-            <input
-              id="passswordChangeConfirm"
-              class="w-full text-sm px-4 py-3 bg-gray-200 border border-gray-200 rounded-lg focus:outline-none focus:bg-gray-100 focus:border-purple-400"
-              type="password"
-              placeholder="password confirm"
-            />
-            <button
-              id="changePassButton"
-              type="button"
-              class="w-full bg-purple-800 hover:bg-purple-700 text-gray-100 p-3 rounded-lg tracking-wide font-semibold cursor-pointer transition ease-in duration-500"
-            >
-              change
-            </button>
+            <div class="space-y-6">
+              <input
+                id="passswordChange"
+                class="w-full text-sm px-4 py-3 bg-gray-200 border border-gray-200 rounded-lg focus:outline-none focus:bg-gray-100 focus:border-purple-400"
+                type="password"
+                placeholder="password"
+              />
+              <input
+                id="passswordChangeConfirm"
+                class="w-full text-sm px-4 py-3 bg-gray-200 border border-gray-200 rounded-lg focus:outline-none focus:bg-gray-100 focus:border-purple-400"
+                type="password"
+                placeholder="password confirm"
+              />
+              <button
+                id="changePassButton"
+                type="button"
+                class="w-full bg-purple-800 hover:bg-purple-700 text-gray-100 p-3 rounded-lg tracking-wide font-semibold cursor-pointer transition ease-in duration-500"
+              >
+                change
+              </button>
+            </div>
           </div>
         </div>
       </div>

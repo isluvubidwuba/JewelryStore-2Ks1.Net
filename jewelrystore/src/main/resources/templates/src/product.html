@@ -8,13 +8,9 @@
     <meta name="description" content="" />
 
     <!-- Tailwind CSS -->
-    <link href="build/tailwind.css" rel="stylesheet" />
-    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
-
-    <!-- jQuery -->
-    <script src="jquery/dist/jquery.min.js"></script>
-    <script src="./js/Product.js"></script>
-    <script src="./js/DashboardAdmin.js"></script>
+    <link href="css/styles.css" rel="stylesheet" />
+    <script src="js/jquery.min.js"></script>
+    <script src="js/Product.js"></script>
 
     <style>
       @import url("https://fonts.googleapis.com/css?family=Karla:400,700&display=swap");
@@ -46,11 +42,11 @@
   </head>
   <body class="bg-gray-100 font-family-karla flex overflow-x-hidden">
     <!-- Side bar -->
-    <div id="sidebar-placeholder"></div>
+    <div id="sidebar-placeholder">@@include('components/sidebar.html')</div>
 
     <div class="relative w-full flex flex-col h-screen overflow-y-hidden">
       <!-- Desktop Header -->
-      <div id="header-placeholder"></div>
+      <div id="header-placeholder">@@include('components/header.html')</div>
 
       <div class="overflow-x-hidden border-t flex flex-col">
         <main class="w-full flex-grow p-6">
@@ -689,26 +685,5 @@
         </div>
       </div>
     </div>
-    <!-- AlpineJS -->
-    <script
-      src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"
-      defer
-    ></script>
-    <!-- Font Awesome -->
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"
-      integrity="sha256-KzZiKy0DWYsnwMF+X1DvQngQ2/FxF7MF3Ff72XcpuPs="
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"
-      integrity="sha512-QEAheCz+x/VkKtxeGoDq6nsGyzTx/0LMINTgQjqZ0h3+NjP+bCsPYz3hn0HnBkGmkIFSr7QcEZT+KyEM7lbLPQ=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    ></script>
-    <script
-      src="https://kit.fontawesome.com/15af1250d1.js"
-      crossorigin="anonymous"
-    ></script>
   </body>
 </html>
