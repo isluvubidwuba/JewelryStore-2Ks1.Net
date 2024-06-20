@@ -21,6 +21,7 @@ import com.ks1dotnet.jewelrystore.dto.UserInfoDTO;
 import com.ks1dotnet.jewelrystore.entity.EarnPoints;
 import com.ks1dotnet.jewelrystore.entity.UserInfo;
 import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
+import com.ks1dotnet.jewelrystore.exception.RunTimeExceptionV1;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.ICustomerTypeRepository;
 import com.ks1dotnet.jewelrystore.repository.IEarnPointsRepository;
@@ -339,6 +340,20 @@ public class UserInfoService implements IUserInfoService {
             return dto;
         }).collect(Collectors.toList());
         return new PageImpl<>(dtoList, userPage.getPageable(), userPage.getTotalElements());
+    }
+
+    @Override
+    public ResponseData getSupplierInfo(int id) {
+        try {
+            UserInfo userInfo = iUserInfoRepository.findSupplierById(id);
+            ResponseData responseData = new ResponseData();
+            responseData.setData(userInfo.getDTO());
+            responseData.setStatus(HttpStatus.OK);
+            return responseData;
+        } catch (Exception e) {
+            throw new RunTimeExceptionV1("Find supplier error", e.getMessage());
+        }
+
     }
 
 }

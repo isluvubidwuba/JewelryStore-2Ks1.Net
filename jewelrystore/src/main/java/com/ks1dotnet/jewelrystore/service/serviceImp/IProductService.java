@@ -16,4 +16,6 @@ public interface IProductService extends ICRUDService<ProductDTO, Integer> {
 
         public ResponseData searchProductV2(String search, String id_material, String id_product_category,
                         String id_counter, int page, int size);
+
+        public ResponseData getProductByBarCode(String barCode);
 }
