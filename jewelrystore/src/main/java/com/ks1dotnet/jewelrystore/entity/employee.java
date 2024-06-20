@@ -3,10 +3,25 @@ package com.ks1dotnet.jewelrystore.entity;
 import java.time.LocalDateTime;
 import java.util.Set;
 
-import com.ks1dotnet.jewelrystore.dto.EmployeeDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import jakarta.persistence.*;
-import lombok.*;
+import com.ks1dotnet.jewelrystore.dto.EmployeeDTO;
+import com.ks1dotnet.jewelrystore.repository.IInvoiceRepository;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Data
@@ -18,6 +33,7 @@ import lombok.*;
 @Builder
 @Table(name = "employee")
 public class Employee {
+
     @Id
     @Column(name = "id")
     private String id;
@@ -51,7 +67,7 @@ public class Employee {
 
     @Column(name = "otp_generated_time")
     private LocalDateTime otpGenerDateTime;
-    
+
     @Column(name = "token")
     private String token;
 
@@ -67,7 +83,7 @@ public class Employee {
 
     public EmployeeDTO getDTO() {
         return new EmployeeDTO(id, firstName, lastName, pinCode, status, phoneNumber, email,
-                address, role.getDTO(), image);
+                address, role.getDTO(), image, 0);
     }
 
     public Employee(EmployeeDTO e) {

@@ -26,6 +26,7 @@ import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
 import com.ks1dotnet.jewelrystore.exception.RunTimeExceptionV1;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IEmployeeRepository;
+import com.ks1dotnet.jewelrystore.repository.IInvoiceRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IEmployeeService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IRoleService;
 
@@ -36,7 +37,8 @@ public class EmployeeService implements IEmployeeService {
 
    @Autowired
    private IRoleService iRoleService;
-
+   @Autowired
+   private IInvoiceRepository iInvoiceRepository;
    @Autowired
    private PasswordEncoder passwordEncoder;
 
@@ -264,8 +266,7 @@ public class EmployeeService implements IEmployeeService {
                break;
 
             case "role":
-               employeePage =
-                     iEmployeeRepository.findByRoleNameContainingIgnoreCase(query, pageRequest);
+               employeePage = iEmployeeRepository.findByRoleNameContainingIgnoreCase(query, pageRequest);
                break;
 
             case "status":
@@ -331,6 +332,8 @@ public class EmployeeService implements IEmployeeService {
       List<EmployeeDTO> dtolist = empPage.getContent().stream().map(employee -> {
          EmployeeDTO dto = employee.getDTO();
          dto.setImage(url.trim() + filePath.trim() + dto.getImage());
+         dto.setTotalRevenue(iInvoiceRepository.sumTotalPriceByEmployeeId(dto.getId()) == null ? 0
+               : iInvoiceRepository.sumTotalPriceByEmployeeId(dto.getId()));
          return dto;
       }).collect(Collectors.toList());
       return new PageImpl<>(dtolist, empPage.getPageable(), empPage.getTotalElements());

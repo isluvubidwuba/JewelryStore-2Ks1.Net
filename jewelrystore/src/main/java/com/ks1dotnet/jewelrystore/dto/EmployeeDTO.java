@@ -18,4 +18,5 @@ public class EmployeeDTO {
     private String address;
     private RoleDTO role;
     private String image;
+    private double totalRevenue;
 }

@@ -16,15 +16,12 @@ import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionGenericService;
 @Service
 public class GenericPromotionService implements IGenericPromotionService {
 
-    private static final Logger logger = Logger.getLogger(GenericPromotionService.class.getName());
-
     private final Map<EntityType, IPromotionGenericService<?>> promotionServices = new HashMap<>();
 
     public GenericPromotionService(List<IPromotionGenericService<?>> services) {
         for (IPromotionGenericService<?> service : services) {
             EntityType entityType = getEntityType(service);
             promotionServices.put(entityType, service);
-            logger.info("Added service for entity type: " + entityType);
         }
     }
 
