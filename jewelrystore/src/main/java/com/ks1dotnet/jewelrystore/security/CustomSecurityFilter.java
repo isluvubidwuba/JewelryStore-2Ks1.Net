@@ -30,8 +30,8 @@ public class CustomSecurityFilter {
         @Bean
         public AuthenticationManager authenticationManager(HttpSecurity httpSecurity)
                         throws Exception {
-                AuthenticationManagerBuilder authenticationManagerBuilder =
-                                httpSecurity.getSharedObject(AuthenticationManagerBuilder.class);
+                AuthenticationManagerBuilder authenticationManagerBuilder = httpSecurity
+                                .getSharedObject(AuthenticationManagerBuilder.class);
                 authenticationManagerBuilder.userDetailsService(customUserDetailService)
                                 .passwordEncoder(passwordEncoder());
 
@@ -118,7 +118,7 @@ public class CustomSecurityFilter {
                                                                 "/userinfo/searchcustomer", "userinfo/upload",
                                                                 "userinfo/uploadget", "/customertype/findall",
                                                                 "/userinfo/listsupplier",
-                                                                "/userinfo/searchsupplier")
+                                                                "/userinfo/searchsupplier", "/userinfo/getcustomer/**")
                                                 .hasAnyAuthority("STAFF", "MANAGER", "ADMIN")
 
                                                 .requestMatchers("/userinfo/update",

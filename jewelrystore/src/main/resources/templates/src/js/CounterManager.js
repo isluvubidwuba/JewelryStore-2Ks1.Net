@@ -43,12 +43,12 @@ function generateTabs(counters) {
         const tab = $('<li>', { class: 'mr-2 flex items-center' });
 
         const tabLinkContainer = $('<div>', {
-            class: 'flex items-center rounded-lg bg-gray-800'
+            class: 'flex items-center rounded-lg bg-black'
         });
 
         const tabLink = $('<a>', {
             href: '#',
-            class: `inline-block py-3 px-4 rounded-lg ${index === 0 ? 'text-white bg-gray-900 active' : 'text-gray-300 bg-gray-600 hover:bg-gray-700'}`,
+            class: `inline-block py-3 px-4 rounded-lg ${index === 0 ? 'text-white bg-black active' : 'text-gray-300 bg-black hover:bg-gray-700'}`,
             text: counter.name,
             'data-tab': `tab-${counter.id}`
         });
@@ -81,8 +81,8 @@ function generateTabs(counters) {
 
         tabLink.on('click', function (e) {
             e.preventDefault();
-            $('#counter-tabs a').removeClass('text-white bg-gray-900 active');
-            $('#counter-tabs a').addClass('text-gray-300 bg-gray-600 hover:bg-gray-700');
+            $('#counter-tabs a').removeClass('text-white bg-white active');
+            $('#counter-tabs a').addClass('text-gray-300 bg-black hover:bg-gray-700');
             $('#tab-contents > div').addClass('hidden');
 
             tabLink.removeClass('text-gray-300 bg-gray-600 hover:bg-gray-700');

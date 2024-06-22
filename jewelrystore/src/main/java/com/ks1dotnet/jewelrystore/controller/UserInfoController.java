@@ -99,9 +99,15 @@ public class UserInfoController {
         return new ResponseEntity<>(response, response.getStatus());
     }
 
-    @GetMapping("findsupplier/{id}")
+    @GetMapping("/findsupplier/{id}")
     public ResponseEntity<?> getSupplierById(@PathVariable int id) {
         ResponseData responseData = iUserInfoService.getSupplierInfo(id);
+        return new ResponseEntity<>(responseData.getData(), responseData.getStatus());
+    }
+
+    @GetMapping("/getcustomer/{id}")
+    public ResponseEntity<?> getCustomerById(@PathVariable int id) {
+        ResponseData responseData = iUserInfoService.getCustomerInfo(id);
         return new ResponseEntity<>(responseData.getData(), responseData.getStatus());
     }
 
