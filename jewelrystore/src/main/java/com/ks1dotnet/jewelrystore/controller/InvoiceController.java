@@ -28,6 +28,7 @@ import com.ks1dotnet.jewelrystore.dto.RevenueDTO;
 import com.ks1dotnet.jewelrystore.entity.Invoice;
 import com.ks1dotnet.jewelrystore.exception.BadRequestException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
+import com.ks1dotnet.jewelrystore.payload.request.BuyBackInvoiceRequest;
 import com.ks1dotnet.jewelrystore.payload.request.ImportInvoiceRequestWrapper;
 import com.ks1dotnet.jewelrystore.payload.request.InvoiceDetailRequest;
 import com.ks1dotnet.jewelrystore.payload.request.InvoiceRequest;
@@ -75,6 +76,22 @@ public class InvoiceController {
 
             ResponseData responseData = new ResponseData(HttpStatus.OK, "Invoice created successfully",
                     isSuccessCreateInvoice);
+            return new ResponseEntity<>(responseData, HttpStatus.OK);
+        } catch (BadRequestException e) {
+            ResponseData responseData = new ResponseData(HttpStatus.BAD_REQUEST, e.getMessage(), null);
+            return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            ResponseData responseData = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
+            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/buyback")
+    public ResponseEntity<ResponseData> createBuybackInvoice(@RequestBody BuyBackInvoiceRequest request) {
+        try {
+            int invoiceId = invoiceService.createBuybackInvoice(request.getRequest(), request.getIdDetailQuantityMap());
+            ResponseData responseData = new ResponseData(HttpStatus.OK, "Buyback invoice created successfully",
+                    invoiceId);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
         } catch (BadRequestException e) {
             ResponseData responseData = new ResponseData(HttpStatus.BAD_REQUEST, e.getMessage(), null);

@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ks1dotnet.jewelrystore.dto.UserInfoDTO;
 import com.ks1dotnet.jewelrystore.entity.EarnPoints;
 import com.ks1dotnet.jewelrystore.entity.UserInfo;
+import com.ks1dotnet.jewelrystore.exception.BadRequestException;
 import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
 import com.ks1dotnet.jewelrystore.exception.RunTimeExceptionV1;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
@@ -64,7 +65,8 @@ public class UserInfoService implements IUserInfoService {
 
     @Override
     public UserInfo findById(int id) {
-        return iUserInfoRepository.findById(id).orElse(null);
+        return iUserInfoRepository.findById(id).orElseThrow(() -> new BadRequestException(
+                "NOT FOUND USER WITH THIS ID:" + id));
     }
 
     @Override

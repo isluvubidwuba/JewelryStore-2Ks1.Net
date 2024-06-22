@@ -1,18 +1,20 @@
 const token = localStorage.getItem("token");
-let policies = [];
+let currentPage = 0;
+const itemsPerPage = 5;
+let promotions = [];
 
 function fetchPolicies() {
   $.ajax({
-    url: "http://localhost:8080/exchange-rate-policy",
+    url: "http://localhost:8080/promotion/viewPolicyByInvoiceType/1",
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
     },
     success: function (response) {
       if (response.status === "OK") {
-        policies = response.data;
-        displayTableData(policies);
-        updatePolicyOverview(policies);
+        promotions = response.data;
+        renderPromotions(currentPage, promotions);
+        updatePagination(promotions);
       } else {
         alert("Failed to fetch data");
       }
@@ -24,10 +26,10 @@ function fetchPolicies() {
 }
 
 function searchPolicies(keyword) {
-  const filteredPolicies = policies.filter((policy) => {
+  const filteredPolicies = promotions.filter((policy) => {
     return (
-      policy.id.toLowerCase().includes(keyword.toLowerCase()) ||
-      policy.description_policy.toLowerCase().includes(keyword.toLowerCase()) ||
+      policy.name.toLowerCase().includes(keyword.toLowerCase()) ||
+      policy.promotionType.toLowerCase().includes(keyword.toLowerCase()) ||
       policy.invoiceTypeDTO.name
         .toLowerCase()
         .includes(keyword.toLowerCase()) ||
@@ -36,347 +38,228 @@ function searchPolicies(keyword) {
         .includes(keyword.toLowerCase())
     );
   });
-
-  displayTableData(filteredPolicies);
-  updatePolicyOverview(filteredPolicies);
+  renderPromotions(0, filteredPolicies);
+  updatePagination(filteredPolicies);
 }
 
-function updatePolicyOverview(policies) {
-  const totalPolicies = policies.length;
-  const activePolicies = policies.filter((policy) => policy.status).length;
-  const inactivePolicies = totalPolicies - activePolicies;
-
-  $("#totalPolicies").text(totalPolicies);
-  $("#activePolicies").text(activePolicies);
-  $("#inactivePolicies").text(inactivePolicies);
-}
-
-// <button class="text-blue-500 text-xs update-invoice-type" data-id="${
-//   data.invoiceTypeDTO.id
-// }">
-//   Update
-// </button>
-// <button class="text-red-500 text-xs delete-invoice-type" data-id="${
-//   data.invoiceTypeDTO.id
-// }">
-//   Delete
-// </button>
-function displayTableData(policies) {
+function renderPromotions(page, policies) {
   $("#table-body").empty();
-  policies.forEach((data, index) => {
+  const start = page * itemsPerPage;
+  const end = start + itemsPerPage;
+  const promotionsToRender = policies.slice(start, end);
+
+  promotionsToRender.forEach((data, index) => {
+    let applicableButton = "";
+    switch (data.promotionType) {
+      case "category":
+      case "material":
+      case "customer":
+        applicableButton = `<button
+          type="button"
+          class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
+          data-promotion-id="${data.id}"
+          data-promotion-name="${data.name}"
+          data-promotion-type="${data.promotionType.toUpperCase()}"
+          style="width: 100%"
+        >
+          View applied
+        </button>`;
+        break;
+      case "product":
+        applicableButton = `<button
+          type="button"
+          class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
+          data-promotion-id="${data.id}"
+          data-promotion-name="${data.name}"
+          data-promotion-type="${data.promotionType.toUpperCase()}"
+          style="width: 100%"
+        >
+          View applied
+        </button>`;
+        break;
+    }
+
     $("#table-body").append(`
       <tr class="${index % 2 === 0 ? "bg-gray-100" : "bg-white"}" data-id="${
       data.id
     }">
-        <td class="text-left py-3 px-4">${data.id}</td>
-        <td class="text-left py-3 px-4">${data.description_policy}</td>
-        <td class="text-left py-3 px-4">${data.rate}</td>
-        <td class="text-left py-3 px-4">${
+        <td class="text-left py-3 px-4">${data.name}</td>
+        <td class="text-center py-3 px-4">${data.value}</td>
+        <td class="text-center py-3 px-4">${
           data.status ? "Active" : "Inactive"
         }</td>
-        <td class="text-left py-3 px-4">${new Date(
+        <td class="text-center py-3 px-4">${new Date(
+          data.startDate
+        ).toLocaleDateString()}</td>
+        <td class="text-center py-3 px-4">${new Date(
+          data.endDate
+        ).toLocaleDateString()}</td>
+        <td class="text-center py-3 px-4">${new Date(
           data.lastModified
         ).toLocaleDateString()}</td>
-       <td class="text-left py-3 px-4">
-        ${data.invoiceTypeDTO.name}
-      </td>
-
-        <td class="text-left py-3 px-4">
-          <button class="text-blue-500 text-xs update-open" data-id="${
-            data.id
-          }">
-            <svg class="text-themeColor-500 w-10 h-10" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
-            Edit
-          </button>
-          ${
-            data.status
-              ? `
-          <button class="text-red-500 text-xs" data-id="${data.id}">
-            <svg class="text-themeColor-500 w-10 h-10" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/>
-              <line x1="18" y1="9" x2="12" y2="15"/>
-              <line x1="12" y1="9" x2="18" y2="15"/>
-            </svg>
-            Inactive
-          </button>
-          `
-              : ``
-          }
-        </td>
+        <td class="text-center py-3 px-4">${data.invoiceTypeDTO.name}</td>
+        <td class="text-center py-3 px-4">${data.promotionType}</td>
+        <td class="text-center py-3 px-4">${applicableButton}</td>
       </tr>
     `);
   });
 
   $("#entries-info").text(
-    `Showing 1 to ${policies.length} of ${policies.length} entries`
+    `Showing ${start + 1} to ${Math.min(end, policies.length)} of ${
+      policies.length
+    } entries`
   );
+
+  attachModalHandlers();
 }
 
-function openUpdateInvoiceTypeModal(id) {
-  $.ajax({
-    url: `http://localhost:8080/invoice-type/${id}`,
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
-      if (response.status === "OK") {
-        const data = response.data;
-        $("#invoice-type-id").val(data.id);
-        $("#invoice-type-name").val(data.name);
-        $("#updateInvoiceTypeModal").removeClass("hidden");
-      } else {
-        alert("Failed to fetch invoice type data");
-      }
-    },
-    error: function (xhr, status, error) {
-      alert("Error fetching invoice type data");
-    },
-  });
+function updatePagination(promotionsToRender) {
+  let pagination = $(".pagination");
+  pagination.empty();
+
+  const totalPages = Math.ceil(promotionsToRender.length / itemsPerPage);
+
+  if (currentPage > 0) {
+    pagination.append(`
+      <li>
+        <span
+          tabindex="0"
+          aria-label="backward"
+          role="button"
+          class="focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 p-1 flex rounded transition duration-150 ease-in-out text-base leading-tight font-bold text-gray-500 hover:text-indigo-700 focus:outline-none mr-1 sm:mr-3"
+          onclick="changePage(${currentPage - 1})"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z"/>
+            <polyline points="15 6 9 12 15 18" />
+          </svg>
+        </span>
+      </li>
+    `);
+  }
+
+  let startPage = Math.max(0, currentPage - 1);
+  let endPage = Math.min(totalPages, currentPage + 2);
+
+  if (currentPage === 0) {
+    endPage = Math.min(totalPages, currentPage + 2);
+  } else if (currentPage === totalPages - 1) {
+    startPage = Math.max(0, totalPages - 3);
+  } else {
+    startPage = Math.max(0, currentPage - 1);
+    endPage = Math.min(totalPages, currentPage + 2);
+  }
+
+  for (let i = startPage; i < endPage; i++) {
+    pagination.append(`
+      <li>
+        <span
+          tabindex="0"
+          class="focus:outline-none focus:bg-indigo-700 focus:text-white flex text-indigo-700 ${
+            i === currentPage
+              ? "bg-gray-400 text-white"
+              : "bg-white hover:bg-indigo-600 hover:text-white"
+          } text-base leading-tight font-bold cursor-pointer shadow transition duration-150 ease-in-out mx-2 sm:mx-4 rounded px-3 py-2"
+          onclick="changePage(${i})"
+        >
+          ${i + 1}
+        </span>
+      </li>
+    `);
+  }
+
+  if (currentPage < totalPages - 1) {
+    pagination.append(`
+      <li>
+        <span
+          tabindex="0"
+          aria-label="forward"
+          role="button"
+          class="focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 focus:outline-none flex rounded transition duration-150 ease-in-out text-base leading-tight font-bold text-gray-500 hover:text-indigo-700 p-1 focus:outline-none ml-1 sm:ml-3"
+          onclick="changePage(${currentPage + 1})"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z"/>
+            <polyline points="9 6 15 12 9 18" />
+          </svg>
+        </span>
+      </li>
+    `);
+  }
 }
 
-function closeUpdateInvoiceTypeModal() {
-  $("#updateInvoiceTypeModal").addClass("hidden");
+function changePage(page) {
+  currentPage = page;
+  const keyword = $("#keyword").val().toLowerCase();
+  const promotionsToRender = keyword
+    ? promotions.filter((promotion) => {
+        const invoiceTypeName = promotion.invoiceTypeDTO
+          ? promotion.invoiceTypeDTO.name
+          : "";
+        return (
+          promotion.name.toLowerCase().includes(keyword) ||
+          promotion.startDate.toLowerCase().includes(keyword) ||
+          promotion.endDate.toLowerCase().includes(keyword) ||
+          promotion.promotionType.toLowerCase().includes(keyword) ||
+          invoiceTypeName.toLowerCase().includes(keyword)
+        );
+      })
+    : promotions;
+  renderPromotions(page, promotionsToRender);
+  updatePagination(promotionsToRender);
 }
-function submitUpdateInvoiceTypeForm() {
-  $("#update-invoice-type-form").on("submit", function (event) {
-    event.preventDefault();
 
-    const id = $("#invoice-type-id").val();
-    const name = $("#invoice-type-name").val();
-
-    if (!name.trim()) {
-      alert("Invoice Type name cannot be empty.");
-      return;
-    }
-
+function attachModalHandlers() {
+  $("button[data-promotion-type]").click(function () {
+    const promotionId = $(this).data("promotion-id");
+    const promotionType = $(this).data("promotion-type");
+    const promotionName = $(this).data("promotion-name");
+    $("#ListApply").text(
+      `List ${promotionType.toLowerCase()} apply: ${promotionName}`
+    );
     $.ajax({
-      url: `http://localhost:8080/invoice-type/update/${id}`,
-      method: "POST",
+      url: `http://localhost:8080/promotion-generic/in-promotion/${promotionType}/${promotionId}`,
+      method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      data: {
-        name: name,
-      },
       success: function (response) {
         if (response.status === "OK") {
-          alert("Invoice type updated successfully");
-          closeUpdateInvoiceTypeModal();
-          fetchPolicies();
+          $("#category-apply-promotion").empty();
+          response.data.forEach((item, index) => {
+            let name;
+            if (promotionType.toLowerCase() === "customer") {
+              name = item.customerTypeDTO.type;
+            } else {
+              name = item[`${promotionType.toLowerCase()}DTO`].name;
+            }
+            $("#category-apply-promotion").append(`
+              <tr>
+                <td class="px-6 py-3">${index + 1}</td>
+                <td class="px-6 py-3">${name}</td>
+              </tr>
+            `);
+          });
+          $("#detail-modal_CategoryApply").removeClass("hidden");
         } else {
-          alert("Failed to update invoice type");
+          alert("Failed to fetch applied data");
         }
       },
       error: function (xhr, status, error) {
-        alert("Error updating invoice type");
+        alert("Error fetching applied data");
       },
     });
   });
-}
 
-// Các hàm mở và đóng modal insert/update
-function openInsertModal() {
-  fetchInvoiceTypes();
-  $("#insert-modal").removeClass("hidden");
-}
-
-function closeInsertModal() {
-  $("#insert-modal").addClass("hidden");
-}
-
-function openUpdateModal(id) {
-  $.ajax({
-    url: `http://localhost:8080/exchange-rate-policy/${id}`,
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
-      if (response.status === "OK") {
-        const data = response.data;
-        $("#update-idExchange").val(data.id);
-        $("#update-desc").val(data.description_policy);
-        $("#update-rate").val(data.rate);
-        $("#update-status").val(data.status ? "true" : "false");
-
-        fetchInvoiceTypes(function () {
-          $("#update-invoiceType").val(data.invoiceTypeDTO.id);
-        });
-
-        $("#update-modal").removeClass("hidden");
-      } else {
-        alert("Failed to fetch exchange rate policy data");
-      }
-    },
-    error: function (xhr, status, error) {
-      alert("Error fetching exchange rate policy data");
-    },
+  $("#modalClose_CategoryApply").click(function () {
+    $("#detail-modal_CategoryApply").addClass("hidden");
   });
-}
-
-function closeUpdateModal() {
-  $("#update-modal").addClass("hidden");
-}
-function fetchInvoiceTypes(callback) {
-  $.ajax({
-    url: "http://localhost:8080/invoice-type",
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
-      if (response.status === "OK") {
-        const invoiceTypes = response.data;
-        $("#invoiceType, #update-invoiceType").empty();
-        invoiceTypes.forEach((type) => {
-          $("#invoiceType, #update-invoiceType").append(
-            `<option value="${type.id}">${type.name}</option>`
-          );
-        });
-        if (callback) callback();
-      } else {
-        alert("Failed to fetch invoice types");
-      }
-    },
-    error: function (xhr, status, error) {
-      alert("Error fetching invoice types");
-    },
-  });
-}
-
-// Hàm để submit form insert
-function submitInsertForm() {
-  $(document).on("click", "#submit-insert", function (event) {
-    event.preventDefault();
-
-    if (validateForm("#form-insert")) {
-      var formData = new FormData($("#form-insert")[0]);
-
-      $.ajax({
-        url: "http://localhost:8080/exchange-rate-policy/create",
-        type: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        data: formData,
-        processData: false,
-        contentType: false,
-        success: function (response) {
-          if (response.status === "CREATED") {
-            alert("Exchange rate policy created successfully");
-            closeInsertModal();
-            fetchPolicies();
-          } else {
-            alert("Failed to create exchange rate policy");
-          }
-        },
-        error: function (xhr, status, error) {
-          alert("Error creating exchange rate policy");
-        },
-      });
-    }
-  });
-}
-
-// Hàm để submit form cập nhật
-function submitUpdateForm() {
-  $(document).on("click", "#submit-update", function (event) {
-    event.preventDefault();
-
-    if (validateForm("#form-update")) {
-      var formData = new FormData($("#form-update")[0]);
-
-      $.ajax({
-        url: `http://localhost:8080/exchange-rate-policy/update/${$(
-          "#update-idExchange"
-        ).val()}`,
-        type: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        data: formData,
-        processData: false,
-        contentType: false,
-        success: function (response) {
-          if (response.status === "OK") {
-            alert("Exchange rate policy updated successfully");
-            closeUpdateModal();
-            fetchPolicies();
-          } else {
-            alert("Failed to update exchange rate policy");
-          }
-        },
-        error: function (xhr, status, error) {
-          alert("Error updating exchange rate policy");
-        },
-      });
-    }
-  });
-}
-
-// Hàm kiểm tra tính hợp lệ của form
-function validateForm(formSelector) {
-  let isValid = true;
-  let errorMessage = "";
-
-  const form = $(formSelector);
-  const idExchange = form.find("[name='idExchange']").val().trim();
-  const desc = form.find("[name='desc']").val().trim();
-  const rate = parseFloat(form.find("[name='rate']").val().trim());
-  const status = form.find("[name='status']").val();
-  const invoiceTypeId = form.find("[name='invoiceType']").val();
-
-  if (!idExchange || !desc || !status || !invoiceTypeId || isNaN(rate)) {
-    isValid = false;
-    errorMessage = "Tất cả các trường phải được điền.\n";
-    alert(errorMessage);
-    return isValid;
-  }
-  if (isNaN(rate) || rate <= 0 || rate >= 10) {
-    isValid = false;
-    errorMessage += "Rate phải là số dương và nhỏ hơn 10.\n";
-  }
-
-  if (!isValid) {
-    alert(errorMessage);
-  }
-
-  return isValid;
 }
 
 $(document).ready(function () {
   fetchPolicies();
-  submitInsertForm();
-  $("#insert-button").on("click", openInsertModal);
-  $("#modalInsertClose").on("click", closeInsertModal);
-  $("#form-insert").on("submit", submitInsertForm);
-
-  $(document).on("click", ".update-open", function () {
-    const id = $(this).data("id");
-    openUpdateModal(id);
-  });
-
-  $("#modalUpdateClose").on("click", closeUpdateModal);
-  submitUpdateForm();
-
-  $("#keyword").on("input", function () {
-    const keyword = $(this).val();
+  $("#exchange-search-button").click(function () {
+    const keyword = $("#keyword").val();
     searchPolicies(keyword);
   });
-  // Thêm sự kiện để mở modal cập nhật invoice type
-  $(document).on("click", ".update-invoice-type", function () {
-    const id = $(this).data("id");
-    openUpdateInvoiceTypeModal(id);
-  });
-
-  // Thêm sự kiện để đóng modal cập nhật invoice type
-  $("#close-update-invoice-type-modal").on(
-    "click",
-    closeUpdateInvoiceTypeModal
-  );
-  submitUpdateInvoiceTypeForm();
 });
