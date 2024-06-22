@@ -3,6 +3,7 @@ package com.ks1dotnet.jewelrystore.controller;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,10 +21,12 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 import com.ks1dotnet.jewelrystore.entity.ForProduct;
+import com.ks1dotnet.jewelrystore.entity.InvoiceType;
 import com.ks1dotnet.jewelrystore.entity.Promotion;
 import com.ks1dotnet.jewelrystore.exception.BadRequestException;
 import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
+import com.ks1dotnet.jewelrystore.repository.IInvoiceTypeRepository;
 import com.ks1dotnet.jewelrystore.repository.IPromotionRepository;
 import com.ks1dotnet.jewelrystore.service.FirebaseStorageService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionService;
@@ -42,6 +45,8 @@ public class PromotionController {
 
     @Autowired
     private FirebaseStorageService firebaseStorageService;
+    @Autowired
+    private IInvoiceTypeRepository iInvoiceTypeRepository;
 
     @GetMapping
     public ResponseEntity<?> getAll() {
@@ -131,6 +136,37 @@ public class PromotionController {
         }
     }
 
+    @GetMapping("/viewPolicyByInvoiceType/{id}")
+    public ResponseEntity<?> viewPolicy(@PathVariable int id) {
+        try {
+            ResponseData responseData = new ResponseData();
+            InvoiceType invoiceType = iInvoiceTypeRepository.findById(id)
+                    .orElseThrow(() -> new BadRequestException("not found with invoice type id: " + id));
+            List<PromotionDTO> lPromotionDTOs = iPromotionService.findByInvoiceTypeAndStatusTrue(invoiceType).stream()
+                    .map(Promotion::getDTO)
+                    .collect(Collectors.toList());
+            responseData.setStatus(HttpStatus.OK);
+            responseData.setDesc("get policy successful");
+            responseData.setData(lPromotionDTOs);
+            return new ResponseEntity<>(responseData, HttpStatus.OK);
+        } catch (ResourceNotFoundException e) {
+            ResponseData responseData = new ResponseData();
+            responseData.setStatus(HttpStatus.NOT_FOUND);
+            responseData.setDesc(e.getMessage());
+            return new ResponseEntity<>(responseData, HttpStatus.NOT_FOUND);
+        } catch (BadRequestException e) {
+            ResponseData responseData = new ResponseData();
+            responseData.setStatus(HttpStatus.BAD_REQUEST);
+            responseData.setDesc(e.getMessage());
+            return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            ResponseData responseData = new ResponseData();
+            responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            responseData.setDesc("An unexpected error occurred: " + e.getMessage());
+            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping("/getById")
     public ResponseEntity<?> getById(@RequestParam int id) {
         try {
@@ -150,36 +186,6 @@ public class PromotionController {
             return handleException(e);
         }
     }
-
-    // @GetMapping("/getHomePagePromotion")
-    // public ResponseEntity<?> getHomePagePromotion(@RequestParam int page) {
-    // iPromotionService.deleteExpiredPromotions();
-    // try {
-    // ResponseData responseData = new ResponseData();
-    // responseData.setData(iPromotionService.getHomePagePromotion(page));
-    // return new ResponseEntity<>(responseData, HttpStatus.OK);
-    // } catch (BadRequestException e) {
-    // return handleBadRequestException(e);
-    // } catch (Exception e) {
-    // return handleException(e);
-    // }
-    // }
-
-    // @GetMapping("/files/{filename:.+}")
-    // @ResponseBody
-    // public ResponseEntity<?> getFile(@PathVariable String filename) {
-    // try {
-    // Resource resource = iFileService.loadFile(filename);
-    // return ResponseEntity.ok()
-    // .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" +
-    // resource.getFilename() + "\"")
-    // .body(resource);
-    // } catch (BadRequestException e) {
-    // return handleBadRequestException(e);
-    // } catch (Exception e) {
-    // return handleException(e);
-    // }
-    // }
 
     @GetMapping("/all-promotion-on-product")
     public ResponseEntity<?> getPromotionsByProductId(@RequestParam int productId) {

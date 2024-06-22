@@ -43,25 +43,6 @@ public class PromotionService implements IPromotionService {
     @Value("${firebase.img-url}")
     private String url;
 
-    // @Override
-    // public Map<String, Object> getHomePagePromotion(int page) {
-    // try {
-    // Map<String, Object> response = new HashMap<>();
-    // PageRequest pageRequest = PageRequest.of(page, 2);
-    // Page<PromotionDTO> listData =
-    // iPromotionRepository.findAllPromotions(pageRequest);
-
-    // response.put("promotions", listData.getContent());
-    // response.put("totalPages", listData.getTotalPages());
-    // response.put("currentPage", page);
-
-    // return response;
-    // } catch (Exception e) {
-    // throw new BadRequestException("Failed to get home page promotions with
-    // pagination", e.getMessage());
-    // }
-    // }
-
     @Override
     public ResponseData getAllPromotionDTO() {
         List<PromotionDTO> promotionDTOs = iPromotionRepository.findAll().stream()

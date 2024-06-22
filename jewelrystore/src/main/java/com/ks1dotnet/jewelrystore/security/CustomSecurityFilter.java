@@ -51,7 +51,7 @@ public class CustomSecurityFilter {
                                                                 "/product/**", "/material/**")
                                                 .permitAll().requestMatchers("/promotion/files/**")
                                                 .permitAll()
-                                                .requestMatchers("/policy/listpolicy",
+                                                .requestMatchers("/promotion/viewPolicyByInvoiceType/**",
                                                                 "/promotion/by-user",
                                                                 "/voucher/list")
                                                 .hasAnyAuthority("ADMIN", "MANAGER", "STAFF")
@@ -59,8 +59,7 @@ public class CustomSecurityFilter {
                                                 .requestMatchers(
                                                                 "/promotion/getHomePagePromotion**",
                                                                 "/promotion/getById",
-                                                                "/promotion-for-product/promotion/**",
-                                                                "/promotion-for-product/not-in-promotion/**",
+                                                                "/promotion-generic/in-promotion/**",
                                                                 "/voucher/list",
                                                                 "/voucher/*/categories",
                                                                 "/invoice/**")

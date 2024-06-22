@@ -195,7 +195,11 @@ public class InvoiceService implements IInvoiceService {
                         invoiceDetailDTO.setTotalPrice(finalPrice * quantity);
                         invoiceDetailDTO.setListPromotion(
                                         promotions.stream().map(Promotion::getDTO).collect(Collectors.toList()));
-
+                        if (invoiceType.getId() == 1) {
+                                invoiceDetailDTO.setAvailableReturnQuantity(quantity);
+                        } else if (invoiceType.getId() == 3) {
+                                invoiceDetailDTO.setAvailableReturnQuantity(0);
+                        }
                         return invoiceDetailDTO;
                 } catch (Exception e) {
                         throw new RunTimeExceptionV1("Error calculating invoice detail: ", e.getMessage());
@@ -237,7 +241,7 @@ public class InvoiceService implements IInvoiceService {
                         Invoice invoice = new Invoice();
                         Employee employee = iEmployeeRepository.findById(idEmp)
                                         .orElseThrow(() -> new BadRequestException(
-                                                        "NOT FOUND EMPLOYEE WITH THIS TOKEN:" + idEmp));
+                                                        "NOT FOUND EMPLOYEE WITH THIS ID:" + idEmp));
                         invoice.setUserInfo(userInfo);
                         invoice.setInvoiceType(invoiceType);
                         invoice.setDate(new Date());
@@ -298,7 +302,7 @@ public class InvoiceService implements IInvoiceService {
                                 invoiceDetail.setTotalPrice(detailDTO.getTotalPrice());
                                 invoiceDetail.setInvoice(invoice);
                                 invoiceDetail.setCounter(product.getCounter());
-
+                                invoiceDetail.setAvailableReturnQuantity(detailDTO.getAvailableReturnQuantity());
                                 invoiceDetailRepository.save(invoiceDetail);
 
                                 // save promotion
@@ -325,6 +329,84 @@ public class InvoiceService implements IInvoiceService {
                 } catch (Exception e) {
                         throw new RunTimeExceptionV1("Error saving invoice: ", e.getMessage());
                 }
+        }
+
+        @Override
+        public void validateBuybackDetails(Map<Integer, Integer> idDetailQuantityMap,
+                        Map<String, Integer> barcodeQuantityMap) {
+                // Bản đồ để tổng hợp số lượng sản phẩm từ idDetailQuantityMap
+                Map<String, Integer> totalQuantityMap = new HashMap<>();
+
+                // Duyệt qua tất cả các mục trong idDetailQuantityMap
+                for (Map.Entry<Integer, Integer> entry : idDetailQuantityMap.entrySet()) {
+                        // Tìm chi tiết hóa đơn theo ID
+                        InvoiceDetail detail = invoiceDetailRepository.findById(entry.getKey())
+                                        .orElseThrow(() -> new BadRequestException(
+                                                        "Invoice detail not found with ID: " + entry.getKey()));
+
+                        // Lấy barcode của sản phẩm từ chi tiết hóa đơn
+                        String barcode = detail.getProduct().getBarCode();
+                        // Tổng hợp số lượng sản phẩm từ idDetailQuantityMap
+                        totalQuantityMap.put(barcode, totalQuantityMap.getOrDefault(barcode, 0) + entry.getValue());
+
+                        // Kiểm tra nếu số lượng yêu cầu vượt quá số lượng có thể bán lại trong chi tiết
+                        // hóa đơn
+                        if (detail.getAvailableReturnQuantity() < entry.getValue()) {
+                                throw new BadRequestException(
+                                                "Not enough quantity available for buyback for detail ID: "
+                                                                + entry.getKey());
+                        }
+                }
+
+                // Duyệt qua tất cả các mục trong barcodeQuantityMap
+                for (Map.Entry<String, Integer> entry : barcodeQuantityMap.entrySet()) {
+                        String barcode = entry.getKey();
+                        Integer requestedQuantity = entry.getValue();
+                        Integer totalQuantity = totalQuantityMap.getOrDefault(barcode, 0);
+
+                        // Kiểm tra nếu tổng số lượng sản phẩm trong idDetailQuantityMap bằng với số
+                        // lượng yêu cầu trong barcodeQuantityMap
+                        if (!requestedQuantity.equals(totalQuantity)) {
+                                throw new BadRequestException(
+                                                "Total quantity for product with barcode " + barcode
+                                                                + " does not match the requested quantity.");
+                        }
+                }
+        }
+
+        @Override
+        @Transactional
+        public int createBuybackInvoice(InvoiceRequest request, Map<Integer, Integer> idDetailQuantityMap) {
+                validateBuybackDetails(idDetailQuantityMap, convertBarcodeQuantityMap(request.getBarcodeQuantityMap()));
+
+                // Chuyển đổi barcodeQuantityMap từ request
+                HashMap<String, Integer> barcodeQuantity = new HashMap<>();
+                for (Map.Entry<String, String> entry : request.getBarcodeQuantityMap().entrySet()) {
+                        barcodeQuantity.put(entry.getKey(), Integer.parseInt(entry.getValue()));
+                }
+
+                // Tạo hóa đơn từ chi tiết hóa đơn
+                int invoiceId = createInvoiceFromDetails(barcodeQuantity, request.getInvoiceTypeId(),
+                                request.getUserId(), request.getEmployeeId(), request.getPayment(), request.getNote());
+
+                // Cập nhật lại số lượng có thể bán lại của chi tiết hóa đơn gốc
+                for (Map.Entry<Integer, Integer> entry : idDetailQuantityMap.entrySet()) {
+                        InvoiceDetail detail = invoiceDetailRepository.findById(entry.getKey())
+                                        .orElseThrow(() -> new BadRequestException(
+                                                        "Invoice detail not found with ID: " + entry.getKey()));
+                        detail.setAvailableReturnQuantity(detail.getAvailableReturnQuantity() - entry.getValue());
+                        invoiceDetailRepository.save(detail);
+                }
+
+                return invoiceId;
+        }
+
+        private Map<String, Integer> convertBarcodeQuantityMap(Map<String, String> barcodeQuantityMap) {
+                Map<String, Integer> convertedMap = new HashMap<>();
+                for (Map.Entry<String, String> entry : barcodeQuantityMap.entrySet()) {
+                        convertedMap.put(entry.getKey(), Integer.parseInt(entry.getValue()));
+                }
+                return convertedMap;
         }
 
         @Override

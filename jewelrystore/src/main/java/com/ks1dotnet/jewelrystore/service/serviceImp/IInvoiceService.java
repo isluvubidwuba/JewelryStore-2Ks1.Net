@@ -65,4 +65,9 @@ public interface IInvoiceService {
 
         public Page<InvoiceDTO> getInvoicesByEmployeeId(String employeeId, int page, int size);
 
+        public void validateBuybackDetails(Map<Integer, Integer> idDetailQuantityMap,
+                        Map<String, Integer> barcodeQuantityMap);
+
+        public int createBuybackInvoice(InvoiceRequest request, Map<Integer, Integer> idDetailQuantityMap);
+
 }
