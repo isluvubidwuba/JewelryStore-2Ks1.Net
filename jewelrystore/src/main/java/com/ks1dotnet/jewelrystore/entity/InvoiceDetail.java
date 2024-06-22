@@ -42,6 +42,9 @@ public class InvoiceDetail {
     @Column(name = "total_price")
     private double totalPrice;
 
+    @Column(name = "available_return_quantity")
+    private double availableReturnQuantity;
+
     @ManyToOne
     @JoinColumn(name = "id_invoice")
     private Invoice invoice;
@@ -59,10 +62,12 @@ public class InvoiceDetail {
 
     public InvoiceDetailDTO getDTO() {
         InvoiceDetailDTO invoiceDetailDTO = new InvoiceDetailDTO();
+        invoiceDetailDTO.setId(id);
         invoiceDetailDTO.setProductDTO(product.getDTO());
         invoiceDetailDTO.setQuantity(quantity);
         invoiceDetailDTO.setPrice(price);
         invoiceDetailDTO.setTotalPrice(totalPrice);
+        invoiceDetailDTO.setAvailableReturnQuantity(availableReturnQuantity);
         List<PromotionDTO> lPromotionDTOs = listVoucherOnInvoiceDetail.stream()
                 .map(voucherOnInvoiceDetail -> voucherOnInvoiceDetail.getPromotion().getDTO())
                 .collect(Collectors.toList());

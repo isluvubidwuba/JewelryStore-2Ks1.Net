@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Resale Invoice</title>
+    <link href="css/styles.css" rel="stylesheet" />
+    <script src="js/jquery.min.js"></script>
+    <script src="js/policy.js"></script>
+  </head>
+
+  <body>
+    <div id="container" class="flex">
+      <!-- side bar -->
+      <div id="sidebarContainer" class="h-screen text-white">
+        @@include('components/sidebarForStaff.html')
+      </div>
+      <!-- Main Section -->
+      <div class="w-full h-screen overflow-x-hidden border-t flex flex-col">
+        <main class="w-full flex-grow p-6">
+          <div class="w-full mb-2">
+            <div class="flex items-center justify-between">
+              <p class="text-xl pb-3 flex items-center">
+                <i class="fas fa-list mr-3"></i> Promotion
+              </p>
+              <!-- Search Button -->
+              <div class="flex items-center">
+                <input
+                  type="text"
+                  id="keyword"
+                  class="border rounded px-4 py-2"
+                  placeholder="Search..."
+                />
+                <button
+                  id="exchange-search-button"
+                  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-2"
+                >
+                  Search
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Table -->
+          <div class="bg-white overflow-auto">
+            <table class="min-w-full bg-white border-b-2">
+              <thead class="bg-gray-800 text-white">
+                <tr>
+                  <th
+                    class="text-center py-3 px-4 uppercase font-semibold text-sm"
+                  >
+                    Promotion name
+                  </th>
+                  <th
+                    class="text-center py-3 px-4 uppercase font-semibold text-sm"
+                  >
+                    Value
+                  </th>
+                  <th
+                    class="text-center py-3 px-4 uppercase font-semibold text-sm"
+                  >
+                    Status
+                  </th>
+                  <th
+                    class="text-center py-3 px-4 uppercase font-semibold text-sm"
+                  >
+                    Start Date
+                  </th>
+                  <th
+                    class="text-center py-3 px-4 uppercase font-semibold text-sm"
+                  >
+                    End Date
+                  </th>
+                  <th
+                    class="text-center py-3 px-4 uppercase font-semibold text-sm"
+                  >
+                    Last Modified
+                  </th>
+                  <th
+                    class="text-center py-3 px-4 uppercase font-semibold text-sm"
+                  >
+                    Invoice type
+                  </th>
+                  <th
+                    class="text-center py-3 px-4 uppercase font-semibold text-sm"
+                  >
+                    Applicable
+                  </th>
+                  <th
+                    class="text-center py-3 px-4 uppercase font-semibold text-sm"
+                  >
+                    View Applicable
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="table-body" class="text-gray-700">
+                <!-- Rows will be dynamically inserted here -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination and Entries Info -->
+          <div
+            class="w-full flex justify-center sm:justify-between flex-col sm:flex-row gap-5 mt-1.5 px-1 items-center"
+          >
+            <div class="text-lg" id="entries-info">
+              <!-- Entry information will be dynamically updated here -->
+            </div>
+            <div class="flex">
+              <ul
+                class="pagination flex justify-center items-center gap-x-[10px] z-30"
+                role="navigation"
+                aria-label="Pagination"
+              >
+                <!-- Pagination buttons will be dynamically inserted here -->
+              </ul>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+    <!-- Modal -->
+    <div
+      id="detail-modal_CategoryApply"
+      class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden"
+    >
+      <div class="bg-white rounded-lg shadow w-8/12">
+        <div
+          class="flex items-center justify-between p-4 border-b rounded-t w-full"
+        >
+          <h3 id="ListApply" class="text-gray-800 font-semibold text-xl">
+            List apply
+          </h3>
+          <button
+            type="button"
+            id="modalClose_CategoryApply"
+            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
+          >
+            <svg
+              class="w-3 h-3"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 14 14"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+              />
+            </svg>
+            <span class="sr-only">Close modal</span>
+          </button>
+        </div>
+        <div class="shadow-md w-auto bg-white rounded-lg">
+          <div class="col-span-2 p-10 w-full">
+            <div class="mb-4">
+              <div class="w-full max-h-56">
+                <div class="w-full mt-3 overflow-hidden">
+                  <div class="max-h-56 overflow-y-auto items-center">
+                    <table class="w-full bg-blend-multiply text-sm text-center">
+                      <thead class="bg-gray-200 sticky top-0 z-10">
+                        <tr>
+                          <th scope="col" class="px-6 py-3">No</th>
+                          <th scope="col" class="px-6 py-3">Name</th>
+                        </tr>
+                      </thead>
+                      <tbody id="category-apply-promotion" class=""></tbody>
+                    </table>
+                    <p id="notiBlankCategory" class="text-center"></p>
+                  </div>
+                </div>
+              </div>
+              <div
+                id="delete-category-button-container"
+                class="justify-evenly mt-4"
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
