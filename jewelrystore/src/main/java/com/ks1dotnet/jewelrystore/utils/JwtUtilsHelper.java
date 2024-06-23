@@ -5,7 +5,7 @@ import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -47,13 +47,19 @@ public class JwtUtilsHelper {
     public boolean verifyToken(String token, String idEmployeeAndOtpCode) {
         try {
             SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(privateKey));
-            String subject = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token)
-                    .getBody().getSubject();
+            Claims claims =
+                    Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+
+            String subject = claims.getSubject();
+            Date expiration = claims.getExpiration();
+
+            if (expiration.before(new Date())) {
+                return false;
+            }
 
             if (subject.equals(idEmployeeAndOtpCode)) {
                 return true;
             } else {
-                System.out.println("Subject does not match");
                 return false;
             }
         } catch (Exception e) {
