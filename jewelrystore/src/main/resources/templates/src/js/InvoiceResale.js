@@ -202,14 +202,12 @@ $(document).ready(function () {
         });
 
         var requestData = {
-            request: {
-                barcodeQuantityMap: barcodeQuantityMap,
-                invoiceTypeId: 3,
-                userId: currentUser.id,
-                employeeId: employeeId,
-                payment: "COD",
-                note: "Ghi chú buyback"
-            },
+            barcodeQuantityMap: barcodeQuantityMap,
+            invoiceTypeId: 3,
+            userId: currentUser.id,
+            employeeId: employeeId,
+            payment: "COD",
+            note: "Ghi chú buyback"
         };
 
         $.ajax({
@@ -223,7 +221,7 @@ $(document).ready(function () {
             success: function (response) {
                 if (response.status === "OK") {
                     alert("Buyback thành công!");
-                    // Xử lý sau khi thanh toán thành công nếu cần thiết
+                    viewInvoice(response.data); // Thêm dòng này để gọi hàm viewInvoice
                 } else {
                     alert("Lỗi khi buyback.");
                 }
@@ -233,4 +231,111 @@ $(document).ready(function () {
             }
         });
     });
+
+    // Hàm viewInvoice để hiển thị chi tiết hóa đơn
+    function viewInvoice(invoiceId) {
+        $.ajax({
+            url: "http://localhost:8080/invoice/view-invoice",
+            method: "POST",
+            data: { invoice: invoiceId },
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            success: function (response) {
+                if (response.status === "OK") {
+                    const invoiceData = response.data;
+                    const invoiceDetails = $("#invoice-details");
+                    invoiceDetails.empty();
+
+                    const userInfo = invoiceData.userInfoDTO;
+                    const employeeInfo = invoiceData.employeeDTO;
+                    const orderDetails = invoiceData.listOrderInvoiceDetail;
+
+                    invoiceDetails.append(`
+                        <div class="bg-white rounded-lg shadow-lg px-8 py-10 max-w-7xl mx-auto">
+                            <div class="flex items-center justify-between mb-8">
+                                <div class="flex items-center">
+                                    <img class="h-8 w-8 mr-2" src="https://tailwindflex.com/public/images/logos/favicon-32x32.png" alt="Logo" />
+                                    <div class="text-gray-700 font-semibold text-lg">2KS 1NET</div>
+                                </div>
+                                <div class="text-gray-700 text-right">
+                                    <div class="font-bold text-xl mb-2">HÓA ĐƠN</div>
+                                    <div class="text-sm">Date: ${new Date(invoiceData.createdDate).toLocaleDateString()}</div>
+                                    <div class="text-sm">Invoice #: ${invoiceData.id}</div>
+                                </div>
+                            </div>
+                            <div class="border-b-2 border-gray-300 pb-8 mb-8">
+                                <h2 class="text-2xl font-bold mb-4">Thông Tin Khách Hàng và Nhân Viên</h2>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <div class="text-gray-700 mb-2"><strong>Khách Hàng:</strong> ${userInfo.fullName}</div>
+                                        <div class="text-gray-700 mb-2"><strong>ID:</strong> ${userInfo.id}</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-gray-700 mb-2"><strong>Nhân Viên:</strong> ${employeeInfo.firstName} ${employeeInfo.lastName}</div>
+                                        <div class="text-gray-700 mb-2"><strong>ID:</strong> ${employeeInfo.id}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <table class="w-full text-left mb-8">
+                                <thead>
+                                    <tr>
+                                        <th class="text-gray-700 font-bold uppercase py-2">Sản phẩm</th>
+                                        <th class="text-gray-700 font-bold uppercase py-2">Mã sản phẩm</th>
+                                        <th class="text-gray-700 font-bold uppercase py-2">Số lượng</th>
+                                        <th class="text-gray-700 font-bold uppercase py-2">Tổng giá</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${orderDetails.map(order => `
+                                    <tr>
+                                        <td class="py-4 text-gray-700">${order.productDTO.name}</td>
+                                        <td class="py-4 text-gray-700">${order.productDTO.productCode}</td>
+                                        <td class="py-4 text-gray-700">${order.quantity}</td>
+                                        <td class="py-4 text-gray-700">${new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(order.totalPrice)}</td>
+                                    </tr>`).join("")}
+                                </tbody>
+                            </table>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="text-gray-700">Tổng giá gốc:</div>
+                                <div class="text-gray-700 text-right">${new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(invoiceData.totalPriceRaw)}</div>
+                                <div class="text-gray-700">Giá giảm:</div>
+                                <div class="text-gray-700 text-right">${new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(invoiceData.discountPrice)}</div>
+                                <div class="text-gray-700 font-bold text-xl">Tổng giá:</div>
+                                <div class="text-gray-700 font-bold text-xl text-right">${new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(invoiceData.totalPrice)}</div>
+                            </div>
+                        </div>
+                    `);
+
+                    $("#view-invoice-modal").removeClass("hidden");
+
+                    // Clear all information for a new transaction
+                    $('#selected-products').empty();
+                    $('#product-table-body').empty();
+                    $('#user-details').empty();
+                    $('#total-price').text(formatCurrency(0));
+                    currentUser = null;
+                } else {
+                    alert("Không thể tải chi tiết hóa đơn");
+                }
+            },
+            error: function (error) {
+                console.error("Không thể tải chi tiết hóa đơn", error);
+                alert("Không thể tải chi tiết hóa đơn !!!");
+            },
+        });
+    }
+
+    // Sự kiện đóng modal khi bấm nút Đóng
+    $(document).on('click', '.close-view-invoice-modal-btn', function () {
+        $("#view-invoice-modal").addClass("hidden");
+
+        // Clear all information for a new transaction
+        $('#selected-products').empty();
+        $('#product-table-body').empty();
+        $('#user-details').empty();
+        $('#total-price').text(formatCurrency(0));
+        currentUser = null;
+    });
+
 });
