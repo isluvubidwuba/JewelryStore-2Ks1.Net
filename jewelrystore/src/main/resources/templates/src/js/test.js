@@ -157,28 +157,29 @@ function loadTop5EmployeesByRevenue() {
         const formattedRevenue = formatCurrency(employeeData.revenue);
 
         const repCard = `
-          <div class="flex flex-col bg-gray-50 max-w-sm shadow-md py-4 px-10 md:px-8 rounded-md" onclick="viewEmployee2('${
-            employee.id
-          }')" >
-            <div class="flex flex-col md:flex-row gap-2 md:gap-4">
-              <div class="flex flex-col md:flex-row gap-2 md:gap-4">
-              <img class="rounded-full border-4 border-gray-300 h-24 w-24 mx-auto mb-4 object-cover"
-                  src="${
-                    employee.image
-                      ? employee.image
-                      : "https://randomuser.me/api/portraits/men/78.jpg"
-                  }" 
-                  alt="${employee.firstName} ${employee.lastName}" />
-              <div class="flex flex-col text-center md:text-left">
-                <div class="text-zinc-900 text-lg font-semibold">${
-                  employee.firstName
-                } ${employee.lastName}</div>
-                <div class="text-gray-500 mb-3 whitespace-nowrap">${formattedRevenue}</div>
-              </div>
-            </div>
+                          <div class="flex flex-col bg-gray-50 max-w-sm shadow-md py-4 px-10 md:px-8 rounded-md cursor-pointer" onclick="viewEmployee2('${
+                            employee.id
+                          }')">
+                            <div class="flex flex-col md:flex-row gap-2 md:gap-4">
+                              <img class="rounded-full border-4 border-gray-300 h-24 w-24 mx-auto mb-4 object-cover"
+                                src="${
+                                  employee.image
+                                    ? employee.image
+                                    : "https://randomuser.me/api/portraits/men/78.jpg"
+                                }"
+                                alt="${employee.firstName} ${
+          employee.lastName
+        }" />
+                              <div class="flex flex-col text-center md:text-left">
+                                <div class="text-zinc-900 text-lg font-semibold">${
+                                  employee.firstName
+                                } ${employee.lastName}</div>
+                                <div class="text-gray-500 mb-3 whitespace-nowrap">${formattedRevenue}</div>
+                              </div>
+                            </div>
+                          </div>
+                        `;
 
-          </div>
-        `;
         topRepsContainer.append(repCard);
       });
     },

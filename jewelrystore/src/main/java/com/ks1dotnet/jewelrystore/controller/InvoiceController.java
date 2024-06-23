@@ -28,7 +28,6 @@ import com.ks1dotnet.jewelrystore.dto.RevenueDTO;
 import com.ks1dotnet.jewelrystore.entity.Invoice;
 import com.ks1dotnet.jewelrystore.exception.BadRequestException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
-import com.ks1dotnet.jewelrystore.payload.request.BuyBackInvoiceRequest;
 import com.ks1dotnet.jewelrystore.payload.request.ImportInvoiceRequestWrapper;
 import com.ks1dotnet.jewelrystore.payload.request.InvoiceDetailRequest;
 import com.ks1dotnet.jewelrystore.payload.request.InvoiceRequest;
@@ -87,9 +86,18 @@ public class InvoiceController {
     }
 
     @PostMapping("/buyback")
-    public ResponseEntity<ResponseData> createBuybackInvoice(@RequestBody BuyBackInvoiceRequest request) {
+    public ResponseEntity<ResponseData> createBuybackInvoice(@RequestBody InvoiceRequest request) {
         try {
-            int invoiceId = invoiceService.createBuybackInvoice(request.getRequest(), request.getIdDetailQuantityMap());
+            if (request.getInvoiceTypeId() != 3) {
+                throw new BadRequestException("Error invoice type!");
+            }
+            HashMap<Integer, Integer> barcodeQuantity = new HashMap<>();
+            for (Map.Entry<String, String> entry : request.getBarcodeQuantityMap().entrySet()) {
+                barcodeQuantity.put(Integer.parseInt(entry.getKey()), Integer.parseInt(entry.getValue()));
+            }
+
+            int invoiceId = invoiceService.createBuybackInvoice(barcodeQuantity, request.getInvoiceTypeId(),
+                    request.getUserId(), request.getEmployeeId(), request.getPayment(), request.getNote());
             ResponseData responseData = new ResponseData(HttpStatus.OK, "Buyback invoice created successfully",
                     invoiceId);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
@@ -309,6 +317,40 @@ public class InvoiceController {
             List<RevenueDTO<ProductDTO>> top5Products = invoiceService.getTop5ProductsByRevenue(period, year, month);
             ResponseData responseData = new ResponseData(HttpStatus.OK,
                     "Retrieved top 5 products by revenue successfully", top5Products);
+            return new ResponseEntity<>(responseData, HttpStatus.OK);
+        } catch (BadRequestException e) {
+            ResponseData responseData = new ResponseData(HttpStatus.BAD_REQUEST, e.getMessage(), null);
+            return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            ResponseData responseData = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
+            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/revenue/store")
+    public ResponseEntity<ResponseData> calculateRevenueByStore(@RequestParam String period,
+            @RequestParam int year,
+            @RequestParam(required = false) Integer month) {
+        try {
+            double revenue = invoiceService.calculateStoreRevenue(period, year, month);
+            ResponseData responseData = new ResponseData(HttpStatus.OK, "Retrieved store revenue successfully",
+                    revenue);
+            return new ResponseEntity<>(responseData, HttpStatus.OK);
+        } catch (BadRequestException e) {
+            ResponseData responseData = new ResponseData(HttpStatus.BAD_REQUEST, e.getMessage(), null);
+            return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            ResponseData responseData = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
+            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/revenue/invoice-count")
+    public ResponseEntity<ResponseData> getRevenueAndInvoiceCount(@RequestParam String period) {
+        try {
+            Map<String, Object> result = invoiceService.calculateRevenueAndInvoiceCount(period);
+            ResponseData responseData = new ResponseData(HttpStatus.OK,
+                    "Retrieved revenue and invoice count successfully", result);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
         } catch (BadRequestException e) {
             ResponseData responseData = new ResponseData(HttpStatus.BAD_REQUEST, e.getMessage(), null);

@@ -14,8 +14,6 @@ import com.ks1dotnet.jewelrystore.dto.InvoiceDTO;
 import com.ks1dotnet.jewelrystore.dto.InvoiceDetailDTO;
 import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 import com.ks1dotnet.jewelrystore.dto.RevenueDTO;
-import com.ks1dotnet.jewelrystore.entity.Counter;
-import com.ks1dotnet.jewelrystore.entity.Employee;
 import com.ks1dotnet.jewelrystore.entity.Invoice;
 import com.ks1dotnet.jewelrystore.entity.InvoiceType;
 import com.ks1dotnet.jewelrystore.entity.Product;
@@ -65,9 +63,13 @@ public interface IInvoiceService {
 
         public Page<InvoiceDTO> getInvoicesByEmployeeId(String employeeId, int page, int size);
 
-        public void validateBuybackDetails(Map<Integer, Integer> idDetailQuantityMap,
-                        Map<String, Integer> barcodeQuantityMap);
+        public void validateBuybackDetails(Map<Integer, Integer> barcodeQuantityMap);
 
-        public int createBuybackInvoice(InvoiceRequest request, Map<Integer, Integer> idDetailQuantityMap);
+        public int createBuybackInvoice(HashMap<Integer, Integer> barcodeQuantity, Integer invoiceTypeId,
+                        Integer userId, String employeeId, String payment, String note);
+
+        public double calculateStoreRevenue(String period, int year, Integer month);
+
+        public Map<String, Object> calculateRevenueAndInvoiceCount(String period);
 
 }

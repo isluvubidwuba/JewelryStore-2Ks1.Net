@@ -1,742 +1,463 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tailwind Admin Template</title>
-    <meta name="author" content="David Grzyb" />
-    <meta name="description" content="" />
 
-    <!-- Tailwind -->
-    <link href="css/styles.css" rel="stylesheet" />
-    <script src="js/jquery.min.js"></script>
-    <script src="js/ManagerUser.js"></script>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tailwind Admin Template</title>
+  <meta name="author" content="David Grzyb" />
+  <meta name="description" content="" />
 
-    <style>
-      @import url("https://fonts.googleapis.com/css?family=Karla:400,700&display=swap");
+  <!-- Tailwind -->
+  <link href="css/styles.css" rel="stylesheet" />
+  <script src="js/jquery.min.js"></script>
+  <script src="js/ManagerUser.js"></script>
 
-      .font-family-karla {
-        font-family: karla;
-      }
+  <style>
+    @import url("https://fonts.googleapis.com/css?family=Karla:400,700&display=swap");
 
-      .bg-sidebar {
-        background: #3d68ff;
-      }
+    .font-family-karla {
+      font-family: karla;
+    }
 
-      .cta-btn {
-        color: #3d68ff;
-      }
+    .bg-sidebar {
+      background: #3d68ff;
+    }
 
-      .upgrade-btn {
-        background: #1947ee;
-      }
+    .cta-btn {
+      color: #3d68ff;
+    }
 
-      .upgrade-btn:hover {
-        background: #0038fd;
-      }
+    .upgrade-btn {
+      background: #1947ee;
+    }
 
-      .active-nav-link {
-        background: #1947ee;
-      }
+    .upgrade-btn:hover {
+      background: #0038fd;
+    }
 
-      .nav-item:hover {
-        background: #1947ee;
-      }
+    .active-nav-link {
+      background: #1947ee;
+    }
 
-      .account-link:hover {
-        background: #3d68ff;
-      }
-    </style>
-  </head>
+    .nav-item:hover {
+      background: #1947ee;
+    }
 
-  <body class="bg-gray-100 font-family-karla flex">
-    <!-- side bar -->
-    <div id="sidebar-placeholder">@@include('components/sidebar.html')</div>
+    .account-link:hover {
+      background: #3d68ff;
+    }
+  </style>
+</head>
 
-    <div class="relative w-full flex flex-col h-screen overflow-y-hidden">
-      <!-- Desktop Header -->
-      <div id="header-placeholder">@@include('components/header.html')</div>
+<body class="bg-gray-100 font-family-karla flex">
+  <!-- side bar -->
+  <div id="sidebar-placeholder">@@include('components/sidebar.html')</div>
 
-      <!-- Mobile Header & Nav -->
-      <header
-        x-data="{ isOpen: false }"
-        class="w-full bg-sidebar py-5 px-6 sm:hidden"
-      >
-        <div class="flex items-center justify-between">
-          <a
-            href="index.html"
-            class="text-white text-3xl font-semibold uppercase hover:text-gray-300"
-            >Admin</a
-          >
-          <button
-            @click="isOpen = !isOpen"
-            class="text-white text-3xl focus:outline-none"
-          >
-            <i x-show="!isOpen" class="fas fa-bars"></i>
-            <i x-show="isOpen" class="fas fa-times"></i>
-          </button>
-        </div>
+  <div class="relative w-full flex flex-col h-screen overflow-y-hidden">
+    <!-- Desktop Header -->
+    <div id="header-placeholder">@@include('components/header.html')</div>
 
-        <!-- Dropdown Nav -->
-        <nav :class="isOpen ? 'flex': 'hidden'" class="flex flex-col pt-4">
-          <a
-            href="index.html"
-            class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item"
-          >
-            <i class="fas fa-tachometer-alt mr-3"></i>
-            Dashboard
-          </a>
-          <a
-            href="blank.html"
-            class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item"
-          >
-            <i class="fas fa-sticky-note mr-3"></i>
-            Blank Page
-          </a>
-          <a
-            href="tables.html"
-            class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item"
-          >
-            <i class="fas fa-table mr-3"></i>
-            Tables
-          </a>
-          <a
-            href="forms.html"
-            class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item"
-          >
-            <i class="fas fa-align-left mr-3"></i>
-            Forms
-          </a>
-          <a
-            href="tabs.html"
-            class="flex items-center active-nav-link text-white py-2 pl-4 nav-item"
-          >
-            <i class="fas fa-tablet-alt mr-3"></i>
-            Tabbed Content
-          </a>
-          <a
-            href="calendar.html"
-            class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item"
-          >
-            <i class="fas fa-calendar mr-3"></i>
-            Calendar
-          </a>
-          <a
-            href="#"
-            class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item"
-          >
-            <i class="fas fa-cogs mr-3"></i>
-            Support
-          </a>
-          <a
-            href="#"
-            class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item"
-          >
-            <i class="fas fa-user mr-3"></i>
-            My Account
-          </a>
-          <a
-            href="#"
-            class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item"
-          >
-            <i class="fas fa-sign-out-alt mr-3"></i>
-            Sign Out
-          </a>
-          <button
-            class="w-full bg-white cta-btn font-semibold py-2 mt-3 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-300 flex items-center justify-center"
-          >
-            <i class="fas fa-arrow-circle-up mr-3"></i> Upgrade to Pro!
-          </button>
-        </nav>
-        <!-- <button class="w-full bg-white cta-btn font-semibold py-2 mt-5 rounded-br-lg rounded-bl-lg rounded-tr-lg shadow-lg hover:shadow-xl hover:bg-gray-300 flex items-center justify-center">
+    <!-- Mobile Header & Nav -->
+    <header x-data="{ isOpen: false }" class="w-full bg-sidebar py-5 px-6 sm:hidden">
+      <div class="flex items-center justify-between">
+        <a href="index.html" class="text-white text-3xl font-semibold uppercase hover:text-gray-300">Admin</a>
+        <button @click="isOpen = !isOpen" class="text-white text-3xl focus:outline-none">
+          <i x-show="!isOpen" class="fas fa-bars"></i>
+          <i x-show="isOpen" class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Dropdown Nav -->
+      <nav :class="isOpen ? 'flex': 'hidden'" class="flex flex-col pt-4">
+        <a href="index.html" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
+          <i class="fas fa-tachometer-alt mr-3"></i>
+          Dashboard
+        </a>
+        <a href="blank.html" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
+          <i class="fas fa-sticky-note mr-3"></i>
+          Blank Page
+        </a>
+        <a href="tables.html" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
+          <i class="fas fa-table mr-3"></i>
+          Tables
+        </a>
+        <a href="forms.html" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
+          <i class="fas fa-align-left mr-3"></i>
+          Forms
+        </a>
+        <a href="tabs.html" class="flex items-center active-nav-link text-white py-2 pl-4 nav-item">
+          <i class="fas fa-tablet-alt mr-3"></i>
+          Tabbed Content
+        </a>
+        <a href="calendar.html" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
+          <i class="fas fa-calendar mr-3"></i>
+          Calendar
+        </a>
+        <a href="#" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
+          <i class="fas fa-cogs mr-3"></i>
+          Support
+        </a>
+        <a href="#" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
+          <i class="fas fa-user mr-3"></i>
+          My Account
+        </a>
+        <a href="#" class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item">
+          <i class="fas fa-sign-out-alt mr-3"></i>
+          Sign Out
+        </a>
+        <button
+          class="w-full bg-white cta-btn font-semibold py-2 mt-3 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-300 flex items-center justify-center">
+          <i class="fas fa-arrow-circle-up mr-3"></i> Upgrade to Pro!
+        </button>
+      </nav>
+      <!-- <button class="w-full bg-white cta-btn font-semibold py-2 mt-5 rounded-br-lg rounded-bl-lg rounded-tr-lg shadow-lg hover:shadow-xl hover:bg-gray-300 flex items-center justify-center">
                 <i class="fas fa-plus mr-3"></i> New Report
             </button> -->
-      </header>
+    </header>
 
-      <div class="w-full h-screen overflow-x-hidden border-t flex flex-col">
-        <main class="w-full flex-grow p-6">
-          <div class="flex justify-between items-center">
-            <h1 class="text-3xl text-black pb-6">Manager User Information</h1>
-            <button
-              id="managerRank"
-              class="flex items-center px-6 py-2 transition ease-in duration-200 uppercase rounded-full hover:bg-gray-800 hover:text-white border-2 border-gray-900 focus:outline-none"
-            >
-              <svg
-                width="20"
-                height="20"
-                fill="currentColor"
-                viewBox="0 0 2304 1792"
-                class="mr-4"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M1728 448l-384 704h768zm-1280 0l-384 704h768zm821-192q-14 40-45.5 71.5t-71.5 45.5v1291h608q14 0 23 9t9 23v64q0 14-9 23t-23 9h-1344q-14 0-23-9t-9-23v-64q0-14 9-23t23-9h608v-1291q-40-14-71.5-45.5t-45.5-71.5h-491q-14 0-23-9t-9-23v-64q0-14 9-23t23-9h491q21-57 70-92.5t111-35.5 111 35.5 70 92.5h491q14 0 23 9t9 23v64q0 14-9 23t-23 9h-491zm-181 16q33 0 56.5-23.5t23.5-56.5-23.5-56.5-56.5-23.5-56.5 23.5-23.5 56.5 23.5 56.5 56.5 23.5zm1088 880q0 73-46.5 131t-117.5 91-144.5 49.5-139.5 16.5-139.5-16.5-144.5-49.5-117.5-91-46.5-131q0-11 35-81t92-174.5 107-195.5 102-184 56-100q18-33 56-33t56 33q4 7 56 100t102 184 107 195.5 92 174.5 35 81zm-1280 0q0 73-46.5 131t-117.5 91-144.5 49.5-139.5 16.5-139.5-16.5-144.5-49.5-117.5-91-46.5-131q0-11 35-81t92-174.5 107-195.5 102-184 56-100q18-33 56-33t56 33q4 7 56 100t102 184 107 195.5 92 174.5 35 81z"
-                ></path>
-              </svg>
-              Manager Rank
-            </button>
-          </div>
-
-          <div class="w-full mt-6">
-            <div>
-              <ul id="role-tabs" class="flex border-b">
-                <!-- Tabs will be dynamically added here -->
-              </ul>
-              <!-- Thêm vào bên dưới danh sách các tabs -->
-            </div>
-
-            <div id="tab-contents" class="bg-white p-6">
-              <!-- Tab contents will be dynamically added here -->
-            </div>
-          </div>
-        </main>
-      </div>
-    </div>
-
-    <!-- Modal for adding role -->
-    <div
-      id="addRoleModal"
-      class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden"
-    >
-      <div class="bg-white rounded-lg p-6 w-1/3">
+    <div class="w-full h-screen overflow-x-hidden border-t flex flex-col">
+      <main class="w-full flex-grow p-6">
         <div class="flex justify-between items-center">
-          <h2 class="text-2xl font-bold mb-4">Add Role</h2>
-          <button id="close-modal" class="text-gray-500 hover:text-gray-700">
-            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
+          <h1 class="text-3xl text-black pb-6">Manager User Information</h1>
+          <button id="managerRank"
+            class="flex items-center px-6 py-2 transition ease-in duration-200 uppercase rounded-full hover:bg-gray-800 hover:text-white border-2 border-gray-900 focus:outline-none">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 2304 1792" class="mr-4"
+              xmlns="http://www.w3.org/2000/svg">
               <path
-                fill-rule="evenodd"
-                d="M10 8.586L15.657 2.93a1 1 0 011.414 1.414L11.414 10l5.657 5.657a1 1 0 01-1.414 1.414L10 11.414l-5.657 5.657a1 1 0 01-1.414 1.414L8.586 10 2.93 4.343A1 1 0 014.343 2.93L10 8.586z"
-                clip-rule="evenodd"
-              />
+                d="M1728 448l-384 704h768zm-1280 0l-384 704h768zm821-192q-14 40-45.5 71.5t-71.5 45.5v1291h608q14 0 23 9t9 23v64q0 14-9 23t-23 9h-1344q-14 0-23-9t-9-23v-64q0-14 9-23t23-9h608v-1291q-40-14-71.5-45.5t-45.5-71.5h-491q-14 0-23-9t-9-23v-64q0-14 9-23t23-9h491q21-57 70-92.5t111-35.5 111 35.5 70 92.5h491q14 0 23 9t9 23v64q0 14-9 23t-23 9h-491zm-181 16q33 0 56.5-23.5t23.5-56.5-23.5-56.5-56.5-23.5-56.5 23.5-23.5 56.5 23.5 56.5 56.5 23.5zm1088 880q0 73-46.5 131t-117.5 91-144.5 49.5-139.5 16.5-139.5-16.5-144.5-49.5-117.5-91-46.5-131q0-11 35-81t92-174.5 107-195.5 102-184 56-100q18-33 56-33t56 33q4 7 56 100t102 184 107 195.5 92 174.5 35 81zm-1280 0q0 73-46.5 131t-117.5 91-144.5 49.5-139.5 16.5-139.5-16.5-144.5-49.5-117.5-91-46.5-131q0-11 35-81t92-174.5 107-195.5 102-184 56-100q18-33 56-33t56 33q4 7 56 100t102 184 107 195.5 92 174.5 35 81z">
+              </path>
             </svg>
+            Manager Rank
           </button>
         </div>
-        <form id="add-role-form">
-          <div class="mb-4">
-            <label for="role-name" class="block text-gray-700 font-bold mb-2"
-              >Role Name:</label
-            >
-            <input
-              type="text"
-              id="role-name"
-              name="roleName"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              required
-            />
-          </div>
-          <div class="flex justify-end">
-            <button
-              type="submit"
-              class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            >
-              Add Role
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
 
-    <!-- Modal for updating user information -->
-    <div
-      id="updateUserModal"
-      class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden"
-    >
-      <div class="bg-white rounded-lg p-6 w-2/3">
-        <div class="flex justify-between items-center">
-          <h2 class="text-2xl font-bold mb-4">Update User Information</h2>
-          <button
-            id="close-update-modal"
-            class="text-gray-500 hover:text-gray-700"
-          >
-            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fill-rule="evenodd"
-                d="M10 8.586L15.657 2.93a1 1 0 011.414 1.414L11.414 10l5.657 5.657a1 1 0 01-1.414 1.414L10 11.414l-5.657 5.657a1 1 0 01-1.414 1.414L8.586 10 2.93 4.343A1 1 0 014.343 2.93L10 8.586z"
-                clip-rule="evenodd"
-              />
-            </svg>
+        <div class="w-full mt-6">
+          <div>
+            <ul id="role-tabs" class="flex border-b">
+              <!-- Tabs will be dynamically added here -->
+            </ul>
+            <!-- Thêm vào bên dưới danh sách các tabs -->
+          </div>
+
+          <div id="tab-contents" class="bg-white p-6">
+            <!-- Tab contents will be dynamically added here -->
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal for adding role -->
+  <div id="addRoleModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden">
+    <div class="bg-white rounded-lg p-6 w-1/3">
+      <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-bold mb-4">Add Role</h2>
+        <button id="close-modal" class="text-gray-500 hover:text-gray-700">
+          <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd"
+              d="M10 8.586L15.657 2.93a1 1 0 011.414 1.414L11.414 10l5.657 5.657a1 1 0 01-1.414 1.414L10 11.414l-5.657 5.657a1 1 0 01-1.414 1.414L8.586 10 2.93 4.343A1 1 0 014.343 2.93L10 8.586z"
+              clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+      <form id="add-role-form">
+        <div class="mb-4">
+          <label for="role-name" class="block text-gray-700 font-bold mb-2">Role Name:</label>
+          <input type="text" id="role-name" name="roleName"
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            required />
+        </div>
+        <div class="flex justify-end">
+          <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Add Role
           </button>
         </div>
-        <form id="update-user-form" enctype="multipart/form-data">
-          <input type="hidden" id="update-id" name="id" />
-          <div class="flex">
-            <div class="w-1/3 border-r-4 border-gray-100 mr-2 pr-4">
-              <div class="flex flex-col items-center justify-center">
-                <img
-                  id="updateEmployeeImagePreview"
-                  src="#"
-                  alt="Employee Image"
-                  class="w-64 h-64 object-cover border border-gray-300 rounded-md mb-4"
-                />
-                <div class="flex items-center justify-center w-full">
-                  <label
-                    for="updateEmployeeImageFile"
-                    class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
-                  >
-                    <div
-                      class="flex flex-col items-center justify-center pt-5 pb-6"
-                    >
-                      <svg
-                        class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 20 16"
-                      >
-                        <path
-                          stroke="currentColor"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-                        />
-                      </svg>
-                      <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                        <span class="font-semibold">Click to upload</span> or
-                        drag and drop
-                      </p>
-                      <p class="text-xs text-gray-500 dark:text-gray-400">
-                        SVG, PNG, JPG or GIF (MAX. 800x400px)
-                      </p>
-                    </div>
-                    <input
-                      id="updateEmployeeImageFile"
-                      type="file"
-                      name="file"
-                      class="hidden"
-                      accept="image/*"
-                    />
-                  </label>
-                </div>
-              </div>
-            </div>
-            <div class="w-2/3 pl-4">
-              <div class="mb-4">
-                <label
-                  for="update-fullname"
-                  class="block text-gray-700 font-bold mb-2"
-                  >Full Name:</label
-                >
-                <input
-                  type="text"
-                  id="update-fullname"
-                  name="fullName"
-                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  required
-                />
-              </div>
-              <div class="mb-4">
-                <label
-                  for="update-phone"
-                  class="block text-gray-700 font-bold mb-2"
-                  >Phone Number:</label
-                >
-                <input
-                  type="text"
-                  id="update-phone"
-                  name="phoneNumber"
-                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  required
-                />
-              </div>
-              <div class="mb-4">
-                <label
-                  for="update-email"
-                  class="block text-gray-700 font-bold mb-2"
-                  >Email:</label
-                >
-                <input
-                  type="email"
-                  id="update-email"
-                  name="email"
-                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  required
-                />
-              </div>
-              <div class="mb-4">
-                <label
-                  for="update-address"
-                  class="block text-gray-700 font-bold mb-2"
-                  >Address:</label
-                >
-                <input
-                  type="text"
-                  id="update-address"
-                  name="address"
-                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  required
-                />
-              </div>
-              <div class="mb-4">
-                <label
-                  for="update-role"
-                  class="block text-gray-700 font-bold mb-2"
-                  >Role:</label
-                >
-                <select
-                  id="update-role"
-                  name="roleId"
-                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  required
-                >
-                  <!-- Options will be dynamically populated -->
-                </select>
-              </div>
-            </div>
-          </div>
-          <div class="flex justify-end">
-            <button
-              type="submit"
-              class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            >
-              Update User Information
-            </button>
-          </div>
-        </form>
-      </div>
+      </form>
     </div>
+  </div>
 
-    <!-- Insert User Modal -->
-    <div
-      id="insertUserModal"
-      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden"
-    >
-      <div class="bg-white rounded-lg shadow-lg w-full max-w-4xl">
-        <div class="bg-blue-500 text-white py-2 px-4 rounded-t-lg">
-          <h2 class="text-2xl font-semibold text-center">Insert User</h2>
-        </div>
-        <div class="p-6 flex">
-          <div class="w-1/3 pr-4 border-r-4 border-gray-100 mr-2 pr-2">
+  <!-- Modal for updating user information -->
+  <div id="updateUserModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden">
+    <div class="bg-white rounded-lg p-6 w-2/3">
+      <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-bold mb-4">Update User Information</h2>
+        <button id="close-update-modal" class="text-gray-500 hover:text-gray-700">
+          <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd"
+              d="M10 8.586L15.657 2.93a1 1 0 011.414 1.414L11.414 10l5.657 5.657a1 1 0 01-1.414 1.414L10 11.414l-5.657 5.657a1 1 0 01-1.414 1.414L8.586 10 2.93 4.343A1 1 0 014.343 2.93L10 8.586z"
+              clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+      <form id="update-user-form" enctype="multipart/form-data">
+        <input type="hidden" id="update-id" name="id" />
+        <div class="flex">
+          <div class="w-1/3 border-r-4 border-gray-100 mr-2 pr-4">
             <div class="flex flex-col items-center justify-center">
-              <img
-                id="insertEmployeeImagePreview"
-                src="#"
-                alt="Employee Image"
-                class="w-64 h-64 object-cover border border-gray-300 rounded-md mb-4"
-              />
+              <img id="updateEmployeeImagePreview" src="#" alt="Employee Image"
+                class="w-64 h-64 object-cover border border-gray-300 rounded-md mb-4" />
               <div class="flex items-center justify-center w-full">
-                <label
-                  for="insert-file"
-                  class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
-                >
-                  <div
-                    class="flex flex-col items-center justify-center pt-5 pb-6"
-                  >
-                    <svg
-                      class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 20 16"
-                    >
-                      <path
-                        stroke="currentColor"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-                      />
+                <label for="updateEmployeeImageFile"
+                  class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+                  <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
                     </svg>
                     <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                      <span class="font-semibold">Click to upload</span> or drag
-                      and drop
+                      <span class="font-semibold">Click to upload</span> or
+                      drag and drop
                     </p>
                     <p class="text-xs text-gray-500 dark:text-gray-400">
                       SVG, PNG, JPG or GIF (MAX. 800x400px)
                     </p>
                   </div>
-                  <input
-                    id="insert-file"
-                    type="file"
-                    name="file"
-                    class="hidden"
-                    accept="image/*"
-                  />
+                  <input id="updateEmployeeImageFile" type="file" name="file" class="hidden" accept="image/*" />
                 </label>
               </div>
             </div>
           </div>
-
           <div class="w-2/3 pl-4">
-            <form
-              id="insert-user-form"
-              enctype="multipart/form-data"
-              class="space-y-4"
-            >
-              <div>
-                <label
-                  for="insert-fullName"
-                  class="block text-sm font-medium text-gray-700"
-                  >Full Name</label
-                >
-                <input
-                  type="text"
-                  id="insert-fullName"
-                  name="fullName"
-                  required
-                  class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-              <div>
-                <label
-                  for="insert-phoneNumber"
-                  class="block text-sm font-medium text-gray-700"
-                  >Phone Number</label
-                >
-                <input
-                  type="text"
-                  id="insert-phoneNumber"
-                  name="phoneNumber"
-                  required
-                  class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-              <div>
-                <label
-                  for="insert-email"
-                  class="block text-sm font-medium text-gray-700"
-                  >Email</label
-                >
-                <input
-                  type="email"
-                  id="insert-email"
-                  name="email"
-                  required
-                  class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-              <div>
-                <label
-                  for="insert-role"
-                  class="block text-sm font-medium text-gray-700"
-                  >Role</label
-                >
-                <select
-                  id="insert-role"
-                  name="roleId"
-                  required
-                  class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                ></select>
-              </div>
-              <div>
-                <label
-                  for="insert-address"
-                  class="block text-sm font-medium text-gray-700"
-                  >Address</label
-                >
-                <input
-                  type="text"
-                  id="insert-address"
-                  name="address"
-                  required
-                  class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-              <div class="flex justify-end space-x-3">
-                <button
-                  type="button"
-                  id="close-insert-modal"
-                  class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
-                >
-                  Insert
-                </button>
-              </div>
-            </form>
+            <div class="mb-4">
+              <label for="update-fullname" class="block text-gray-700 font-bold mb-2">Full Name:</label>
+              <input type="text" id="update-fullname" name="fullName"
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                required />
+            </div>
+            <div class="mb-4">
+              <label for="update-phone" class="block text-gray-700 font-bold mb-2">Phone Number:</label>
+              <input type="text" id="update-phone" name="phoneNumber"
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                required />
+            </div>
+            <div class="mb-4">
+              <label for="update-email" class="block text-gray-700 font-bold mb-2">Email:</label>
+              <input type="email" id="update-email" name="email"
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                required />
+            </div>
+            <div class="mb-4">
+              <label for="update-address" class="block text-gray-700 font-bold mb-2">Address:</label>
+              <input type="text" id="update-address" name="address"
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                required />
+            </div>
+            <div class="mb-4">
+              <label for="update-role" class="block text-gray-700 font-bold mb-2">Role:</label>
+              <select id="update-role" name="roleId"
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                required>
+                <!-- Options will be dynamically populated -->
+              </select>
+            </div>
           </div>
         </div>
-      </div>
+        <div class="flex justify-end">
+          <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Update User Information
+          </button>
+        </div>
+      </form>
     </div>
+  </div>
 
-    <!-- Customer Type Modal -->
-    <div
-      class="modal hidden fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center"
-      id="customerTypeModal"
-    >
-      <div
-        class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full"
-      >
-        <!-- Modal Header -->
-        <div class="bg-gray-800 px-4 py-2 flex justify-between items-center">
-          <h4 class="text-white text-lg">Rank Information</h4>
-          <button
-            type="button"
-            class="close text-white"
-            id="closeCustomerTypeModal"
-          >
-            &times;
-          </button>
-        </div>
-
-        <!-- Modal Body -->
-        <div class="p-4">
-          <table class="table-auto w-full">
-            <thead>
-              <tr>
-                <th class="px-4 py-2 border">ID</th>
-                <th class="px-4 py-2 border">Type</th>
-                <th class="px-4 py-2 border">Point Condition</th>
-              </tr>
-            </thead>
-            <tbody id="rankTableBody">
-              <!-- Data will be appended here via JavaScript -->
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Modal Footer -->
-        <div class="bg-gray-200 px-4 py-2 flex justify-end">
-          <!-- Add Customer Type Button -->
-          <button
-            id="addCustomerType"
-            class="flex items-center px-6 py-2 transition ease-in duration-200 uppercase rounded-full hover:bg-gray-800 hover:text-white border-2 border-gray-900 focus:outline-none"
-          >
-            Add Customer Type
-          </button>
-          <button
-            type="button"
-            id="closeCustomerTypeModalFooter"
-            class="flex items-center px-6 py-2 transition ease-in duration-200 uppercase rounded-full hover:bg-gray-800 hover:text-white border-2 border-gray-900 focus:outline-none"
-          >
-            Close
-          </button>
-        </div>
+  <!-- Insert User Modal -->
+  <div id="insertUserModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-4xl">
+      <div class="bg-blue-500 text-white py-2 px-4 rounded-t-lg">
+        <h2 class="text-2xl font-semibold text-center">Insert User</h2>
       </div>
-    </div>
-
-    <!-- Update Customer Type Modal -->
-    <div
-      class="modal hidden fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center"
-      id="updateCustomerTypeModal"
-    >
-      <div
-        class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full"
-      >
-        <!-- Modal Header -->
-        <div class="bg-gray-800 px-4 py-2 flex justify-between items-center">
-          <h4 class="text-white text-lg">Update Customer Type</h4>
-          <button
-            type="button"
-            class="close text-white"
-            id="closeUpdateCustomerTypeModal"
-          >
-            &times;
-          </button>
+      <div class="p-6 flex">
+        <div class="w-1/3 pr-4 border-r-4 border-gray-100 mr-2 pr-2">
+          <div class="flex flex-col items-center justify-center">
+            <img id="insertEmployeeImagePreview" src="#" alt="Employee Image"
+              class="w-64 h-64 object-cover border border-gray-300 rounded-md mb-4" />
+            <div class="flex items-center justify-center w-full">
+              <label for="insert-file"
+                class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                  <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+                  </svg>
+                  <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                    <span class="font-semibold">Click to upload</span> or drag
+                    and drop
+                  </p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                    SVG, PNG, JPG or GIF (MAX. 800x400px)
+                  </p>
+                </div>
+                <input id="insert-file" type="file" name="file" class="hidden" accept="image/*" />
+              </label>
+            </div>
+          </div>
         </div>
 
-        <!-- Modal Body -->
-        <div class="p-4">
-          <form id="updateCustomerTypeForm">
-            <input type="hidden" id="updateUniqueId" name="id" />
-            <div class="mb-4">
-              <label
-                for="updateUniqueType"
-                class="block text-gray-700 text-sm font-bold mb-2"
-                >Type:</label
-              >
-              <input
-                type="text"
-                id="updateUniqueType"
-                name="type"
-                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              />
+        <div class="w-2/3 pl-4">
+          <form id="insert-user-form" enctype="multipart/form-data" class="space-y-4">
+            <div>
+              <label for="insert-fullName" class="block text-sm font-medium text-gray-700">Full Name</label>
+              <input type="text" id="insert-fullName" name="fullName" required
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
             </div>
-            <div class="mb-4">
-              <label
-                for="updateUniquePointCondition"
-                class="block text-gray-700 text-sm font-bold mb-2"
-                >Point Condition:</label
-              >
-              <input
-                type="number"
-                id="updateUniquePointCondition"
-                name="pointCondition"
-                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              />
+            <div>
+              <label for="insert-phoneNumber" class="block text-sm font-medium text-gray-700">Phone Number</label>
+              <input type="text" id="insert-phoneNumber" name="phoneNumber" required
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
             </div>
-            <div class="flex justify-between">
-              <button
-                type="submit"
-                class="flex items-center px-6 py-2 transition ease-in duration-200 uppercase rounded-full hover:bg-gray-800 hover:text-white border-2 border-gray-900 focus:outline-none"
-              >
-                Update
+            <div>
+              <label for="insert-email" class="block text-sm font-medium text-gray-700">Email</label>
+              <input type="email" id="insert-email" name="email" required
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
+            </div>
+            <div>
+              <label for="insert-role" class="block text-sm font-medium text-gray-700">Role</label>
+              <select id="insert-role" name="roleId" required
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></select>
+            </div>
+            <div>
+              <label for="insert-address" class="block text-sm font-medium text-gray-700">Address</label>
+              <input type="text" id="insert-address" name="address" required
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
+            </div>
+            <div class="flex justify-end space-x-3">
+              <button type="button" id="close-insert-modal"
+                class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50">
+                Cancel
               </button>
-              <button
-                type="button"
-                id="deleteCustomerType"
-                class="flex items-center px-6 py-2 transition ease-in duration-200 uppercase rounded-full hover:bg-gray-800 hover:text-white border-2 border-gray-900 focus:outline-none ml-2"
-              >
-                Delete
+              <button type="submit"
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50">
+                Insert
               </button>
             </div>
           </form>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Add Customer Type Modal -->
-    <div
-      class="modal hidden fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center"
-      id="addCustomerTypeModal"
-    >
-      <div
-        class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full"
-      >
-        <!-- Modal Header -->
-        <div class="bg-gray-800 px-4 py-2 flex justify-between items-center">
-          <h4 class="text-white text-lg">Add Customer Type</h4>
-          <button
-            type="button"
-            class="close text-white"
-            id="closeAddCustomerTypeModal"
-          >
-            &times;
-          </button>
-        </div>
+  <!-- Customer Type Modal -->
+  <div class="modal hidden fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center"
+    id="customerTypeModal">
+    <div class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full">
+      <!-- Modal Header -->
+      <div class="bg-gray-800 px-4 py-2 flex justify-between items-center">
+        <h4 class="text-white text-lg">Rank Information</h4>
+        <button type="button" class="close text-white" id="closeCustomerTypeModal">
+          &times;
+        </button>
+      </div>
 
-        <!-- Modal Body -->
-        <div class="p-4">
-          <form id="addCustomerTypeForm">
-            <div class="mb-4">
-              <label
-                for="addType"
-                class="block text-gray-700 text-sm font-bold mb-2"
-                >Type:</label
-              >
-              <input
-                type="text"
-                id="addType"
-                name="type"
-                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              />
-            </div>
-            <div class="mb-4">
-              <label
-                for="addPointCondition"
-                class="block text-gray-700 text-sm font-bold mb-2"
-                >Point Condition:</label
-              >
-              <input
-                type="number"
-                id="addPointCondition"
-                name="pointCondition"
-                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              />
-            </div>
-            <button
-              type="submit"
-              class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            >
-              Add
+      <!-- Modal Body -->
+      <div class="p-4">
+        <table class="table-auto w-full">
+          <thead>
+            <tr>
+              <th class="px-4 py-2 border">ID</th>
+              <th class="px-4 py-2 border">Type</th>
+              <th class="px-4 py-2 border">Point Condition</th>
+            </tr>
+          </thead>
+          <tbody id="rankTableBody">
+            <!-- Data will be appended here via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="bg-gray-200 px-4 py-2 flex justify-end">
+        <!-- Add Customer Type Button -->
+        <button id="addCustomerType"
+          class="flex items-center px-6 py-2 transition ease-in duration-200 uppercase rounded-full hover:bg-gray-800 hover:text-white border-2 border-gray-900 focus:outline-none">
+          Add Customer Type
+        </button>
+        <button type="button" id="closeCustomerTypeModalFooter"
+          class="flex items-center px-6 py-2 transition ease-in duration-200 uppercase rounded-full hover:bg-gray-800 hover:text-white border-2 border-gray-900 focus:outline-none">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Update Customer Type Modal -->
+  <div class="modal hidden fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center"
+    id="updateCustomerTypeModal">
+    <div class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full">
+      <!-- Modal Header -->
+      <div class="bg-gray-800 px-4 py-2 flex justify-between items-center">
+        <h4 class="text-white text-lg">Update Customer Type</h4>
+        <button type="button" class="close text-white" id="closeUpdateCustomerTypeModal">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-4">
+        <form id="updateCustomerTypeForm">
+          <input type="hidden" id="updateUniqueId" name="id" />
+          <div class="mb-4">
+            <label for="updateUniqueType" class="block text-gray-700 text-sm font-bold mb-2">Type:</label>
+            <input type="text" id="updateUniqueType" name="type"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+          </div>
+          <div class="mb-4">
+            <label for="updateUniquePointCondition" class="block text-gray-700 text-sm font-bold mb-2">Point
+              Condition:</label>
+            <input type="number" id="updateUniquePointCondition" name="pointCondition"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+          </div>
+          <div class="flex justify-between">
+            <button type="submit"
+              class="flex items-center px-6 py-2 transition ease-in duration-200 uppercase rounded-full hover:bg-gray-800 hover:text-white border-2 border-gray-900 focus:outline-none">
+              Update
             </button>
-          </form>
-        </div>
+            <button type="button" id="deleteCustomerType"
+              class="flex items-center px-6 py-2 transition ease-in duration-200 uppercase rounded-full hover:bg-gray-800 hover:text-white border-2 border-gray-900 focus:outline-none ml-2">
+              Delete
+            </button>
+          </div>
+        </form>
       </div>
     </div>
-  </body>
+  </div>
+
+  <!-- Add Customer Type Modal -->
+  <div class="modal hidden fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center"
+    id="addCustomerTypeModal">
+    <div class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full">
+      <!-- Modal Header -->
+      <div class="bg-gray-800 px-4 py-2 flex justify-between items-center">
+        <h4 class="text-white text-lg">Add Customer Type</h4>
+        <button type="button" class="close text-white" id="closeAddCustomerTypeModal">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-4">
+        <form id="addCustomerTypeForm">
+          <div class="mb-4">
+            <label for="addType" class="block text-gray-700 text-sm font-bold mb-2">Type:</label>
+            <input type="text" id="addType" name="type"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+          </div>
+          <div class="mb-4">
+            <label for="addPointCondition" class="block text-gray-700 text-sm font-bold mb-2">Point Condition:</label>
+            <input type="number" id="addPointCondition" name="pointCondition"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+          </div>
+          <button type="submit"
+            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            Add
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
+
 </html>

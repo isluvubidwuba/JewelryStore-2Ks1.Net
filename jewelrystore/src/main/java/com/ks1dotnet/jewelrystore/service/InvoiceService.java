@@ -3,6 +3,7 @@ package com.ks1dotnet.jewelrystore.service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -257,7 +258,6 @@ public class InvoiceService implements IInvoiceService {
                         // Lưu Invoice trước để có ID
                         // tìm ra được voucher for user
                         // policy cho invoice type
-                        //
 
                         PromotionDTO promotionDTO = promotionService.getPromotionsByUserId(userId);
                         invoiceRepository.save(invoice);
@@ -276,8 +276,9 @@ public class InvoiceService implements IInvoiceService {
                         invoice.setTotalPrice(totalPrice);
                         invoice.setDiscountPrice(discountPrice);
                         // service add earn point bằng tổng tiêu / 100000
-                        iEarnPointsService.addPoints(userId, convertDoubleToInt(totalPrice / 100000));
-
+                        if (invoiceTypeId == 1) {
+                                iEarnPointsService.addPoints(userId, convertDoubleToInt(totalPrice / 100000));
+                        }
                         saveInvoice(invoice, invoiceDetails);
                         return invoice.getId();
                 } catch (BadRequestException e) {
@@ -331,83 +332,14 @@ public class InvoiceService implements IInvoiceService {
                 }
         }
 
-        @Override
-        public void validateBuybackDetails(Map<Integer, Integer> idDetailQuantityMap,
-                        Map<String, Integer> barcodeQuantityMap) {
-                // Bản đồ để tổng hợp số lượng sản phẩm từ idDetailQuantityMap
-                Map<String, Integer> totalQuantityMap = new HashMap<>();
-
-                // Duyệt qua tất cả các mục trong idDetailQuantityMap
-                for (Map.Entry<Integer, Integer> entry : idDetailQuantityMap.entrySet()) {
-                        // Tìm chi tiết hóa đơn theo ID
-                        InvoiceDetail detail = invoiceDetailRepository.findById(entry.getKey())
-                                        .orElseThrow(() -> new BadRequestException(
-                                                        "Invoice detail not found with ID: " + entry.getKey()));
-
-                        // Lấy barcode của sản phẩm từ chi tiết hóa đơn
-                        String barcode = detail.getProduct().getBarCode();
-                        // Tổng hợp số lượng sản phẩm từ idDetailQuantityMap
-                        totalQuantityMap.put(barcode, totalQuantityMap.getOrDefault(barcode, 0) + entry.getValue());
-
-                        // Kiểm tra nếu số lượng yêu cầu vượt quá số lượng có thể bán lại trong chi tiết
-                        // hóa đơn
-                        if (detail.getAvailableReturnQuantity() < entry.getValue()) {
-                                throw new BadRequestException(
-                                                "Not enough quantity available for buyback for detail ID: "
-                                                                + entry.getKey());
-                        }
-                }
-
-                // Duyệt qua tất cả các mục trong barcodeQuantityMap
-                for (Map.Entry<String, Integer> entry : barcodeQuantityMap.entrySet()) {
-                        String barcode = entry.getKey();
-                        Integer requestedQuantity = entry.getValue();
-                        Integer totalQuantity = totalQuantityMap.getOrDefault(barcode, 0);
-
-                        // Kiểm tra nếu tổng số lượng sản phẩm trong idDetailQuantityMap bằng với số
-                        // lượng yêu cầu trong barcodeQuantityMap
-                        if (!requestedQuantity.equals(totalQuantity)) {
-                                throw new BadRequestException(
-                                                "Total quantity for product with barcode " + barcode
-                                                                + " does not match the requested quantity.");
-                        }
-                }
-        }
-
-        @Override
-        @Transactional
-        public int createBuybackInvoice(InvoiceRequest request, Map<Integer, Integer> idDetailQuantityMap) {
-                validateBuybackDetails(idDetailQuantityMap, convertBarcodeQuantityMap(request.getBarcodeQuantityMap()));
-
-                // Chuyển đổi barcodeQuantityMap từ request
-                HashMap<String, Integer> barcodeQuantity = new HashMap<>();
-                for (Map.Entry<String, String> entry : request.getBarcodeQuantityMap().entrySet()) {
-                        barcodeQuantity.put(entry.getKey(), Integer.parseInt(entry.getValue()));
-                }
-
-                // Tạo hóa đơn từ chi tiết hóa đơn
-                int invoiceId = createInvoiceFromDetails(barcodeQuantity, request.getInvoiceTypeId(),
-                                request.getUserId(), request.getEmployeeId(), request.getPayment(), request.getNote());
-
-                // Cập nhật lại số lượng có thể bán lại của chi tiết hóa đơn gốc
-                for (Map.Entry<Integer, Integer> entry : idDetailQuantityMap.entrySet()) {
-                        InvoiceDetail detail = invoiceDetailRepository.findById(entry.getKey())
-                                        .orElseThrow(() -> new BadRequestException(
-                                                        "Invoice detail not found with ID: " + entry.getKey()));
-                        detail.setAvailableReturnQuantity(detail.getAvailableReturnQuantity() - entry.getValue());
-                        invoiceDetailRepository.save(detail);
-                }
-
-                return invoiceId;
-        }
-
-        private Map<String, Integer> convertBarcodeQuantityMap(Map<String, String> barcodeQuantityMap) {
-                Map<String, Integer> convertedMap = new HashMap<>();
-                for (Map.Entry<String, String> entry : barcodeQuantityMap.entrySet()) {
-                        convertedMap.put(entry.getKey(), Integer.parseInt(entry.getValue()));
-                }
-                return convertedMap;
-        }
+        // private Map<String, Integer> convertBarcodeQuantityMap(Map<String, String>
+        // barcodeQuantityMap) {
+        // Map<String, Integer> convertedMap = new HashMap<>();
+        // for (Map.Entry<String, String> entry : barcodeQuantityMap.entrySet()) {
+        // convertedMap.put(entry.getKey(), Integer.parseInt(entry.getValue()));
+        // }
+        // return convertedMap;
+        // }
 
         @Override
         public int convertDoubleToInt(double input) {
@@ -789,4 +721,166 @@ public class InvoiceService implements IInvoiceService {
                 }
         }
 
+        @Override
+        @Transactional
+        public int createBuybackInvoice(HashMap<Integer, Integer> barcodeQuantity, Integer invoiceTypeId,
+                        Integer userId, String employeeId, String payment, String note) {
+                validateBuybackDetails(barcodeQuantity);
+                HashMap<String, Integer> barcodeQuantityMap = new HashMap<>();
+                for (Map.Entry<Integer, Integer> entry : barcodeQuantity.entrySet()) {
+                        InvoiceDetail detail = invoiceDetailRepository.findById(entry.getKey())
+                                        .orElseThrow(() -> new BadRequestException(
+                                                        "Invoice detail not found with ID: " + entry.getKey()));
+                        String barcode = detail.getProduct().getBarCode();
+                        barcodeQuantityMap.put(barcode, barcodeQuantityMap.getOrDefault(barcode, 0) + entry.getValue());
+                }
+                // Tạo hóa đơn từ chi tiết hóa đơn
+                int invoiceId = createInvoiceFromDetails(barcodeQuantityMap, invoiceTypeId,
+                                userId, employeeId, payment, note);
+
+                // Cập nhật lại số lượng có thể bán lại của chi tiết hóa đơn gốc
+                for (Map.Entry<Integer, Integer> entry : barcodeQuantity.entrySet()) {
+                        InvoiceDetail detail = invoiceDetailRepository.findById(entry.getKey())
+                                        .orElseThrow(() -> new BadRequestException(
+                                                        "Invoice detail not found with ID: " + entry.getKey()));
+                        detail.setAvailableReturnQuantity(detail.getAvailableReturnQuantity() - entry.getValue());
+                        invoiceDetailRepository.save(detail);
+                }
+
+                return invoiceId;
+
+        }
+
+        @Override
+        public void validateBuybackDetails(Map<Integer, Integer> barcodeQuantityMap) {
+                // Duyệt qua tất cả các mục trong idDetailQuantityMap
+                for (Map.Entry<Integer, Integer> entry : barcodeQuantityMap.entrySet()) {
+                        // Tìm chi tiết hóa đơn theo ID
+                        InvoiceDetail detail = invoiceDetailRepository.findById(entry.getKey())
+                                        .orElseThrow(() -> new BadRequestException(
+                                                        "Invoice detail not found with ID: " + entry.getKey()));
+
+                        // Kiểm tra nếu số lượng yêu cầu vượt quá số lượng có thể bán lại trong chi tiết
+                        // hóa đơn
+                        if (detail.getAvailableReturnQuantity() < entry.getValue()) {
+                                throw new BadRequestException(
+                                                "Not enough quantity available for buyback for detail ID: "
+                                                                + entry.getKey());
+                        }
+                }
+
+        }
+
+        @Override
+        public double calculateStoreRevenue(String period, int year, Integer month) {
+                try {
+                        List<Invoice> invoices;
+                        if (period.equalsIgnoreCase("month")) {
+                                invoices = invoiceRepository.findByMonthAndYear(year, month);
+                        } else if (period.equalsIgnoreCase("year")) {
+                                invoices = invoiceRepository.findByYear(year);
+                        } else {
+                                throw new BadRequestException("Invalid period specified. Use 'month' or 'year'.");
+                        }
+
+                        double totalRevenue = 0.0;
+
+                        for (Invoice invoice : invoices) {
+                                if (invoice.isStatus()) {
+                                        if (invoice.getInvoiceType().getId() == 1) { // Sell
+                                                totalRevenue += invoice.getTotalPrice();
+                                        } else if (invoice.getInvoiceType().getId() == 3) { // Buy Back
+                                                totalRevenue -= invoice.getTotalPrice();
+                                        }
+                                }
+                        }
+
+                        return totalRevenue;
+                } catch (Exception e) {
+                        throw new RunTimeExceptionV1("Error calculating store revenue: ", e.getMessage());
+                }
+        }
+
+        @Override
+        public Map<String, Object> calculateRevenueAndInvoiceCount(String period) {
+                try {
+                        List<Invoice> invoices = new ArrayList<>();
+                        Date now = new Date();
+                        Date startDate = null;
+
+                        switch (period.toUpperCase()) {
+                                case "TODAY":
+                                        startDate = getStartOfDay(now);
+                                        break;
+                                case "YESTERDAY":
+                                        startDate = getStartOfDay(addDays(now, -1));
+                                        now = getEndOfDay(addDays(now, -1));
+                                        break;
+                                case "LAST_WEEK":
+                                        startDate = getStartOfDay(addDays(now, -7));
+                                        break;
+                                case "LAST_MONTH":
+                                        startDate = getStartOfDay(addMonths(now, -1));
+                                        break;
+                                case "LAST_90_DAYS":
+                                        startDate = getStartOfDay(addDays(now, -90));
+                                        break;
+                                default:
+                                        throw new BadRequestException("Invalid period specified.");
+                        }
+
+                        invoices = invoiceRepository.findByDateBetween(startDate, now);
+
+                        double totalRevenue = invoices.stream()
+                                        .filter(invoice -> invoice.getInvoiceType().getId() == 1 && invoice.isStatus())
+                                        .mapToDouble(Invoice::getTotalPrice)
+                                        .sum();
+
+                        long invoiceCount = invoices.stream()
+                                        .filter(invoice -> invoice.getInvoiceType().getId() == 1 && invoice.isStatus())
+                                        .count();
+
+                        Map<String, Object> result = new HashMap<>();
+                        result.put("totalRevenue", totalRevenue);
+                        result.put("invoiceCount", invoiceCount);
+
+                        return result;
+                } catch (Exception e) {
+                        throw new RunTimeExceptionV1("Error calculating revenue and invoice count: ", e.getMessage());
+                }
+        }
+
+        private Date getStartOfDay(Date date) {
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(date);
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+                return cal.getTime();
+        }
+
+        private Date getEndOfDay(Date date) {
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(date);
+                cal.set(Calendar.HOUR_OF_DAY, 23);
+                cal.set(Calendar.MINUTE, 59);
+                cal.set(Calendar.SECOND, 59);
+                cal.set(Calendar.MILLISECOND, 999);
+                return cal.getTime();
+        }
+
+        private Date addDays(Date date, int days) {
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(date);
+                cal.add(Calendar.DATE, days);
+                return cal.getTime();
+        }
+
+        private Date addMonths(Date date, int months) {
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(date);
+                cal.add(Calendar.MONTH, months);
+                return cal.getTime();
+        }
 }

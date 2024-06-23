@@ -49,4 +49,7 @@ public interface IUserInfoRepository extends JpaRepository<UserInfo, Integer> {
         @Query("SELECT u FROM UserInfo u WHERE u.role.id = 5 AND u.id = :id")
         public UserInfo findSupplierById(@Param("id") int id);
 
+        @Query("SELECT u FROM UserInfo u WHERE u.role.id = 4 AND u.id = :id")
+        public UserInfo findCustomerById(@Param("id") int id);
+
 }

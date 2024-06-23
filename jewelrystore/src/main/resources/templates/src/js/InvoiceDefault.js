@@ -1,4 +1,10 @@
 $(document).ready(function () {
+  // phân trang trong user modal
+  let currentPage = 0;
+  let totalPages = 0;
+  let searchTimeout;
+
+  //phần xuất hiện
   let productSoldDiv = $("#product-sold");
   let selectedProductsContainer = $("#selected-products");
   let totalPriceRaw = $("#totalPriceRaw");
@@ -106,11 +112,10 @@ $(document).ready(function () {
     let modalContent = `
             <p>Khách hàng: ${userName}</p>
             <p>ID khách hàng: ${userId}</p>
-            <p>Khuyến mãi: ${
-              userPromotion
-                ? userPromotion.name + " - " + userPromotion.value + "%"
-                : "Không có"
-            }</p>
+            <p>Khuyến mãi: ${userPromotion
+        ? userPromotion.name + " - " + userPromotion.value + "%"
+        : "Không có"
+      }</p>
             <p>Nhân viên: ${employeeID}</p>
             <p>Tổng số sản phẩm: ${Object.keys(productMap).length}</p>
         `;
@@ -218,33 +223,26 @@ $(document).ready(function () {
     const productCard = $(`
         <div id="product-${barcode}" class="product-card border p-4 mb-4 rounded-md shadow-md grid grid-cols-12 gap-4">
             <div class="col-span-4">
-                <img src="${productData.product.imgPath}" alt="${
-      productData.product.name
-    }" class="w-full h-auto rounded-md">
+                <img src="${productData.product.imgPath}" alt="${productData.product.name
+      }" class="w-full h-auto rounded-md">
             </div>
             <div class="col-span-8">
-                <h3 class="text-xl font-semibold mb-2">${
-                  productData.product.name
-                }</h3>
-                <p class="text-sm text-gray-600 mb-1"><strong>Mã sản phẩm:</strong> ${
-                  productData.product.productCode
-                }</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Chất liệu:</strong> ${
-                  productData.product.materialDTO.name
-                }</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Danh mục:</strong> ${
-                  productData.product.productCategoryDTO.name
-                }</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Barcode:</strong> ${
-                  productData.product.barCode
-                }</p>
+                <h3 class="text-xl font-semibold mb-2">${productData.product.name
+      }</h3>
+                <p class="text-sm text-gray-600 mb-1"><strong>Mã sản phẩm:</strong> ${productData.product.productCode
+      }</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Chất liệu:</strong> ${productData.product.materialDTO.name
+      }</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Danh mục:</strong> ${productData.product.productCategoryDTO.name
+      }</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Barcode:</strong> ${productData.product.barCode
+      }</p>
                 <p class="text-sm text-gray-600 mb-1"><strong>Giá tổng:</strong> ${new Intl.NumberFormat(
-                  "vi-VN",
-                  { style: "currency", currency: "VND" }
-                ).format(productData.totalPrice)}</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Số lượng:</strong> <span id="quantity-${barcode}">${
-      productData.quantity
-    }</span></p>
+        "vi-VN",
+        { style: "currency", currency: "VND" }
+      ).format(productData.totalPrice)}</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Số lượng:</strong> <span id="quantity-${barcode}">${productData.quantity
+      }</span></p>
             </div>
         </div>
     `);
@@ -258,13 +256,12 @@ $(document).ready(function () {
                 <td class="px-4 py-2">${productData.product.name}</td>
                 <td class="px-4 py-2">${productData.product.productCode}</td>
                 <td class="px-4 py-2 total-price">${new Intl.NumberFormat(
-                  "vi-VN",
-                  { style: "currency", currency: "VND" }
-                ).format(productData.totalPrice)}</td>
+      "vi-VN",
+      { style: "currency", currency: "VND" }
+    ).format(productData.totalPrice)}</td>
                 <td class="px-4 py-2">
-                    <input type="number" id="sidebar-quantity-${barcode}" class="quantity-input border p-1" value="${
-      productData.quantity
-    }" min="1" max="${productData.inventory}">
+                    <input type="number" id="sidebar-quantity-${barcode}" class="quantity-input border p-1" value="${productData.quantity
+      }" min="1" max="${productData.inventory}">
                 </td>
                 <td class="px-4 py-2">
                     <button class="remove-product-btn bg-red-500 text-white p-1" data-barcode="${barcode}">Xóa</button>
@@ -358,64 +355,61 @@ $(document).ready(function () {
     );
   }
 
-  function openUserModal() {
+
+
+
+
+
+
+
+  $("#add-user-button").click(function () {
+    const userId = $("#user-id-input").val().trim();
+    if (userId) {
+      getUserById(userId);
+    } else {
+      alert("Vui lòng nhập ID người dùng");
+    }
+  });
+
+  function getUserById(userId) {
+    console.log("Đang gọi API để lấy thông tin người dùng với ID:", userId);
     $.ajax({
-      url: "http://localhost:8080/earnpoints/rank",
+      url: `http://localhost:8080/userinfo/getcustomer/${userId}`,
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
       },
       success: function (data) {
-        if (data.status === "OK") {
-          const userTableBody = $("#user-table-body");
-          userTableBody.empty(); // Xóa dữ liệu cũ
+        console.log("Dữ liệu trả về từ API:", data); // Log toàn bộ dữ liệu trả về từ API
+        const user = data; // Không cần data.data nếu data đã là đối tượng người dùng
+        console.log("Thông tin của khách hàng cần tìm:", user); // Log thông tin của người dùng
+        if (user) {
+          $("#selected-user-info").removeClass("hidden");
+          $("#user-details").html(`
+            <p><strong>Tên:</strong> ${user.fullName}</p>
+            <p><strong>ID:</strong> ${user.id}</p>
+            <p><strong>Phone:</strong> ${user.phoneNumber.trim()}</p>
+            <p><strong>Email:</strong> ${user.email}</p>
+          `);
+          selectedUserId = user.id; // Gán giá trị cho biến selectedUserId
+          selectedUserName = user.fullName; // Gán giá trị cho biến selectedUserName
+          sessionStorage.setItem("selectedUserId", user.id); // Lưu ID người dùng vào sessionStorage
+          sessionStorage.setItem("selectedUserName", user.fullName); // Lưu tên người dùng vào sessionStorage
+          console.log("Selected User ID đã được lưu trữ: ", selectedUserId);
 
-          data.data.forEach((user) => {
-            const row = `
-                            <tr data-id="${user.userInfoDTO.id}" data-name="${user.userInfoDTO.fullName}">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${user.userInfoDTO.fullName}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.point}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <button type="button" class="select-user-btn text-blue-600 hover:text-blue-900">Chọn</button>
-                                </td>
-                            </tr>
-                        `;
-            userTableBody.append(row);
-          });
-
-          // Thêm sự kiện click cho các nút "Chọn"
-          $(".select-user-btn").click(function () {
-            const tr = $(this).closest("tr");
-            $("#user-table-body tr").removeClass("selected");
-            tr.addClass("selected");
-            const userId = tr.data("id");
-            const userName = tr.data("name");
-            selectUser(userId, userName);
-          });
-
-          $("#user-modal").removeClass("hidden");
+          fetchUserPromotions(user.id); // Gọi hàm để lấy khuyến mãi của người dùng
         } else {
-          alert("Unable to load user data");
+          alert("Không thể tải dữ liệu người dùng");
         }
       },
       error: function (error) {
-        console.error("Error loading user data", error);
-        alert("Error loading user data");
+        console.error("Lỗi khi tải dữ liệu người dùng", error); // Log lỗi nếu có
+        alert("Lỗi khi tải dữ liệu người dùng");
       },
     });
   }
 
-  function selectUser(id, name) {
-    selectedUserId = id;
-    selectedUserName = name;
-    $("#user-modal").addClass("hidden");
-    $("#selected-user-info").removeClass("hidden").find("#user-details").html(`
-        <p>${name}</p>
-        <p>ID: ${id}</p>
-    `);
 
-    fetchUserPromotions(id); // Gọi hàm để lấy khuyến mãi của người dùng
-  }
 
   function fetchUserPromotions(userId) {
     $.ajax({
@@ -523,7 +517,7 @@ $(document).ready(function () {
     $("#user-details").empty();
     $("#promotion-details").empty();
     $("#selected-products").empty();
-    $("#product-sold").children(":not(:first)").remove();
+    $("#product-sold").empty(); // Xóa tất cả các phần tử con của #product-sold
     updateTotalPrice();
   }
 
@@ -555,31 +549,26 @@ $(document).ready(function () {
                             <div class="text-gray-700 text-right">
                                 <div class="font-bold text-xl mb-2">HÓA ĐƠN</div>
                                 <div class="text-sm">Date: ${new Date(
-                                  invoiceData.createdDate
-                                ).toLocaleDateString()}</div>
-                                <div class="text-sm">Invoice #: ${
-                                  invoiceData.id
-                                }</div>
+            invoiceData.createdDate
+          ).toLocaleDateString()}</div>
+                                <div class="text-sm">Invoice #: ${invoiceData.id
+            }</div>
                             </div>
                         </div>
                         <div class="border-b-2 border-gray-300 pb-8 mb-8">
                             <h2 class="text-2xl font-bold mb-4">Thông Tin Khách Hàng và Nhân Viên</h2>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <div class="text-gray-700 mb-2"><strong>Khách Hàng:</strong> ${
-                                      userInfo.fullName
-                                    }</div>
-                                    <div class="text-gray-700 mb-2"><strong>ID:</strong> ${
-                                      userInfo.id
-                                    }</div>
+                                    <div class="text-gray-700 mb-2"><strong>Khách Hàng:</strong> ${userInfo.fullName
+            }</div>
+                                    <div class="text-gray-700 mb-2"><strong>ID:</strong> ${userInfo.id
+            }</div>
                                 </div>
                                 <div>
-                                    <div class="text-gray-700 mb-2"><strong>Nhân Viên:</strong> ${
-                                      employeeInfo.firstName
-                                    } ${employeeInfo.lastName}</div>
-                                    <div class="text-gray-700 mb-2"><strong>ID:</strong> ${
-                                      employeeInfo.id
-                                    }</div>
+                                    <div class="text-gray-700 mb-2"><strong>Nhân Viên:</strong> ${employeeInfo.firstName
+            } ${employeeInfo.lastName}</div>
+                                    <div class="text-gray-700 mb-2"><strong>ID:</strong> ${employeeInfo.id
+            }</div>
                                 </div>
                             </div>
                         </div>
@@ -594,44 +583,41 @@ $(document).ready(function () {
                             </thead>
                             <tbody>
                                 ${orderDetails
-                                  .map(
-                                    (order) => `
+              .map(
+                (order) => `
                                 <tr>
-                                    <td class="py-4 text-gray-700">${
-                                      order.productDTO.name
-                                    }</td>
-                                    <td class="py-4 text-gray-700">${
-                                      order.productDTO.productCode
-                                    }</td>
-                                    <td class="py-4 text-gray-700">${
-                                      order.quantity
-                                    }</td>
+                                    <td class="py-4 text-gray-700">${order.productDTO.name
+                  }</td>
+                                    <td class="py-4 text-gray-700">${order.productDTO.productCode
+                  }</td>
+                                    <td class="py-4 text-gray-700">${order.quantity
+                  }</td>
                                     <td class="py-4 text-gray-700">${new Intl.NumberFormat(
-                                      "vi-VN",
-                                      { style: "currency", currency: "VND" }
-                                    ).format(order.totalPrice)}</td>
+                    "vi-VN",
+                    { style: "currency", currency: "VND" }
+                  ).format(order.totalPrice)}</td>
                                 </tr>
                                 `
-                                  )
-                                  .join("")}
+              )
+              .join("")}
                             </tbody>
                         </table>
                         <div class="grid grid-cols-2 gap-4">
                             <div class="text-gray-700">Tổng giá gốc:</div>
                             <div class="text-gray-700 text-right">${new Intl.NumberFormat(
-                              "vi-VN",
-                              { style: "currency", currency: "VND" }
-                            ).format(invoiceData.totalPriceRaw)}</div>
+                "vi-VN",
+                { style: "currency", currency: "VND" }
+              ).format(invoiceData.totalPriceRaw)}</div>
                             <div class="text-gray-700">Giá giảm:</div>
                             <div class="text-gray-700 text-right">${new Intl.NumberFormat(
-                              "vi-VN",
-                              { style: "currency", currency: "VND" }
-                            ).format(invoiceData.discountPrice)}</div>
+                "vi-VN",
+                { style: "currency", currency: "VND" }
+              ).format(invoiceData.discountPrice)}</div>
                             <div class="text-gray-700 font-bold text-xl">Tổng giá:</div>
                             <div class="text-gray-700 font-bold text-xl text-right">${new Intl.NumberFormat(
-                              "vi-VN",
-                              { style: "currency", currency: "VND" }
-                            ).format(invoiceData.totalPrice)}</div>
+                "vi-VN",
+                { style: "currency", currency: "VND" }
+              ).format(invoiceData.totalPrice)}</div>
                         </div>
                         
                     </div>
