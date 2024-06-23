@@ -386,11 +386,17 @@ $(document).ready(function () {
         if (user) {
           $("#selected-user-info").removeClass("hidden");
           $("#user-details").html(`
-                    <p><strong>Tên:</strong> ${user.fullName}</p>
-                    <p><strong>ID:</strong> ${user.id}</p>
-                    <p><strong>Phone:</strong> ${user.phoneNumber.trim()}</p>
-                    <p><strong>Email:</strong> ${user.email}</p>
-                `);
+            <p><strong>Tên:</strong> ${user.fullName}</p>
+            <p><strong>ID:</strong> ${user.id}</p>
+            <p><strong>Phone:</strong> ${user.phoneNumber.trim()}</p>
+            <p><strong>Email:</strong> ${user.email}</p>
+          `);
+          selectedUserId = user.id; // Gán giá trị cho biến selectedUserId
+          selectedUserName = user.fullName; // Gán giá trị cho biến selectedUserName
+          sessionStorage.setItem("selectedUserId", user.id); // Lưu ID người dùng vào sessionStorage
+          sessionStorage.setItem("selectedUserName", user.fullName); // Lưu tên người dùng vào sessionStorage
+          console.log("Selected User ID đã được lưu trữ: ", selectedUserId);
+
           fetchUserPromotions(user.id); // Gọi hàm để lấy khuyến mãi của người dùng
         } else {
           alert("Không thể tải dữ liệu người dùng");
