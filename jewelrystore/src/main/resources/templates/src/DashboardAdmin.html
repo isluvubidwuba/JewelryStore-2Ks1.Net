@@ -12,6 +12,7 @@
     <script src="js/jquery.min.js"></script>
     <script src="js/test.js"></script>
     <script src="js/revenueEmployee.js"></script>
+    <script src="js/revenue.js"></script>
 
     <script
       defer
@@ -56,9 +57,96 @@
       <div class="w-full overflow-x-hidden border-t flex flex-col">
         <main class="w-full flex-grow p-6">
           <h1 class="text-3xl text-black pb-6">Dashboard Overview</h1>
-
           <div class="flex-1 p-6 bg-gray-100">
-            <h2 class="text-2xl font-semibold mb-4">View Performing</h2>
+            <h3 class="text-2xl font-semibold my-4">View Revenue Store</h3>
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-5 my-5 pb-7">
+              <!-- status -->
+              <div
+                class="bg-white shadow-lg rounded-lg col-span-1 p-4"
+                id="today-status"
+              >
+                <h5 class="uppercase text-xs tracking-wider font-extrabold">
+                  today
+                </h5>
+                <h1 class="capitalize text-lg mt-1 mb-1">
+                  <span class="num-3"></span>
+                  <span class="text-xs tracking-widest font-extrabold">
+                    / <span class="num-2"></span> orders</span
+                  >
+                </h1>
+              </div>
+              <!-- status -->
+
+              <!-- status -->
+              <div
+                class="bg-white shadow-lg rounded-lg col-span-1 p-4"
+                id="yesterday-status"
+              >
+                <h5 class="uppercase text-xs tracking-wider font-extrabold">
+                  yesterday
+                </h5>
+                <h1 class="capitalize text-lg mt-1 mb-1">
+                  <span class="num-3"></span>
+                  <span class="text-xs tracking-widest font-extrabold">
+                    / <span class="num-2"></span> orders</span
+                  >
+                </h1>
+              </div>
+              <!-- status -->
+
+              <!-- status -->
+              <div
+                class="bg-white shadow-lg rounded-lg col-span-1 p-4"
+                id="last-week-status"
+              >
+                <h5 class="uppercase text-xs tracking-wider font-extrabold">
+                  last week
+                </h5>
+                <h1 class="capitalize text-lg mt-1 mb-1">
+                  <span class="num-3"></span>
+                  <span class="text-xs tracking-widest font-extrabold">
+                    / <span class="num-2"></span> orders</span
+                  >
+                </h1>
+              </div>
+              <!-- status -->
+
+              <!-- status -->
+              <div
+                class="bg-white shadow-lg rounded-lg col-span-1 p-4"
+                id="last-month-status"
+              >
+                <h5 class="uppercase text-xs tracking-wider font-extrabold">
+                  last month
+                </h5>
+                <h1 class="capitalize text-lg mt-1 mb-1">
+                  <span class="num-3"></span>
+                  <span class="text-xs tracking-widest font-extrabold">
+                    / <span class="num-2"></span> orders</span
+                  >
+                </h1>
+              </div>
+              <!-- status -->
+
+              <!-- status -->
+              <div
+                class="bg-white shadow-lg rounded-lg col-span-1 lg:col-span-2 p-4"
+                id="last-90-days-status"
+              >
+                <h5 class="uppercase text-xs tracking-wider font-extrabold">
+                  last 90-days
+                </h5>
+                <h1 class="capitalize text-lg mt-1 mb-1">
+                  <span class="num-3"></span>
+                  <span class="text-xs tracking-widest font-extrabold">
+                    / <span class="num-2"></span> orders</span
+                  >
+                </h1>
+              </div>
+              <!-- status -->
+            </div>
+
+            <h3 class="text-2xl font-semibold my-4">View Performing</h3>
             <div class="mb-4">
               <label for="revenuePeriod" class="text-lg font-medium"
                 >Chọn khoảng thời gian:</label
@@ -105,6 +193,7 @@
                 class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4"
               ></div>
             </div>
+
             <div
               class="max-w-full mx-auto p-6 mb-6 bg-white rounded-lg shadow-md"
             >

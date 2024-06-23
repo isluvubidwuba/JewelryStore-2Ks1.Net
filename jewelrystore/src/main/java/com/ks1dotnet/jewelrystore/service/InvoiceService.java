@@ -3,6 +3,7 @@ package com.ks1dotnet.jewelrystore.service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -770,4 +771,116 @@ public class InvoiceService implements IInvoiceService {
 
         }
 
+        @Override
+        public double calculateStoreRevenue(String period, int year, Integer month) {
+                try {
+                        List<Invoice> invoices;
+                        if (period.equalsIgnoreCase("month")) {
+                                invoices = invoiceRepository.findByMonthAndYear(year, month);
+                        } else if (period.equalsIgnoreCase("year")) {
+                                invoices = invoiceRepository.findByYear(year);
+                        } else {
+                                throw new BadRequestException("Invalid period specified. Use 'month' or 'year'.");
+                        }
+
+                        double totalRevenue = 0.0;
+
+                        for (Invoice invoice : invoices) {
+                                if (invoice.isStatus()) {
+                                        if (invoice.getInvoiceType().getId() == 1) { // Sell
+                                                totalRevenue += invoice.getTotalPrice();
+                                        } else if (invoice.getInvoiceType().getId() == 3) { // Buy Back
+                                                totalRevenue -= invoice.getTotalPrice();
+                                        }
+                                }
+                        }
+
+                        return totalRevenue;
+                } catch (Exception e) {
+                        throw new RunTimeExceptionV1("Error calculating store revenue: ", e.getMessage());
+                }
+        }
+
+        @Override
+        public Map<String, Object> calculateRevenueAndInvoiceCount(String period) {
+                try {
+                        List<Invoice> invoices = new ArrayList<>();
+                        Date now = new Date();
+                        Date startDate = null;
+
+                        switch (period.toUpperCase()) {
+                                case "TODAY":
+                                        startDate = getStartOfDay(now);
+                                        break;
+                                case "YESTERDAY":
+                                        startDate = getStartOfDay(addDays(now, -1));
+                                        now = getEndOfDay(addDays(now, -1));
+                                        break;
+                                case "LAST_WEEK":
+                                        startDate = getStartOfDay(addDays(now, -7));
+                                        break;
+                                case "LAST_MONTH":
+                                        startDate = getStartOfDay(addMonths(now, -1));
+                                        break;
+                                case "LAST_90_DAYS":
+                                        startDate = getStartOfDay(addDays(now, -90));
+                                        break;
+                                default:
+                                        throw new BadRequestException("Invalid period specified.");
+                        }
+
+                        invoices = invoiceRepository.findByDateBetween(startDate, now);
+
+                        double totalRevenue = invoices.stream()
+                                        .filter(invoice -> invoice.getInvoiceType().getId() == 1 && invoice.isStatus())
+                                        .mapToDouble(Invoice::getTotalPrice)
+                                        .sum();
+
+                        long invoiceCount = invoices.stream()
+                                        .filter(invoice -> invoice.getInvoiceType().getId() == 1 && invoice.isStatus())
+                                        .count();
+
+                        Map<String, Object> result = new HashMap<>();
+                        result.put("totalRevenue", totalRevenue);
+                        result.put("invoiceCount", invoiceCount);
+
+                        return result;
+                } catch (Exception e) {
+                        throw new RunTimeExceptionV1("Error calculating revenue and invoice count: ", e.getMessage());
+                }
+        }
+
+        private Date getStartOfDay(Date date) {
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(date);
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+                return cal.getTime();
+        }
+
+        private Date getEndOfDay(Date date) {
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(date);
+                cal.set(Calendar.HOUR_OF_DAY, 23);
+                cal.set(Calendar.MINUTE, 59);
+                cal.set(Calendar.SECOND, 59);
+                cal.set(Calendar.MILLISECOND, 999);
+                return cal.getTime();
+        }
+
+        private Date addDays(Date date, int days) {
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(date);
+                cal.add(Calendar.DATE, days);
+                return cal.getTime();
+        }
+
+        private Date addMonths(Date date, int months) {
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(date);
+                cal.add(Calendar.MONTH, months);
+                return cal.getTime();
+        }
 }

@@ -327,4 +327,38 @@ public class InvoiceController {
         }
     }
 
+    @GetMapping("/revenue/store")
+    public ResponseEntity<ResponseData> calculateRevenueByStore(@RequestParam String period,
+            @RequestParam int year,
+            @RequestParam(required = false) Integer month) {
+        try {
+            double revenue = invoiceService.calculateStoreRevenue(period, year, month);
+            ResponseData responseData = new ResponseData(HttpStatus.OK, "Retrieved store revenue successfully",
+                    revenue);
+            return new ResponseEntity<>(responseData, HttpStatus.OK);
+        } catch (BadRequestException e) {
+            ResponseData responseData = new ResponseData(HttpStatus.BAD_REQUEST, e.getMessage(), null);
+            return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            ResponseData responseData = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
+            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/revenue/invoice-count")
+    public ResponseEntity<ResponseData> getRevenueAndInvoiceCount(@RequestParam String period) {
+        try {
+            Map<String, Object> result = invoiceService.calculateRevenueAndInvoiceCount(period);
+            ResponseData responseData = new ResponseData(HttpStatus.OK,
+                    "Retrieved revenue and invoice count successfully", result);
+            return new ResponseEntity<>(responseData, HttpStatus.OK);
+        } catch (BadRequestException e) {
+            ResponseData responseData = new ResponseData(HttpStatus.BAD_REQUEST, e.getMessage(), null);
+            return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            ResponseData responseData = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
+            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

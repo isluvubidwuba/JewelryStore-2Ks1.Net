@@ -68,4 +68,8 @@ public interface IInvoiceService {
         public int createBuybackInvoice(HashMap<Integer, Integer> barcodeQuantity, Integer invoiceTypeId,
                         Integer userId, String employeeId, String payment, String note);
 
+        public double calculateStoreRevenue(String period, int year, Integer month);
+
+        public Map<String, Object> calculateRevenueAndInvoiceCount(String period);
+
 }
