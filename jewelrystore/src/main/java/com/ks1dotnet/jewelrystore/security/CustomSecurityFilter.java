@@ -117,7 +117,7 @@ public class CustomSecurityFilter {
                                                                 "/userinfo/searchcustomer", "userinfo/upload",
                                                                 "userinfo/uploadget", "/customertype/findall",
                                                                 "/userinfo/listsupplier",
-                                                                "/userinfo/searchsupplier")
+                                                                "/userinfo/searchsupplier", "/userinfo/getcustomer/**")
                                                 .hasAnyAuthority("STAFF", "MANAGER", "ADMIN")
 
                                                 .requestMatchers("/userinfo/update",

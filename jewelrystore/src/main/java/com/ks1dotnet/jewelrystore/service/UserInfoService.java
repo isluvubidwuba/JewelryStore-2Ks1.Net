@@ -358,4 +358,17 @@ public class UserInfoService implements IUserInfoService {
 
     }
 
+    @Override
+    public ResponseData getCustomerInfo(int id) {
+        try {
+            UserInfo userInfo = iUserInfoRepository.findCustomerById(id);
+            ResponseData responseData = new ResponseData();
+            responseData.setData(userInfo.getDTO());
+            responseData.setStatus(HttpStatus.OK);
+            return responseData;
+        } catch (Exception e) {
+            throw new RunTimeExceptionV1("Find Customer error", e.getMessage());
+        }
+    }
+
 }
