@@ -129,7 +129,12 @@ const sendOtp = (idEmploy) => {
       }
     },
     error: (error) => {
-      console.error("Error:", error);
+      if (error.responseJSON) {
+        alert(error.responseJSON.desc);
+      } else {
+        console.error("Error while send OTP to employee email : ", error);
+        alert("Error while send OTP to employee email!");
+      }
     },
   });
 };
@@ -146,7 +151,12 @@ const validateOtp = (idEmploy, otp) => {
       }
     },
     error: (error) => {
-      console.error("Error:", error);
+      if (error.responseJSON) {
+        alert(error.responseJSON.desc);
+      } else {
+        console.error("Error while validate OTP : ", error);
+        alert("Error validate OTP!");
+      }
     },
   });
 };
@@ -163,13 +173,21 @@ const changePasss = (password) => {
     success: ({ status, desc, data }) => {
       _token = null;
       $("#resendButton").attr("data-idEm", "");
-      if (status == "OK") toggleForms("#changePassForm", "#loginForm");
+      if (status == "OK") {
+        alert("Change password successfully");
+        toggleForms("#changePassForm", "#loginForm");
+      }
       if (status !== "OK") {
         alert(desc);
       }
     },
     error: (error) => {
-      console.error("Error:", error);
+      if (error.responseJSON) {
+        alert(error.responseJSON.desc);
+      } else {
+        console.error("Error while change password : ", error);
+        alert("Error while change password!");
+      }
     },
   });
 };

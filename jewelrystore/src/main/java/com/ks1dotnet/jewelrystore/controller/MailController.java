@@ -46,10 +46,10 @@ public class MailController {
     public ResponseEntity<?> sendInvoice(@PathVariable String idEmp) {
         try {
             if (!idEmp.startsWith("SE"))
-                throw new ResourceNotFoundException("No employee found " + idEmp);
+                throw new ResourceNotFoundException("No employee found with id: " + idEmp);
             Employee emp = iEmployeeService.findById(idEmp);
             if (emp == null) {
-                throw new ResourceNotFoundException("No employee found " + idEmp);
+                throw new ResourceNotFoundException("No employee found: " + idEmp);
             }
 
             ResponseData response = mailService.sendOtpEmail(emp.getEmail(),
@@ -63,7 +63,8 @@ public class MailController {
             return new ResponseEntity<>(response, response.getStatus());
 
         } catch (ResourceNotFoundException e) {
-            ResponseData errorResponse = new ResponseData(HttpStatus.NOT_FOUND, e.getMessage(), null);
+            ResponseData errorResponse =
+                    new ResponseData(HttpStatus.NOT_FOUND, e.getMessage(), null);
             return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             ResponseData errorResponse = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR,

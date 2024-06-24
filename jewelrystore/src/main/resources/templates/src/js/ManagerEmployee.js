@@ -81,6 +81,7 @@ function renderEmployees(employees) {
                   <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" onclick="viewEmployee2('${
                     employee.id
                   }')">Revenue</button>
+                  
               </td>
           </tr>
       `;
@@ -173,7 +174,7 @@ function viewEmployee(id) {
         $("#viewStatus").val(employee.status ? "true" : "false");
 
         // Kiểm tra trạng thái và ẩn/hiện nút "Delete"
-        if (employee.status) {
+        if (!employee.status) {
           $("#deleteEmployeeBtn").removeClass("hidden");
         } else {
           $("#deleteEmployeeBtn").addClass("hidden");
@@ -298,6 +299,7 @@ function handleInsertEmployee(event) {
     success: function (response) {
       if (response.status === "OK") {
         alert(response.desc);
+        handleSendMailEmployee(response.data);
         closeModal();
         fetchEmployees(currentPage);
       } else {
@@ -315,6 +317,30 @@ function handleInsertEmployee(event) {
   });
 }
 
+function handleSendMailEmployee(idEmploy) {
+  $.ajax({
+    url: `http://localhost:8080/mail/sendInfo/${idEmploy}`,
+    type: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    success: function (response) {
+      if (response.status === "OK") {
+        alert(response.desc);
+      } else {
+        alert(response.desc);
+      }
+    },
+    error: function (error) {
+      if (error.responseJSON) {
+        alert("Error while send mail employee: " + error.responseJSON.desc);
+      } else {
+        console.error("Error while send mail employee: ", error);
+        alert("Error send mail user!");
+      }
+    },
+  });
+}
 function initializeSearchForm() {
   $("#dropdown-button").click(function () {
     $("#dropdown").toggleClass("hidden");
