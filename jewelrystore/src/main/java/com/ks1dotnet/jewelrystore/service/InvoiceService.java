@@ -90,6 +90,12 @@ public class InvoiceService implements IInvoiceService {
         @Value("${fileUpload.userPath}")
         private String filePath;
 
+        @Value("${fileUpload.promotionPath}")
+        private String promotionPath;
+
+        @Value("${fileUpload.productPath}")
+        private String productPath;
+
         @Value("${firebase.img-url}")
         private String url;
 
@@ -186,16 +192,25 @@ public class InvoiceService implements IInvoiceService {
                         finalPrice *= invoiceType.getRate();
                         InvoiceDetailDTO invoiceDetailDTO = new InvoiceDetailDTO();
                         ProductDTO productDTO = product.getDTO();
-
-                        productDTO.setImgPath(url.trim() + filePath.trim() + productDTO.getImgPath());
+                        productDTO.setImgPath(url.trim() + productPath.trim() + productDTO.getImgPath());
 
                         invoiceDetailDTO.setProductDTO(productDTO);
                         invoiceDetailDTO.setPrice(
                                         ((priceBefore + product.getFee()) * invoiceType.getRate()) * quantity);
                         invoiceDetailDTO.setQuantity(quantity);
                         invoiceDetailDTO.setTotalPrice(finalPrice * quantity);
+
                         invoiceDetailDTO.setListPromotion(
-                                        promotions.stream().map(Promotion::getDTO).collect(Collectors.toList()));
+                                        promotions.stream()
+                                                        .map(promotion -> {
+                                                                PromotionDTO dto = promotion.getDTO();
+                                                                String imageUrl = url.trim() + promotionPath.trim()
+                                                                                + promotion.getImage();
+                                                                dto.setImage(imageUrl);
+                                                                return dto;
+                                                        })
+                                                        .collect(Collectors.toList()));
+
                         if (invoiceType.getId() == 1) {
                                 invoiceDetailDTO.setAvailableReturnQuantity(quantity);
                         } else if (invoiceType.getId() == 3) {
