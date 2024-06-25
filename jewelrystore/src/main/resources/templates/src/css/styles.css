@@ -676,6 +676,10 @@ video {
   margin-top: 1rem;
   margin-bottom: 1rem;
 }
+.my-5 {
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+}
 .my-6 {
   margin-top: 1.5rem;
   margin-bottom: 1.5rem;
@@ -1722,6 +1726,9 @@ video {
 .pb-6 {
   padding-bottom: 1.5rem;
 }
+.pb-7 {
+  padding-bottom: 1.75rem;
+}
 .pb-8 {
   padding-bottom: 2rem;
 }
@@ -1841,6 +1848,9 @@ video {
 .uppercase {
   text-transform: uppercase;
 }
+.capitalize {
+  text-transform: capitalize;
+}
 .leading-5 {
   line-height: 1.25rem;
 }
@@ -1861,6 +1871,9 @@ video {
 }
 .tracking-wider {
   letter-spacing: 0.05em;
+}
+.tracking-widest {
+  letter-spacing: 0.1em;
 }
 .text-black {
   --tw-text-opacity: 1;
@@ -2593,6 +2606,10 @@ video {
   }
 }
 @media (min-width: 1024px) {
+
+  .lg\:col-span-2 {
+    grid-column: span 2 / span 2;
+  }
 
   .lg\:block {
     display: block;
