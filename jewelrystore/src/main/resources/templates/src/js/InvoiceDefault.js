@@ -1,9 +1,4 @@
 $(document).ready(function () {
-  // phân trang trong user modal
-  let currentPage = 0;
-  let totalPages = 0;
-  let searchTimeout;
-
   //phần xuất hiện
   let productSoldDiv = $("#product-sold");
   let selectedProductsContainer = $("#selected-products");
@@ -19,6 +14,10 @@ $(document).ready(function () {
   let userPromotion = null; // Biến để lưu khuyến mãi của người dùng
   let createdInvoiceId = null; // Biến để lưu ID của hóa đơn vừa được tạo
 
+  //function
+  setupInsertModalToggle();
+
+
   $("#add-barcode-button").click(function () {
     const barcode = $("#barcode-input").val().trim();
     if (barcode) {
@@ -27,13 +26,219 @@ $(document).ready(function () {
     }
   });
 
-  $("#open-user-modal").click(function () {
-    openUserModal();
+
+
+
+
+
+
+
+  function setupInsertModalToggle() {
+    // Function to display the image preview
+    function readURL(input) {
+      if (input.files && input.files[0]) {
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+          $('#insertEmployeeImagePreview').attr('src', e.target.result).show();
+        };
+
+        reader.readAsDataURL(input.files[0]); // Convert the file to a Data URL
+      } else {
+        $('#insertEmployeeImagePreview').attr('src', '#').hide();
+      }
+    }
+
+    // Event listener for image file input change
+    $('#insert-file').change(function (e) {
+      readURL(this);
+    });
+
+    // Form validation functions
+    function validateForm(form) {
+      const email = form.find('input[name="email"]').val();
+      const phoneNumber = form.find('input[name="phoneNumber"]').val();
+
+      if (!isValidEmail(email)) {
+        alert("Invalid email address.");
+        return false;
+      }
+
+      if (!isValidPhoneNumber(phoneNumber)) {
+        alert("Invalid phone number. It should contain only digits and be between 10 to 12 digits long.");
+        return false;
+      }
+
+      return true;
+    }
+
+    function isValidEmail(email) {
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      return emailPattern.test(email);
+    }
+
+    function isValidPhoneNumber(phoneNumber) {
+      const phonePattern = /^\d{10,12}$/;
+      return phonePattern.test(phoneNumber);
+    }
+
+    // Form submission
+    $('#insert-user-form').on('submit', function (e) {
+      e.preventDefault();
+
+      var form = $(this);
+
+      if (!validateForm(form)) {
+        return;
+      }
+
+      var formData = new FormData(form[0]);
+
+      // Log the form data for debugging
+      for (var pair of formData.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
+      }
+
+      $.ajax({
+        url: "http://localhost:8080/userinfo/insert",
+        method: "POST",
+        processData: false,
+        contentType: false,
+        data: formData,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        success: function (response) {
+          alert(response.desc || 'User inserted successfully');
+          $('#insertUserModal').addClass('hidden');
+          clearInsertForm(); // Clear form fields
+          getUserById(response.data.id);
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          var response = jqXHR.responseJSON;
+          alert(response.desc || 'Error inserting user: ' + errorThrown);
+        }
+      });
+    });
+
+    // Show modal
+    $('#insert-customer-button').click(function () {
+      $('#insertUserModal').removeClass('hidden');
+    });
+
+    // Hide modal
+    $('#close-insert-modal').click(function () {
+      $('#insertUserModal').addClass('hidden');
+      clearInsertForm(); // Clear form data when the modal is closed
+    });
+  }
+
+  // Function to clear the form data
+  function clearInsertForm() {
+    $('#insert-user-form')[0].reset();
+    $('#insertEmployeeImagePreview').attr('src', '#').hide();
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  $("#search-numerphone-customer").on("input", function () {
+    var inputValue = $(this).val();
+    if (inputValue) {
+      $("#clear-numerphone-button").show();
+    } else {
+      $("#clear-numerphone-button").hide();
+    }
   });
 
-  $("#close-user-modal").click(function () {
-    closeModal();
+  $("#clear-numerphone-button").click(function () {
+    $("#search-numerphone-customer").val("");
+    $(this).hide();
   });
+
+  $("#search-numerphone-button").click(function () {
+    var phone = $("#search-numerphone-customer").val();
+    if (!phone) {
+      alert("Enter Numberphone please !!!");
+      return;
+    }
+
+    var apiUrl = `http://localhost:8080/userinfo/phonenumbercustomer?phone=${phone}`;
+
+    $.ajax({
+      url: apiUrl,
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      success: function (response) {
+        if (response.status === "OK" && response.data) {
+          var userInfo = response.data;
+          var userInfoContent = `
+            <p><strong>ID:</strong> ${userInfo.id}</p>
+            <p><strong>Full Name:</strong> ${userInfo.fullName}</p>
+            <p><strong>Phone Number:</strong> ${userInfo.phoneNumber}</p>
+            <p><strong>Email:</strong> ${userInfo.email}</p>
+            <p><strong>Address:</strong> ${userInfo.address}</p>
+            <p><strong>Role:</strong> ${userInfo.role.name}</p>
+          `;
+          $("#user-info-content").html(userInfoContent);
+          $("#user-info-modal").removeClass("hidden");
+        } else {
+          alert(response.desc);
+        }
+      },
+      error: function (xhr, status, error) {
+        if (xhr.responseJSON && xhr.responseJSON.desc) {
+          alert(xhr.responseJSON.desc);
+        } else {
+          console.error("Error fetching user info:", error);
+          alert("An error occurred while searching for a user");
+        }
+      },
+    });
+  });
+
+  $("#close-modal").click(function () {
+    $("#user-info-modal").addClass("hidden");
+    clearInput();
+  });
+
+  function clearInput() {
+    $("#search-numerphone-customer").val("");
+    $("#clear-numerphone-button").hide();
+  }
+
+  $("#user-id-input").on("input", function () {
+    var inputValue = $(this).val();
+    if (inputValue) {
+      $("#clear-user-id-button").show();
+    } else {
+      $("#clear-user-id-button").hide();
+    }
+  });
+
+  $("#clear-user-id-button").click(function () {
+    $("#user-id-input").val("");
+    $(this).hide();
+  });
+
+  function clearUserIdInput() {
+    $("#user-id-input").val("");
+    $("#clear-user-id-button").hide();
+  }
 
   $("#confirm-user-selection").click(function () {
     const selectedUserElement = $("#user-table-body tr.selected");
@@ -105,19 +310,19 @@ $(document).ready(function () {
     console.log("employeeID:", employeeID);
 
     if (!userId || !userName || !productMap || !employeeID) {
-      alert("Thông tin không đầy đủ. Vui lòng kiểm tra lại.");
+      alert("TInformation is incomplete. Please check again !!!");
       return;
     }
 
     let modalContent = `
-            <p>Khách hàng: ${userName}</p>
-            <p>ID khách hàng: ${userId}</p>
-            <p>Khuyến mãi: ${userPromotion
+            <p>Client: ${userName}</p>
+            <p>ID Client: ${userId}</p>
+            <p>Promotion: ${userPromotion
         ? userPromotion.name + " - " + userPromotion.value + "%"
-        : "Không có"
+        : "Do not have !!!"
       }</p>
-            <p>Nhân viên: ${employeeID}</p>
-            <p>Tổng số sản phẩm: ${Object.keys(productMap).length}</p>
+            <p>Employee: ${employeeID}</p>
+            <p>Total number of products: ${Object.keys(productMap).length}</p>
         `;
 
     $("#confirm-modal-content").html(modalContent);
@@ -155,6 +360,7 @@ $(document).ready(function () {
         quantity: 1,
         invoiceTypeId: 1,
       }),
+      contentType: "application/json",
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -173,27 +379,29 @@ $(document).ready(function () {
           renderSidebarProduct(barcode);
           updateTotalPrice();
           // Hiển thị thông báo thành công
-          showToast("Thêm sản phẩm thành công", "success");
+          showToast("Added product successfully", "success");
         } else {
           // Hiển thị thông báo lỗi từ phản hồi của API
           showToast(
-            response.desc || "Có lỗi xảy ra, vui lòng thử lại.",
+            response.desc || "An error occurred, please try again !!!",
             "error"
           );
         }
       },
       error: function (error) {
-        console.error("Error fetching product data", error);
+        const response = error.responseJSON;
+        console.log("Error fetching product data:", error);
         // Hiển thị thông báo lỗi nếu yêu cầu AJAX gặp lỗi
-        showToast("Product Out Of Stock");
+        showToast(response.desc || "Product Out Of Stock", "error");
       },
     });
   }
+
   function showToast(message, type) {
     const toastContainer = $("#toast-container");
     const toast = $(`
-            <div class="toast p-4 rounded-lg shadow-md text-white font-medium"></div>
-        `).text(message);
+          <div class="toast p-4 rounded-lg shadow-md text-white font-medium"></div>
+      `).text(message);
 
     if (type === "success") {
       toast.addClass("bg-green-500");
@@ -228,19 +436,19 @@ $(document).ready(function () {
             <div class="col-span-8">
                 <h3 class="text-xl font-semibold mb-2">${productData.product.name
       }</h3>
-                <p class="text-sm text-gray-600 mb-1"><strong>Mã sản phẩm:</strong> ${productData.product.productCode
+                <p class="text-sm text-gray-600 mb-1"><strong>Product code: </strong> ${productData.product.productCode
       }</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Chất liệu:</strong> ${productData.product.materialDTO.name
+                <p class="text-sm text-gray-600 mb-1"><strong>Material: </strong> ${productData.product.materialDTO.name
       }</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Danh mục:</strong> ${productData.product.productCategoryDTO.name
+                <p class="text-sm text-gray-600 mb-1"><strong>Category: </strong> ${productData.product.productCategoryDTO.name
       }</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Barcode:</strong> ${productData.product.barCode
+                <p class="text-sm text-gray-600 mb-1"><strong>Barcode: </strong> ${productData.product.barCode
       }</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Giá tổng:</strong> ${new Intl.NumberFormat(
+                <p class="text-sm text-gray-600 mb-1"><strong>Toltal price: </strong> ${new Intl.NumberFormat(
         "vi-VN",
         { style: "currency", currency: "VND" }
       ).format(productData.totalPrice)}</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Số lượng:</strong> <span id="quantity-${barcode}">${productData.quantity
+                <p class="text-sm text-gray-600 mb-1"><strong>Quantity: </strong> <span id="quantity-${barcode}">${productData.quantity
       }</span></p>
             </div>
         </div>
@@ -263,7 +471,7 @@ $(document).ready(function () {
       }" min="1" max="${productData.inventory}">
                 </td>
                 <td class="px-4 py-2">
-                    <button class="remove-product-btn bg-red-500 text-white p-1" data-barcode="${barcode}">Xóa</button>
+                    <button class="remove-product-btn bg-red-500 text-white p-1" data-barcode="${barcode}">Delete</button>
                 </td>
             </tr>
         `);
@@ -354,18 +562,17 @@ $(document).ready(function () {
     );
   }
 
-
   $("#add-user-button").click(function () {
     const userId = $("#user-id-input").val().trim();
     if (userId) {
       getUserById(userId);
+      clearUserIdInput();
     } else {
-      alert("Vui lòng nhập ID người dùng");
+      alert("Please enter user ID !!!");
     }
   });
 
   function getUserById(userId) {
-    console.log("Đang gọi API để lấy thông tin người dùng với ID:", userId);
     $.ajax({
       url: `http://localhost:8080/userinfo/getcustomer/${userId}`,
       method: "GET",
@@ -373,36 +580,30 @@ $(document).ready(function () {
         Authorization: `Bearer ${token}`,
       },
       success: function (data) {
-        console.log("Dữ liệu trả về từ API:", data); // Log toàn bộ dữ liệu trả về từ API
         const user = data; // Không cần data.data nếu data đã là đối tượng người dùng
-        console.log("Thông tin của khách hàng cần tìm:", user); // Log thông tin của người dùng
         if (user) {
           $("#selected-user-info").removeClass("hidden");
           $("#user-details").html(`
-            <p><strong>Tên:</strong> ${user.fullName}</p>
-            <p><strong>ID:</strong> ${user.id}</p>
-            <p><strong>Phone:</strong> ${user.phoneNumber.trim()}</p>
-            <p><strong>Email:</strong> ${user.email}</p>
+            <p><strong>Name: </strong> ${user.fullName}</p>
+            <p><strong>ID: </strong> ${user.id}</p>
+            <p><strong>Phone: </strong> ${user.phoneNumber.trim()}</p>
+            <p><strong>Email: </strong> ${user.email}</p>
           `);
           selectedUserId = user.id; // Gán giá trị cho biến selectedUserId
           selectedUserName = user.fullName; // Gán giá trị cho biến selectedUserName
           sessionStorage.setItem("selectedUserId", user.id); // Lưu ID người dùng vào sessionStorage
           sessionStorage.setItem("selectedUserName", user.fullName); // Lưu tên người dùng vào sessionStorage
-          console.log("Selected User ID đã được lưu trữ: ", selectedUserId);
-
           fetchUserPromotions(user.id); // Gọi hàm để lấy khuyến mãi của người dùng
         } else {
-          alert("Không thể tải dữ liệu người dùng");
+          alert("Unable to load user data !!!");
         }
       },
       error: function (error) {
-        console.error("Lỗi khi tải dữ liệu người dùng", error); // Log lỗi nếu có
-        alert("Lỗi khi tải dữ liệu người dùng");
+        console.error("Error loading user data !!!", error); // Log lỗi nếu có
+        alert("Error loading user data !!!");
       },
     });
   }
-
-
 
   function fetchUserPromotions(userId) {
     $.ajax({
@@ -421,10 +622,10 @@ $(document).ready(function () {
           if (userPromotion) {
             const promotionInfo = `
                             <div class="p-2 border-b border-gray-200">
-                                <p><strong>Tên:</strong> ${userPromotion.name}</p>
-                                <p><strong>Value:</strong> ${userPromotion.value}%</p>
-                                <p><strong>Start day:</strong> ${userPromotion.startDate}</p>
-                                <p><strong>End date:</strong> ${userPromotion.endDate}</p>
+                                <p><strong>Name: </strong> ${userPromotion.name}</p>
+                                <p><strong>Value: </strong> ${userPromotion.value}%</p>
+                                <p><strong>Start day: </strong> ${userPromotion.startDate}</p>
+                                <p><strong>End date: </strong> ${userPromotion.endDate}</p>
                             </div>
                         `;
             promotionDetails.append(promotionInfo);
@@ -442,13 +643,16 @@ $(document).ready(function () {
     });
   }
 
-  function closeModal() {
-    $("#user-modal").addClass("hidden");
-  }
-
   function createInvoice(paymentMethod, note) {
     if (!selectedUserId) {
-      alert("Vui lòng chọn người dùng trước khi tạo hóa đơn.");
+      alert("Please select a user before creating an invoice !!!");
+      return;
+    }
+
+    if (Object.keys(productMap).length === 0) {
+      alert(
+        "There are no products in the invoice. Please add products before creating an invoice !!!"
+      );
       return;
     }
 
@@ -478,16 +682,16 @@ $(document).ready(function () {
       },
       success: function (response) {
         if (response.status === "OK") {
-          alert("Hóa đơn đã được tạo thành công");
+          alert("The invoice has been created successfully !!!");
           createdInvoiceId = response.data; // Lưu ID của hóa đơn vừa tạo
           viewInvoice(createdInvoiceId); // Gọi hàm để hiển thị hóa đơn
         } else {
-          alert("Không thể tạo hóa đơn. Vui lòng thử lại.");
+          alert("Unable to create invoice. Please try again !!!");
         }
       },
       error: function (error) {
-        console.error("Error khi tạo hóa đơn:", error);
-        alert("Error khi tạo hóa đơn.");
+        console.error("Error when creating invoice: ", error);
+        alert("Error when creating invoice !!!");
       },
     });
   }
@@ -540,7 +744,7 @@ $(document).ready(function () {
                                 <div class="text-gray-700 font-semibold text-lg">2KS 1NET</div>
                             </div>
                             <div class="text-gray-700 text-right">
-                                <div class="font-bold text-xl mb-2">HÓA ĐƠN</div>
+                                <div class="font-bold text-xl mb-2">INVOICE</div>
                                 <div class="text-sm">Date: ${new Date(
             invoiceData.createdDate
           ).toLocaleDateString()}</div>
@@ -549,18 +753,18 @@ $(document).ready(function () {
                             </div>
                         </div>
                         <div class="border-b-2 border-gray-300 pb-8 mb-8">
-                            <h2 class="text-2xl font-bold mb-4">Thông Tin Khách Hàng và Nhân Viên</h2>
+                            <h2 class="text-2xl font-bold mb-4">Customer and Employee Information</h2>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <div class="text-gray-700 mb-2"><strong>Khách Hàng:</strong> ${userInfo.fullName
+                                    <div class="text-gray-700 mb-2"><strong>Customer: </strong> ${userInfo.fullName
             }</div>
-                                    <div class="text-gray-700 mb-2"><strong>ID:</strong> ${userInfo.id
+                                    <div class="text-gray-700 mb-2"><strong>ID: </strong> ${userInfo.id
             }</div>
                                 </div>
                                 <div>
-                                    <div class="text-gray-700 mb-2"><strong>Nhân Viên:</strong> ${employeeInfo.firstName
+                                    <div class="text-gray-700 mb-2"><strong>STAFF: </strong> ${employeeInfo.firstName
             } ${employeeInfo.lastName}</div>
-                                    <div class="text-gray-700 mb-2"><strong>ID:</strong> ${employeeInfo.id
+                                    <div class="text-gray-700 mb-2"><strong>ID: </strong> ${employeeInfo.id
             }</div>
                                 </div>
                             </div>
@@ -568,10 +772,10 @@ $(document).ready(function () {
                         <table class="w-full text-left mb-8">
                             <thead>
                                 <tr>
-                                    <th class="text-gray-700 font-bold uppercase py-2">Sản phẩm</th>
-                                    <th class="text-gray-700 font-bold uppercase py-2">Mã sản phẩm</th>
-                                    <th class="text-gray-700 font-bold uppercase py-2">Số lượng</th>
-                                    <th class="text-gray-700 font-bold uppercase py-2">Tổng giá</th>
+                                    <th class="text-gray-700 font-bold uppercase py-2">Product</th>
+                                    <th class="text-gray-700 font-bold uppercase py-2">Product Code</th>
+                                    <th class="text-gray-700 font-bold uppercase py-2">Quantity</th>
+                                    <th class="text-gray-700 font-bold uppercase py-2">Total Price</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -596,17 +800,17 @@ $(document).ready(function () {
                             </tbody>
                         </table>
                         <div class="grid grid-cols-2 gap-4">
-                            <div class="text-gray-700">Tổng giá gốc:</div>
+                            <div class="text-gray-700">Total original price: </div>
                             <div class="text-gray-700 text-right">${new Intl.NumberFormat(
                 "vi-VN",
                 { style: "currency", currency: "VND" }
               ).format(invoiceData.totalPriceRaw)}</div>
-                            <div class="text-gray-700">Giá giảm:</div>
+                            <div class="text-gray-700">Reduced price: </div>
                             <div class="text-gray-700 text-right">${new Intl.NumberFormat(
                 "vi-VN",
                 { style: "currency", currency: "VND" }
               ).format(invoiceData.discountPrice)}</div>
-                            <div class="text-gray-700 font-bold text-xl">Tổng giá:</div>
+                            <div class="text-gray-700 font-bold text-xl">Total price: </div>
                             <div class="text-gray-700 font-bold text-xl text-right">${new Intl.NumberFormat(
                 "vi-VN",
                 { style: "currency", currency: "VND" }
@@ -618,12 +822,12 @@ $(document).ready(function () {
 
           $("#view-invoice-modal").removeClass("hidden");
         } else {
-          alert("Không thể tải chi tiết hóa đơn");
+          alert("Unable to load invoice details");
         }
       },
       error: function (error) {
-        console.error("Không thể tải chi tiết hóa đơn", error);
-        alert("Không thể tải chi tiết hóa đơn !!!");
+        console.error("Unable to load invoice details", error);
+        alert("Unable to load invoice details !!!");
       },
     });
   }
@@ -638,6 +842,20 @@ $(document).ready(function () {
   }
 
   function initiatePayment(amount, bankCode) {
+
+
+    if (!selectedUserId) {
+      alert("Please select a user before creating an invoice !!!");
+      return;
+    }
+
+    if (Object.keys(productMap).length === 0) {
+      alert(
+        "There are no products in the invoice. Please add products before creating an invoice !!!"
+      );
+      return;
+    }
+
     amount = parseInt(amount.replace(/[.,\s₫]/g, ""), 10);
     console.log("Initiating payment with:");
     console.log("amount:", amount);
@@ -657,7 +875,9 @@ $(document).ready(function () {
         ) {
           window.location.href = response.data.paymentUrl;
         } else {
-          alert("Có lỗi xảy ra khi khởi tạo thanh toán. Vui lòng thử lại.");
+          alert(
+            "Can error occurred while initiating payment. Please try again !!!"
+          );
         }
       },
       error: function (error) {
@@ -691,7 +911,7 @@ $(document).ready(function () {
         sessionStorage.removeItem("productMap");
         sessionStorage.removeItem("employeeID");
       } else {
-        alert("Thanh toán không thành công. Vui lòng thử lại.");
+        alert("Payment failed. Please try again !!!");
       }
     }
   }
@@ -723,7 +943,7 @@ $(document).ready(function () {
     $("#user-details").empty();
     $("#promotion-details").empty();
     $("#selected-products").empty();
-    $("#product-sold").children(":not(:first)").remove(); // Xóa các phần tử sản phẩm, nhưng giữ lại thanh thêm sản phẩm
+    $("#product-sold").empty();
     updateTotalPrice();
   }
 

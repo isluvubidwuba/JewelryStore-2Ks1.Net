@@ -37,7 +37,6 @@ firebase:
 jwt:
   privateKey: wQwCoOrdAU3iyXZsqshyOKiC2xzW9C7R+/3HjwQ2cEk=
 
-
 payment:
   vnPay:
     url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html

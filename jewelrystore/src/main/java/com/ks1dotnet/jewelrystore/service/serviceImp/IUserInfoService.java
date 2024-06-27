@@ -34,7 +34,9 @@ public interface IUserInfoService {
         public ResponseData getUserInfo(int id);
 
         public ResponseData getSupplierInfo(int id);
-        
+
         public ResponseData getCustomerInfo(int id);
+
+        public ResponseData findByPhoneNumber(String phone);
 
 }

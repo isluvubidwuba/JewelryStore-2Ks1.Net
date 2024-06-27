@@ -99,7 +99,6 @@ public class CustomSecurityFilter {
                                                 .hasAnyAuthority("MANAGER", "STAFF", "ADMIN")
                                                 .requestMatchers("/counter/update",
                                                                 "/counter/inactive",
-                                                                "/counter/inactive",
                                                                 "/counter/delete/{id}",
                                                                 "/counter/insert")
                                                 .hasAuthority("ADMIN")
@@ -117,7 +116,10 @@ public class CustomSecurityFilter {
                                                                 "/userinfo/searchcustomer", "userinfo/upload",
                                                                 "userinfo/uploadget", "/customertype/findall",
                                                                 "/userinfo/listsupplier",
-                                                                "/userinfo/searchsupplier", "/userinfo/getcustomer/**")
+                                                                "/userinfo/searchsupplier",
+                                                                "/userinfo/getcustomer/{id}",
+                                                                "/userinfo/findsupplier/{id}",
+                                                                "/userinfo/phonenumbercustomer")
                                                 .hasAnyAuthority("STAFF", "MANAGER", "ADMIN")
 
                                                 .requestMatchers("/userinfo/update",

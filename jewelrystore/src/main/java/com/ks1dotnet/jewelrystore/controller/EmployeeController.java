@@ -58,7 +58,7 @@ public class EmployeeController {
     }
 
     @PostMapping("/insert")
-    public ResponseEntity<?> insertEmployee(@RequestParam MultipartFile file,
+    public ResponseEntity<?> insertEmployee(@RequestParam(required = false) MultipartFile file,
             @RequestParam String firstName, @RequestParam String lastName,
             @RequestParam String pinCode, @RequestParam String phoneNumber,
             @RequestParam String email, @RequestParam String address, @RequestParam int roleId,

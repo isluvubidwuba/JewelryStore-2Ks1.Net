@@ -24,20 +24,19 @@
 </head>
 
 <body class="bg-gray-100 h-screen flex">
-
-
   <!-- side bar -->
   <div id="sidebarContainer" class="h-screen text-white">
     @@include('components/sidebarForStaff.html')
   </div>
 
   <div class="flex flex-1 p-6">
-
     <!-- Product list -->
     <div class="w-1/2 bg-white rounded-lg shadow-md p-8">
       <div class="mb-6">
         <input type="text" id="barcode-input" class="border p-2" placeholder="Nhập barcode" />
-        <button id="add-barcode-button" class="bg-blue-500 hover:bg-blue-700 text-white p-2">Thêm</button>
+        <button id="add-barcode-button" class="bg-blue-500 hover:bg-blue-700 text-white p-2">
+          Thêm
+        </button>
       </div>
       <div id="product-sold">
         <!-- hiện ra các sản phẩm đã chọn  -->
@@ -58,16 +57,12 @@
         </div>
       </div>
 
-
-
-
-
-
-
       <div class="input-group mt-4 mb-4">
         <input type="text" id="user-id-input" class="border border-gray-300 p-2 rounded-md"
-          placeholder="Nhập ID người dùng">
-        <button id="add-user-button" class="ml-2 px-4 py-2 bg-blue-600 text-white rounded-md">Add</button>
+          placeholder="Nhập ID người dùng" />
+        <button id="add-user-button" class="ml-2 px-4 py-2 bg-blue-600 text-white rounded-md">
+          Add
+        </button>
       </div>
       <!-- Selected user info and promotions -->
       <div id="selected-user-info" class="mt-4 p-4 border border-gray-200 rounded-md hidden flex">
@@ -94,13 +89,17 @@
           <thead>
             <tr>
               <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Name</th>
+                Name
+              </th>
               <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Product Code</th>
+                Product Code
+              </th>
               <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Price</th>
+                Price
+              </th>
               <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Quantity</th>
+                Quantity
+              </th>
               <th class="px-4 py-2 bg-gray-50"></th>
             </tr>
           </thead>
@@ -126,25 +125,26 @@
         </div>
         <div class="flex justify-between mt-4">
           <div class="mt-4 flex justify-between space-x-2">
-            <button id="reset-order-button" class="bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded-md">Tạo
-              lại đơn hàng</button>
-            <button id="create-invoice-button"
-              class="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded-md">Create Invoice</button>
+            <button id="reset-order-button" class="bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded-md">
+              Tạo lại đơn hàng
+            </button>
+            <button id="create-invoice-button" class="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
+              Create Invoice
+            </button>
             <button type="button" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-              id="open-payment-modal">Thanh Toán VNPAY</button>
+              id="open-payment-modal">
+              Thanh Toán VNPAY
+            </button>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-
-
-
   <!-- Modal -->
   <div id="user-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center">
     <div class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-2xl sm:w-full"
-      style="max-height: 90%;">
+      style="max-height: 90%">
       <div class="bg-white p-4">
         <div class="flex justify-between items-center">
           <h3 class="text-lg leading-6 font-medium text-gray-900">
@@ -159,7 +159,7 @@
         </div>
         <div class="mt-4">
           <input type="text" id="search-input" placeholder="Tìm kiếm theo ID, Tên, Số điện thoại hoặc Email"
-            class="p-2 border border-gray-300 rounded w-full mb-4">
+            class="p-2 border border-gray-300 rounded w-full mb-4" />
           <table class="min-w-full divide-y divide-gray-200">
             <thead>
               <tr>
@@ -183,23 +183,22 @@
             </tbody>
           </table>
           <div class="flex justify-between items-center mt-4">
-            <button id="prev-page" class="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50" disabled>Trang
-              trước</button>
+            <button id="prev-page" class="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50" disabled>
+              Trang trước
+            </button>
             <span id="current-page" class="text-gray-700"></span>
-            <button id="next-page" class="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50" disabled>Trang
-              sau</button>
+            <button id="next-page" class="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50" disabled>
+              Trang sau
+            </button>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-
-
-
   <!-- View invoice modal -->
   <div id="view-invoice-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center">
-    <div class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-7xl sm:w-full">
+    <div class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all">
       <div class="bg-white p-4">
         <div class="flex justify-between items-center">
           <h3 class="text-lg leading-6 font-medium text-gray-900">
@@ -212,7 +211,7 @@
             </svg>
           </button>
         </div>
-        <div class="mt-4" id="invoice-details">
+        <div class="mt-4 overflow-y-auto" id="invoice-details">
           <!-- Invoice details will be displayed here dynamically -->
         </div>
       </div>
@@ -330,7 +329,5 @@
     </div>
   </div>
 </div>
-
-
 
 </html>

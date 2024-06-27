@@ -1,5 +1,7 @@
 package com.ks1dotnet.jewelrystore.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -51,5 +53,8 @@ public interface IUserInfoRepository extends JpaRepository<UserInfo, Integer> {
 
         @Query("SELECT u FROM UserInfo u WHERE u.role.id = 4 AND u.id = :id")
         public UserInfo findCustomerById(@Param("id") int id);
+
+        @Query("SELECT u FROM UserInfo u WHERE u.role.id = 4 AND u.phoneNumber LIKE %:phoneNumber%")
+        public Optional<UserInfo> findByPhoneNumber(@Param("phoneNumber") String phoneNumber);
 
 }

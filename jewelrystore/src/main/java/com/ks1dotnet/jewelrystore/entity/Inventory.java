@@ -35,5 +35,5 @@ public class Inventory {
     public InventoryDTO getDTO() {
         return new InventoryDTO(this.quantity);
     }
-
+  
 }

@@ -1,49 +1,53 @@
 $(document).ready(function () {
   fetchRoles();
-  fetchUniqueRankData()
-  initializeUnique()
+  fetchUniqueRankData();
+  initializeUnique();
   setupModalToggle();
   setupInsertModalToggle();
   setupInsertRoleModalToggle();
 });
 const token = localStorage.getItem("token");
 
-
-
 function fetchRoles() {
   $.ajax({
-    url: 'http://localhost:8080/role/list',
-    method: 'GET',
+    url: "http://localhost:8080/role/list",
+    method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
     },
     success: function (response) {
       if (response.status === "OK") {
-        const roles = response.data.filter(role => !['STAFF', 'ADMIN', 'MANAGER'].includes(role.name));
+        const roles = response.data.filter(
+          (role) => !["STAFF", "ADMIN", "MANAGER"].includes(role.name)
+        );
         initTabs(roles);
-        roles.forEach(role => setupSearch(role.name));
-        populateRoleSelect(roles, '#update-role'); // Populate role select for update modal
-        populateRoleSelect(roles, '#insert-role');
+        roles.forEach((role) => setupSearch(role.name));
+        populateRoleSelect(roles, "#update-role"); // Populate role select for update modal
+        populateRoleSelect(roles, "#insert-role");
       } else {
         alert("Fail to load Role");
       }
     },
     error: function (error) {
-      console.error('Error fetching roles:', error);
-    }
+      console.error("Error fetching roles:", error);
+    },
   });
 }
 
 function initTabs(roles) {
-  roles.forEach(role => {
-    $('#role-tabs').append(createTab(role));
-    $('#tab-contents').append(createTabContent(role));
+  roles.forEach((role) => {
+    $("#role-tabs").append(createTab(role));
+    $("#tab-contents").append(createTabContent(role));
   });
 
   // Append the insert role button
-  $('#role-tabs').append('<li class="ml-2"><button id="insert-role-button" class="tab-button bg-black text-white font-semibold py-2 px-4 rounded hover:bg-gray-700 transition duration-300">+</button></li>');
+  $("#role-tabs").append(
+    '<li class="ml-2"><button id="insert-role-button" class="tab-button bg-black text-white font-semibold py-2 px-4 rounded hover:bg-gray-700 transition duration-300">+</button></li>'
+  );
   // Append the insert user button
-  $('#role-tabs').append('<li class="ml-auto"><button id="insert-button" class="tab-button bg-black text-white font-semibold py-2 px-4 rounded hover:bg-gray-700 transition duration-300">Insert User</button></li>');
+  $("#role-tabs").append(
+    '<li class="ml-auto"><button id="insert-button" class="tab-button bg-black text-white font-semibold py-2 px-4 rounded hover:bg-gray-700 transition duration-300">Insert User</button></li>'
+  );
 
   bindTabClickEvents();
   const firstRole = roles[0].name;
@@ -54,51 +58,54 @@ function initTabs(roles) {
 function populateRoleSelect(roles, selector) {
   const roleSelect = $(selector);
   roleSelect.empty();
-  roleSelect.append(`<option value="" disabled selected>Select a role</option>`); // Add default option
-  roles.forEach(role => {
+  roleSelect.append(
+    `<option value="" disabled selected>Select a role</option>`
+  ); // Add default option
+  roles.forEach((role) => {
     roleSelect.append(`<option value="${role.id}">${role.name}</option>`);
   });
 }
 
-
 function setupModalToggle() {
-  $('#close-modal').on('click', function () {
-    $('#addRoleModal').addClass('hidden');
+  $("#close-modal").on("click", function () {
+    $("#addRoleModal").addClass("hidden");
   });
 
-  $('#add-role-form').on('submit', function (e) {
+  $("#add-role-form").on("submit", function (e) {
     e.preventDefault();
     $.ajax({
-      url: 'http://localhost:8080/role/insert',
-      method: 'POST',
+      url: "http://localhost:8080/role/insert",
+      method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      contentType: 'application/x-www-form-urlencoded',
+      contentType: "application/x-www-form-urlencoded",
       data: $(this).serialize(),
       success: function (response) {
         alert(response);
-        $('#addRoleModal').addClass('hidden');
+        $("#addRoleModal").addClass("hidden");
         fetchRoles();
       },
       error: function (error) {
-        console.error('Error adding role:', error);
-        alert('Error adding role!');
-      }
+        console.error("Error adding role:", error);
+        alert("Error adding role!");
+      },
     });
   });
 
-  $('#close-update-modal').on('click', function () {
-    $('#updateUserModal').addClass('hidden');
+  $("#close-update-modal").on("click", function () {
+    $("#updateUserModal").addClass("hidden");
   });
 
-  $('#update-user-form').off('submit').on('submit', function (e) {
-    e.preventDefault();
-    const form = $(this);
+  $("#update-user-form")
+    .off("submit")
+    .on("submit", function (e) {
+      e.preventDefault();
+      const form = $(this);
 
-    if (!validateForm(form)) return;
-    updateUser();
-  });
+      if (!validateForm(form)) return;
+      updateUser();
+    });
 }
 
 function createTab(role) {
@@ -108,7 +115,8 @@ function createTab(role) {
 }
 
 function createTabContent(role) {
-  const rankHeader = role.name === 'CUSTOMER' ? '<th class="py-2 px-4 border-b">Rank</th>' : '';
+  const rankHeader =
+    role.name === "CUSTOMER" ? '<th class="py-2 px-4 border-b">Rank</th>' : "";
   const commonContent = `
       <div class="flex justify-between items-center mb-4">
           <h2 class="text-2xl">${role.name} List</h2>
@@ -134,7 +142,7 @@ function createTabContent(role) {
       </div>
       <table id="${role.name.toLowerCase()}-table" class="min-w-full bg-white">
           <thead>
-              <tr>
+              <tr class ="bg-gray-300 shadow-sm">
                   <th class="py-2 px-4 border-b">ID</th>
                   <th class="py-2 px-4 border-b">Image</th>
                   <th class="py-2 px-4 border-b">Full Name</th>
@@ -160,41 +168,47 @@ function createTabContent(role) {
 }
 
 function bindTabClickEvents() {
-  $('.tab-button').on('click', function (event) {
+  $(".tab-button").on("click", function (event) {
     event.preventDefault();
-    const role = $(this).data('role');
+    const role = $(this).data("role");
     switchTabByRole(role);
   });
 }
 
 function switchTab(role) {
-
   if (!role) {
     console.error("Role is undefined"); // Log an error if role is undefined
     return;
   }
 
-  $('.tab-content').hide();
-  $('#' + role.replace(/\s+/g, '')).show();
+  $(".tab-content").hide();
+  $("#" + role.replace(/\s+/g, "")).show();
   setActiveTab(role);
   setupSearch(role); // Ensure search setup is called every time a tab is switched
 }
 
 function setActiveTab(role) {
-  $('.tab-button').removeClass('border-l border-t border-r rounded-t text-blue-700 font-semibold');
-  $(`.tab-button[data-role=${role}]`).addClass('border-l border-t border-r rounded-t text-blue-700 font-semibold');
+  $(".tab-button").removeClass(
+    "border-l border-t border-r rounded-t text-blue-700 font-semibold"
+  );
+  $(`.tab-button[data-role=${role}]`).addClass(
+    "border-l border-t border-r rounded-t text-blue-700 font-semibold"
+  );
 }
 
-
 function fetchImage(elementId, imageUrl) {
-  console.log(`Fetching image for elementId: ${elementId}, imageUrl: ${imageUrl}`);
-  $(`#${elementId}`).html(`<img src="${imageUrl}" alt="Image" class="h-10 w-10">`);
+  console.log(
+    `Fetching image for elementId: ${elementId}, imageUrl: ${imageUrl}`
+  );
+  $(`#${elementId}`).html(
+    `<img src="${imageUrl}" alt="Image" class="h-10 w-10">`
+  );
 }
 
 function fetchCustomers(page) {
   $.ajax({
     url: `http://localhost:8080/userinfo/listcustomer?page=${page}`,
-    method: 'GET',
+    method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -202,64 +216,64 @@ function fetchCustomers(page) {
       if (response.status === "OK") {
         const { customers, totalPages, currentPage } = response.data;
         fetchCustomerRanks(function (ranks) {
-          populateTable(customers, ranks, currentPage, 'Customer');
-          updatePagination(currentPage, totalPages, 'customer');
+          populateTable(customers, ranks, currentPage, "Customer");
+          updatePagination(currentPage, totalPages, "customer");
         });
       }
     },
     error: function (error) {
-      console.error('Error fetching customers:', error);
-    }
+      console.error("Error fetching customers:", error);
+    },
   });
 }
 
 function fetchCustomerRanks(callback) {
   $.ajax({
-    url: 'http://localhost:8080/earnpoints/rank',
-    method: 'GET',
+    url: "http://localhost:8080/earnpoints/rank",
+    method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
     },
     success: function (response) {
       if (response.status === "OK") {
-        const ranks = response.data.map(rank => ({
+        const ranks = response.data.map((rank) => ({
           customerId: rank.userInfoDTO.id,
           rank: rank.customerTypeDTO.type,
-          points: rank.point
+          points: rank.point,
         }));
         callback(ranks);
       }
     },
     error: function (error) {
-      console.error('Error fetching customer ranks:', error);
+      console.error("Error fetching customer ranks:", error);
       callback([]);
-    }
+    },
   });
 }
 
 function fetchSuppliers(page) {
   $.ajax({
     url: `http://localhost:8080/userinfo/listsupplier?page=${page}`,
-    method: 'GET',
+    method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
     },
     success: function (response) {
       if (response.status === "OK") {
         const { suppliers, totalPages, currentPage } = response.data;
-        populateTable(suppliers, [], currentPage, 'Supplier');
-        updatePagination(currentPage, totalPages, 'supplier');
+        populateTable(suppliers, [], currentPage, "Supplier");
+        updatePagination(currentPage, totalPages, "supplier");
       }
     },
     error: function (error) {
-      console.error('Error fetching suppliers:', error);
-    }
+      console.error("Error fetching suppliers:", error);
+    },
   });
 }
 
 function populateTable(data, ranks, currentPage, role) {
   if (!data || !Array.isArray(data)) {
-    console.error('Data is not an array or is undefined.');
+    console.error("Data is not an array or is undefined.");
     return;
   }
 
@@ -267,17 +281,19 @@ function populateTable(data, ranks, currentPage, role) {
   tableBody.empty();
   let count = currentPage * 5 + 1;
 
-  data.forEach(item => {
-    let rankInfo = '';
-    if (role === 'Customer') {
-      const rankDetail = ranks.find(r => r.customerId === item.id);
-      const rank = rankDetail ? rankDetail.rank : 'N/A';
-      const points = rankDetail ? rankDetail.points : 'N/A';
+  data.forEach((item) => {
+    let rankInfo = "";
+    if (role === "Customer") {
+      const rankDetail = ranks.find((r) => r.customerId === item.id);
+      const rank = rankDetail ? rankDetail.rank : "N/A";
+      const points = rankDetail ? rankDetail.points : "N/A";
       rankInfo = `<td class="py-2 px-4 border-b">${rank} (${points} points)</td>`;
     }
     const row = `<tr class="text-center">
                   <td class="py-2 px-4 border-b">${count++}</td>
-                  <td class="py-2 px-4 border-b" id="${role.toLowerCase()}-image-${item.id}">
+                  <td class="py-2 px-4 border-b" id="${role.toLowerCase()}-image-${
+      item.id
+    }">
                     Loading...
                   </td>
                   <td class="py-2 px-4 border-b">${item.fullName}</td>
@@ -285,7 +301,9 @@ function populateTable(data, ranks, currentPage, role) {
                   <td class="py-2 px-4 border-b">${item.email}</td>
                   <td class="py-2 px-4 border-b">${item.address}</td>
                   ${rankInfo}
-                  <td class="py-2 px-4 border-b"><button class="edit-btn" data-id="${item.id}"><i class="fas fa-edit"></i></button></td>
+                  <td class="py-2 px-4 border-b"><button class="edit-btn" data-id="${
+                    item.id
+                  }"><i class="fas fa-edit"></i></button></td>
                 </tr>`;
     tableBody.append(row);
 
@@ -301,86 +319,96 @@ function updatePagination(currentPage, totalPages, type) {
   const pageInfoId = `#page-info-${type}`;
 
   $(pageInfoId).text(`Page ${currentPage + 1} of ${totalPages}`);
-  $(prevPageId).off('click').on('click', function () {
-    if (currentPage > 0) {
-      if (type === 'customer') {
-        fetchCustomers(currentPage - 1);
-      } else {
-        fetchSuppliers(currentPage - 1);
+  $(prevPageId)
+    .off("click")
+    .on("click", function () {
+      if (currentPage > 0) {
+        if (type === "customer") {
+          fetchCustomers(currentPage - 1);
+        } else {
+          fetchSuppliers(currentPage - 1);
+        }
       }
-    }
-  });
-  $(nextPageId).off('click').on('click', function () {
-    if (currentPage < totalPages - 1) {
-      if (type === 'customer') {
-        fetchCustomers(currentPage + 1);
-      } else {
-        fetchSuppliers(currentPage + 1);
+    });
+  $(nextPageId)
+    .off("click")
+    .on("click", function () {
+      if (currentPage < totalPages - 1) {
+        if (type === "customer") {
+          fetchCustomers(currentPage + 1);
+        } else {
+          fetchSuppliers(currentPage + 1);
+        }
       }
-    }
-  });
+    });
 }
 
 function setupEditButtons() {
-  $('.edit-btn').off('click').on('click', function () {
-    const id = $(this).data('id');
-    fetchUserInfo(id);
-    $('#updateUserModal').removeClass('hidden');
-  });
+  $(".edit-btn")
+    .off("click")
+    .on("click", function () {
+      const id = $(this).data("id");
+      fetchUserInfo(id);
+      $("#updateUserModal").removeClass("hidden");
+    });
 
-  $('#close-update-modal').off('click').on('click', function () {
-    $('#updateUserModal').addClass('hidden');
-    clearImagePreview(); // Xóa hình ảnh khi đóng modal
-    clearForm(); // Xóa dữ liệu trong form khi đóng modal
-  });
+  $("#close-update-modal")
+    .off("click")
+    .on("click", function () {
+      $("#updateUserModal").addClass("hidden");
+      clearImagePreview(); // Xóa hình ảnh khi đóng modal
+      clearForm(); // Xóa dữ liệu trong form khi đóng modal
+    });
 
-  $('#updateEmployeeImageFile').on('change', function () {
+  $("#updateEmployeeImageFile").on("change", function () {
     const file = this.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = function (e) {
-        $('#updateEmployeeImagePreview').attr('src', e.target.result);
-      }
+        $("#updateEmployeeImagePreview").attr("src", e.target.result);
+      };
       reader.readAsDataURL(file);
     }
   });
 
-  $('#update-user-form').off('submit').on('submit', function (e) {
-    e.preventDefault();
-    updateUser();
-  });
+  $("#update-user-form")
+    .off("submit")
+    .on("submit", function (e) {
+      e.preventDefault();
+      updateUser();
+    });
 }
 
 function fetchUserInfo(id) {
   $.ajax({
     url: `http://localhost:8080/userinfo/findcustomer/${id}`,
-    method: 'GET',
+    method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
     },
     success: function (response) {
       if (response.status === "OK") {
         const user = response.data;
-        $('#update-id').val(user.id);
-        $('#update-fullname').val(user.fullName);
-        $('#update-phone').val(user.phoneNumber);
-        $('#update-email').val(user.email);
-        $('#update-address').val(user.address);
-        $('#update-role').val(user.role.id);
-        $('#updateEmployeeImagePreview').attr('src', user.image);
+        $("#update-id").val(user.id);
+        $("#update-fullname").val(user.fullName);
+        $("#update-phone").val(user.phoneNumber);
+        $("#update-email").val(user.email);
+        $("#update-address").val(user.address);
+        $("#update-role").val(user.role.id);
+        $("#updateEmployeeImagePreview").attr("src", user.image);
       }
     },
     error: function (error) {
-      console.error('Error fetching user info:', error);
-    }
+      console.error("Error fetching user info:", error);
+    },
   });
 }
 
 function updateUser() {
   var formData = new FormData($("#update-user-form")[0]);
   $.ajax({
-    url: 'http://localhost:8080/userinfo/update',
-    method: 'POST',
+    url: "http://localhost:8080/userinfo/update",
+    method: "POST",
     processData: false,
     contentType: false,
     data: formData,
@@ -389,222 +417,239 @@ function updateUser() {
     },
     success: function (response) {
       if (response.status === "OK") {
-        alert('User updated successfully!');
-        $('#updateUserModal').addClass('hidden');
+        alert("User updated successfully!");
+        $("#updateUserModal").addClass("hidden");
         clearImagePreview(); // Xóa hình ảnh sau khi cập nhật thành công
         clearForm(); // Xóa dữ liệu trong form sau khi cập nhật thành công
-        const activeTab = $('.tab-button.border-l').data('role'); // Đảm bảo lấy đúng tab hiện tại
+        const activeTab = $(".tab-button.border-l").data("role"); // Đảm bảo lấy đúng tab hiện tại
 
-        if (activeTab === 'CUSTOMER') {
+        if (activeTab === "CUSTOMER") {
           fetchCustomers(0);
-        } else if (activeTab === 'SUPPLIER') {
+        } else if (activeTab === "SUPPLIER") {
           fetchSuppliers(0);
         }
       } else {
-        alert('Error updating user: ' + response.desc);
+        alert("Error updating user: " + response.desc);
       }
     },
     error: function (error) {
       if (error.responseJSON) {
-        alert('Error updating user: ' + error.responseJSON.desc);
+        alert("Error updating user: " + error.responseJSON.desc);
       } else {
-        console.error('Error updating user:', error);
-        alert('Error updating user!');
+        console.error("Error updating user:", error);
+        alert("Error updating user!");
       }
-    }
+    },
   });
 }
 
 function clearImagePreview() {
-  $('#updateEmployeeImagePreview').attr('src', ''); // Xóa hình ảnh
+  $("#updateEmployeeImagePreview").attr("src", ""); // Xóa hình ảnh
 }
 
 function clearForm() {
-  $('#update-user-form')[0].reset(); // Đặt lại form
-  $('#updateEmployeeImageFile').val(''); // Xóa giá trị của input file
+  $("#update-user-form")[0].reset(); // Đặt lại form
+  $("#updateEmployeeImageFile").val(""); // Xóa giá trị của input file
 }
-
 
 function setupSearch(role) {
   // Thiết lập tìm kiếm cho một vai trò cụ thể
-  $(`#${role.toLowerCase()}-criteria-button`).off('click').on('click', function (e) {
-    e.preventDefault();
-    $(`#${role.toLowerCase()}-criteria-menu`).toggleClass('hidden');
-  });
+  $(`#${role.toLowerCase()}-criteria-button`)
+    .off("click")
+    .on("click", function (e) {
+      e.preventDefault();
+      $(`#${role.toLowerCase()}-criteria-menu`).toggleClass("hidden");
+    });
 
-  $(`#${role.toLowerCase()}-criteria-menu a`).off('click').on('click', function (e) {
-    e.preventDefault();
-    const criteria = $(this).data('criteria');
-    $(`#${role.toLowerCase()}-selected-criteria`).text($(this).text());
-    $(`#${role.toLowerCase()}-criteria-menu`).addClass('hidden');
-    $(`#${role.toLowerCase()}-search-input`).data('criteria', criteria);
-  });
+  $(`#${role.toLowerCase()}-criteria-menu a`)
+    .off("click")
+    .on("click", function (e) {
+      e.preventDefault();
+      const criteria = $(this).data("criteria");
+      $(`#${role.toLowerCase()}-selected-criteria`).text($(this).text());
+      $(`#${role.toLowerCase()}-criteria-menu`).addClass("hidden");
+      $(`#${role.toLowerCase()}-search-input`).data("criteria", criteria);
+    });
 
-  $(`#${role.toLowerCase()}-search-button`).off('click').on('click', function (e) {
-    e.preventDefault();
-    const criteria = $(`#${role.toLowerCase()}-search-input`).data('criteria');
-    const query = $(`#${role.toLowerCase()}-search-input`).val();
-    searchByRole(role, criteria, query, 0);
-  });
+  $(`#${role.toLowerCase()}-search-button`)
+    .off("click")
+    .on("click", function (e) {
+      e.preventDefault();
+      const criteria = $(`#${role.toLowerCase()}-search-input`).data(
+        "criteria"
+      );
+      const query = $(`#${role.toLowerCase()}-search-input`).val();
+      searchByRole(role, criteria, query, 0);
+    });
 }
 
 function searchByRole(role, criteria, query, page) {
-  const searchUrl = role === 'CUSTOMER' ? 'http://localhost:8080/userinfo/searchcustomer' : 'http://localhost:8080/userinfo/searchsupplier';
+  const searchUrl =
+    role === "CUSTOMER"
+      ? "http://localhost:8080/userinfo/searchcustomer"
+      : "http://localhost:8080/userinfo/searchsupplier";
 
   $.ajax({
     url: searchUrl,
-    method: 'POST',
+    method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
     },
     data: {
       criteria: criteria,
       query: query,
-      page: page
+      page: page,
     },
     success: function (response) {
       if (response.status === "OK") {
         const { customers, suppliers, totalPages, currentPage } = response.data;
-        const data = role === 'CUSTOMER' ? customers : suppliers;
-        if (role === 'CUSTOMER') {
+        const data = role === "CUSTOMER" ? customers : suppliers;
+        if (role === "CUSTOMER") {
           fetchCustomerRanks(function (ranks) {
-            populateTable(data, ranks, currentPage, 'Customer');
-            updatePagination(currentPage, totalPages, 'customer');
+            populateTable(data, ranks, currentPage, "Customer");
+            updatePagination(currentPage, totalPages, "customer");
           });
         } else {
-          populateTable(data, [], currentPage, 'Supplier');
-          updatePagination(currentPage, totalPages, 'supplier');
+          populateTable(data, [], currentPage, "Supplier");
+          updatePagination(currentPage, totalPages, "supplier");
         }
       }
     },
     error: function (error) {
       console.error(`Error searching ${role.toLowerCase()}s:`, error);
-    }
+    },
   });
 }
 
 function setupInsertModalToggle() {
-  $(document).on('click', '#insert-button', function () {
-    $('#insertUserModal').removeClass('hidden');
+  $(document).on("click", "#insert-button", function () {
+    $("#insertUserModal").removeClass("hidden");
   });
 
-  $('#close-insert-modal').on('click', function () {
-    $('#insertUserModal').addClass('hidden');
+  $("#close-insert-modal").on("click", function () {
+    $("#insertUserModal").addClass("hidden");
     clearInsertForm(); // Xóa dữ liệu trong form khi đóng modal
   });
 
   // Lưu lại vai trò đã chọn khi thay đổi
-  let selectedRole = '';
+  let selectedRole = "";
 
-  $('#insert-role').on('change', function () {
-    selectedRole = $(this).find('option:selected').text().toUpperCase();
+  $("#insert-role").on("change", function () {
+    selectedRole = $(this).find("option:selected").text().toUpperCase();
   });
 
   // Cập nhật hình ảnh xem trước khi chọn hình ảnh
-  $('#insert-file').on('change', function (e) {
+  $("#insert-file").on("change", function (e) {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = function (event) {
-        $('#insertEmployeeImagePreview').attr('src', event.target.result).show();
+        $("#insertEmployeeImagePreview")
+          .attr("src", event.target.result)
+          .show();
       };
       reader.readAsDataURL(file);
     } else {
-      $('#insertEmployeeImagePreview').attr('src', '#').hide();
+      $("#insertEmployeeImagePreview").attr("src", "#").hide();
     }
   });
 
-  $('#insert-user-form').off('submit').on('submit', function (e) {
-    e.preventDefault();
+  $("#insert-user-form")
+    .off("submit")
+    .on("submit", function (e) {
+      e.preventDefault();
 
-    const form = $(this);
+      const form = $(this);
 
-    if (!validateForm(form)) return;
+      if (!validateForm(form)) return;
 
-    var formData = new FormData($("#insert-user-form")[0]);
+      var formData = new FormData($("#insert-user-form")[0]);
 
-    // Thêm input file vào formData
-    var fileInput = $('#insert-file')[0].files[0];
-    if (fileInput) {
-      formData.append('file', fileInput);
-    }
-    $.ajax({
-      url: 'http://localhost:8080/userinfo/insert',
-      method: 'POST',
-      processData: false,
-      contentType: false,
-      data: formData,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (response) {
-        if (response.status === "OK") {
-          alert('Insert Successful !');
-          $('#insertUserModal').addClass('hidden');
-          clearInsertForm(); // Xóa các trường trong form
-          switchTabByRole(selectedRole);
-        } else {
-          alert('Error while insert user ' + response.desc);
-        }
-      },
-      error: function (error) {
-        console.error('Error while insert user:', error);
-        alert('Error while insert user: ' + (error.responseJSON ? error.responseJSON.desc : 'System Error'));
+      // Thêm input file vào formData
+      var fileInput = $("#insert-file")[0].files[0];
+      if (fileInput) {
+        formData.append("file", fileInput);
       }
+      $.ajax({
+        url: "http://localhost:8080/userinfo/insert",
+        method: "POST",
+        processData: false,
+        contentType: false,
+        data: formData,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        success: function (response) {
+          if (response.status === "OK") {
+            alert("Insert Successful !");
+            $("#insertUserModal").addClass("hidden");
+            clearInsertForm(); // Xóa các trường trong form
+            switchTabByRole(selectedRole);
+          } else {
+            alert("Error while insert user " + response.desc);
+          }
+        },
+        error: function (error) {
+          console.error("Error while insert user:", error);
+          alert(
+            "Error while insert user: " +
+              (error.responseJSON ? error.responseJSON.desc : "System Error")
+          );
+        },
+      });
     });
-  });
 }
 
 function clearInsertForm() {
-  $('#insert-user-form')[0].reset(); // Đặt lại form
-  $('#insertEmployeeImagePreview').attr('src', '#').hide(); // Xóa hình ảnh xem trước
+  $("#insert-user-form")[0].reset(); // Đặt lại form
+  $("#insertEmployeeImagePreview").attr("src", "#").hide(); // Xóa hình ảnh xem trước
 }
 
 function setupInsertRoleModalToggle() {
-  $('#insert-role-button').on('click', function () {
-    $('#addRoleModal').removeClass('hidden');
+  $("#insert-role-button").on("click", function () {
+    $("#addRoleModal").removeClass("hidden");
   });
 
-  $('#close-role-modal').on('click', function () {
-    $('#addRoleModal').addClass('hidden');
+  $("#close-role-modal").on("click", function () {
+    $("#addRoleModal").addClass("hidden");
   });
 
-  $('#add-role-form').off('submit').on('submit', function (e) {
-    e.preventDefault();
-    var formData = new FormData($("#add-role-form")[0]);
-    $.ajax({
-      url: 'http://localhost:8080/role/insert',
-      method: 'POST',
-      processData: false,
-      contentType: false,
-      data: formData,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (response) {
-        if (response.status === "OK") {
-          alert('Role inserted successfully!');
-          $('#addRoleModal').addClass('hidden');
-          fetchRoles(); // Refresh the roles
-        } else {
-          alert('Error inserting role: ' + response.desc);
-        }
-      },
-      error: function (error) {
-        console.error('Error inserting role:', error);
-        alert('Error inserting role!');
-      }
+  $("#add-role-form")
+    .off("submit")
+    .on("submit", function (e) {
+      e.preventDefault();
+      var formData = new FormData($("#add-role-form")[0]);
+      $.ajax({
+        url: "http://localhost:8080/role/insert",
+        method: "POST",
+        processData: false,
+        contentType: false,
+        data: formData,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        success: function (response) {
+          if (response.status === "OK") {
+            alert("Role inserted successfully!");
+            $("#addRoleModal").addClass("hidden");
+            fetchRoles(); // Refresh the roles
+          } else {
+            alert("Error inserting role: " + response.desc);
+          }
+        },
+        error: function (error) {
+          console.error("Error inserting role:", error);
+          alert("Error inserting role!");
+        },
+      });
     });
-  });
 }
-
-
 
 function switchTabByRole(role) {
   switchTab(role); // Switch the tab first
-  if (role === 'CUSTOMER') {
+  if (role === "CUSTOMER") {
     fetchCustomers(0);
-  } else if (role === 'SUPPLIER') {
+  } else if (role === "SUPPLIER") {
     fetchSuppliers(0);
   }
 }
@@ -614,12 +659,14 @@ function validateForm(form) {
   const phoneNumber = form.find('input[name="phoneNumber"]').val();
 
   if (!isValidEmail(email)) {
-    alert('Invalid email address.');
+    alert("Invalid email address.");
     return false;
   }
 
   if (!isValidPhoneNumber(phoneNumber)) {
-    alert('Invalid phone number. It should contain only digits and be between 10 to 12 digits long.');
+    alert(
+      "Invalid phone number. It should contain only digits and be between 10 to 12 digits long."
+    );
     return false;
   }
 
@@ -636,36 +683,47 @@ function isValidPhoneNumber(phoneNumber) {
   return phonePattern.test(phoneNumber);
 }
 
-
-
 // Fetch rank data and populate the table
 function fetchUniqueRankData() {
   $.ajax({
-    url: 'http://localhost:8080/customertype/findall',
-    method: 'GET',
+    url: "http://localhost:8080/customertype/findall",
+    method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
     },
     success: function (response) {
       if (response.status === "OK") {
-        var tableBody = $('#rankTableBody');
+        var tableBody = $("#rankTableBody");
         tableBody.empty(); // Xóa dữ liệu cũ
 
         var displayId = 1; // Bắt đầu từ 1
 
         response.data.forEach(function (rank) {
-          var row = '<tr>' +
-            '<td class="px-4 py-2 border">' + displayId + '</td>' + // Hiển thị ID tăng dần
-            '<td class="px-4 py-2 border">' + rank.type + '</td>' +
-            '<td class="px-4 py-2 border">' + rank.pointCondition + '</td>' +
+          var row =
+            "<tr>" +
+            '<td class="px-4 py-2 border">' +
+            displayId +
+            "</td>" + // Hiển thị ID tăng dần
+            '<td class="px-4 py-2 border">' +
+            rank.type +
+            "</td>" +
+            '<td class="px-4 py-2 border">' +
+            rank.pointCondition +
+            "</td>" +
             '<td class="px-4 py-2 border text-center">' +
-            '<button class="edit-unique-btn text-blue-500 hover:text-blue-700" data-id="' + rank.id + '" data-type="' + rank.type + '" data-pointcondition="' + rank.pointCondition + '">' +
+            '<button class="edit-unique-btn text-blue-500 hover:text-blue-700" data-id="' +
+            rank.id +
+            '" data-type="' +
+            rank.type +
+            '" data-pointcondition="' +
+            rank.pointCondition +
+            '">' +
             '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">' +
             '<path d="M17.414 2.586a2 2 0 010 2.828l-10 10a2 2 0 01-.878.515l-4 1a1 1 0 01-1.263-1.263l1-4a2 2 0 01.515-.878l10-10a2 2 0 012.828 0zM5 13l-1 4 4-1 10-10-3-3L5 13zM3 17h2v2H3v-2z" />' +
-            '</svg>' +
-            '</button>' +
-            '</td>' +
-            '</tr>';
+            "</svg>" +
+            "</button>" +
+            "</td>" +
+            "</tr>";
           tableBody.append(row);
           displayId++; // Tăng ID hiển thị
         });
@@ -678,57 +736,56 @@ function fetchUniqueRankData() {
     },
     error: function (error) {
       console.error("There was an error fetching the rank data: ", error);
-    }
+    },
   });
 }
 
-
 // Gắn sự kiện click vào các nút chỉnh sửa
 function attachUniqueEditButtonEvents() {
-  $('.edit-unique-btn').click(function () {
-    var id = $(this).data('id');
-    var type = $(this).data('type');
-    var pointCondition = $(this).data('pointcondition');
+  $(".edit-unique-btn").click(function () {
+    var id = $(this).data("id");
+    var type = $(this).data("type");
+    var pointCondition = $(this).data("pointcondition");
 
     // Điền dữ liệu hiện có vào form
-    $('#updateUniqueId').val(id);
-    $('#updateUniqueType').val(type);
-    $('#updateUniquePointCondition').val(pointCondition);
+    $("#updateUniqueId").val(id);
+    $("#updateUniqueType").val(type);
+    $("#updateUniquePointCondition").val(pointCondition);
 
     // Hiển thị modal cập nhật
-    $('#updateCustomerTypeModal').removeClass('hidden');
+    $("#updateCustomerTypeModal").removeClass("hidden");
   });
 }
 
 // Update customer type
 function updateUniqueCustomerType() {
-  $('#updateCustomerTypeForm').submit(function (e) {
+  $("#updateCustomerTypeForm").submit(function (e) {
     e.preventDefault();
 
-    var id = $('#updateUniqueId').val();
-    var type = $('#updateUniqueType').val();
-    var pointCondition = $('#updateUniquePointCondition').val();
+    var id = $("#updateUniqueId").val();
+    var type = $("#updateUniqueType").val();
+    var pointCondition = $("#updateUniquePointCondition").val();
 
     $.ajax({
-      url: 'http://localhost:8080/customertype/updatepointcondition',
-      method: 'POST',
+      url: "http://localhost:8080/customertype/updatepointcondition",
+      method: "POST",
       data: {
         id: id,
         type: type,
-        pointCondition: pointCondition
+        pointCondition: pointCondition,
       },
       headers: {
         Authorization: `Bearer ${token}`,
       },
       success: function (response) {
-        alert('Update successful!');
-        $('#updateCustomerTypeModal').addClass('hidden');
+        alert("Update successful!");
+        $("#updateCustomerTypeModal").addClass("hidden");
         fetchUniqueRankData(); // Refresh the data in the main modal
         location.reload();
       },
       error: function (error) {
         console.error("There was an error updating the rank data: ", error);
-      }
+      },
     });
   });
 }
@@ -736,24 +793,26 @@ function updateUniqueCustomerType() {
 // Open customer type modal
 function openUniqueCustomerTypeModal() {
   fetchUniqueRankData();
-  $('#customerTypeModal').removeClass('hidden');
+  $("#customerTypeModal").removeClass("hidden");
 }
 
 // Close customer type modal
 function closeUniqueCustomerTypeModal() {
-  $('#customerTypeModal').addClass('hidden');
+  $("#customerTypeModal").addClass("hidden");
 }
 
 // Close update customer type modal
 function closeUpdateUniqueCustomerTypeModal() {
-  $('#updateCustomerTypeModal').addClass('hidden');
+  $("#updateCustomerTypeModal").addClass("hidden");
 }
 
 // Initialize event listeners
 function initializeUniqueEventListeners() {
-  $('#managerRank').click(openUniqueCustomerTypeModal);
-  $('#closeCustomerTypeModal, #closeCustomerTypeModalFooter').click(closeUniqueCustomerTypeModal);
-  $('#closeUpdateCustomerTypeModal').click(closeUpdateUniqueCustomerTypeModal);
+  $("#managerRank").click(openUniqueCustomerTypeModal);
+  $("#closeCustomerTypeModal, #closeCustomerTypeModalFooter").click(
+    closeUniqueCustomerTypeModal
+  );
+  $("#closeUpdateCustomerTypeModal").click(closeUpdateUniqueCustomerTypeModal);
 }
 
 // Initialize all functionalities
@@ -773,76 +832,81 @@ function initializeAddCustomerTypeEventListeners() {
 
 // Attach click event to the add button
 function attachAddCustomerTypeEvent() {
-  $('#addCustomerType').click(function () {
-    $('#addCustomerTypeModal').removeClass('hidden');
+  $("#addCustomerType").click(function () {
+    $("#addCustomerTypeModal").removeClass("hidden");
   });
 }
 
 // Add new customer type
 function addUniqueCustomerType() {
-  $('#addCustomerTypeForm').submit(function (e) {
+  $("#addCustomerTypeForm").submit(function (e) {
     e.preventDefault();
 
-    var type = $('#addType').val();
-    var pointCondition = $('#addPointCondition').val();
+    var type = $("#addType").val();
+    var pointCondition = $("#addPointCondition").val();
 
     $.ajax({
-      url: 'http://localhost:8080/customertype/add',
-      method: 'POST',
+      url: "http://localhost:8080/customertype/add",
+      method: "POST",
       data: {
         type: type,
-        pointCondition: pointCondition
+        pointCondition: pointCondition,
       },
       headers: {
         Authorization: `Bearer ${token}`,
       },
       success: function (response) {
-        alert('Customer Type added successfully!');
-        $('#addCustomerTypeModal').addClass('hidden');
+        alert("Customer Type added successfully!");
+        $("#addCustomerTypeModal").addClass("hidden");
         fetchUniqueRankData(); // Refresh the data in the main modal
         location.reload();
       },
       error: function (error) {
         console.error("There was an error adding the customer type: ", error);
-      }
+      },
     });
   });
 }
 
 // Close add customer type modal
 function closeAddCustomerTypeModal() {
-  $('#closeAddCustomerTypeModal').click(function () {
-    $('#addCustomerTypeModal').addClass('hidden');
+  $("#closeAddCustomerTypeModal").click(function () {
+    $("#addCustomerTypeModal").addClass("hidden");
   });
 }
 
 // Delete customer type
 function deleteUniqueCustomerType() {
-  $('#deleteCustomerType').click(function () {
-    var id = $('#updateUniqueId').val();
+  $("#deleteCustomerType").click(function () {
+    var id = $("#updateUniqueId").val();
 
     // Show confirmation dialog
-    var isConfirmed = confirm("Are you sure you want to delete this customer type?");
+    var isConfirmed = confirm(
+      "Are you sure you want to delete this customer type?"
+    );
 
     if (isConfirmed) {
       $.ajax({
-        url: 'http://localhost:8080/customertype/delete',
-        method: 'POST',
+        url: "http://localhost:8080/customertype/delete",
+        method: "POST",
         data: {
-          customerTypeId: id
+          customerTypeId: id,
         },
         headers: {
           Authorization: `Bearer ${token}`,
         },
         success: function (response) {
-          alert('Delete successful!');
-          $('#updateCustomerTypeModal').addClass('hidden');
+          alert("Delete successful!");
+          $("#updateCustomerTypeModal").addClass("hidden");
           fetchUniqueRankData(); // Refresh the data in the main modal
           location.reload();
         },
         error: function (error) {
-          console.error("There was an error deleting the customer type: ", error);
-        }
+          console.error(
+            "There was an error deleting the customer type: ",
+            error
+          );
+        },
       });
     }
   });
