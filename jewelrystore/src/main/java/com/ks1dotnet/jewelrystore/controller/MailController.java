@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,8 @@ import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.MailService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IEmployeeService;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 
 @RestController
 @RequestMapping("/mail")
@@ -39,6 +42,13 @@ public class MailController {
         Employee emp = iEmployeeService.findById(idEmp);
         ResponseData response = mailService.sendAccountForEmployee(emp.getEmail(), idEmp, idEmp,
                 emp.getFirstName() + " " + emp.getLastName());
+        return new ResponseEntity<>(response, response.getStatus());
+    }
+
+    @PostMapping("/sendInvoice")
+    public ResponseEntity<?> sendInvoice() {
+        ResponseData response =
+                mailService.sendInvoiceEmail("nightfury455@gmail.com", "Lê Hoàng Nhật Tân", 104);
         return new ResponseEntity<>(response, response.getStatus());
     }
 
