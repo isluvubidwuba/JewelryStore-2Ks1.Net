@@ -5,7 +5,8 @@ let promotions = [];
 
 function fetchPolicies() {
   $.ajax({
-    url: "http://localhost:8080/promotion/viewPolicyByInvoiceType/1",
+    url:
+      "http://localhost:8080/promotion/viewPolicyByInvoiceType/" + invoicetype,
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,

@@ -150,7 +150,6 @@ $(document).ready(function () {
     $.ajax({
       url: "http://localhost:8080/invoice/create-detail",
       method: "POST",
-      contentType: "application/json",
       data: JSON.stringify({
         barcode: barcode,
         quantity: 1,
@@ -354,12 +353,6 @@ $(document).ready(function () {
       }).format(subtotalPrice)
     );
   }
-
-
-
-
-
-
 
 
   $("#add-user-button").click(function () {
