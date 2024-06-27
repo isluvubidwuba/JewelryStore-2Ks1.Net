@@ -5,6 +5,7 @@ $(document).ready(function () {
   fetchEmployees(0);
 });
 const token = localStorage.getItem("token");
+
 let currentPage = 0;
 
 function initializePagination() {
@@ -203,14 +204,21 @@ function openModal() {
 
 function closeModal() {
   $("#viewEmployeeModal").addClass("hidden");
+  $("#insertEmployeeModal").addClass("hidden");
   // Xóa ảnh và form khi đóng modal
   clearUpdateForm();
 }
 
 function updateEmployee() {
   var formData = new FormData($("#viewEmployeeForm")[0]);
+  var fileInput = $("#viewEmployeeImageFile")[0];
 
-  formData.append("file", $("#viewEmployeeImageFile").val());
+  formData.append("file", fileInput.files[0]);
+
+  // In ra console để kiểm tra FormData
+  for (var pair of formData.entries()) {
+    console.log(pair[0] + ": " + pair[1]);
+  }
 
   $.ajax({
     url: `http://localhost:8080/employee/update`,

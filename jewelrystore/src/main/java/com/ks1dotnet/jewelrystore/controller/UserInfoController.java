@@ -111,4 +111,10 @@ public class UserInfoController {
         return new ResponseEntity<>(responseData.getData(), responseData.getStatus());
     }
 
+    @GetMapping("/phonenumbercustomer")
+    public ResponseEntity<?> getPhoneNumberCustomer(@RequestParam String phone) {
+        ResponseData responseData = iUserInfoService.findByPhoneNumber(phone);
+        return new ResponseEntity<>(responseData, responseData.getStatus());
+    }
+
 }

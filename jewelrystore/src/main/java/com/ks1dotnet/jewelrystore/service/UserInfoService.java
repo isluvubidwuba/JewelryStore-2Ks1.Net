@@ -371,4 +371,26 @@ public class UserInfoService implements IUserInfoService {
         }
     }
 
+    @Override
+    public ResponseData findByPhoneNumber(String phone) {
+        try {
+            Optional<UserInfo> optionalUserInfo = iUserInfoRepository.findByPhoneNumber(phone);
+            if (optionalUserInfo.isPresent()) {
+                UserInfo userInfo = optionalUserInfo.get();
+                ResponseData responseData = new ResponseData();
+                responseData.setData(userInfo.getDTO());
+                responseData.setStatus(HttpStatus.OK);
+                responseData.setDesc("Found Customer In The System");
+                return responseData;
+            } else {
+                ResponseData responseData = new ResponseData();
+                responseData.setStatus(HttpStatus.NOT_FOUND);
+                responseData.setDesc("Not Found Customer In The System !!!");
+                return responseData;
+            }
+        } catch (Exception e) {
+            throw new RunTimeExceptionV1("An error occurred while finding the customer", e.getMessage());
+        }
+    }
+
 }

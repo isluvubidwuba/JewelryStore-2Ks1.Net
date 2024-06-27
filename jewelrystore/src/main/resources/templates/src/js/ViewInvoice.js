@@ -4,10 +4,9 @@ $(document).ready(function () {
     if (invoiceInput) {
       getInvoiceData(invoiceInput);
     } else {
-      alert("Vui lòng nhập mã hóa đơn.");
+      alert("Please enter the invoice code !!!");
     }
   });
-
 });
 
 function getInvoiceData(invoice) {
@@ -31,11 +30,11 @@ function getInvoiceData(invoice) {
           $("#createReinvoice").addClass("hidden");
         }
       } else {
-        alert("Không thể lấy dữ liệu hóa đơn.");
+        alert("KUnable to get invoice data !!!");
       }
     },
     error: function () {
-      alert("Đã xảy ra lỗi khi gọi API.");
+      alert("An error occurred while calling the API !!!");
     },
   });
 }
@@ -46,68 +45,72 @@ function populateInvoice(data) {
             <div class="flex justify-between items-center">
                 <div class="text-left">
                     <img src="https://placehold.co/50x50" alt="Logo" class="inline-block">
-                    <h1 class="text-xl font-bold">CÔNG TY 2KS1NET</h1>
+                    <h1 class="text-xl font-bold">COMPANY 2KS1NET</h1>
                 </div>
-                <h2 class="text-xl font-bold">HÓA ĐƠN ${data.invoiceTypeDTO.name.toUpperCase()}</h2>
+                <h2 class="text-xl font-bold">INVOICE ${data.invoiceTypeDTO.name.toUpperCase()}</h2>
             </div>
         </div>
         <div class="mb-8">
             <h3 class="font-bold">${data.userInfoDTO.fullName}</h3>
-            <p>Điện thoại Khách hàng: ${data.userInfoDTO.phoneNumber}</p>
-            <p>Địa chỉ Khách hàng: ${data.userInfoDTO.address}</p>
+            <p>Customer Phone: ${data.userInfoDTO.phoneNumber}</p>
+            <p>Customer Address: ${data.userInfoDTO.address}</p>
         </div>
         <table class="w-full mb-8 border border-zinc-300">
             <thead>
                 <tr class="bg-blue-200">
-                    <th class="p-2 border border-zinc-300">SẢN PHẨM</th>
-                    <th class="p-2 border border-zinc-300">SỐ LƯỢNG</th>
-                    <th class="p-2 border border-zinc-300">ĐƠN GIÁ</th>
-                    <th class="p-2 border border-zinc-300">THÀNH TIỀN</th>
+                    <th class="p-2 border border-zinc-300">PRODUCT</th>
+                    <th class="p-2 border border-zinc-300">QUANTITY</th>
+                    <th class="p-2 border border-zinc-300">UNIT PRICE</th>
+                    <th class="p-2 border border-zinc-300">TOTAL PRICE</th>
                 </tr>
             </thead>
             <tbody>
                 ${data.listOrderInvoiceDetail
-      .map(
-        (item) => `
-                    <tr class="text-center product" data-product-id="${item.productDTO.id
-          }" data-barcode="${item.productDTO.barCode}">
-                        <td class="p-2 border border-zinc-300">${item.productDTO.name
-          }</td>
+                  .map(
+                    (item) => `
+                    <tr class="text-center product" data-product-id="${
+                      item.productDTO.id
+                    }" data-barcode="${item.productDTO.barCode}">
+                        <td class="p-2 border border-zinc-300">${
+                          item.productDTO.name
+                        }</td>
                         <td class="p-2 border border-zinc-300">
-                            <input type="number" class="quantityInput w-full" min="1" max="${item.quantity
-          }" value="${item.quantity}">
+                            <input type="number" class="quantityInput w-full" min="1" max="${
+                              item.quantity
+                            }" value="${item.quantity}">
                         </td>
                         <td class="p-2 border border-zinc-300">${new Intl.NumberFormat(
-            "vi-VN",
-            { style: "currency", currency: "VND" }
-          ).format(item.price)}</td>
+                          "vi-VN",
+                          { style: "currency", currency: "VND" }
+                        ).format(item.price)}</td>
                         <td class="p-2 border border-zinc-300">${new Intl.NumberFormat(
-            "vi-VN",
-            { style: "currency", currency: "VND" }
-          ).format(item.totalPrice)}</td>
+                          "vi-VN",
+                          { style: "currency", currency: "VND" }
+                        ).format(item.totalPrice)}</td>
 
                     </tr>
                 `
-      )
-      .join("")}
+                  )
+                  .join("")}
             </tbody>
         </table>
         <div class="flex justify-between mb-8">
             <div class="border border-zinc-300 p-4">
-                <p>Người lập hóa đơn: ${data.employeeDTO.firstName} ${data.employeeDTO.lastName
-    }</p>
-                <p>Ngày lập hóa đơn: ${data.date}</p>
-                <p>Phương thức thanh toán: ${data.payment.trim()}</p>
+                <p>Biller: ${data.employeeDTO.firstName} ${
+    data.employeeDTO.lastName
+  }</p>
+                <p>Invoice date: ${data.date}</p>
+                <p>Payment methods: ${data.payment.trim()}</p>
             </div>
             <div class="text-right">
-                <p class="font-bold">Tổng cộng: ${new Intl.NumberFormat(
-      "vi-VN",
-      { style: "currency", currency: "VND" }
-    ).format(data.totalPrice)}</p>
+                <p class="font-bold">Total: ${new Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                }).format(data.totalPrice)}</p>
             </div>
         </div>
         <div class="text-center mb-8">
-            <h3 class="font-bold">XIN CẢM ƠN</h3>
+            <h3 class="font-bold">THANKS YOU</h3>
         </div>
         <div class="text-center">
             <p>2KS1NET@gmail.com</p>
@@ -124,68 +127,71 @@ function populateModal(data) {
             <div class="flex justify-between items-center">
                 <div class="text-left">
                     <img src="https://placehold.co/50x50" alt="Logo" class="inline-block">
-                    <h1 class="text-xl font-bold">CÔNG TY 2KS1NET</h1>
+                    <h1 class="text-xl font-bold">COMPANY 2KS1NET</h1>
                 </div>
-                <h2 class="text-xl font-bold">HÓA ĐƠN</h2>
+                <h2 class="text-xl font-bold">INVOICE</h2>
             </div>
         </div>
         <div class="mb-8">
             <h3 class="font-bold">${data.userInfoDTO.fullName}</h3>
-            <p>Điện thoại Khách hàng: ${data.userInfoDTO.phoneNumber}</p>
-            <p>Địa chỉ Khách hàng: ${data.userInfoDTO.address}</p>
+            <p>Customer Phone: ${data.userInfoDTO.phoneNumber}</p>
+            <p>Customer Address: ${data.userInfoDTO.address}</p>
         </div>
         <table class="w-full mb-8 border border-zinc-300">
             <thead>
                 <tr class="bg-blue-200">
-                    <th class="p-2 border border-zinc-300">SẢN PHẨM</th>
-                    <th class="p-2 border border-zinc-300">SỐ LƯỢNG</th>
-                    <th class="p-2 border border-zinc-300">ĐƠN GIÁ</th>
-                    <th class="p-2 border border-zinc-300">THÀNH TIỀN</th>
+                    <th class="p-2 border border-zinc-300">PRODUCT</th>
+                    <th class="p-2 border border-zinc-300">QUANTITY</th>
+                    <th class="p-2 border border-zinc-300">UNIT PRICE</th>
+                    <th class="p-2 border border-zinc-300">TOTAL PRICE</th>
                 </tr>
             </thead>
             <tbody>
                 ${data.listOrderInvoiceDetail
-      .map(
-        (item) => `
-                    <tr class="text-center product" data-product-id="${item.productDTO.id
-          }" data-barcode="${item.productDTO.barCode}">
-                        <td class="p-2 border border-zinc-300">${item.productDTO.name
-          }</td>
+                  .map(
+                    (item) => `
+                    <tr class="text-center product" data-product-id="${
+                      item.productDTO.id
+                    }" data-barcode="${item.productDTO.barCode}">
+                        <td class="p-2 border border-zinc-300">${
+                          item.productDTO.name
+                        }</td>
                         <td class="p-2 border border-zinc-300">
-                            <input type="number" class="quantityInput w-full" min="1" max="${item.quantity
-          }" value="${item.quantity}">
+                            <input type="number" class="quantityInput w-full" min="1" max="${
+                              item.quantity
+                            }" value="${item.quantity}">
                         </td>
                         <td class="p-2 border border-zinc-300">${new Intl.NumberFormat(
-            "vi-VN",
-            { style: "currency", currency: "VND" }
-          ).format(item.price)}</td>
+                          "vi-VN",
+                          { style: "currency", currency: "VND" }
+                        ).format(item.price)}</td>
                         <td class="p-2 border border-zinc-300">${new Intl.NumberFormat(
-            "vi-VN",
-            { style: "currency", currency: "VND" }
-          ).format(item.totalPrice)}</td>
+                          "vi-VN",
+                          { style: "currency", currency: "VND" }
+                        ).format(item.totalPrice)}</td>
 
                     </tr>
                 `
-      )
-      .join("")}
+                  )
+                  .join("")}
             </tbody>
         </table>
         <div class="flex justify-between mb-8">
             <div class="border border-zinc-300 p-4">
-                <p>Người lập hóa đơn: ${data.employeeDTO.firstName} ${data.employeeDTO.lastName
-    }</p>
-                <p>Ngày lập hóa đơn: ${data.date}</p>
-                <p>Phương thức thanh toán: ${data.payment.trim()}</p>
+                <p>Biller: ${data.employeeDTO.firstName} ${
+    data.employeeDTO.lastName
+  }</p>
+                <p>Invoice date: ${data.date}</p>
+                <p>Payment methods: ${data.payment.trim()}</p>
             </div>
             <div class="text-right">
-                <p class="font-bold">Tổng cộng: ${new Intl.NumberFormat(
-      "vi-VN",
-      { style: "currency", currency: "VND" }
-    ).format(data.totalPrice)}</p>
+                <p class="font-bold">Total: ${new Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                }).format(data.totalPrice)}</p>
             </div>
         </div>
     `;
   $("#modalContent").html(content);
   $("#modalContent").data("user-id", data.userInfoDTO.id); // Lưu userId vào modal
 }
-

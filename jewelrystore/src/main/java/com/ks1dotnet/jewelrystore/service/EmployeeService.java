@@ -188,7 +188,11 @@ public class EmployeeService implements IEmployeeService {
 
       try {
          ResponseData responseData = new ResponseData();
-
+         // Xử lý hìnha ảnh
+         String fileName = null;
+         if (file != null && !file.isEmpty()) {
+            fileName = firebaseStorageService.uploadImage(file, filePath).getData().toString();
+         }
          // Cập nhật thông tin nhân viên
          Optional<Employee> employeeOpt = iEmployeeRepository.findById(id);
          if (employeeOpt.isPresent()) {
@@ -201,14 +205,6 @@ public class EmployeeService implements IEmployeeService {
             employee.setAddress(address);
             employee.setStatus(status);
             employee.setRole(iRoleService.findById(roleId));
-
-            String fileName = null;
-
-            if (file != null && file.isEmpty()) {
-               fileName = firebaseStorageService.uploadImage(file, filePath).getData().toString();
-            } else {
-               fileName = employee.getImage();
-            }
 
             employee.setImage(fileName == null ? employee.getImage() : fileName);
 
