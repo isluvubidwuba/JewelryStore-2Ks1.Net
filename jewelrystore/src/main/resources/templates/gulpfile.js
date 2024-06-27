@@ -25,6 +25,16 @@ const jqueryUiPath = path.join(
   "dist",
   "jquery-ui.min.js"
 );
+const flowbitePath = path.join(
+  __dirname,
+  "node_modules",
+  "flowbite",
+  "dist",
+  "flowbite.min.js"
+);
+gulp.task("copy-flowbite", function () {
+  return gulp.src(flowbitePath).pipe(gulp.dest(destPath));
+});
 // Đường dẫn đích đến thư mục src/js
 const destPath = path.join(__dirname, "src", "js");
 

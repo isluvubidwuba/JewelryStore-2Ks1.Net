@@ -47,36 +47,32 @@ public class ProductController {
     }
 
     /*
-     * @PostMapping("searchV1")
-     * public ResponseEntity<?> searchProduct(@RequestParam String
+     * @PostMapping("searchV1") public ResponseEntity<?> searchProduct(@RequestParam String
      * search, @RequestParam String id_material,
      * 
-     * @RequestParam String id_product_category, @RequestParam String id_counter) {
-     * if (search.isEmpty() && id_material.isEmpty() &&
-     * id_product_category.isEmpty() && id_counter.isEmpty()) {
-     * return new ResponseEntity<>(new ResponseData(HttpStatus.OK,
-     * "Find product successfully", null),
-     * HttpStatus.OK);
-     * }
-     * ResponseData response = iProductService.searchProduct(search, id_material,
-     * id_product_category, id_counter);
-     * return new ResponseEntity<>(response, response.getStatus());
-     * }
+     * @RequestParam String id_product_category, @RequestParam String id_counter) { if
+     * (search.isEmpty() && id_material.isEmpty() && id_product_category.isEmpty() &&
+     * id_counter.isEmpty()) { return new ResponseEntity<>(new ResponseData(HttpStatus.OK,
+     * "Find product successfully", null), HttpStatus.OK); } ResponseData response =
+     * iProductService.searchProduct(search, id_material, id_product_category, id_counter); return
+     * new ResponseEntity<>(response, response.getStatus()); }
      */
     @PostMapping("search")
-    public ResponseEntity<?> searchProductV2(@RequestParam String search, @RequestParam String id_material,
-            @RequestParam String id_product_category, @RequestParam String id_counter, @RequestParam int page,
-            @RequestParam int size) {
-        if (search.isEmpty() && id_material.isEmpty() && id_product_category.isEmpty() && id_counter.isEmpty()) {
-            return new ResponseEntity<>(new ResponseData(HttpStatus.OK, "Find product successfully", null),
+    public ResponseEntity<?> searchProductV2(@RequestParam String search,
+            @RequestParam String id_material, @RequestParam String id_product_category,
+            @RequestParam String id_counter) {
+        if (search.isEmpty() && id_material.isEmpty() && id_product_category.isEmpty()
+                && id_counter.isEmpty()) {
+            return new ResponseEntity<>(
+                    new ResponseData(HttpStatus.OK, "Find product successfully", null),
                     HttpStatus.OK);
         }
         search = search.isEmpty() ? null : search;
         id_material = id_material.isEmpty() ? null : id_material;
         id_product_category = id_product_category.isEmpty() ? null : id_product_category;
         id_counter = id_counter.isEmpty() ? null : id_counter;
-        ResponseData response = iProductService.searchProductV2(search, id_material, id_product_category, id_counter,
-                page, size);
+        ResponseData response = iProductService.searchProductV2(search, id_material,
+                id_product_category, id_counter);
         return new ResponseEntity<>(response, response.getStatus());
     }
 

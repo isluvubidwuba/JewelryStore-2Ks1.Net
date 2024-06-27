@@ -44,7 +44,8 @@ public class ProductService implements IProductService {
         try {
             Page<Product> p = iProductRepository.findAll(PageRequest.of(page, size));
 
-            return new ResponseData(HttpStatus.OK, "Find all products successfully", convertToDtoPage(p));
+            return new ResponseData(HttpStatus.OK, "Find all products successfully",
+                    convertToDtoPage(p));
 
         } catch (RuntimeException e) {
             throw new RunTimeExceptionV1("Find all product error", e.getMessage());
@@ -52,22 +53,19 @@ public class ProductService implements IProductService {
     }
 
     private Page<ProductDTO> convertToDtoPage(Page<Product> productPage) {
-        List<ProductDTO> dtoList = productPage.getContent()
-                .stream()
-                .map(product -> {
-                    ProductDTO dto = product.getDTO();
-                    dto.setImgPath(url.trim() + filePath.trim() + dto.getImgPath());
-                    return dto;
-                })
-                .collect(Collectors.toList());
+        List<ProductDTO> dtoList = productPage.getContent().stream().map(product -> {
+            ProductDTO dto = product.getDTO();
+            dto.setImgPath(url.trim() + filePath.trim() + dto.getImgPath());
+            return dto;
+        }).collect(Collectors.toList());
 
         return new PageImpl<>(dtoList, productPage.getPageable(), productPage.getTotalElements());
     }
 
     @Override
     public ResponseData findById(Integer id) {
-        Product gsc = iProductRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
+        Product gsc = iProductRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Product not found with id: " + id));
         return new ResponseData(HttpStatus.OK, "Find product successfully", gsc.getDTO());
     }
 
@@ -75,9 +73,9 @@ public class ProductService implements IProductService {
     public ResponseData update(ProductDTO t) {
         try {
             if (t == null)
-                throw new BadRequestException(": Can not update product that because the object are null");
-            if (t.getId() == 0 ||
-                    !iProductRepository.existsById(t.getId()))
+                throw new BadRequestException(
+                        ": Can not update product that because the object are null");
+            if (t.getId() == 0 || !iProductRepository.existsById(t.getId()))
                 throw new BadRequestException(": Can not update product that not exsist failed!");
 
             ProductDTO product = iProductRepository.findById(t.getId()).get().getDTO();
@@ -93,7 +91,8 @@ public class ProductService implements IProductService {
             if (t.getProductCategoryDTO() != null
                     && iProductCategoryRepository.existsById(t.getProductCategoryDTO().getId()))
                 product.setProductCategoryDTO(t.getProductCategoryDTO());
-            if (t.getCounterDTO() != null && iCounterRepository.existsById(t.getCounterDTO().getId()))
+            if (t.getCounterDTO() != null
+                    && iCounterRepository.existsById(t.getCounterDTO().getId()))
                 product.setCounterDTO(t.getCounterDTO());
             product.setStatus(t.isStatus());
             if (t.getImgPath() != null && !t.getImgPath().isEmpty())
@@ -127,26 +126,24 @@ public class ProductService implements IProductService {
         }
 
         try {
-            List<Product> productsToUpdate = list.entrySet().stream()
-                    .map(entry -> {
-                        Integer productId = entry.getKey();
-                        Integer statusValue = entry.getValue();
+            List<Product> productsToUpdate = list.entrySet().stream().map(entry -> {
+                Integer productId = entry.getKey();
+                Integer statusValue = entry.getValue();
 
-                        Product product = iProductRepository.findById(productId)
-                                .orElseThrow(() -> new BadRequestException(
-                                        "Product with ID " + productId + " does not exist"));
-                        product.setStatus(statusValue == 1);
-                        return product;
-                    })
-                    .collect(Collectors.toList());
+                Product product = iProductRepository.findById(productId)
+                        .orElseThrow(() -> new BadRequestException(
+                                "Product with ID " + productId + " does not exist"));
+                product.setStatus(statusValue == 1);
+                return product;
+            }).collect(Collectors.toList());
 
             iProductRepository.saveAll(productsToUpdate);
 
-            List<ProductDTO> updatedProductDTOs = productsToUpdate.stream()
-                    .map(Product::getDTO)
-                    .collect(Collectors.toList());
+            List<ProductDTO> updatedProductDTOs =
+                    productsToUpdate.stream().map(Product::getDTO).collect(Collectors.toList());
 
-            return new ResponseData(HttpStatus.OK, "All products updated successfully!", updatedProductDTOs);
+            return new ResponseData(HttpStatus.OK, "All products updated successfully!",
+                    updatedProductDTOs);
         } catch (Exception e) {
             throw new BadRequestException("Failed to update all products", e.getMessage());
         }
@@ -156,17 +153,18 @@ public class ProductService implements IProductService {
     public ResponseData existsById(Integer id) {
         boolean exists = iProductRepository.existsById(id);
         return new ResponseData(exists ? HttpStatus.OK : HttpStatus.NOT_FOUND,
-                exists ? "Product exists!" : "Product not found!",
-                exists);
+                exists ? "Product exists!" : "Product not found!", exists);
     }
 
     @Override
     public ResponseData insert(ProductDTO t) {
         try {
             if (t == null)
-                throw new BadRequestException(": Can not create product that because the object are null");
+                throw new BadRequestException(
+                        ": Can not create product that because the object are null");
             if (t.getId() != 0 && iProductRepository.existsById(t.getId()))
-                throw new BadRequestException(": Can not create product that already exsist failed!");
+                throw new BadRequestException(
+                        ": Can not create product that already exsist failed!");
             if (t.getName() == null)
                 throw new BadRequestException(": Can not create product that don't have name!");
             if (t.getFee() == 0)
@@ -182,10 +180,12 @@ public class ProductService implements IProductService {
                 t.setImgPath("none");
             t.setMaterialDTO(
                     iMaterialRepository.findById(t.getMaterialDTO().getId()).get().getDTO());
-            t.setProductCategoryDTO(
-                    iProductCategoryRepository.findById(t.getProductCategoryDTO().getId()).get().getDTO());
+            t.setProductCategoryDTO(iProductCategoryRepository
+                    .findById(t.getProductCategoryDTO().getId()).get().getDTO());
             t.setCounterDTO(iCounterRepository.findById(1)
-                    .orElseThrow(() -> new ResourceNotFoundException("Counter not found with id: " + 1)).getDTO());
+                    .orElseThrow(
+                            () -> new ResourceNotFoundException("Counter not found with id: " + 1))
+                    .getDTO());
             String productCode = generateProductCode();
             String barcode = generateBarcode(productCode);
 
@@ -193,7 +193,8 @@ public class ProductService implements IProductService {
             t.setBarCode(barcode);
 
             Product savedProduct = iProductRepository.save(new Product(t));
-            return new ResponseData(HttpStatus.CREATED, "Create product successfully", savedProduct.getDTO());
+            return new ResponseData(HttpStatus.CREATED, "Create product successfully",
+                    savedProduct.getDTO());
         } catch (Exception e) {
             throw new BadRequestException("Create product failed", e.getMessage());
         }
@@ -248,14 +249,14 @@ public class ProductService implements IProductService {
     // }
 
     @Override
-    public ResponseData searchProductV2(String search, String id_material, String id_product_category,
-            String id_counter, int page, int size) {
+    public ResponseData searchProductV2(String search, String id_material,
+            String id_product_category, String id_counter) {
         try {
-            Page<Product> listDTO = iProductRepository
-                    .dynamicSearchProductV2(search, id_material, id_product_category, id_counter,
-                            PageRequest.of(0, 50));
+            Page<Product> listDTO = iProductRepository.dynamicSearchProductV2(search, id_material,
+                    id_product_category, id_counter, PageRequest.of(0, 50));
 
-            return new ResponseData(HttpStatus.OK, "Found Product successfully", convertToDtoPage(listDTO));
+            return new ResponseData(HttpStatus.OK, "Found Product successfully",
+                    convertToDtoPage(listDTO));
         } catch (Exception e) {
             throw new RunTimeExceptionV1("Failed search product", e.getMessage());
         }
