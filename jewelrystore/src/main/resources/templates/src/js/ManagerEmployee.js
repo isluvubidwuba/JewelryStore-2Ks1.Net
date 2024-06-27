@@ -67,21 +67,18 @@ function renderEmployees(employees) {
               <td class="px-6 py-4" id="employee-image-${employee.id}">
                   Loading...
               </td>
-              <td class="px-6 py-3">${employee.lastName} ${
-      employee.firstName
-    }</td>
+              <td class="px-6 py-3">${employee.lastName} ${employee.firstName
+      }</td>
               <td class="px-6 py-3">${employee.role.name}</td>
               <td class="px-6 py-3">${statusLabel}</td>
               <td class="px-6 py-3">${formatCurrency(
-                employee.totalRevenue
-              )}</td>
+        employee.totalRevenue
+      )}</td>
               <td class="px-6 py-3">
-                  <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" onclick="viewEmployee('${
-                    employee.id
-                  }')">View</button>
-                  <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" onclick="viewEmployee2('${
-                    employee.id
-                  }')">Revenue</button>
+                  <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" onclick="viewEmployee('${employee.id
+      }')">View</button>
+                  <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" onclick="viewEmployee2('${employee.id
+      }')">Revenue</button>
                   
               </td>
           </tr>
@@ -308,8 +305,8 @@ function handleInsertEmployee(event) {
       if (response.status === "OK") {
         alert(response.desc);
         handleSendMailEmployee(response.data);
-        closeModal();
         fetchEmployees(currentPage);
+        closeInsertModal();
       } else {
         alert("Failed to update employee: " + response.desc);
       }
