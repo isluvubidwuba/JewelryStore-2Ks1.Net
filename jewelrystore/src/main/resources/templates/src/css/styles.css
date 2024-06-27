@@ -731,9 +731,6 @@ video {
 .ml-2 {
   margin-left: 0.5rem;
 }
-.ml-3 {
-  margin-left: 0.75rem;
-}
 .ml-6 {
   margin-left: 1.5rem;
 }
@@ -937,6 +934,9 @@ video {
 .w-10 {
   width: 2.5rem;
 }
+.w-10\/12 {
+  width: 83.333333%;
+}
 .w-11 {
   width: 2.75rem;
 }
@@ -951,6 +951,9 @@ video {
 }
 .w-2\.5 {
   width: 0.625rem;
+}
+.w-2\/12 {
+  width: 16.666667%;
 }
 .w-2\/3 {
   width: 66.666667%;
@@ -2444,6 +2447,9 @@ video {
 .focus\:ring-offset-2:focus {
   --tw-ring-offset-width: 2px;
 }
+.disabled\:opacity-50:disabled {
+  opacity: 0.5;
+}
 .group:hover .group-hover\:opacity-100 {
   opacity: 1;
 }
@@ -2637,13 +2643,6 @@ video {
     height: 100%;
   }
 
-<<<<<<< HEAD
-=======
-  .md\:w-3\/4 {
-    width: 75%;
-  }
-
->>>>>>> main
   .md\:w-32 {
     width: 8rem;
   }
