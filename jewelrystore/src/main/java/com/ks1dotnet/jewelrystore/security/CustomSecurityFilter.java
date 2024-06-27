@@ -74,7 +74,8 @@ public class CustomSecurityFilter {
                                                 .requestMatchers("/authentication/**", "/role/list",
                                                                 "/employee/upload/**",
                                                                 "/earnpoints/**", "/gemStone/**",
-                                                                "/employee/listemployee/**")
+                                                                "/employee/listemployee/**",
+                                                                "/employee/update")
                                                 .permitAll()
                                                 // Employee
                                                 .requestMatchers("/employee/listpage",
@@ -82,7 +83,6 @@ public class CustomSecurityFilter {
                                                                 "/employee/upload")
                                                 .hasAnyAuthority("ADMIN", "MANAGER")
                                                 .requestMatchers("/employee/insert",
-                                                                "/employee/update",
                                                                 "/employee/delete/**")
                                                 .hasAuthority("ADMIN")
                                                 .requestMatchers("/employee/**")

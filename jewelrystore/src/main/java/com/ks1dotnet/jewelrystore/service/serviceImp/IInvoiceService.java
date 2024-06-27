@@ -72,4 +72,6 @@ public interface IInvoiceService {
 
         public Map<String, Object> calculateRevenueAndInvoiceCount(String period);
 
+        public Page<InvoiceDTO> getInvoicesByEmployeeId2(String employeeId, int page, int size);
+
 }

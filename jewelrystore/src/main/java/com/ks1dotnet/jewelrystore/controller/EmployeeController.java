@@ -5,14 +5,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.ks1dotnet.jewelrystore.dto.EmployeeDTO;
 import com.ks1dotnet.jewelrystore.entity.Employee;
 import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
 import com.ks1dotnet.jewelrystore.exception.RunTimeExceptionV1;
@@ -67,14 +71,28 @@ public class EmployeeController {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<ResponseData> updateEmployee(
+    public ResponseEntity<ResponseData> updateEmployee(@RequestHeader("Authorization") String token,
             @RequestParam(required = false) MultipartFile file, @RequestParam String id,
-            @RequestParam String firstName, @RequestParam String lastName, @RequestParam int roleId,
-            @RequestParam String pinCode, @RequestParam boolean status,
-            @RequestParam String phoneNumber, @RequestParam String email,
+            @RequestParam String firstName, @RequestParam String lastName, @RequestParam(required = false) int roleId,
+            @RequestParam(required = false) String pinCode, @RequestParam boolean status,
+            @RequestParam String phoneNumber, @RequestParam(required = false) String email,
             @RequestParam String address) {
-        ResponseData responseData = iEmployeeService.updateEmployee(file, id, firstName, lastName,
-                roleId, pinCode, status, phoneNumber, email, address);
+        ResponseData responseData;
+        String idEmployeeFromToken = jwtUtilsHelper.getEmployeeIdFromToken(
+                token.substring(5));
+        EmployeeDTO employeeDTO = iEmployeeService.findById(idEmployeeFromToken).getDTO();
+        String pincodeCheck = pinCode != null ? pinCode : employeeDTO.getPinCode();
+        String mailCheck = email != null ? email : employeeDTO.getEmail();
+        if (employeeDTO.getRole().getName().equals("ADMIN")) {
+            responseData = iEmployeeService.updateEmployee(file, id, firstName, lastName,
+                    roleId, pincodeCheck, status, phoneNumber, mailCheck, address);
+        } else if (employeeDTO.getId().equals(id)) {
+            responseData = iEmployeeService.updateEmployee(file, id, firstName, lastName,
+                    employeeDTO.getRole().getId(), pincodeCheck, status, phoneNumber, mailCheck, address);
+        } else {
+            responseData = new ResponseData(HttpStatus.BAD_REQUEST, "Not have permission", null);
+        }
+
         return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
