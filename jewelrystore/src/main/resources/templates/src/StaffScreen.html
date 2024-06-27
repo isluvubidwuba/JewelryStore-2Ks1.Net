@@ -10,7 +10,6 @@
     <style>
       .employee-details {
         display: flex;
-        align-items: center;
         gap: 20px;
         border: 1px solid #ccc;
         padding: 20px;
@@ -20,18 +19,40 @@
 
       .employee-details img {
         border-radius: 50%;
-        width: 150px;
-        height: 150px;
+        width: 208px;
+        height: 208px;
         object-fit: cover;
       }
 
       .employee-info {
         display: flex;
         flex-direction: column;
+        justify-content: center;
       }
 
-      .employee-info p {
+      .employee-info h1 {
+        margin: 0;
+        font-size: 2em;
+        font-weight: bold;
+      }
+
+      .employee-info h2 {
+        margin: 0;
+        font-size: 1.5em;
+        font-weight: normal;
+      }
+
+      .employee-contact {
+        margin-top: 20px;
+      }
+
+      .employee-contact div {
         margin: 5px 0;
+      }
+
+      .employee-contact,
+      .employee-table {
+        flex: 1;
       }
     </style>
   </head>
@@ -43,45 +64,52 @@
       </div>
       <div class="flex-grow p-4 w-10/12">
         <!-- Nội dung chính của Staff Screen -->
-
         <div
           id="employeeDetails"
           class="flex justify-center items-center max-h-screen"
         >
-          <div class="w-full shadow-xl rounded-2xl p-10 border bg-white">
-            <div
-              class="flex flex-col md:flex-row justify-around gap-11 items-center"
-            >
-              <div id="employeeImage" class="w-full md:w-1/4">
-                <img
-                  src="https://via.placeholder.com/150"
-                  alt="Employee Image"
-                  class="rounded-2xl w-full"
-                />
-              </div>
-              <div id="employeeInfo" class="w-full md:w-3/4">
-                <h1 class="font-extrabold text-3xl mb-4">Hello [Name]</h1>
-                <div class="font-semibold text-lg space-y-2">
-                  <!-- Thông tin chi tiết sẽ được đổ vào đây -->
+          <div
+            class="employee-details w-full shadow-xl rounded-2xl p-10 border"
+          >
+            <div id="employeeImage" class="flex flex-col items-center">
+              <img
+                src="https://via.placeholder.com/150"
+                alt="Employee Image"
+                class="rounded-full"
+              />
+              <div class="employee-contact">
+                <div id="employeePhoneNumber">
+                  <strong>Phone Number:</strong> 0932479543
                 </div>
+                <div id="employeeEmail">
+                  <strong>Email:</strong> huyhanhoppo@gmail.com
+                </div>
+                <div id="employeeAddress"><strong>Address:</strong> FPT</div>
               </div>
             </div>
+            <div class="employee-info">
+              <h1 id="employeeName">Tan Le</h1>
+              <h2 id="employeeRole">ADMIN</h2>
+            </div>
+            <div class="employee-table"></div>
+          </div>
+          <!-- Thêm đường kẻ ngang -->
+          <!-- Các nội dung khác -->
+          <div>
+            <!-- Nội dung khác sẽ nằm ở đây -->
           </div>
         </div>
-        <!-- Các nội dung khác -->
       </div>
     </div>
-
     <script>
       $(document).ready(function () {
         const token = localStorage.getItem("token");
-        // Lấy userId từ localStorage
         const userId = localStorage.getItem("userId");
         if (userId) {
           fetchEmployeeDetails(userId);
         } else {
           alert("Không có thông tin người dùng, vui lòng đăng nhập lại!");
-          window.location.href = "/login.html"; // Chuyển về trang đăng nhập
+          window.location.href = "/login.html";
         }
 
         function fetchEmployeeDetails(employeeId) {
@@ -90,7 +118,7 @@
             headers: {
               Authorization: `Bearer ${token}`,
             },
-            url: `http://localhost:8080/employee/listemployee/${employeeId}`, // URL API lấy thông tin chi tiết
+            url: `http://localhost:8080/employee/listemployee/${employeeId}`,
             success: function (response) {
               if (response.status === "OK") {
                 displayEmployeeDetails(response.data);
@@ -106,18 +134,14 @@
 
         function displayEmployeeDetails(employee) {
           $("#employeeImage img").attr("src", employee.image);
-          $("#employeeInfo h1").text(
-            `Hello ${employee.firstName} ${employee.lastName}`
-          );
-          const detailsHtml = `
-                    <div><strong>ID:</strong> ${employee.id}</div>
-                    <div><strong>Full Name:</strong> ${employee.firstName} ${employee.lastName}</div>
-                    <div><strong>Phone Number:</strong> ${employee.phoneNumber}</div>
-                    <div><strong>Email:</strong> ${employee.email}</div>
-                    <div><strong>Address:</strong> ${employee.address}</div>
-                    <div><strong>Role:</strong> ${employee.role.name}</div>
-                `;
-          $("#employeeInfo .font-semibold").html(detailsHtml);
+          $("#employeeName").text(`${employee.firstName} ${employee.lastName}`);
+          $("#employeeRole").text(employee.role.name);
+          const contactHtml = `
+            <div><strong>Phone Number:</strong> ${employee.phoneNumber}</div>
+            <div><strong>Email:</strong> ${employee.email}</div>
+            <div><strong>Address:</strong> ${employee.address}</div>
+          `;
+          $(".employee-contact").html(contactHtml);
         }
       });
     </script>
