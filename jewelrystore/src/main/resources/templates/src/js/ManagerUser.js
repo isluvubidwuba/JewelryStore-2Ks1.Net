@@ -134,7 +134,7 @@ function createTabContent(role) {
       </div>
       <table id="${role.name.toLowerCase()}-table" class="min-w-full bg-white">
           <thead>
-              <tr>
+              <tr class ="bg-gray-300 shadow-sm">
                   <th class="py-2 px-4 border-b">ID</th>
                   <th class="py-2 px-4 border-b">Image</th>
                   <th class="py-2 px-4 border-b">Full Name</th>
