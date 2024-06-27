@@ -33,7 +33,7 @@ public class UserInfoController {
 
     @PostMapping("/insert")
     public ResponseEntity<?> insertUserInfo(
-            @RequestParam MultipartFile file,
+            @RequestParam(required = false) MultipartFile file,
             @RequestParam String fullName,
             @RequestParam String phoneNumber,
             @RequestParam String email,
@@ -47,7 +47,7 @@ public class UserInfoController {
 
     @PostMapping("/update")
     public ResponseEntity<?> updateUser(
-            @RequestParam MultipartFile file,
+            @RequestParam(required = false) MultipartFile file,
             @RequestParam int id,
             @RequestParam String fullName,
             @RequestParam String phoneNumber,

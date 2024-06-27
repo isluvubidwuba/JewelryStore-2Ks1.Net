@@ -1,422 +1,382 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <link href="css/styles.css" rel="stylesheet" />
-    <script src="js/jquery.min.js"></script>
-    <script src="js/InvoiceDefault.js"></script>
-    <style>
-      #product-sold {
-        max-height: calc(100vh - 150px);
-        overflow-y: auto;
-      }
 
-      #invoice-details {
-        max-height: 800px;
-        overflow-y: auto;
-      }
-    </style>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <link href="css/styles.css" rel="stylesheet" />
+  <script src="js/jquery.min.js"></script>
+  <script src="js/InvoiceDefault.js"></script>
+  <style>
+    #product-sold {
+      max-height: calc(100vh - 150px);
+      overflow-y: auto;
+    }
 
-    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
-  </head>
+    #invoice-details {
+      max-height: 800px;
+      overflow-y: auto;
+    }
+  </style>
 
-  <body class="bg-gray-100 h-screen flex">
-    <!-- side bar -->
-    <div id="sidebarContainer" class="h-screen text-white">
-      @@include('components/sidebarForStaff.html')
-    </div>
+  <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+</head>
 
-    <div class="flex flex-1 p-6">
-      <!-- Product list -->
-      <div class="w-1/2 bg-white rounded-lg shadow-md p-8">
-        <div class="mb-6">
-          <input
-            type="text"
-            id="barcode-input"
-            class="border p-2"
-            placeholder="Emter barcode"
-          />
-          <button
-            id="add-barcode-button"
-            class="bg-black hover:bg-gray-700 text-white p-2"
-          >
-            Add
-          </button>
-        </div>
-        <div id="product-sold">
-          <!-- hiện ra các sản phẩm đã chọn  -->
-        </div>
+<body class="bg-gray-100 h-screen flex">
+  <!-- side bar -->
+  <div id="sidebarContainer" class="h-screen text-white">
+    @@include('components/sidebarForStaff.html')
+  </div>
+
+  <div class="flex flex-1 p-6">
+    <!-- Product list -->
+    <div class="w-1/2 bg-white rounded-lg shadow-md p-8">
+      <div class="mb-6">
+        <input type="text" id="barcode-input" class="border p-2" placeholder="Emter barcode" />
+        <button id="add-barcode-button" class="bg-black hover:bg-gray-700 text-white p-2">
+          Add
+        </button>
       </div>
-
-      <!-- Sidebar tính tiền -->
-      <div
-        class="w-1/2 bg-gray-200 rounded-lg shadow-md p-8 ml-6 flex flex-col justify-between"
-      >
-        <div class="mt-4 mb-4 flex items-center">
-          <div class="relative inline-block">
-            <input
-              type="text"
-              id="user-id-input"
-              class="border border-gray-300 p-2 rounded-md"
-              placeholder="Enter Customer ID"
-            />
-            <span
-              id="clear-user-id-button"
-              class="absolute right-2 top-2 cursor-pointer text-gray-500"
-              style="display: none"
-              onclick="clearUserIdInput()"
-            >
-              &times;
-            </span>
-          </div>
-
-          <button
-            id="add-user-button"
-            class="ml-2 px-4 py-2 bg-black hover:bg-gray-700 text-white rounded-md"
-          >
-            Add
-          </button>
-
-          <div class="relative ml-2">
-            <input
-              type="text"
-              id="search-numerphone-customer"
-              class="border border-gray-300 p-2 rounded-md pr-10"
-              placeholder="Enter Phonenumber"
-            />
-            <span
-              id="clear-numerphone-button"
-              class="absolute right-2 top-2 cursor-pointer text-gray-500"
-              style="display: none"
-              onclick="clearInput()"
-            >
-              &times;
-            </span>
-          </div>
-          <button
-            id="search-numerphone-button"
-            class="ml-2 px-4 py-2 bg-black hover:bg-gray-700 text-white rounded-md"
-          >
-            Search
-          </button>
-        </div>
-
-        <!-- Selected user info and promotions -->
-        <div
-          id="selected-user-info"
-          class="mt-4 p-4 border border-gray-200 rounded-md hidden flex"
-        >
-          <div class="w-1/2 pr-4">
-            <h3 class="text-lg font-medium text-gray-900">Selected User</h3>
-            <div id="user-details" class="mt-2">
-              <!-- User details will be displayed here -->
-            </div>
-          </div>
-          <div class="w-px bg-gray-600 px-1 mx-4" style="width: 2px"></div>
-          <div class="w-1/2 pl-4">
-            <h3 class="text-lg font-medium text-gray-900">User Promotions</h3>
-            <div id="promotion-details" class="mt-2">
-              <!-- Promotion details will be displayed here -->
-            </div>
-          </div>
-        </div>
-
-        <hr class="border-t-2 border-black mb-4" />
-
-        <!-- Selected products and total -->
-        <div
-          class="overflow-y-scroll mt-3 max-h-90"
-          id="selected-products-container"
-        >
-          <table class="min-w-full divide-y divide-gray-200 table-fixed">
-            <thead>
-              <tr>
-                <th
-                  class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Name
-                </th>
-                <th
-                  class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Product Code
-                </th>
-                <th
-                  class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Price
-                </th>
-                <th
-                  class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Quantity
-                </th>
-                <th class="px-4 py-2 bg-gray-50"></th>
-              </tr>
-            </thead>
-            <tbody
-              id="selected-products"
-              class="bg-white divide-y divide-gray-200"
-            >
-              <!-- Selected products will be displayed here -->
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Footer -->
-        <div class="mt-auto pt-4 border-t-2 border-black">
-          <div class="flex justify-between items-center">
-            <div>Total Price Raw</div>
-            <div id="totalPriceRaw"></div>
-          </div>
-          <div class="flex justify-between items-center">
-            <div>Discount Price</div>
-            <div id="discountPrice"></div>
-          </div>
-          <div class="flex justify-between items-center">
-            <div>Subtotal</div>
-            <div id="subtotal"></div>
-          </div>
-          <div class="flex justify-between mt-4">
-            <div class="mt-4 flex justify-between space-x-2">
-              <button
-                id="reset-order-button"
-                class="bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded-md"
-              >
-                Recreate the order
-              </button>
-              <button
-                id="create-invoice-button"
-                class="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
-              >
-                Create Invoice
-              </button>
-              <button
-                type="button"
-                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-                id="open-payment-modal"
-              >
-                VNPAY Payment
-              </button>
-            </div>
-          </div>
-        </div>
+      <div id="product-sold">
+        <!-- hiện ra các sản phẩm đã chọn  -->
       </div>
     </div>
 
-    <!-- View invoice modal -->
-    <div
-      id="view-invoice-modal"
-      class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center"
-    >
-      <div
-        class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-7xl sm:w-full"
-      >
-        <div class="bg-white p-4">
-          <div class="flex justify-between items-center">
-            <h3 class="text-lg leading-6 font-medium text-gray-900">
-              Chi Tiết Hóa Đơn
-            </h3>
-            <button
-              type="button"
-              class="text-gray-400 hover:text-gray-500 close-view-invoice-modal-btn"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+    <!-- Sidebar tính tiền -->
+    <div class="w-1/2 bg-gray-200 rounded-lg shadow-md p-8 ml-6 flex flex-col justify-between">
+      <div class="mt-4 mb-4 flex items-center">
+        <button id="insert-customer-button" class="ml-2 px-4 py-2 bg-black hover:bg-gray-700 text-white rounded-md">
+          Create Customer
+        </button>
+
+
+
+
+
+      </div>
+
+      <hr class="border-t-2 border-black mb-4" />
+      <div class="mt-4 mb-4 flex items-center">
+        <div class="relative inline-block">
+          <input type="text" id="user-id-input" class="border border-gray-300 p-2 rounded-md"
+            placeholder="Enter Customer ID" />
+          <span id="clear-user-id-button" class="absolute right-2 top-2 cursor-pointer text-gray-500"
+            style="display: none" onclick="clearUserIdInput()">
+            &times;
+          </span>
+        </div>
+
+        <button id="add-user-button" class="ml-2 px-4 py-2 bg-black hover:bg-gray-700 text-white rounded-md">
+          Add
+        </button>
+
+        <div class="relative ml-2">
+          <input type="text" id="search-numerphone-customer" class="border border-gray-300 p-2 rounded-md pr-10"
+            placeholder="Enter Phonenumber" />
+          <span id="clear-numerphone-button" class="absolute right-2 top-2 cursor-pointer text-gray-500"
+            style="display: none" onclick="clearInput()">
+            &times;
+          </span>
+        </div>
+        <button id="search-numerphone-button" class="ml-2 px-4 py-2 bg-black hover:bg-gray-700 text-white rounded-md">
+          Search
+        </button>
+      </div>
+
+      <!-- Selected user info and promotions -->
+      <div id="selected-user-info" class="mt-4 p-4 border border-gray-200 rounded-md hidden flex">
+        <div class="w-1/2 pr-4">
+          <h3 class="text-lg font-medium text-gray-900">Selected User</h3>
+          <div id="user-details" class="mt-2">
+            <!-- User details will be displayed here -->
+          </div>
+        </div>
+        <div class="w-px bg-gray-600 px-1 mx-4" style="width: 2px"></div>
+        <div class="w-1/2 pl-4">
+          <h3 class="text-lg font-medium text-gray-900">User Promotions</h3>
+          <div id="promotion-details" class="mt-2">
+            <!-- Promotion details will be displayed here -->
+          </div>
+        </div>
+      </div>
+
+      <hr class="border-t-2 border-black mb-4" />
+
+      <!-- Selected products and total -->
+      <div class="overflow-y-scroll mt-3 max-h-90" id="selected-products-container">
+        <table class="min-w-full divide-y divide-gray-200 table-fixed">
+          <thead>
+            <tr>
+              <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Name
+              </th>
+              <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Product Code
+              </th>
+              <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Price
+              </th>
+              <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Quantity
+              </th>
+              <th class="px-4 py-2 bg-gray-50"></th>
+            </tr>
+          </thead>
+          <tbody id="selected-products" class="bg-white divide-y divide-gray-200">
+            <!-- Selected products will be displayed here -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Footer -->
+      <div class="mt-auto pt-4 border-t-2 border-black">
+        <div class="flex justify-between items-center">
+          <div>Total Price Raw</div>
+          <div id="totalPriceRaw"></div>
+        </div>
+        <div class="flex justify-between items-center">
+          <div>Discount Price</div>
+          <div id="discountPrice"></div>
+        </div>
+        <div class="flex justify-between items-center">
+          <div>Subtotal</div>
+          <div id="subtotal"></div>
+        </div>
+        <div class="flex justify-between mt-4">
+          <div class="mt-4 flex justify-between space-x-2">
+            <button id="reset-order-button" class="bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded-md">
+              Recreate the order
+            </button>
+            <button id="create-invoice-button" class="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
+              Create Invoice
+            </button>
+            <button type="button" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+              id="open-payment-modal">
+              VNPAY Payment
             </button>
           </div>
-          <div class="mt-4" id="invoice-details">
-            <!-- Invoice details will be displayed here dynamically -->
-          </div>
-        </div>
-        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-          <button
-            type="button"
-            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm close-view-invoice-modal-btn"
-          >
-            Đóng
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Payment modal -->
-    <div
-      id="payment-modal"
-      class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center"
-    >
-      <div
-        class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-2xl sm:w-full"
-      >
-        <div class="bg-white p-4">
-          <div class="flex justify-between items-center">
-            <h3 class="text-lg leading-6 font-medium text-gray-900">
-              Thông Tin Thanh Toán
-            </h3>
-            <button
-              type="button"
-              class="text-gray-400 hover:text-gray-500"
-              id="close-payment-modal"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-          <div class="mt-4">
-            <p id="customer-info"></p>
-            <p id="amount-info"></p>
-            <label
-              for="bank-select"
-              class="block text-sm font-medium text-gray-700"
-              >Chọn Ngân Hàng</label
-            >
-            <select
-              id="bank-select"
-              class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            >
-              <option value="">Select the bank</option>
-              <option value="">QR code</option>
-              <option value="NCB">Ngân hàng Quốc Dân (NCB)</option>
-              <option value="VIETCOMBANK">
-                Ngân hàng Thương mại Cổ phần Ngoại thương Việt Nam (Vietcombank)
-              </option>
-              <option value="TECHCOMBANK">
-                Ngân hàng Thương mại Cổ phần Kỹ Thương Việt Nam (Techcombank)
-              </option>
-              <option value="BIDV">
-                Ngân hàng Thương mại Cổ phần Đầu tư và Phát triển Việt Nam
-                (BIDV)
-              </option>
-              <option value="VIETINBANK">
-                Ngân hàng Thương mại Cổ phần Công Thương Việt Nam (Vietinbank)
-              </option>
-              <option value="AGRIBANK">
-                Ngân hàng Nông nghiệp và Phát triển Nông thôn Việt Nam
-                (Agribank)
-              </option>
-              <option value="SACOMBANK">
-                Ngân hàng Thương mại Cổ phần Sài Gòn Thương Tín (Sacombank)
-              </option>
-              <option value="VPBANK">
-                Ngân hàng Thương mại Cổ phần Việt Nam Thịnh Vượng (VPBank)
-              </option>
-              <option value="ACB">
-                Ngân hàng Thương mại Cổ phần Á Châu (ACB)
-              </option>
-              <option value="TPBANK">
-                Ngân hàng Thương mại Cổ phần Tiên Phong (TPBank)
-              </option>
-              <option value="EXIMBANK">
-                Ngân hàng Xuất Nhập Khẩu Việt Nam (Eximbank)
-              </option>
-              <!-- Thêm các tùy chọn ngân hàng khác tại đây -->
-            </select>
-          </div>
-          <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-            <button
-              type="button"
-              class="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-              id="redirect-to-bank"
-            >
-              Chuyển đến ngân hàng
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </body>
-
-  <!-- Modal Xác Nhận -->
-  <div id="confirm-modal" class="fixed z-10 inset-0 overflow-y-auto hidden">
-    <div
-      class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
-    >
-      <div class="fixed inset-0 transition-opacity" aria-hidden="true">
-        <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
-      </div>
-      <span
-        class="hidden sm:inline-block sm:align-middle sm:h-screen"
-        aria-hidden="true"
-        >&#8203;</span
-      >
-      <div
-        class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
-      >
-        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-          <div class="sm:flex sm:items-start">
-            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-              <h3
-                class="text-lg leading-6 font-medium text-gray-900"
-                id="modal-title"
-              >
-                Xác nhận thanh toán
-              </h3>
-              <div class="mt-2" id="confirm-modal-content">
-                <!-- Nội dung xác nhận sẽ được thêm vào đây -->
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-          <button
-            id="confirm-modal-yes"
-            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
-          >
-            Xác nhận
-          </button>
-          <button
-            id="confirm-modal-no"
-            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-          >
-            Hủy bỏ
-          </button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Modal HTML -->
-  <div
-    id="user-info-modal"
-    class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden"
-  >
-    <div class="bg-white p-6 rounded-md w-1/3">
-      <h2 class="text-xl font-bold mb-4">User Information</h2>
-      <div id="user-info-content">
-        <!-- User info will be displayed here -->
+  <!-- View invoice modal -->
+  <div id="view-invoice-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center">
+    <div class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-7xl sm:w-full">
+      <div class="bg-white p-4">
+        <div class="flex justify-between items-center">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">
+            Invoice Details
+          </h3>
+          <button type="button" class="text-gray-400 hover:text-gray-500 close-view-invoice-modal-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="mt-4" id="invoice-details">
+          <!-- Invoice details will be displayed here dynamically -->
+        </div>
       </div>
-      <button
-        id="close-modal"
-        class="mt-4 px-4 py-2 bg-red-500 hover:bg-red-700 text-white rounded-md"
-      >
-        Close
-      </button>
+      <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+        <button type="button"
+          class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm close-view-invoice-modal-btn">
+          Close
+        </button>
+      </div>
     </div>
   </div>
+
+  <!-- Payment modal -->
+  <div id="payment-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center">
+    <div class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-2xl sm:w-full">
+      <div class="bg-white p-4">
+        <div class="flex justify-between items-center">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">
+            Billing Information
+          </h3>
+          <button type="button" class="text-gray-400 hover:text-gray-500" id="close-payment-modal">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="mt-4">
+          <p id="customer-info"></p>
+          <p id="amount-info"></p>
+          <label for="bank-select" class="block text-sm font-medium text-gray-700">Select Bank</label>
+          <select id="bank-select"
+            class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            <option value="">Select the bank</option>
+            <option value="">QR code</option>
+            <option value="NCB">Ngân hàng Quốc Dân (NCB)</option>
+            <option value="VIETCOMBANK">
+              Ngân hàng Thương mại Cổ phần Ngoại thương Việt Nam (Vietcombank)
+            </option>
+            <option value="TECHCOMBANK">
+              Ngân hàng Thương mại Cổ phần Kỹ Thương Việt Nam (Techcombank)
+            </option>
+            <option value="BIDV">
+              Ngân hàng Thương mại Cổ phần Đầu tư và Phát triển Việt Nam
+              (BIDV)
+            </option>
+            <option value="VIETINBANK">
+              Ngân hàng Thương mại Cổ phần Công Thương Việt Nam (Vietinbank)
+            </option>
+            <option value="AGRIBANK">
+              Ngân hàng Nông nghiệp và Phát triển Nông thôn Việt Nam
+              (Agribank)
+            </option>
+            <option value="SACOMBANK">
+              Ngân hàng Thương mại Cổ phần Sài Gòn Thương Tín (Sacombank)
+            </option>
+            <option value="VPBANK">
+              Ngân hàng Thương mại Cổ phần Việt Nam Thịnh Vượng (VPBank)
+            </option>
+            <option value="ACB">
+              Ngân hàng Thương mại Cổ phần Á Châu (ACB)
+            </option>
+            <option value="TPBANK">
+              Ngân hàng Thương mại Cổ phần Tiên Phong (TPBank)
+            </option>
+            <option value="EXIMBANK">
+              Ngân hàng Xuất Nhập Khẩu Việt Nam (Eximbank)
+            </option>
+            <!-- Thêm các tùy chọn ngân hàng khác tại đây -->
+          </select>
+        </div>
+        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+          <button type="button"
+            class="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+            id="redirect-to-bank">
+            Go to the bank
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+<!-- Modal Xác Nhận -->
+<div id="confirm-modal" class="fixed z-10 inset-0 overflow-y-auto hidden">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+      <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+    </div>
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+    <div
+      class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+      <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+        <div class="sm:flex sm:items-start">
+          <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+              Payment Confirmation
+            </h3>
+            <div class="mt-2" id="confirm-modal-content">
+              <!-- Nội dung xác nhận sẽ được thêm vào đây -->
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+        <button id="confirm-modal-yes"
+          class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+          Confirm
+        </button>
+        <button id="confirm-modal-no"
+          class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal HTML -->
+<div id="user-info-modal"
+  class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+  <div class="bg-white p-6 rounded-md w-1/3">
+    <h2 class="text-xl font-bold mb-4">User Information</h2>
+    <div id="user-info-content">
+      <!-- User info will be displayed here -->
+    </div>
+    <button id="close-modal" class="mt-4 px-4 py-2 bg-red-500 hover:bg-red-700 text-white rounded-md">
+      Close
+    </button>
+  </div>
+</div>
+
+
+
+
+<!-- Insert User Modal -->
+<div id="insertUserModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+  <div class="bg-white rounded-lg shadow-lg w-2/3">
+    <div class="px-4 py-2 flex justify-between items-center bg-gray-800 text-white rounded-t-lg">
+      <h2 class="text-lg">Insert User</h2>
+      <button id="close-insert-modal" class="text-white">&times;</button>
+    </div>
+    <div class="p-4">
+      <form id="insert-user-form" enctype="multipart/form-data" class="flex space-x-4">
+        <div class="w-1/3 border-r-4 border-gray-800 mr-2 pr-2">
+          <div class="flex flex-col items-center justify-center">
+            <img id="insertEmployeeImagePreview" src="#" alt="Employee Image"
+              class="w-64 h-64 object-cover border border-gray-300 rounded-md mb-4" />
+            <div class="flex items-center justify-center w-full">
+              <label for="insert-file"
+                class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50">
+                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                  <svg class="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                    fill="none" viewBox="0 0 20 16">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+                  </svg>
+                  <p class="mb-2 text-sm text-gray-500">
+                    <span class="font-semibold">Click to upload</span> or drag
+                    and drop
+                  </p>
+                  <p class="text-xs text-gray-500">
+                    SVG, PNG, JPG or GIF (MAX. 800x400px)
+                  </p>
+                </div>
+                <input id="insert-file" type="file" name="file" class="hidden" accept="image/*" />
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="w-2/3">
+          <div class="mb-4">
+            <label for="insert-fullName" class="block text-gray-700">Full Name</label>
+            <input type="text" id="insert-fullName" name="fullName" class="w-full px-3 py-2 border rounded" required />
+          </div>
+          <div class="mb-4">
+            <label for="insert-phoneNumber" class="block text-gray-700">Phone Number</label>
+            <input type="text" id="insert-phoneNumber" name="phoneNumber" class="w-full px-3 py-2 border rounded"
+              required />
+          </div>
+          <div class="mb-4">
+            <label for="insert-email" class="block text-gray-700">Email</label>
+            <input type="email" id="insert-email" name="email" class="w-full px-3 py-2 border rounded" required />
+          </div>
+          <div class="mb-4">
+            <label for="insert-address" class="block text-gray-700">Address</label>
+            <input type="text" id="insert-address" name="address" class="w-full px-3 py-2 border rounded" required />
+          </div>
+          <div class="mb-4">
+            <input type="hidden" id="insert-role" name="roleId" value="4" />
+          </div>
+          <div class="flex justify-end">
+            <button type="submit" class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded ml-3">Insert</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
 </html>
