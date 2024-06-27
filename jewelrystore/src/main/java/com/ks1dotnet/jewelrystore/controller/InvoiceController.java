@@ -291,6 +291,17 @@ public class InvoiceController {
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
 
+    @GetMapping("/employee2")
+    public ResponseEntity<?> getInvoicesByEmployeeId2(@RequestParam String employeeId, @RequestParam int page,
+            @RequestParam int size) {
+        Page<InvoiceDTO> invoices = invoiceService.getInvoicesByEmployeeId2(employeeId, page, size);
+        ResponseData responseData = new ResponseData(HttpStatus.OK,
+                "Get top invoices for employee ID: " + employeeId + " Page: " + page + " Size: " + size
+                        + " successfully",
+                invoices);
+        return new ResponseEntity<>(responseData, HttpStatus.OK);
+    }
+
     @GetMapping("/revenue/top5employees")
     public ResponseEntity<ResponseData> getTop5EmployeesByRevenue(@RequestParam String period,
             @RequestParam int year,

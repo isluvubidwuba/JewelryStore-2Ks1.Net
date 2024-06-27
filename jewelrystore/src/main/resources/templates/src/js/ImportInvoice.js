@@ -103,11 +103,11 @@ $(document).ready(function () {
           addProductToTable(product);
           $("#barcodeInput").val("");
         } else {
-          alert("Không tìm thấy sản phẩm với mã barcode này.");
+          alert("No products found with this barcode !!!");
         }
       },
       error: function () {
-        alert("Không tìm thấy sản phẩm với mã barcode này.");
+        alert("No products found with this barcode !!!");
       },
     });
   }
@@ -125,11 +125,11 @@ $(document).ready(function () {
           displaySupplierInfo(response);
           $("#supplierInput").val("");
         } else {
-          alert("Không tìm thấy nhà cung cấp với mã này.");
+          alert("No supplier found with this code !!!");
         }
       },
       error: function () {
-        alert("Không tìm thấy nhà cung cấp với mã này.");
+        alert("No supplier found with this code !!!");
       },
     });
   }
@@ -147,12 +147,14 @@ $(document).ready(function () {
 
     // Kiểm tra xem giá trị có rỗng hay không
     if (paymentMethod === null || paymentMethod === "") {
-      alert("Phương thức thanh toán chưa được chọn.");
+      alert("Payment method has not been selected !!!");
       return;
     }
     let employeeID = localStorage.getItem("userId"); // ID của nhân viên từ token
     if (!employeeID || !supplierId) {
-      alert("Vui lòng chọn nhà cung cấp và đảm bảo nhân viên đã đăng nhập.");
+      alert(
+        "Please select a provider and make sure the employee is logged in !!!"
+      );
       return;
     }
 
@@ -191,16 +193,16 @@ $(document).ready(function () {
       data: JSON.stringify(importInvoiceRequestWrapper),
       success: function (response) {
         if (response.status === "OK") {
-          alert("Tạo hóa đơn thành công!");
+          alert("Invoice created successfully !!!");
           // Xóa các sản phẩm khỏi bảng và đặt lại tổng giá tiền
           selectedProductsTable.empty();
           updateTotalPrice();
         } else {
-          alert("Tạo hóa đơn thất bại: " + response.desc);
+          alert("Invoice creation failed: " + response.desc);
         }
       },
       error: function () {
-        alert("Có lỗi xảy ra khi tạo hóa đơn.");
+        alert("Can error occurred while creating the invoice !!!");
       },
     });
   }

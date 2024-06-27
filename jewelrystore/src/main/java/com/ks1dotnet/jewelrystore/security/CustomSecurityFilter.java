@@ -74,7 +74,8 @@ public class CustomSecurityFilter {
                                                 .requestMatchers("/authentication/**", "/role/list",
                                                                 "/employee/upload/**",
                                                                 "/earnpoints/**", "/gemStone/**",
-                                                                "/employee/listemployee/**")
+                                                                "/employee/listemployee/**",
+                                                                "/employee/update")
                                                 .permitAll()
                                                 // Employee
                                                 .requestMatchers("/employee/listpage",
@@ -82,7 +83,6 @@ public class CustomSecurityFilter {
                                                                 "/employee/upload")
                                                 .hasAnyAuthority("ADMIN", "MANAGER")
                                                 .requestMatchers("/employee/insert",
-                                                                "/employee/update",
                                                                 "/employee/delete/**")
                                                 .hasAuthority("ADMIN")
                                                 .requestMatchers("/employee/**")
@@ -98,7 +98,6 @@ public class CustomSecurityFilter {
                                                                 "/counter/moveProductsToCounter")
                                                 .hasAnyAuthority("MANAGER", "STAFF", "ADMIN")
                                                 .requestMatchers("/counter/update",
-                                                                "/counter/inactive",
                                                                 "/counter/inactive",
                                                                 "/counter/delete/{id}",
                                                                 "/counter/insert")
@@ -117,7 +116,10 @@ public class CustomSecurityFilter {
                                                                 "/userinfo/searchcustomer", "userinfo/upload",
                                                                 "userinfo/uploadget", "/customertype/findall",
                                                                 "/userinfo/listsupplier",
-                                                                "/userinfo/searchsupplier", "/userinfo/getcustomer/**")
+                                                                "/userinfo/searchsupplier",
+                                                                "/userinfo/getcustomer/{id}",
+                                                                "/userinfo/findsupplier/{id}",
+                                                                "/userinfo/phonenumbercustomer")
                                                 .hasAnyAuthority("STAFF", "MANAGER", "ADMIN")
 
                                                 .requestMatchers("/userinfo/update",

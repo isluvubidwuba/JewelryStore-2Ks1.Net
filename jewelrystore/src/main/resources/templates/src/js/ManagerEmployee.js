@@ -5,6 +5,7 @@ $(document).ready(function () {
   fetchEmployees(0);
 });
 const token = localStorage.getItem("token");
+
 let currentPage = 0;
 
 function initializePagination() {
@@ -66,21 +67,18 @@ function renderEmployees(employees) {
               <td class="px-6 py-4" id="employee-image-${employee.id}">
                   Loading...
               </td>
-              <td class="px-6 py-3">${employee.lastName} ${
-      employee.firstName
-    }</td>
+              <td class="px-6 py-3">${employee.lastName} ${employee.firstName
+      }</td>
               <td class="px-6 py-3">${employee.role.name}</td>
               <td class="px-6 py-3">${statusLabel}</td>
               <td class="px-6 py-3">${formatCurrency(
-                employee.totalRevenue
-              )}</td>
+        employee.totalRevenue
+      )}</td>
               <td class="px-6 py-3">
-                  <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" onclick="viewEmployee('${
-                    employee.id
-                  }')">View</button>
-                  <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" onclick="viewEmployee2('${
-                    employee.id
-                  }')">Revenue</button>
+                  <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" onclick="viewEmployee('${employee.id
+      }')">View</button>
+                  <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" onclick="viewEmployee2('${employee.id
+      }')">Revenue</button>
                   
               </td>
           </tr>
@@ -203,14 +201,21 @@ function openModal() {
 
 function closeModal() {
   $("#viewEmployeeModal").addClass("hidden");
+  $("#insertEmployeeModal").addClass("hidden");
   // Xóa ảnh và form khi đóng modal
   clearUpdateForm();
 }
 
 function updateEmployee() {
   var formData = new FormData($("#viewEmployeeForm")[0]);
+  var fileInput = $("#viewEmployeeImageFile")[0];
 
-  formData.append("file", $("#viewEmployeeImageFile").val());
+  formData.append("file", fileInput.files[0]);
+
+  // In ra console để kiểm tra FormData
+  for (var pair of formData.entries()) {
+    console.log(pair[0] + ": " + pair[1]);
+  }
 
   $.ajax({
     url: `http://localhost:8080/employee/update`,
@@ -300,8 +305,8 @@ function handleInsertEmployee(event) {
       if (response.status === "OK") {
         alert(response.desc);
         handleSendMailEmployee(response.data);
-        closeModal();
         fetchEmployees(currentPage);
+        closeInsertModal();
       } else {
         alert("Failed to update employee: " + response.desc);
       }

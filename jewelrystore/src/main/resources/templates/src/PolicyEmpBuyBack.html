@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Resale Invoice</title>
+    <title>BUYBACK POLICY</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="css/styles.css" rel="stylesheet" />
     <script src="js/jquery.min.js"></script>
     <script src="js/policy.js"></script>
@@ -12,17 +13,31 @@
   <body>
     <div id="container" class="flex">
       <!-- side bar -->
-      <div id="sidebarContainer" class="h-screen text-white">
+      <div id="sidebarContainer" class="h-screen bg-gray-800 text-white">
         @@include('components/sidebarForStaff.html')
       </div>
-      <!-- Main Section -->
+
       <div class="w-full h-screen overflow-x-hidden border-t flex flex-col">
         <main class="w-full flex-grow p-6">
-          <div class="w-full mb-2">
+          <div class="text-center">
+            <h1 class="text-3xl font-bold">BUYBACK</h1>
+          </div>
+          <div class="mt-8">
+            <h2 class="text-xl font-bold">BUYBACK POLICY</h2>
+            <p class="mt-4">
+              We hope you are pleased with your jewelry purchase from 2KS1.NET.
+              If you wish to sell back your jewelry, we offer a buyback policy
+              within 60 days of purchase. Please note that we do not accept
+              returns or exchanges.
+            </p>
+          </div>
+          <div class="mt-8">
+            <h3 class="text-lg font-bold">
+              Policy is being applied at 2KS1.NET® store
+            </h3>
+          </div>
+          <div class="w-full mb-2 mt-4">
             <div class="flex items-center justify-between">
-              <p class="text-xl pb-3 flex items-center">
-                <i class="fas fa-list mr-3"></i> Buy Back Policy
-              </p>
               <!-- Search Button -->
               <div class="flex items-center">
                 <input
@@ -103,7 +118,7 @@
           <div
             class="w-full flex justify-center sm:justify-between flex-col sm:flex-row gap-5 mt-1.5 px-1 items-center"
           >
-            <div class="text-lg" id="entries-info">
+            <div class="text-sm italic text-gray-700" id="entries-info">
               <!-- Entry information will be dynamically updated here -->
             </div>
             <div class="flex">
@@ -115,6 +130,40 @@
                 <!-- Pagination buttons will be dynamically inserted here -->
               </ul>
             </div>
+          </div>
+
+          <div class="mt-8">
+            <h4 class="text-lg font-bold">
+              For jewelry buybacks at our store, please be aware that the value
+              of the item may decrease based on the following policies:
+            </h4>
+            <ul class="list-disc list-inside mt-4">
+              <li>
+                Material: The buyback price may vary depending on the type of
+                material (e.g., gold, silver, platinum). Different materials may
+                have different depreciation rates.
+              </li>
+              <li>
+                Gemstone: The buyback price may also be affected by the type and
+                quality of gemstones. Specific gemstones may have distinct
+                buyback policies.
+              </li>
+              <li>
+                Category: Certain categories of jewelry may be subject to
+                different buyback terms. For example, rings, necklaces, and
+                bracelets might have varying rates of depreciation.
+              </li>
+              <li>
+                Product: Individual products may have unique buyback conditions
+                based on their original purchase price, condition, and market
+                demand.
+              </li>
+            </ul>
+            <span class="italic text-blue-800 pt-4">
+              Please ensure customers are informed of these policies and
+              conditions before completing any buyback transaction. Thank you
+              for your attention to detail in managing these procedures.
+            </span>
           </div>
         </main>
       </div>

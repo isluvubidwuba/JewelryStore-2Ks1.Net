@@ -74,15 +74,14 @@ public class UserInfoService implements IUserInfoService {
             int roleId,
             String address) {
         ResponseData responseData = new ResponseData();
-        phoneNumber.trim();
-        email.trim();
+        phoneNumber = phoneNumber.trim();
+        email = email.trim();
 
         String fileName = null;
 
         // Upload hình ảnh nếu có
-        responseData = firebaseStorageService.uploadImage(file, filePath);
-        if (responseData.getStatus() == HttpStatus.OK) {
-            fileName = (String) responseData.getData();
+        if (file != null && !file.isEmpty()) {
+            fileName = firebaseStorageService.uploadImage(file, filePath).getData().toString();
         } else {
             fileName = "3428f415-1df9-499d-93d3-1ce159b12c06_2024-06-12";
         }
@@ -120,8 +119,11 @@ public class UserInfoService implements IUserInfoService {
             iEarnPointsRepository.save(earnPoints);
         }
 
+        // Tim user vua duoc insert vao he thong
+        System.out.println("check thoong tin tra lai user information : " + userInfo.getDTO().getId());
+        responseData.setData(userInfo.getDTO());
         responseData.setStatus(HttpStatus.OK);
-        responseData.setDesc("Insert successful");
+        responseData.setDesc("Insert User Information Successful");
         return responseData;
 
     }
@@ -132,7 +134,7 @@ public class UserInfoService implements IUserInfoService {
         ResponseData responseData = new ResponseData();
 
         String fileName = null;
-        if (file.getSize() > 0) {
+        if (file != null && !file.isEmpty()) {
             fileName = firebaseStorageService.uploadImage(file, filePath).getData().toString();
         }
 
@@ -368,6 +370,28 @@ public class UserInfoService implements IUserInfoService {
             return responseData;
         } catch (Exception e) {
             throw new RunTimeExceptionV1("Find Customer error", e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseData findByPhoneNumber(String phone) {
+        try {
+            Optional<UserInfo> optionalUserInfo = iUserInfoRepository.findByPhoneNumber(phone);
+            if (optionalUserInfo.isPresent()) {
+                UserInfo userInfo = optionalUserInfo.get();
+                ResponseData responseData = new ResponseData();
+                responseData.setData(userInfo.getDTO());
+                responseData.setStatus(HttpStatus.OK);
+                responseData.setDesc("Found Customer In The System");
+                return responseData;
+            } else {
+                ResponseData responseData = new ResponseData();
+                responseData.setStatus(HttpStatus.NOT_FOUND);
+                responseData.setDesc("Not Found Customer In The System !!!");
+                return responseData;
+            }
+        } catch (Exception e) {
+            throw new RunTimeExceptionV1("An error occurred while finding the customer", e.getMessage());
         }
     }
 

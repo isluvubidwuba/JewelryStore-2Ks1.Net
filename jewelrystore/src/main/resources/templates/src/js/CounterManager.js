@@ -622,9 +622,9 @@ function populateInactiveCounterTable(counters) {
   tableBody.empty();
   counters.forEach((counter) => {
     const row = `
-            <tr>
+            <tr class="text-center">
                 <td class="py-2 px-4 border-b">${counter.id}</td>
-                <td class="py-2 px-4 border-b">
+                <td class="py-2 px-4">
                     <input type="text" value="${
                       counter.name
                     }" class="name-input border rounded p-1" data-id="${
@@ -632,7 +632,7 @@ function populateInactiveCounterTable(counters) {
     }" />
                 </td>
                 <td class="py-2 px-4 border-b">
-                    <select class="status-select border rounded p-1" data-id="${
+                    <select class="status-select rounded p-1" data-id="${
                       counter.id
                     }">
                         <option value="true" ${

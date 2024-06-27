@@ -18,32 +18,41 @@
 
     <style>
       @import url("https://fonts.googleapis.com/css?family=Karla:400,700&display=swap");
+
       .font-family-karla {
         font-family: karla;
       }
+
       .bg-sidebar {
         background: #3d68ff;
       }
+
       .cta-btn {
         color: #3d68ff;
       }
+
       .upgrade-btn {
         background: #1947ee;
       }
+
       .upgrade-btn:hover {
         background: #0038fd;
       }
+
       .active-nav-link {
         background: #1947ee;
       }
+
       .nav-item:hover {
         background: #1947ee;
       }
+
       .account-link:hover {
         background: #3d68ff;
       }
     </style>
   </head>
+
   <body class="bg-gray-100 font-family-karla flex overflow-x-hidden">
     <!-- Side bar -->
     <div id="sidebar-placeholder">@@include('components/sidebar.html')</div>
@@ -58,46 +67,45 @@
             <h1 class="text-3xl text-black pb-6">View Product</h1>
             <button
               id="modalToggle_Create"
-              class="ml-auto bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+              class="ml-auto bg-black hover:bg-gray-700 text-white px-4 py-2 rounded hover:bg-blue-700"
             >
               Create Product
             </button>
           </div>
 
-          <div class="flex justify-end" id="searchProduct">
-            <div class="flex flex-col justify-start">
+          <form
+            class="max-w-xs my-1 ml-auto outline-none border shadow-sm rounded-xl hover:shadow-lg transition"
+          >
+            <div class="flex relative" id="searchProduct">
               <input
                 type="search"
                 id="search-input"
-                class="pl-4 pr-5 py-2 text-sm rounded-lg border border-gray-300 w-96 h-10 shadow-md hover:shadow-xl"
-                placeholder="Enter product barcode or name"
-                required
+                class="outline-none block p-2.5 w-full z-10 text-sm bg-gray-50 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:placeholder-gray-400 dark:focus:border-blue-500 rounded-l-lg"
+                placeholder="Search..."
               />
-              <div class="mt-1 flex justify-start">
-                <select
-                  id="Material"
-                  name="Material"
-                  class="ml-2 pl-2 pr-2 py-2 text-sm rounded-lg border border-gray-300 w-fit h-10 shadow-md hover:shadow-xl"
+              <button
+                type="submit"
+                class="top-0 right-0 p-2.5 text-sm font-medium text-white bg-blue-700 rounded-r-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              >
+                <svg
+                  class="w-4 h-4"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 20 20"
                 >
-                  <option value="" selected>Choose a Material</option>
-                </select>
-                <select
-                  id="Category"
-                  name="Category"
-                  class="ml-2 pl-2 pr-2 py-2 text-sm rounded-lg border border-gray-300 w-fit h-10 shadow-md hover:shadow-xl"
-                >
-                  <option value="" selected>Choose a category</option>
-                </select>
-                <select
-                  id="Counter"
-                  name="Counter"
-                  class="ml-2 pl-2 pr-2 py-2 text-sm rounded-lg border border-gray-300 w-fit h-10 shadow-md hover:shadow-xl"
-                >
-                  <option value="" selected>Choose a counter</option>
-                </select>
-              </div>
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                  />
+                </svg>
+                <span class="sr-only">Search</span>
+              </button>
             </div>
-          </div>
+          </form>
           <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
             <table class="w-full h-full bg-blend-multiply text-sm text-center">
               <thead class="text-xs uppercase bg-gray-200 dark:text-gray-600">
@@ -144,7 +152,7 @@
               <button
                 type="button"
                 id="modalClose_Create"
-                class="text-gray-400 bg-transparent hover:bg-gray-200 hover:rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                class="text-gray-400 bg-transparent hover:bg-gray-200 hover:rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
               >
                 <svg
                   class="w-3 h-3"
@@ -181,7 +189,7 @@
                     type="text"
                     name="name"
                     id="nameC"
-                    class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                     placeholder="Name of product"
                     required
                   />
@@ -196,11 +204,9 @@
                   <select
                     id="idMaterialC"
                     name="idMaterialC"
-                    class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
                   >
-                    <option class="dark:placeholder-gray-400" selected>
-                      Select Material
-                    </option>
+                    <option class="" selected>Select Material</option>
                   </select>
                 </div>
                 <div class="col-span-2 sm:col-span-1">
@@ -212,11 +218,9 @@
                   <select
                     id="idCategoryC"
                     name="idCategoryC"
-                    class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
                   >
-                    <option class="dark:placeholder-gray-400" selected>
-                      Select Category
-                    </option>
+                    <option class="" selected>Select Category</option>
                   </select>
                 </div>
 
@@ -228,7 +232,7 @@
                     type="number"
                     name="feeC"
                     id="feeC"
-                    class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                     placeholder="vnd"
                     min="0"
                     required
@@ -242,7 +246,7 @@
                     type="number"
                     name="materialWeightC"
                     id="materialWeightC"
-                    class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                     placeholder="gram"
                     step="0.01"
                     min="0"
@@ -261,7 +265,7 @@
                         id="ImgcLabelPlaceHolder"
                       >
                         <svg
-                          class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
+                          class="w-8 h-8 mb-4 text-gray-500"
                           aria-hidden="true"
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
@@ -275,13 +279,11 @@
                             d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
                           />
                         </svg>
-                        <p
-                          class="mb-2 text-sm text-gray-500 dark:text-gray-400"
-                        >
+                        <p class="mb-2 text-sm text-gray-500">
                           <span class="font-semibold">Click to upload</span> or
                           drag and drop
                         </p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                        <p class="text-xs text-gray-500">
                           SVG, PNG, JPG or GIF (MAX. 800x400px)
                         </p>
                       </div>
@@ -294,7 +296,7 @@
                 <button
                   type="submit"
                   id="submit-insert"
-                  class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                  class="text-white bg-black hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                 >
                   Add new product
                 </button>
@@ -320,7 +322,7 @@
             <button
               type="button"
               id="modalClose_Detail"
-              class="text-gray-400 bg-transparent hover:bg-gray-200 hover:rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+              class="text-gray-400 bg-transparent hover:bg-gray-200 hover:rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
             >
               <svg
                 class="w-3 h-3"
@@ -579,19 +581,14 @@
                 </div>
               </form>
               <div class="col-span-2 w-full max-h-56">
-                <div class="flex justify-between">
-                  <label for="update-status" class="mb-2 font-extrabold"
+                <label for="update-status" class="mb-2 font-extrabold"
                   >GemStone of this product</label
                 >
-                <button class=" mx-0 bg-gray-100 flex items-center w-fit h-fit  px-4 rounded-md hover:bg-gray-300 transition duration-300 ease-in-out transform hover:scale-110" name="addGemStone" type="button"">
-                  Add gem
-                </button>
-                </div>
                 <div class="w-full mt-3 overflow-hidden">
-                  <div class="max-h-56 overflow-y-auto no-scrollbar">
-                    <table class="w-full bg-blend-multiply text-sm text-center ">
+                  <div class="max-h-56 overflow-y-auto">
+                    <table class="w-full bg-blend-multiply text-sm text-center">
                       <thead
-                        class="bg-gray-200 dark:text-gray-600 sticky top-0 z-10 "
+                        class="bg-gray-200 dark:text-gray-600 sticky top-0 z-10"
                       >
                         <tr>
                           <th scope="col" class="px-6 py-3">Category</th>
@@ -602,7 +599,7 @@
                       </thead>
                       <tbody
                         id="GemStone_detail_table"
-                        class="dark:text-gray-500 "
+                        class="dark:text-gray-500"
                       ></tbody>
                     </table>
                     <div><p id="notiBlank" class="text-center"></p></div>
@@ -681,185 +678,16 @@
                   </div>
                 </div>
               </div>
-              
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- createGemStone-modal -->
-      <div
-        id="createGemStone-modal"
-        class="flex overflow-y-auto overflow-x-hidden fixed inset-0 z-50 items-center justify-center w-full h-full bg-gray-500/50"
-      >
-        <div class="relative p-4 w-full max-w-md max-h-full">
-          <!-- Modal content -->
-          <div class="relative bg-white rounded-lg shadow">
-            <!-- Modal header -->
-            <div
-              class="flex items-center justify-between p-4 border-b rounded-t"
-            >
-              <h3 class="text-lg font-semibold">Create gemStone for product</h3>
-              <button
-                type="button"
-                id="modalClose_Create"
-                class="text-gray-400 bg-transparent hover:bg-gray-200 hover:rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-              >
-                <svg
-                  class="w-3 h-3"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 14 14"
-                >
-                  <path
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                  />
-                </svg>
-                <span class="sr-only">Close modal</span>
-              </button>
-            </div>
-            <!-- Modal body -->
-            <form
-              id="form-insert"
-              class="p-4 flex flex-col h-full"
-              action="/create"
-              method="post"
-              enctype="multipart/form-data"
-            >
-              <div class="grid gap-4 mb-4 grid-cols-2 flex-grow">
-                <div class="col-span-2 sm:col-span-1">
-                  <label for="nameGemC" class="block mb-2 text-sm font-medium"
-                    >Name</label
-                  >
-                  <input
-                    type="text"
-                    name="name"
-                    id="nameGemC"
-                    class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder="Name of product"
-                    required
-                  />
-                </div>
-                <div class="col-span-2 sm:col-span-1">
-                  <label class="block mb-2 text-sm font-medium"
-                    >Price</label
-                  >
-                  <input
-                    type="number"
-                    name="Price"
-                    id="priceC"
-                    class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder=""
-                    step="0.01"
-                    min="0"
-                    required
-                  />
-                </div>
-                <div class="col-span-2 sm:col-span-1">
-                  <label
-                    for="idTypeC"
-                    class="block mb-2 text-sm font-medium"
-                    >Type</label
-                  >
-                  <select
-                    id="idTypeC"
-                    name="idTypeC"
-                    class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                  >
-                    <option class="dark:placeholder-gray-400" selected>
-                      Select type gem
-                    </option>
-                  </select>
-                </div>
-                <div class="col-span-2 sm:col-span-1">
-                  <label
-                    for="idCategoryC"
-                    class="block mb-2 text-sm font-medium"
-                    >Category</label
-                  >
-                  <select
-                    id="idCategoryC"
-                    name="idCategoryC"
-                    class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                  >
-                    <option class="dark:placeholder-gray-400" selected>
-                      Select Category
-                    </option>
-                  </select>
-                </div>
-
-                
-                <div class="col-span-2 sm:col-span-1">
-                  <label class="block mb-2 text-sm font-medium"
-                    >Carat</label
-                  >
-                  <input
-                    type="number"
-                    name="carat"
-                    id="caratC"
-                    class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder=""
-                    step="0.01"
-                    min="0"
-                    required
-                  />
-                </div><div class="col-span-2 sm:col-span-1">
-                  <label class="block mb-2 text-sm font-medium"
-                    >Clarity</label
-                  >
-                  <input
-                    type="text"
-                    name="clarity"
-                    id="clarityC"
-                    class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder=""
-                    
-                    required
-                  />
-                </div>
-                <div class="col-span-2 sm:col-span-1">
-                  <label for="colorC" class="block mb-2 text-sm font-medium"
-                    >Color</label
-                  >
-                  <input
-                    type="text"
-                    name="colorC"
-                    id="colorC"
-                    class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    
-                    required
-                  />
-                </div>
-                <div class="col-span-2 sm:col-span-1">
-                  <label class="block mb-2 text-sm font-medium"
-                    >Quantity</label
-                  >
-                  <input
-                    type="number"
-                    name="Quantity"
-                    id="quantityC"
-                    class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder=""
-                    step="0.01"
-                    min="0"
-                    required
-                  />
-                </div>
-              </div>
-              <div class="flex justify-end">
+              <div class="flex justify-end mt-4">
                 <button
                   type="submit"
                   id="submit-insert"
                   class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 >
-                  Add new product
+                  Add new gems
                 </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       </div>

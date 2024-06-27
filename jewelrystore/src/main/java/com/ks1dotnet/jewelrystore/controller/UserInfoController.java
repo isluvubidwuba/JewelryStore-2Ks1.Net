@@ -33,7 +33,7 @@ public class UserInfoController {
 
     @PostMapping("/insert")
     public ResponseEntity<?> insertUserInfo(
-            @RequestParam MultipartFile file,
+            @RequestParam(required = false) MultipartFile file,
             @RequestParam String fullName,
             @RequestParam String phoneNumber,
             @RequestParam String email,
@@ -47,7 +47,7 @@ public class UserInfoController {
 
     @PostMapping("/update")
     public ResponseEntity<?> updateUser(
-            @RequestParam MultipartFile file,
+            @RequestParam(required = false) MultipartFile file,
             @RequestParam int id,
             @RequestParam String fullName,
             @RequestParam String phoneNumber,
@@ -109,6 +109,12 @@ public class UserInfoController {
     public ResponseEntity<?> getCustomerById(@PathVariable int id) {
         ResponseData responseData = iUserInfoService.getCustomerInfo(id);
         return new ResponseEntity<>(responseData.getData(), responseData.getStatus());
+    }
+
+    @GetMapping("/phonenumbercustomer")
+    public ResponseEntity<?> getPhoneNumberCustomer(@RequestParam String phone) {
+        ResponseData responseData = iUserInfoService.findByPhoneNumber(phone);
+        return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
 }
