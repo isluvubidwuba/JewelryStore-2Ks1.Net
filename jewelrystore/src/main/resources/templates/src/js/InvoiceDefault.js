@@ -1,3 +1,4 @@
+const apiurl = process.env.API_URL;
 $(document).ready(function () {
   //phần xuất hiện
   let productSoldDiv = $("#product-sold");
@@ -17,7 +18,6 @@ $(document).ready(function () {
   //function
   setupInsertModalToggle();
 
-
   $("#add-barcode-button").click(function () {
     const barcode = $("#barcode-input").val().trim();
     if (barcode) {
@@ -26,13 +26,6 @@ $(document).ready(function () {
     }
   });
 
-
-
-
-
-
-
-
   function setupInsertModalToggle() {
     // Function to display the image preview
     function readURL(input) {
@@ -40,17 +33,17 @@ $(document).ready(function () {
         var reader = new FileReader();
 
         reader.onload = function (e) {
-          $('#insertEmployeeImagePreview').attr('src', e.target.result).show();
+          $("#insertEmployeeImagePreview").attr("src", e.target.result).show();
         };
 
         reader.readAsDataURL(input.files[0]); // Convert the file to a Data URL
       } else {
-        $('#insertEmployeeImagePreview').attr('src', '#').hide();
+        $("#insertEmployeeImagePreview").attr("src", "#").hide();
       }
     }
 
     // Event listener for image file input change
-    $('#insert-file').change(function (e) {
+    $("#insert-file").change(function (e) {
       readURL(this);
     });
 
@@ -65,7 +58,9 @@ $(document).ready(function () {
       }
 
       if (!isValidPhoneNumber(phoneNumber)) {
-        alert("Invalid phone number. It should contain only digits and be between 10 to 12 digits long.");
+        alert(
+          "Invalid phone number. It should contain only digits and be between 10 to 12 digits long."
+        );
         return false;
       }
 
@@ -83,7 +78,7 @@ $(document).ready(function () {
     }
 
     // Form submission
-    $('#insert-user-form').on('submit', function (e) {
+    $("#insert-user-form").on("submit", function (e) {
       e.preventDefault();
 
       var form = $(this);
@@ -96,11 +91,11 @@ $(document).ready(function () {
 
       // Log the form data for debugging
       for (var pair of formData.entries()) {
-        console.log(pair[0] + ': ' + pair[1]);
+        console.log(pair[0] + ": " + pair[1]);
       }
 
       $.ajax({
-        url: "http://localhost:8080/userinfo/insert",
+        url: `http://${apiurl}/userinfo/insert`,
         method: "POST",
         processData: false,
         contentType: false,
@@ -109,50 +104,35 @@ $(document).ready(function () {
           Authorization: `Bearer ${token}`,
         },
         success: function (response) {
-          alert(response.desc || 'User inserted successfully');
-          $('#insertUserModal').addClass('hidden');
+          alert(response.desc || "User inserted successfully");
+          $("#insertUserModal").addClass("hidden");
           clearInsertForm(); // Clear form fields
           getUserById(response.data.id);
         },
         error: function (jqXHR, textStatus, errorThrown) {
           var response = jqXHR.responseJSON;
-          alert(response.desc || 'Error inserting user: ' + errorThrown);
-        }
+          alert(response.desc || "Error inserting user: " + errorThrown);
+        },
       });
     });
 
     // Show modal
-    $('#insert-customer-button').click(function () {
-      $('#insertUserModal').removeClass('hidden');
+    $("#insert-customer-button").click(function () {
+      $("#insertUserModal").removeClass("hidden");
     });
 
     // Hide modal
-    $('#close-insert-modal').click(function () {
-      $('#insertUserModal').addClass('hidden');
+    $("#close-insert-modal").click(function () {
+      $("#insertUserModal").addClass("hidden");
       clearInsertForm(); // Clear form data when the modal is closed
     });
   }
 
   // Function to clear the form data
   function clearInsertForm() {
-    $('#insert-user-form')[0].reset();
-    $('#insertEmployeeImagePreview').attr('src', '#').hide();
+    $("#insert-user-form")[0].reset();
+    $("#insertEmployeeImagePreview").attr("src", "#").hide();
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   $("#search-numerphone-customer").on("input", function () {
     var inputValue = $(this).val();
@@ -175,10 +155,8 @@ $(document).ready(function () {
       return;
     }
 
-    var apiUrl = `http://localhost:8080/userinfo/phonenumbercustomer?phone=${phone}`;
-
     $.ajax({
-      url: apiUrl,
+      url: `http://${apiurl}/userinfo/phonenumbercustomer?phone=${phone}`,
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -317,10 +295,11 @@ $(document).ready(function () {
     let modalContent = `
             <p>Client: ${userName}</p>
             <p>ID Client: ${userId}</p>
-            <p>Promotion: ${userPromotion
-        ? userPromotion.name + " - " + userPromotion.value + "%"
-        : "Do not have !!!"
-      }</p>
+            <p>Promotion: ${
+              userPromotion
+                ? userPromotion.name + " - " + userPromotion.value + "%"
+                : "Do not have !!!"
+            }</p>
             <p>Employee: ${employeeID}</p>
             <p>Total number of products: ${Object.keys(productMap).length}</p>
         `;
@@ -353,7 +332,7 @@ $(document).ready(function () {
     }
 
     $.ajax({
-      url: "http://localhost:8080/invoice/create-detail",
+      url: "http://${apiurl}/invoice/create-detail",
       method: "POST",
       data: JSON.stringify({
         barcode: barcode,
@@ -430,26 +409,33 @@ $(document).ready(function () {
     const productCard = $(`
         <div id="product-${barcode}" class="product-card border p-4 mb-4 rounded-md shadow-md grid grid-cols-12 gap-4">
             <div class="col-span-4">
-                <img src="${productData.product.imgPath}" alt="${productData.product.name
-      }" class="w-full h-auto rounded-md">
+                <img src="${productData.product.imgPath}" alt="${
+      productData.product.name
+    }" class="w-full h-auto rounded-md">
             </div>
             <div class="col-span-8">
-                <h3 class="text-xl font-semibold mb-2">${productData.product.name
-      }</h3>
-                <p class="text-sm text-gray-600 mb-1"><strong>Product code: </strong> ${productData.product.productCode
-      }</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Material: </strong> ${productData.product.materialDTO.name
-      }</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Category: </strong> ${productData.product.productCategoryDTO.name
-      }</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Barcode: </strong> ${productData.product.barCode
-      }</p>
+                <h3 class="text-xl font-semibold mb-2">${
+                  productData.product.name
+                }</h3>
+                <p class="text-sm text-gray-600 mb-1"><strong>Product code: </strong> ${
+                  productData.product.productCode
+                }</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Material: </strong> ${
+                  productData.product.materialDTO.name
+                }</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Category: </strong> ${
+                  productData.product.productCategoryDTO.name
+                }</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Barcode: </strong> ${
+                  productData.product.barCode
+                }</p>
                 <p class="text-sm text-gray-600 mb-1"><strong>Toltal price: </strong> ${new Intl.NumberFormat(
-        "vi-VN",
-        { style: "currency", currency: "VND" }
-      ).format(productData.totalPrice)}</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Quantity: </strong> <span id="quantity-${barcode}">${productData.quantity
-      }</span></p>
+                  "vi-VN",
+                  { style: "currency", currency: "VND" }
+                ).format(productData.totalPrice)}</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Quantity: </strong> <span id="quantity-${barcode}">${
+      productData.quantity
+    }</span></p>
             </div>
         </div>
     `);
@@ -463,12 +449,13 @@ $(document).ready(function () {
                 <td class="px-4 py-2">${productData.product.name}</td>
                 <td class="px-4 py-2">${productData.product.productCode}</td>
                 <td class="px-4 py-2 total-price">${new Intl.NumberFormat(
-      "vi-VN",
-      { style: "currency", currency: "VND" }
-    ).format(productData.totalPrice)}</td>
+                  "vi-VN",
+                  { style: "currency", currency: "VND" }
+                ).format(productData.totalPrice)}</td>
                 <td class="px-4 py-2">
-                    <input type="number" id="sidebar-quantity-${barcode}" class="quantity-input border p-1" value="${productData.quantity
-      }" min="1" max="${productData.inventory}">
+                    <input type="number" id="sidebar-quantity-${barcode}" class="quantity-input border p-1" value="${
+      productData.quantity
+    }" min="1" max="${productData.inventory}">
                 </td>
                 <td class="px-4 py-2">
                     <button class="remove-product-btn bg-red-500 text-white p-1" data-barcode="${barcode}">Delete</button>
@@ -574,7 +561,7 @@ $(document).ready(function () {
 
   function getUserById(userId) {
     $.ajax({
-      url: `http://localhost:8080/userinfo/getcustomer/${userId}`,
+      url: `http://${apiurl}/userinfo/getcustomer/${userId}`,
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -607,7 +594,7 @@ $(document).ready(function () {
 
   function fetchUserPromotions(userId) {
     $.ajax({
-      url: `http://localhost:8080/promotion/by-user`,
+      url: `http://${apiurl}/promotion/by-user`,
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -673,7 +660,7 @@ $(document).ready(function () {
     console.log("Sending invoice details:", invoiceDetails);
 
     $.ajax({
-      url: "http://localhost:8080/invoice/create-invoice",
+      url: `http://${apiurl}/invoice/create-invoice`,
       method: "POST",
       contentType: "application/json",
       data: JSON.stringify(invoiceDetails),
@@ -720,7 +707,7 @@ $(document).ready(function () {
 
   function viewInvoice(invoiceId) {
     $.ajax({
-      url: "http://localhost:8080/invoice/view-invoice",
+      url: `http://${apiurl}/invoice/view-invoice`,
       method: "POST",
       data: { invoice: invoiceId },
       headers: {
@@ -746,26 +733,31 @@ $(document).ready(function () {
                             <div class="text-gray-700 text-right">
                                 <div class="font-bold text-xl mb-2">INVOICE</div>
                                 <div class="text-sm">Date: ${new Date(
-            invoiceData.createdDate
-          ).toLocaleDateString()}</div>
-                                <div class="text-sm">Invoice #: ${invoiceData.id
-            }</div>
+                                  invoiceData.createdDate
+                                ).toLocaleDateString()}</div>
+                                <div class="text-sm">Invoice #: ${
+                                  invoiceData.id
+                                }</div>
                             </div>
                         </div>
                         <div class="border-b-2 border-gray-300 pb-8 mb-8">
                             <h2 class="text-2xl font-bold mb-4">Customer and Employee Information</h2>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <div class="text-gray-700 mb-2"><strong>Customer: </strong> ${userInfo.fullName
-            }</div>
-                                    <div class="text-gray-700 mb-2"><strong>ID: </strong> ${userInfo.id
-            }</div>
+                                    <div class="text-gray-700 mb-2"><strong>Customer: </strong> ${
+                                      userInfo.fullName
+                                    }</div>
+                                    <div class="text-gray-700 mb-2"><strong>ID: </strong> ${
+                                      userInfo.id
+                                    }</div>
                                 </div>
                                 <div>
-                                    <div class="text-gray-700 mb-2"><strong>STAFF: </strong> ${employeeInfo.firstName
-            } ${employeeInfo.lastName}</div>
-                                    <div class="text-gray-700 mb-2"><strong>ID: </strong> ${employeeInfo.id
-            }</div>
+                                    <div class="text-gray-700 mb-2"><strong>STAFF: </strong> ${
+                                      employeeInfo.firstName
+                                    } ${employeeInfo.lastName}</div>
+                                    <div class="text-gray-700 mb-2"><strong>ID: </strong> ${
+                                      employeeInfo.id
+                                    }</div>
                                 </div>
                             </div>
                         </div>
@@ -780,41 +772,44 @@ $(document).ready(function () {
                             </thead>
                             <tbody>
                                 ${orderDetails
-              .map(
-                (order) => `
+                                  .map(
+                                    (order) => `
                                 <tr>
-                                    <td class="py-4 text-gray-700">${order.productDTO.name
-                  }</td>
-                                    <td class="py-4 text-gray-700">${order.productDTO.productCode
-                  }</td>
-                                    <td class="py-4 text-gray-700">${order.quantity
-                  }</td>
+                                    <td class="py-4 text-gray-700">${
+                                      order.productDTO.name
+                                    }</td>
+                                    <td class="py-4 text-gray-700">${
+                                      order.productDTO.productCode
+                                    }</td>
+                                    <td class="py-4 text-gray-700">${
+                                      order.quantity
+                                    }</td>
                                     <td class="py-4 text-gray-700">${new Intl.NumberFormat(
-                    "vi-VN",
-                    { style: "currency", currency: "VND" }
-                  ).format(order.totalPrice)}</td>
+                                      "vi-VN",
+                                      { style: "currency", currency: "VND" }
+                                    ).format(order.totalPrice)}</td>
                                 </tr>
                                 `
-              )
-              .join("")}
+                                  )
+                                  .join("")}
                             </tbody>
                         </table>
                         <div class="grid grid-cols-2 gap-4">
                             <div class="text-gray-700">Total original price: </div>
                             <div class="text-gray-700 text-right">${new Intl.NumberFormat(
-                "vi-VN",
-                { style: "currency", currency: "VND" }
-              ).format(invoiceData.totalPriceRaw)}</div>
+                              "vi-VN",
+                              { style: "currency", currency: "VND" }
+                            ).format(invoiceData.totalPriceRaw)}</div>
                             <div class="text-gray-700">Reduced price: </div>
                             <div class="text-gray-700 text-right">${new Intl.NumberFormat(
-                "vi-VN",
-                { style: "currency", currency: "VND" }
-              ).format(invoiceData.discountPrice)}</div>
+                              "vi-VN",
+                              { style: "currency", currency: "VND" }
+                            ).format(invoiceData.discountPrice)}</div>
                             <div class="text-gray-700 font-bold text-xl">Total price: </div>
                             <div class="text-gray-700 font-bold text-xl text-right">${new Intl.NumberFormat(
-                "vi-VN",
-                { style: "currency", currency: "VND" }
-              ).format(invoiceData.totalPrice)}</div>
+                              "vi-VN",
+                              { style: "currency", currency: "VND" }
+                            ).format(invoiceData.totalPrice)}</div>
                         </div>
                         
                     </div>
@@ -842,8 +837,6 @@ $(document).ready(function () {
   }
 
   function initiatePayment(amount, bankCode) {
-
-
     if (!selectedUserId) {
       alert("Please select a user before creating an invoice !!!");
       return;
@@ -862,7 +855,7 @@ $(document).ready(function () {
     console.log("bankCode:", bankCode);
 
     $.ajax({
-      url: `http://localhost:8080/payment/vn-pay?amount=${amount}&bankCode=${bankCode}`,
+      url: `http://${apiurl}/payment/vn-pay?amount=${amount}&bankCode=${bankCode}`,
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,

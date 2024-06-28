@@ -1,3 +1,4 @@
+const apiurl = process.env.API_URL;
 $(document).ready(function () {
   $(document).on("click", "#modalToggle_Customer_Apply", function () {
     const promotionId = $("#modalToggle_Customer_Apply").attr(
@@ -62,7 +63,7 @@ function fetchCustomersByPromotion(promotionId) {
   var customerTableBody = $("#customer-apply-promotion");
   customerTableBody.empty();
   $.ajax({
-    url: `http://localhost:8080/promotion-generic/in-promotion/CUSTOMER/${promotionId}`,
+    url: `http://${apiurl}/promotion-generic/in-promotion/CUSTOMER/${promotionId}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -107,7 +108,7 @@ function fetchCustomersNotInPromotion(promotionId) {
   var customerTableBody = $("#customer-not-apply-voucher");
   customerTableBody.empty();
   $.ajax({
-    url: `http://localhost:8080/promotion-generic/not-in-promotion/CUSTOMER/${promotionId}`,
+    url: `http://${apiurl}/promotion-generic/not-in-promotion/CUSTOMER/${promotionId}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -151,7 +152,7 @@ function applyPromotionToSelectedCustomers(promotionId) {
 
   if (selectedCustomerIds.length > 0) {
     $.ajax({
-      url: "http://localhost:8080/promotion-generic/apply",
+      url: `http://${apiurl}/promotion-generic/apply`,
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -183,7 +184,7 @@ function removePromotionFromSelectedCustomers(promotionId) {
 
   if (selectedCustomerIds.length > 0) {
     $.ajax({
-      url: "http://localhost:8080/promotion-generic/remove",
+      url: `http://${apiurl}/promotion-generic/remove`,
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -217,7 +218,7 @@ function activateSelectedCustomers(promotionId) {
 
   if (selectedCustomerIds.length > 0) {
     $.ajax({
-      url: "http://localhost:8080/promotion-generic/apply",
+      url: `http://${apiurl}/promotion-generic/apply`,
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -245,7 +246,7 @@ function activateSelectedCustomers(promotionId) {
 
 function checkCustomerInOtherPromotions(customerTypeId, promotionId, checkbox) {
   $.ajax({
-    url: `http://localhost:8080/promotion-generic/check/CUSTOMER/${customerTypeId}/${promotionId}`,
+    url: `http://${apiurl}/promotion-generic/check/CUSTOMER/${customerTypeId}/${promotionId}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,

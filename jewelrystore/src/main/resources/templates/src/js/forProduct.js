@@ -1,3 +1,4 @@
+const apiurl = process.env.API_URL;
 $(document).ready(function () {
   // Sự kiện click cho nút Active select
   $(document).on("click", "#active-selected-products", function () {
@@ -86,7 +87,7 @@ $(document).ready(function () {
 });
 function checkProductInOtherActivePromotions(productId, promotionId, checkbox) {
   $.ajax({
-    url: `http://localhost:8080/promotion-generic/check/PRODUCT/${productId}/${promotionId}`,
+    url: `http://${apiurl}/promotion-generic/check/PRODUCT/${productId}/${promotionId}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -142,7 +143,7 @@ function activeSelectedProducts(promotionId) {
   var entity = "PRODUCT";
   if (selectedProductIds.length > 0) {
     $.ajax({
-      url: "http://localhost:8080/promotion-generic/apply", // URL mới cho chức năng inactive
+      url: `http://${apiurl}/promotion-generic/apply`, // URL mới cho chức năng inactive
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -264,7 +265,7 @@ function fetchProductsByPromotion(promotionId, promotionName) {
   var productTableBody = $("#product-apply-promotion");
   productTableBody.empty(); // Clear existing rows
   $.ajax({
-    url: `http://localhost:8080/promotion-generic/in-promotion/PRODUCT/${promotionId}`,
+    url: `http://${apiurl}/promotion-generic/in-promotion/PRODUCT/${promotionId}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -317,7 +318,7 @@ function deleteSelectedProducts(promotionId) {
   });
   if (selectedProductIds.length > 0) {
     $.ajax({
-      url: "http://localhost:8080/promotion-for-product/remove-promotion",
+      url: `http://${apiurl}/promotion-for-product/remove-promotion`,
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -351,7 +352,7 @@ function fetchProductsNotInPromotion(promotionId) {
   var itemTableBody = $("#itemTableBody");
   itemTableBody.empty(); // Clear existing rows
   $.ajax({
-    url: `http://localhost:8080/promotion-generic/not-in-promotion/PRODUCT/${promotionId}`,
+    url: `http://${apiurl}/promotion-generic/not-in-promotion/PRODUCT/${promotionId}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -400,7 +401,7 @@ function addSelectedProductsToPromotion(promotionId) {
   var entity = "PRODUCT";
   if (selectedProductIds.length > 0) {
     $.ajax({
-      url: "http://localhost:8080/promotion-generic/apply",
+      url: `http://${apiurl}/promotion-generic/apply`,
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,

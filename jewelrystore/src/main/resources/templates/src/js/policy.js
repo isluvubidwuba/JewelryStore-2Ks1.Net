@@ -1,3 +1,4 @@
+const apiurl = process.env.API_URL;
 const token = localStorage.getItem("token");
 let currentPage = 0;
 const itemsPerPage = 5;
@@ -5,8 +6,7 @@ let promotions = [];
 
 function fetchPolicies() {
   $.ajax({
-    url:
-      "http://localhost:8080/promotion/viewPolicyByInvoiceType/" + invoicetype,
+    url: `http://${apiurl}/promotion/viewPolicyByInvoiceType/` + invoicetype,
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -219,7 +219,7 @@ function attachModalHandlers() {
       `List ${promotionType.toLowerCase()} apply: ${promotionName}`
     );
     $.ajax({
-      url: `http://localhost:8080/promotion-generic/in-promotion/${promotionType}/${promotionId}`,
+      url: `http://${apiurl}/promotion-generic/in-promotion/${promotionType}/${promotionId}`,
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,

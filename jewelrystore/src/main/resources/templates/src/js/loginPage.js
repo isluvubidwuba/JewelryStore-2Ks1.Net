@@ -1,10 +1,11 @@
+const apiurl = process.env.API_URL;
 $(document).ready(function () {
   const handleLogin = () => {
     const id = $("#name").val();
     const pincode = $("#pincode").val();
 
     $.ajax({
-      url: "http://localhost:8080/authentication/signup",
+      url: `http://${apiurl}/authentication/signup`,
       type: "POST",
       contentType: "application/json",
       data: JSON.stringify({ id, pinCode: pincode }),
@@ -120,7 +121,7 @@ const countDownResend = () => {
 
 const sendOtp = (idEmploy) => {
   $.ajax({
-    url: `http://localhost:8080/mail/sendOtp/${idEmploy}`,
+    url: `http://${apiurl}/mail/sendOtp/${idEmploy}`,
     type: "POST",
     contentType: "application/json",
     success: ({ status, desc }) => {
@@ -140,7 +141,7 @@ const sendOtp = (idEmploy) => {
 };
 const validateOtp = (idEmploy, otp) => {
   $.ajax({
-    url: `http://localhost:8080/employee/validateOtp`,
+    url: `http://${apiurl}/employee/validateOtp`,
     type: "POST",
     data: { otp: otp, idEmployee: idEmploy },
     success: ({ status, desc, data }) => {
@@ -163,7 +164,7 @@ const validateOtp = (idEmploy, otp) => {
 
 const changePasss = (password) => {
   $.ajax({
-    url: `http://localhost:8080/employee/changePass`,
+    url: `http://${apiurl}/employee/changePass`,
     type: "POST",
     data: {
       pwd: password,

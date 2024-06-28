@@ -1,3 +1,4 @@
+const apiurl = process.env.API_URL;
 $(document).ready(function () {
   const token = localStorage.getItem("token");
   let currentUser = null; // Biến lưu thông tin người dùng hiện tại
@@ -10,7 +11,7 @@ $(document).ready(function () {
       formData.append("invoice", invoiceId);
 
       $.ajax({
-        url: "http://localhost:8080/invoice/view-invoice",
+        url: `http://${apiurl}/invoice/view-invoice`,
         method: "POST",
         data: formData,
         processData: false,
@@ -123,7 +124,7 @@ $(document).ready(function () {
           };
 
           $.ajax({
-            url: "http://localhost:8080/invoice/create-detail",
+            url: `http://${apiurl}/invoice/create-detail`,
             method: "POST",
             contentType: "application/json",
             data: JSON.stringify(requestData),
@@ -296,7 +297,7 @@ $(document).ready(function () {
     };
 
     $.ajax({
-      url: "http://localhost:8080/invoice/buyback",
+      url: `http://${apiurl}/invoice/buyback`,
       method: "POST",
       contentType: "application/json",
       data: JSON.stringify(requestData),
@@ -320,7 +321,7 @@ $(document).ready(function () {
   // Hàm viewInvoice để hiển thị chi tiết hóa đơn
   function viewInvoice(invoiceId) {
     $.ajax({
-      url: "http://localhost:8080/invoice/view-invoice",
+      url: `http://${apiurl}/invoice/view-invoice`,
       method: "POST",
       data: { invoice: invoiceId },
       headers: {

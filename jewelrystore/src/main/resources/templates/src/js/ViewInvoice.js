@@ -1,3 +1,4 @@
+const apiurl = process.env.API_URL;
 $(document).ready(function () {
   $("#submitInvoice").click(function () {
     var invoiceInput = $("#invoiceInput").val();
@@ -13,7 +14,7 @@ function getInvoiceData(invoice) {
   const token = localStorage.getItem("token");
 
   $.ajax({
-    url: "http://localhost:8080/invoice/view-invoice",
+    url: `http://${apiurl}/invoice/view-invoice`,
     type: "POST",
     data: { invoice: invoice },
     dataType: "json",

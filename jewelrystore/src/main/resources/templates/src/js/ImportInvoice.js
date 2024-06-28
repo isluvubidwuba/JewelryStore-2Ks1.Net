@@ -1,3 +1,4 @@
+const apiurl = process.env.API_URL;
 $(document).ready(function () {
   const selectedProductsTable = $("#selectedProductsTable");
   let totalPrice = 0;
@@ -92,7 +93,7 @@ $(document).ready(function () {
 
   function searchProductByBarcode(barcode) {
     $.ajax({
-      url: `http://localhost:8080/product/${barcode}`,
+      url: `http://${apiurl}/product/${barcode}`,
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -114,7 +115,7 @@ $(document).ready(function () {
 
   function searchSupplier(supplierIdInput) {
     $.ajax({
-      url: `http://localhost:8080/userinfo/findsupplier/${supplierIdInput}`,
+      url: `http://${apiurl}/userinfo/findsupplier/${supplierIdInput}`,
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -184,7 +185,7 @@ $(document).ready(function () {
     };
 
     $.ajax({
-      url: "http://localhost:8080/invoice/create-import",
+      url: `http://${apiurl}/invoice/create-import`,
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,

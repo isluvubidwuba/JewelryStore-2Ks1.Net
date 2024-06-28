@@ -1,3 +1,4 @@
+const apiurl = process.env.API_URL;
 $(document).ready(function () {
   $(document).on("click", "#modalToggle_Category_Apply", function () {
     const promotionId = $("#modalToggle_Category_Apply").attr(
@@ -76,7 +77,7 @@ function activeSelectedCategories(promotionId) {
 
   if (selectedCategoryIds.length > 0) {
     $.ajax({
-      url: "http://localhost:8080/promotion-generic/apply",
+      url: `http://${apiurl}/promotion-generic/apply`,
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -106,7 +107,7 @@ function fetchCategoriesByPromotion(promotionId) {
   var categoryTableBody = $("#category-apply-promotion");
   categoryTableBody.empty(); // Clear existing rows
   $.ajax({
-    url: `http://localhost:8080/promotion-generic/in-promotion/CATEGORY/${promotionId}`,
+    url: `http://${apiurl}/promotion-generic/in-promotion/CATEGORY/${promotionId}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -152,7 +153,7 @@ function removePromotionFromSelectedCategories(promotionId) {
 
   if (selectedCategoryIds.length > 0) {
     $.ajax({
-      url: "http://localhost:8080/promotion-generic/remove",
+      url: `http://${apiurl}/promotion-generic/remove`,
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -182,7 +183,7 @@ function fetchCategoriesNotInPromotion(promotionId) {
   var categoryTableBody = $("#category-not-apply-promotion");
   categoryTableBody.empty(); // Clear existing rows
   $.ajax({
-    url: `http://localhost:8080/promotion-generic/not-in-promotion/CATEGORY/${promotionId}`,
+    url: `http://${apiurl}/promotion-generic/not-in-promotion/CATEGORY/${promotionId}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -225,7 +226,7 @@ function applyPromotionToSelectedCategories(promotionId) {
 
   if (selectedCategoryIds.length > 0) {
     $.ajax({
-      url: "http://localhost:8080/promotion-generic/apply",
+      url: `http://${apiurl}/promotion-generic/apply`,
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -251,7 +252,7 @@ function applyPromotionToSelectedCategories(promotionId) {
 
 function checkCategoryInOtherPromotions(categoryId, promotionId, checkbox) {
   $.ajax({
-    url: `http://localhost:8080/promotion-generic/check/CATEGORY/${categoryId}/${promotionId}`,
+    url: `http://${apiurl}/promotion-generic/check/CATEGORY/${categoryId}/${promotionId}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,

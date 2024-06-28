@@ -1,3 +1,4 @@
+const apiurl = process.env.API_URL;
 $(document).ready(function () {
   fetchRoles();
   fetchUniqueRankData();
@@ -10,7 +11,7 @@ const token = localStorage.getItem("token");
 
 function fetchRoles() {
   $.ajax({
-    url: "http://localhost:8080/role/list",
+    url: `http://${apiurl}/role/list`,
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -74,7 +75,7 @@ function setupModalToggle() {
   $("#add-role-form").on("submit", function (e) {
     e.preventDefault();
     $.ajax({
-      url: "http://localhost:8080/role/insert",
+      url: `http://${apiurl}/role/insert`,
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -207,7 +208,7 @@ function fetchImage(elementId, imageUrl) {
 
 function fetchCustomers(page) {
   $.ajax({
-    url: `http://localhost:8080/userinfo/listcustomer?page=${page}`,
+    url: `http://${apiurl}/userinfo/listcustomer?page=${page}`,
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -229,7 +230,7 @@ function fetchCustomers(page) {
 
 function fetchCustomerRanks(callback) {
   $.ajax({
-    url: "http://localhost:8080/earnpoints/rank",
+    url: `http://${apiurl}/earnpoints/rank`,
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -253,7 +254,7 @@ function fetchCustomerRanks(callback) {
 
 function fetchSuppliers(page) {
   $.ajax({
-    url: `http://localhost:8080/userinfo/listsupplier?page=${page}`,
+    url: `http://${apiurl}/userinfo/listsupplier?page=${page}`,
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -381,7 +382,7 @@ function setupEditButtons() {
 
 function fetchUserInfo(id) {
   $.ajax({
-    url: `http://localhost:8080/userinfo/findcustomer/${id}`,
+    url: `http://${apiurl}/userinfo/findcustomer/${id}`,
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -407,7 +408,7 @@ function fetchUserInfo(id) {
 function updateUser() {
   var formData = new FormData($("#update-user-form")[0]);
   $.ajax({
-    url: "http://localhost:8080/userinfo/update",
+    url: `http://${apiurl}/userinfo/update`,
     method: "POST",
     processData: false,
     contentType: false,
@@ -486,8 +487,8 @@ function setupSearch(role) {
 function searchByRole(role, criteria, query, page) {
   const searchUrl =
     role === "CUSTOMER"
-      ? "http://localhost:8080/userinfo/searchcustomer"
-      : "http://localhost:8080/userinfo/searchsupplier";
+      ? `http://${apiurl}/userinfo/searchcustomer`
+      : `http://${apiurl}/userinfo/searchsupplier`;
 
   $.ajax({
     url: searchUrl,
@@ -571,7 +572,7 @@ function setupInsertModalToggle() {
         formData.append("file", fileInput);
       }
       $.ajax({
-        url: "http://localhost:8080/userinfo/insert",
+        url: `http://${apiurl}/userinfo/insert`,
         method: "POST",
         processData: false,
         contentType: false,
@@ -620,7 +621,7 @@ function setupInsertRoleModalToggle() {
       e.preventDefault();
       var formData = new FormData($("#add-role-form")[0]);
       $.ajax({
-        url: "http://localhost:8080/role/insert",
+        url: `http://${apiurl}/role/insert`,
         method: "POST",
         processData: false,
         contentType: false,
@@ -686,7 +687,7 @@ function isValidPhoneNumber(phoneNumber) {
 // Fetch rank data and populate the table
 function fetchUniqueRankData() {
   $.ajax({
-    url: "http://localhost:8080/customertype/findall",
+    url: `http://${apiurl}/customertype/findall`,
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -767,7 +768,7 @@ function updateUniqueCustomerType() {
     var pointCondition = $("#updateUniquePointCondition").val();
 
     $.ajax({
-      url: "http://localhost:8080/customertype/updatepointcondition",
+      url: `http://${apiurl}/customertype/updatepointcondition`,
       method: "POST",
       data: {
         id: id,
@@ -846,7 +847,7 @@ function addUniqueCustomerType() {
     var pointCondition = $("#addPointCondition").val();
 
     $.ajax({
-      url: "http://localhost:8080/customertype/add",
+      url: `http://${apiurl}/customertype/add`,
       method: "POST",
       data: {
         type: type,
@@ -887,7 +888,7 @@ function deleteUniqueCustomerType() {
 
     if (isConfirmed) {
       $.ajax({
-        url: "http://localhost:8080/customertype/delete",
+        url: `http://${apiurl}/customertype/delete`,
         method: "POST",
         data: {
           customerTypeId: id,

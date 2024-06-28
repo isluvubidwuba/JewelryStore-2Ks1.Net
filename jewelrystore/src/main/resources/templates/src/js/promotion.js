@@ -1,3 +1,4 @@
+const apiurl = process.env.API_URL;
 $(document).ready(function () {
   setupEventListeners();
   fetchPromotions();
@@ -43,7 +44,7 @@ function loadComponents2() {
 
 // fetch all promotions
 function fetchPromotions(keyword = "") {
-  const linkPromotion = "http://localhost:8080/promotion";
+  const linkPromotion = `http://${apiurl}/promotion`;
   const deferred = $.Deferred();
 
   $.ajax({
@@ -332,7 +333,7 @@ function capitalizeFirstLetter(string) {
 // Các hàm khác không thay đổi
 function fetchPromotionDetails(promotionId) {
   $.ajax({
-    url: "http://localhost:8080/promotion/getById",
+    url: `http://${apiurl}/promotion/getById`,
     type: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -487,7 +488,7 @@ function setupEventListeners() {
 
 function deletePromotion(promotionId) {
   $.ajax({
-    url: `http://localhost:8080/promotion/delete/${promotionId}`,
+    url: `http://${apiurl}/promotion/delete/${promotionId}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -519,7 +520,7 @@ function submitUpdateForm() {
       var formData = new FormData($("#form-update")[0]);
 
       $.ajax({
-        url: "http://localhost:8080/promotion/update",
+        url: `http://${apiurl}/promotion/update`,
         type: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -629,7 +630,7 @@ function submitInsertForm() {
       var formData = new FormData($("#form-insert")[0]);
 
       $.ajax({
-        url: "http://localhost:8080/promotion/create",
+        url: `http://${apiurl}/promotion/create`,
         type: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -680,7 +681,7 @@ function clearForm(formId) {
 
 function fetchInvoiceType() {
   $.ajax({
-    url: "http://localhost:8080/invoice-type",
+    url: `http://${apiurl}/invoice-type`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,

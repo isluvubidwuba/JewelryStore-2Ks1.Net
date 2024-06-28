@@ -1,6 +1,6 @@
 let currentPage2 = 0; // Trang hiện tại mặc định là 0
 const pageSize2 = 5; // Kích thước trang mặc định là 5
-
+const apiurl = process.env.API_URL;
 $(document).ready(function () {
   $("#closeViewModalBtn2").on("click", closeModalRevenue);
   $("#loadMoreInvoiceEmplBtn").on("click", function () {
@@ -108,7 +108,7 @@ function viewEmployee2(
   currentPage2 = 0; // Reset lại trang hiện tại về 0 khi hiển thị nhân viên mới
   $("#invoiceEmployeeBody").empty(); // Xóa nội dung của bảng trước khi tải dữ liệu mới
   $.ajax({
-    url: `http://localhost:8080/invoice/revenue/employeeId`,
+    url: `http://${apiurl}/invoice/revenue/employeeId`,
     type: "GET",
     data: {
       period: period,
@@ -141,7 +141,7 @@ function Update(
   month = new Date().getMonth() + 1
 ) {
   $.ajax({
-    url: `http://localhost:8080/invoice/revenue/employeeId`,
+    url: `http://${apiurl}/invoice/revenue/employeeId`,
     type: "GET",
     data: {
       period: period,
@@ -168,7 +168,7 @@ function Update(
 // Hàm tải danh sách hóa đơn
 function loadInvoices(employeeId, page, size) {
   $.ajax({
-    url: `http://localhost:8080/invoice/employee`,
+    url: `http://${apiurl}/invoice/employee`,
     type: "GET",
     data: {
       employeeId: employeeId,

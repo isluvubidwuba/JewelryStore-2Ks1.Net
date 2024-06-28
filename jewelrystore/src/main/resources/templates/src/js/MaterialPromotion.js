@@ -1,3 +1,4 @@
+const apiurl = process.env.API_URL;
 $(document).ready(function () {
   $(document).on("click", "#modalToggle_Material_Apply", function () {
     const promotionId = $("#modalToggle_Material_Apply").attr(
@@ -62,7 +63,7 @@ function fetchMaterialsByPromotion(promotionId) {
   var materialTableBody = $("#material-apply-promotion");
   materialTableBody.empty();
   $.ajax({
-    url: `http://localhost:8080/promotion-generic/in-promotion/MATERIAL/${promotionId}`,
+    url: `http://${apiurl}/promotion-generic/in-promotion/MATERIAL/${promotionId}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -104,7 +105,7 @@ function fetchMaterialsNotInPromotion(promotionId) {
   var materialTableBody = $("#material-not-apply-promotion");
   materialTableBody.empty();
   $.ajax({
-    url: `http://localhost:8080/promotion-generic/not-in-promotion/MATERIAL/${promotionId}`,
+    url: `http://${apiurl}/promotion-generic/not-in-promotion/MATERIAL/${promotionId}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -149,7 +150,7 @@ function applyPromotionToSelectedMaterials(promotionId) {
 
   if (selectedMaterialIds.length > 0) {
     $.ajax({
-      url: "http://localhost:8080/promotion-generic/apply",
+      url: `http://${apiurl}/promotion-generic/apply`,
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -181,7 +182,7 @@ function removePromotionFromSelectedMaterials(promotionId) {
 
   if (selectedMaterialIds.length > 0) {
     $.ajax({
-      url: "http://localhost:8080/promotion-generic/remove",
+      url: `http://${apiurl}/promotion-generic/remove`,
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -215,7 +216,7 @@ function activateSelectedMaterials(promotionId) {
 
   if (selectedMaterialIds.length > 0) {
     $.ajax({
-      url: "http://localhost:8080/promotion-generic/apply",
+      url: `http://${apiurl}/promotion-generic/apply`,
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -243,7 +244,7 @@ function activateSelectedMaterials(promotionId) {
 
 function checkMaterialInOtherPromotions(materialId, promotionId, checkbox) {
   $.ajax({
-    url: `http://localhost:8080/promotion-generic/check/MATERIAL/${materialId}/${promotionId}`,
+    url: `http://${apiurl}/promotion-generic/check/MATERIAL/${materialId}/${promotionId}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,

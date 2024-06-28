@@ -1,3 +1,4 @@
+const apiurl = process.env.API_URL;
 $(document).ready(function () {
   initializeInsertEmployee();
   initializePagination();
@@ -31,7 +32,7 @@ function fetchEmployeeImage(employeeId, imageUrl) {
 
 function fetchEmployees(page) {
   $.ajax({
-    url: `http://localhost:8080/employee/listpage`,
+    url: `http://${apiurl}/employee/listpage`,
     type: "GET",
     data: { page: page },
     headers: {
@@ -67,18 +68,21 @@ function renderEmployees(employees) {
               <td class="px-6 py-4" id="employee-image-${employee.id}">
                   Loading...
               </td>
-              <td class="px-6 py-3">${employee.lastName} ${employee.firstName
-      }</td>
+              <td class="px-6 py-3">${employee.lastName} ${
+      employee.firstName
+    }</td>
               <td class="px-6 py-3">${employee.role.name}</td>
               <td class="px-6 py-3">${statusLabel}</td>
               <td class="px-6 py-3">${formatCurrency(
-        employee.totalRevenue
-      )}</td>
+                employee.totalRevenue
+              )}</td>
               <td class="px-6 py-3">
-                  <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" onclick="viewEmployee('${employee.id
-      }')">View</button>
-                  <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" onclick="viewEmployee2('${employee.id
-      }')">Revenue</button>
+                  <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" onclick="viewEmployee('${
+                    employee.id
+                  }')">View</button>
+                  <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" onclick="viewEmployee2('${
+                    employee.id
+                  }')">Revenue</button>
                   
               </td>
           </tr>
@@ -114,7 +118,7 @@ function updatePagination(currentPage, totalPages) {
 
 function fetchRoles(selectElementId) {
   $.ajax({
-    url: `http://localhost:8080/role/list`,
+    url: `http://${apiurl}/role/list`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -149,7 +153,7 @@ function fetchRoles(selectElementId) {
 function viewEmployee(id) {
   fetchRoles("viewRole"); // Fetch roles before opening the modal
   $.ajax({
-    url: `http://localhost:8080/employee/listemployee/${id}`,
+    url: `http://${apiurl}/employee/listemployee/${id}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -218,7 +222,7 @@ function updateEmployee() {
   }
 
   $.ajax({
-    url: `http://localhost:8080/employee/update`,
+    url: `http://${apiurl}/employee/update`,
     type: "POST",
     data: formData,
     headers: {
@@ -293,7 +297,7 @@ function handleInsertEmployee(event) {
   var formData = new FormData($("#insertEmployeeForm")[0]);
 
   $.ajax({
-    url: `http://localhost:8080/employee/insert`,
+    url: `http://${apiurl}/employee/insert`,
     type: "POST",
     data: formData,
     processData: false,
@@ -324,7 +328,7 @@ function handleInsertEmployee(event) {
 
 function handleSendMailEmployee(idEmploy) {
   $.ajax({
-    url: `http://localhost:8080/mail/sendInfo/${idEmploy}`,
+    url: `http://${apiurl}/mail/sendInfo/${idEmploy}`,
     type: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -367,7 +371,7 @@ function initializeSearchForm() {
 
 function searchEmployees(criteria, query, page) {
   $.ajax({
-    url: `http://localhost:8080/employee/search`,
+    url: `http://${apiurl}/employee/search`,
     type: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -393,7 +397,7 @@ function deleteEmployee() {
 
   if (confirm("Are you sure you want to delete this employee?")) {
     $.ajax({
-      url: `http://localhost:8080/employee/delete/${employeeId}`,
+      url: `http://${apiurl}/employee/delete/${employeeId}`,
       type: "GET",
       headers: {
         Authorization: `Bearer ${token}`,

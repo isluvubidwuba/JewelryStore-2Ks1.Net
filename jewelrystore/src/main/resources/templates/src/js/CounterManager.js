@@ -1,3 +1,4 @@
+const apiurl = process.env.API_URL;
 $(document).ready(function () {
   fetchCounters();
   createCounterModal();
@@ -10,7 +11,7 @@ const token = localStorage.getItem("token");
 
 function fetchCounters() {
   $.ajax({
-    url: "http://localhost:8080/counter/allactivecounter",
+    url: `http://${apiurl}/counter/allactivecounter`,
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -212,7 +213,7 @@ function generateTabContents(counters) {
 
 function fetchProductsByCounter(counterId, page = 1) {
   $.ajax({
-    url: `http://localhost:8080/counter/listproductsbycounter?counterId=${counterId}&page=${
+    url: `http://${apiurl}/counter/listproductsbycounter?counterId=${counterId}&page=${
       page - 1
     }`,
     method: "GET",
@@ -303,7 +304,7 @@ function createCounterModal() {
     const counterName = $("#counterName").val();
 
     $.ajax({
-      url: "http://localhost:8080/counter/insert",
+      url: `http://${apiurl}/counter/insert`,
       method: "POST",
       data: { name: counterName },
       headers: {
@@ -329,7 +330,7 @@ function createCounterModal() {
 
 function fetchProductsForCounter() {
   $.ajax({
-    url: "http://localhost:8080/counter/products/counter1",
+    url: `http://${apiurl}/counter/products/counter1`,
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -440,7 +441,7 @@ function setupAddProductModal() {
     });
 
     $.ajax({
-      url: `http://localhost:8080/counter/addproductsforcounter?counterId=${counterId}`,
+      url: `http://${apiurl}/counter/addproductsforcounter?counterId=${counterId}`,
       method: "POST",
       contentType: "application/json",
       headers: {
@@ -467,7 +468,7 @@ function setupAddProductModal() {
 
 function fetchCountersForSelect() {
   $.ajax({
-    url: "http://localhost:8080/counter/allactivecounter",
+    url: `http://${apiurl}/counter/allactivecounter`,
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -572,7 +573,7 @@ function switchToTab(counterId) {
 
 function deleteCounter(counterId) {
   $.ajax({
-    url: `http://localhost:8080/counter/delete/${counterId}`,
+    url: `http://${apiurl}/counter/delete/${counterId}`,
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -600,7 +601,7 @@ function deleteCounter(counterId) {
 
 function fetchInactiveCounters() {
   $.ajax({
-    url: "http://localhost:8080/counter/inactive",
+    url: `http://${apiurl}/counter/inactive`,
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -661,7 +662,7 @@ function handleUpdateCounter() {
     $(`.status-select[data-id="${counterId}"]`).val() === "true"; // Added to retrieve the counter status
 
   $.ajax({
-    url: "http://localhost:8080/counter/update",
+    url: `http://${apiurl}/counter/update`,
     method: "POST",
     data: { id: counterId, name: newName, status: newStatus }, // Added to include the counter ID in the request
     headers: {

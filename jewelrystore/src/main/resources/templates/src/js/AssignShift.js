@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 jQuery(document).ready(function ($) {
   var timelineHeight = $(".cd-schedule .timeline ul").height();
   $(".cd-schedule .events .events-group > ul").height(timelineHeight);

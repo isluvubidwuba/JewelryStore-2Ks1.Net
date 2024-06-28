@@ -78,7 +78,7 @@ function loadRevenueData() {
 }
 function loadMoreInvoices() {
   $.ajax({
-    url: `http://localhost:8080/invoice?page=${page}&size=${pageSize}`,
+    url: `http://${apiurl}/invoice?page=${page}&size=${pageSize}`,
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -141,7 +141,7 @@ function loadTop5EmployeesByRevenue() {
   }
 
   $.ajax({
-    url: "http://localhost:8080/invoice/revenue/top5employees",
+    url: `http://${apiurl}/invoice/revenue/top5employees`,
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -206,7 +206,7 @@ function loadCounterRevenue() {
   };
 
   $.ajax({
-    url: "http://localhost:8080/invoice/revenue/counter",
+    url: `http://${apiurl}/invoice/revenue/counter`,
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -280,7 +280,7 @@ function loadTop5ProductsByRevenue() {
   }
 
   $.ajax({
-    url: "http://localhost:8080/invoice/revenue/top5products",
+    url: `http://${apiurl}/invoice/revenue/top5products`,
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,

@@ -1,3 +1,4 @@
+const apiurl = process.env.API_URL;
 $(document).ready(function () {
   const periods = [
     "TODAY",
@@ -16,7 +17,7 @@ $(document).ready(function () {
 
   periods.forEach((period, index) => {
     $.ajax({
-      url: `http://localhost:8080/invoice/revenue/invoice-count?period=${period}`,
+      url: `http://${apiurl}/invoice/revenue/invoice-count?period=${period}`,
       method: "GET",
       success: function (response) {
         if (response.status === "OK") {

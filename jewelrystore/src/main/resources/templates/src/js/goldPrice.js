@@ -1,9 +1,10 @@
+const apiurl = process.env.API_URL;
 document.addEventListener("DOMContentLoaded", fetchGoldPrices);
 
 function fetchGoldPrices() {
   const token = localStorage.getItem("token");
 
-  fetch("http://localhost:8080/proxy", {
+  fetch(`http://${apiurl}/proxy`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,

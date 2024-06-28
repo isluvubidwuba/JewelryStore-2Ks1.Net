@@ -1,3 +1,4 @@
+const apiurl = process.env.API_URL;
 $(document).ready(function () {
   $(document).on("click", "#modalToggle_Gemstone_Apply", function () {
     const promotionId = $("#modalToggle_Gemstone_Apply").attr(
@@ -62,7 +63,7 @@ function fetchGemstonesByPromotion(promotionId) {
   var gemstoneTableBody = $("#gemstone-apply-promotion");
   gemstoneTableBody.empty();
   $.ajax({
-    url: `http://localhost:8080/promotion-generic/in-promotion/GEMSTONE/${promotionId}`,
+    url: `http://${apiurl}/promotion-generic/in-promotion/GEMSTONE/${promotionId}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -104,7 +105,7 @@ function fetchGemstonesNotInPromotion(promotionId) {
   var gemstoneTableBody = $("#gemstone-not-apply-promotion");
   gemstoneTableBody.empty();
   $.ajax({
-    url: `http://localhost:8080/promotion-generic/not-in-promotion/GEMSTONE/${promotionId}`,
+    url: `http://${apiurl}/promotion-generic/not-in-promotion/GEMSTONE/${promotionId}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -147,7 +148,7 @@ function applyPromotionToSelectedGemstones(promotionId) {
 
   if (selectedGemstoneIds.length > 0) {
     $.ajax({
-      url: "http://localhost:8080/promotion-generic/apply",
+      url: `http://${apiurl}/promotion-generic/apply`,
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -179,7 +180,7 @@ function removePromotionFromSelectedGemstones(promotionId) {
 
   if (selectedGemstoneIds.length > 0) {
     $.ajax({
-      url: "http://localhost:8080/promotion-generic/remove",
+      url: `http://${apiurl}/promotion-generic/remove`,
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -213,7 +214,7 @@ function activateSelectedGemstones(promotionId) {
 
   if (selectedGemstoneIds.length > 0) {
     $.ajax({
-      url: "http://localhost:8080/promotion-generic/apply",
+      url: `http://${apiurl}/promotion-generic/apply`,
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -241,7 +242,7 @@ function activateSelectedGemstones(promotionId) {
 
 function checkGemstoneInOtherPromotions(gemStoneTypeId, promotionId, checkbox) {
   $.ajax({
-    url: `http://localhost:8080/promotion-generic/check/GEMSTONE/${gemStoneTypeId}/${promotionId}`,
+    url: `http://${apiurl}/promotion-generic/check/GEMSTONE/${gemStoneTypeId}/${promotionId}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,

@@ -1,3 +1,4 @@
+const apiurl = process.env.API_URL;
 var token = null;
 let listGemsDetail = null;
 let timeout = null;
@@ -62,7 +63,7 @@ const state = {
 };
 
 function fetchProduct(page, size) {
-  const linkProduct = `http://localhost:8080/product/all?page=${page}&size=${size}`;
+  const linkProduct = `http://${apiurl}/product/all?page=${page}&size=${size}`;
   $.ajax({
     url: linkProduct,
     method: "GET",
@@ -237,7 +238,7 @@ function toggleSidebarPolicy(show) {
 
 function getPriceProduct(barcode, idInvocie, idPromo, idPrice) {
   $.ajax({
-    url: "http://localhost:8080/invoice/create-detail",
+    url: `http://${apiurl}/invoice/create-detail`,
     method: "POST",
     contentType: "application/json",
     data: JSON.stringify({
@@ -315,7 +316,7 @@ async function buildTableGemStone(productId) {
 }
 
 async function fetchGemStoneOfProduct(productId) {
-  return fetchData(`http://localhost:8080/gemStone/product?id=${productId}`);
+  return fetchData(`http://${apiurl}/gemStone/product?id=${productId}`);
 }
 
 async function fetchData(url) {
@@ -430,7 +431,7 @@ function setupSearch() {
 
 function searchProducts(query) {
   $.ajax({
-    url: "http://localhost:8080/product/search",
+    url: `http://${apiurl}/product/search`,
     type: "POST",
     data: $.param({
       search: query,
@@ -472,12 +473,12 @@ async function fetchDropdownData(elementId, fetchDataFunc) {
 }
 
 async function fetchProductCategory() {
-  return fetchData("http://localhost:8080/product/category/all");
+  return fetchData(`http://${apiurl}/product/category/all`);
 }
 
 async function fetchMaterial() {
-  return fetchData("http://localhost:8080/material/all");
+  return fetchData(`http://${apiurl}/material/all`);
 }
 async function fetchCounter() {
-  return fetchData2("http://localhost:8080/counter/allactivecounter");
+  return fetchData2(`http://${apiurl}/counter/allactivecounter`);
 }
