@@ -29,10 +29,6 @@ $(document).ready(function () {
 
 
 
-
-
-
-
   function setupInsertModalToggle() {
     // Function to display the image preview
     function readURL(input) {

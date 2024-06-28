@@ -27,7 +27,7 @@ public class ProductCategoryController {
 
     @GetMapping("all")
     public ResponseEntity<?> getAll() {
-        ResponseData response = iProductCategoryService.Page(0, 10);
+        ResponseData response = iProductCategoryService.Page(0, 20);
         return new ResponseEntity<>(response, response.getStatus());
     }
 

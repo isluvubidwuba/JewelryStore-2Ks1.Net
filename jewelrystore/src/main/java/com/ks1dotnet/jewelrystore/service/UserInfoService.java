@@ -120,8 +120,7 @@ public class UserInfoService implements IUserInfoService {
         }
 
         // Tim user vua duoc insert vao he thong
-        System.out.println("check thoong tin tra lai user information : " + userInfo.getDTO().getId());
-        responseData.setData(userInfo.getDTO());
+        responseData.setData(userInfo.getDTO().getId());
         responseData.setStatus(HttpStatus.OK);
         responseData.setDesc("Insert User Information Successful");
         return responseData;
