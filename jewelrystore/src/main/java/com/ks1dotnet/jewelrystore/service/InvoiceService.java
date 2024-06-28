@@ -905,7 +905,6 @@ public class InvoiceService implements IInvoiceService {
                                                                                                     // quả
                 Page<Invoice> invoices = invoiceRepository
                                 .findByEmployeeIdAndInvoiceTypeIdAndStatus(employeeId, 1, true, pageable);
-                System.out.println("SQL Query: " + invoices);
                 return invoices.map(Invoice::getDTO);
         }
 
