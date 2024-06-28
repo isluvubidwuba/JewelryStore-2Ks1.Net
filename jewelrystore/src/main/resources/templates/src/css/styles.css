@@ -2544,10 +2544,6 @@ video {
   --tw-ring-offset-width: 2px;
 }
 
-.disabled\:opacity-50:disabled {
-  opacity: 0.5;
-}
-
 .group:hover .group-hover\:opacity-100 {
   opacity: 1;
 }
