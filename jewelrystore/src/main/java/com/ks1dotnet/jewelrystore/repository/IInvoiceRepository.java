@@ -48,6 +48,9 @@ public interface IInvoiceRepository extends JpaRepository<Invoice, Integer> {
                         boolean b,
                         Pageable pageable);
 
+        Page<Invoice> findByEmployeeIdAndInvoiceTypeIdAndStatus(String employeeId, int invoiceTypeId,
+                        boolean status, Pageable pageable);
+
         @Query("SELECT SUM(i.totalPrice) FROM Invoice i WHERE i.employee.id = :employeeId AND i.status = true AND i.invoiceType.id = 1")
         Double sumTotalPriceByEmployeeId(@Param("employeeId") String employeeId);
 

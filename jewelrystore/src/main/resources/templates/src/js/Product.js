@@ -600,13 +600,14 @@ $(document).ready(function () {
 });
 
 function init() {
+  token = localStorage.getItem("token");
   fetchProduct(state.currentServerPage, state.size); // Fetch products on page load
   setupModalToggles();
   setupFormSubmissions();
   setupSearch();
   setUpOnChange();
 }
-
+var token = null;
 const state = {
   querySet: [],
   page: 1,
@@ -803,14 +804,40 @@ async function setupModalToggles() {
 
   await fetchDropdownData("#idMaterialC", fetchMaterial);
   await fetchDropdownData("#idCategoryC", fetchProductCategory);
-}
 
+  fetchDropdownData("#Material", fetchMaterial);
+  fetchDropdownData("#Category", fetchProductCategory);
+  fetchDropdownData("#Counter", fetchCounter);
+}
+async function fetchCounter() {
+  return fetchData2("http://localhost:8080/counter/allactivecounter");
+}
 async function fetchDropdownData(elementId, fetchDataFunc) {
   const dataList = await fetchDataFunc();
   dataList.forEach(function (item) {
     const option = `<option class="dark:placeholder-gray-400" value="${item.id}">${item.name}</option>`;
     $(elementId).append(option);
   });
+}
+async function fetchData2(url) {
+  try {
+    const response = await $.ajax({
+      url,
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (response.status === "OK" && response.data) {
+      return response.data;
+    } else {
+      console.error(`Failed to fetch data from ${url}`);
+      return [];
+    }
+  } catch (error) {
+    console.error(`Error fetching data from ${url}:`, error);
+    return [];
+  }
 }
 function setUpFormUpdateModal() {
   const detailsMapping = [
@@ -994,7 +1021,9 @@ function setupSearch() {
       }, 500);
     }
   });
-
+  $("#Category,#Material,#Counter").change(function () {
+    searchProducts($("#search-input").val());
+  });
   $("#search-input").on("change", function () {
     if (this.value.trim() === "0") {
       fetchProduct(state.currentServerPage, state.size);
@@ -1008,14 +1037,14 @@ function searchProducts(query) {
     type: "POST",
     data: $.param({
       search: query,
-      id_material: "",
-      id_product_category: "",
-      id_counter: "",
+      id_material: $("#Material").val(),
+      id_product_category: $("#Category").val(),
+      id_counter: $("#Counter").val(),
     }),
     contentType: "application/x-www-form-urlencoded",
     success: function (response) {
       if (response && response.data) {
-        searchSuggestion(response.data);
+        searchSuggestion(response.data.content);
       }
     },
     error: function (xhr, status, error) {

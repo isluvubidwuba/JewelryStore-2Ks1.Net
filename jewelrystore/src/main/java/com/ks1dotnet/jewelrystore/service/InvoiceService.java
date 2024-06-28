@@ -898,4 +898,14 @@ public class InvoiceService implements IInvoiceService {
                 cal.add(Calendar.MONTH, months);
                 return cal.getTime();
         }
+
+        @Override
+        public Page<InvoiceDTO> getInvoicesByEmployeeId2(String employeeId, int page, int size) {
+                Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id")); // Giới hạn 5 kết
+                                                                                                    // quả
+                Page<Invoice> invoices = invoiceRepository
+                                .findByEmployeeIdAndInvoiceTypeIdAndStatus(employeeId, 1, true, pageable);
+                return invoices.map(Invoice::getDTO);
+        }
+
 }
