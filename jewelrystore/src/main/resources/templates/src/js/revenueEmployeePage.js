@@ -22,6 +22,29 @@ $(document).ready(function () {
 
 function displayEmployeeDetails(employee) {
   $("#employeeImage img").attr("src", employee.image);
+  const employeeInfo = `
+  <div class="flex items-center">
+                <div>
+                  <h1
+                    id="employeeName"
+                    class="text-2xl font-playwrite"
+                    onclick="editField('employeeName')"
+                  >
+                    <span class="value"> ${employee.firstName} ${employee.lastName}</span>
+                  </h1>
+                  <input
+                    type="text"
+                    id="employeeNameInput"
+                    class="edit-mode"
+                    name="firstName"
+                  />
+                  <h2 id="employeeRole" class="text-2xl text-gray-500">
+                    ADMIN
+                  </h2>
+                </div>
+              </div>`;
+  $(".employee-info").html(employeeInfo);
+
   const contactHtml = `
   <div id="employeePhoneNumber" onclick="editField('employeePhoneNumber')">
     <strong>Phone Number:</strong>

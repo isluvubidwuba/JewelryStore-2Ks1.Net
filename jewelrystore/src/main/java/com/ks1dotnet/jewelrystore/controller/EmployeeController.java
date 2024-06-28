@@ -71,24 +71,32 @@ public class EmployeeController {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<ResponseData> updateEmployee(@RequestHeader("Authorization") String token,
-            @RequestParam(required = false) MultipartFile file, @RequestParam String id,
-            @RequestParam String firstName, @RequestParam String lastName, @RequestParam(required = false) int roleId,
-            @RequestParam(required = false) String pinCode, @RequestParam boolean status,
-            @RequestParam String phoneNumber, @RequestParam(required = false) String email,
+    public ResponseEntity<ResponseData> updateEmployee(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(required = false) MultipartFile file,
+            @RequestParam String id,
+            @RequestParam String firstName,
+            @RequestParam String lastName,
+            @RequestParam(required = false) Integer roleId, // Đổi int thành Integer
+            @RequestParam(required = false) String pinCode,
+            @RequestParam(required = false) Boolean status, // Đổi boolean thành Boolean
+            @RequestParam String phoneNumber,
+            @RequestParam(required = false) String email,
             @RequestParam String address) {
         ResponseData responseData;
-        String idEmployeeFromToken = jwtUtilsHelper.getEmployeeIdFromToken(
-                token.substring(5));
+        System.out.println(token);
+        String idEmployeeFromToken = jwtUtilsHelper.getEmployeeIdFromToken(token.substring(7));
         EmployeeDTO employeeDTO = iEmployeeService.findById(idEmployeeFromToken).getDTO();
         String pincodeCheck = pinCode != null ? pinCode : employeeDTO.getPinCode();
         String mailCheck = email != null ? email : employeeDTO.getEmail();
+
         if (employeeDTO.getRole().getName().equals("ADMIN")) {
             responseData = iEmployeeService.updateEmployee(file, id, firstName, lastName,
                     roleId, pincodeCheck, status, phoneNumber, mailCheck, address);
         } else if (employeeDTO.getId().equals(id)) {
             responseData = iEmployeeService.updateEmployee(file, id, firstName, lastName,
-                    employeeDTO.getRole().getId(), pincodeCheck, status, phoneNumber, mailCheck, address);
+                    employeeDTO.getRole().getId(), pincodeCheck, employeeDTO.isStatus(), phoneNumber, mailCheck,
+                    address);
         } else {
             responseData = new ResponseData(HttpStatus.BAD_REQUEST, "Not have permission", null);
         }
