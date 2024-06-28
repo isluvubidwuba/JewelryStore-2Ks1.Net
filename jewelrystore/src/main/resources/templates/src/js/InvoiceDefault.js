@@ -332,7 +332,7 @@ $(document).ready(function () {
     }
 
     $.ajax({
-      url: "http://${apiurl}/invoice/create-detail",
+      url: `http://${apiurl}/invoice/create-detail`,
       method: "POST",
       data: JSON.stringify({
         barcode: barcode,
