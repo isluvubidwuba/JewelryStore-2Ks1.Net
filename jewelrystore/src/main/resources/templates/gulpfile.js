@@ -92,17 +92,12 @@ gulp.task("copy-images", function () {
   return gulp.src("src/images/**/*").pipe(gulp.dest("dist/images"));
 });
 
-// Task để sao chép file JS
-gulp.task("copy-js", function () {
-  return gulp.src("src/js/**/*.js").pipe(gulp.dest("dist/js"));
-});
-
 // Task để theo dõi thay đổi
 gulp.task("watch", function () {
   gulp.watch(["src/**/*.html"], gulp.series("file-include")); // Theo dõi các thay đổi trong thư mục 'src'
   gulp.watch("src/css/**/*.css", gulp.series("copy-css")); // Theo dõi các thay đổi trong thư mục 'css'
   gulp.watch("src/images/**/*", gulp.series("copy-images")); // Theo dõi các thay đổi trong thư mục 'images'
-  gulp.watch("src/js/**/*.js", gulp.series("replace-env", "copy-js")); // Theo dõi các thay đổi trong thư mục 'js'
+  gulp.watch("src/js/**/*.js", gulp.series("replace-env")); // Theo dõi các thay đổi trong thư mục 'js'
 });
 
 // Task để build dự án

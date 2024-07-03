@@ -195,6 +195,11 @@ async function setupModalToggles() {
     "button[name='modalToggle_Detail']"
   );
   toggleModal(
+    "#createGemStone-modal",
+    "#modalClose_CreateGem",
+    "button[name='addGemStone']"
+  );
+  toggleModal(
     "#list-gems-modal",
     "#modalClose_listGems",
     "td>button[name='list_gem_detail']"

@@ -1,4 +1,6 @@
 const apiurl = process.env.API_URL;
+var keybuffer = [];
+
 $(document).ready(function () {
   //phần xuất hiện
   let productSoldDiv = $("#product-sold");
@@ -17,7 +19,28 @@ $(document).ready(function () {
 
   //function
   setupInsertModalToggle();
+  $(document).on("keypress", press);
 
+  function press(event) {
+    if (event.which === 13) {
+      addProductByBarcode(keybuffer.join(""));
+      keybuffer.length = 0;
+      return;
+    }
+
+    var number = null;
+    if (event.which >= 48 && event.which <= 57) {
+      // Handle numbers on the main keyboard (0-9)
+      number = event.which - 48;
+    } else if (event.which >= 96 && event.which <= 105) {
+      // Handle numbers on the numpad (0-9)
+      number = event.which - 96;
+    }
+
+    if (number !== null) {
+      keybuffer.push(number);
+    }
+  }
   $("#add-barcode-button").click(function () {
     const barcode = $("#barcode-input").val().trim();
     if (barcode) {
