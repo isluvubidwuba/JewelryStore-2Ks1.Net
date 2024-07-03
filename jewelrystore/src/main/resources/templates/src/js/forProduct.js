@@ -1,4 +1,3 @@
-const apiurl = process.env.API_URL;
 $(document).ready(function () {
   // Sự kiện click cho nút Active select
   $(document).on("click", "#active-selected-products", function () {

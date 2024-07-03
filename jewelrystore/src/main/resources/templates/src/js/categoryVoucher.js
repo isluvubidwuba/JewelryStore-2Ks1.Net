@@ -1,4 +1,3 @@
-const apiurl = process.env.API_URL;
 $(document).ready(function () {
   $(document).on("click", "#modalToggle_Category_Apply", function () {
     const promotionId = $("#modalToggle_Category_Apply").attr(
