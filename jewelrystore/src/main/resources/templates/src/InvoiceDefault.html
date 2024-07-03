@@ -1,28 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <link href="css/styles.css" rel="stylesheet" />
-    <script src="js/jquery.min.js"></script>
-    <script src="js/InvoiceDefault.js"></script>
-    <style>
-      #product-sold {
-        max-height: calc(100vh - 150px);
-        overflow-y: auto;
-      }
 
-      #invoice-details {
-        max-height: 800px;
-        overflow-y: auto;
-      }
-    </style>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <link href="css/styles.css" rel="stylesheet" />
+  <script src="js/jquery.min.js"></script>
+  <script src="js/InvoiceDefault.js"></script>
+  <style>
+    #product-sold {
+      max-height: calc(100vh - 150px);
+      overflow-y: auto;
+    }
 
-    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
-  </head>
+    #invoice-details {
+      max-height: 800px;
+      overflow-y: auto;
+    }
+  </style>
 
   <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+</head>
+
+<div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
 </head>
 
 <body class="bg-gray-100 h-screen flex">
@@ -58,28 +59,16 @@
       </div>
 
       <div class="mt-4 mb-4 flex items-center">
-        <div class="relative inline-block">
-          <input type="text" id="user-id-input" class="border border-gray-300 p-2 rounded-md"
-            placeholder="Enter Customer ID" />
-          <span id="clear-user-id-button" class="absolute right-2 top-2 cursor-pointer text-gray-500"
-            style="display: none" onclick="clearUserIdInput()">
-            &times;
-          </span>
-        </div>
-
-        <button id="add-user-button" class="ml-2 px-4 py-2 bg-black hover:bg-gray-700 text-white rounded-md">
-          Add
-        </button>
 
         <div class="relative ml-2">
-          <input type="text" id="search-numerphone-customer" class="border border-gray-300 p-2 rounded-md pr-10"
-            placeholder="Enter Phonenumber" />
-          <span id="clear-numerphone-button" class="absolute right-2 top-2 cursor-pointer text-gray-500"
+          <input type="text" id="search-contact-customer" class="border border-gray-300 p-2 rounded-md pr-10"
+            placeholder="Enter Phonenumber Or Email" />
+          <span id="clear-contact-button" class="absolute right-2 top-2 cursor-pointer text-gray-500"
             style="display: none" onclick="clearInput()">
             &times;
           </span>
         </div>
-        <button id="search-numerphone-button" class="ml-2 px-4 py-2 bg-black hover:bg-gray-700 text-white rounded-md">
+        <button id="search-contact-button" class="ml-2 px-4 py-2 bg-black hover:bg-gray-700 text-white rounded-md">
           Search
         </button>
       </div>

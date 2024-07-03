@@ -39,4 +39,5 @@ public interface IUserInfoService {
 
         public ResponseData findByPhoneNumber(String phone);
 
+        public ResponseData findByEmail(String mail);
 }

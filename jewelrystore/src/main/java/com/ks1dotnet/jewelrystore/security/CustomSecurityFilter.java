@@ -119,7 +119,7 @@ public class CustomSecurityFilter {
                                                                 "/userinfo/searchsupplier",
                                                                 "/userinfo/getcustomer/{id}",
                                                                 "/userinfo/findsupplier/{id}",
-                                                                "/userinfo/phonenumbercustomer")
+                                                                "/userinfo/phonenumberandmailcustomer")
                                                 .hasAnyAuthority("STAFF", "MANAGER", "ADMIN")
 
                                                 .requestMatchers("/userinfo/update",
