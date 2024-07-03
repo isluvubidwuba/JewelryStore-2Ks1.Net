@@ -1,4 +1,3 @@
-const apiurl = process.env.API_URL;
 $(document).ready(function () {
   $(document).on("click", "#modalToggle_Material_Apply", function () {
     const promotionId = $("#modalToggle_Material_Apply").attr(
@@ -170,7 +169,10 @@ function applyPromotionToSelectedMaterials(promotionId) {
       },
     });
   } else {
-    alert("Please select at least one material type to add.");
+    showNotification(
+      "Please select at least one material type to add.",
+      "Error"
+    );
   }
 }
 
@@ -196,7 +198,7 @@ function removePromotionFromSelectedMaterials(promotionId) {
       success: function (response) {
         if (response.status === "OK") {
           fetchMaterialsByPromotion(promotionId);
-          alert("Remove successful");
+          showNotification(response.desc, "Error");
         }
       },
       error: function (error) {
@@ -204,7 +206,10 @@ function removePromotionFromSelectedMaterials(promotionId) {
       },
     });
   } else {
-    alert("Please select at least one material type to delete.");
+    showNotification(
+      "Please select at least one material type to delete.",
+      "Error"
+    );
   }
 }
 
@@ -230,7 +235,7 @@ function activateSelectedMaterials(promotionId) {
       success: function (response) {
         if (response.status === "OK") {
           fetchMaterialsByPromotion(promotionId);
-          alert("Activate successful");
+          showNotification("Activate successful.", "Error");
         }
       },
       error: function (error) {
@@ -238,7 +243,10 @@ function activateSelectedMaterials(promotionId) {
       },
     });
   } else {
-    alert("Please select at least one material type to activate.");
+    showNotification(
+      "Please select at least one material type to activate.",
+      "Error"
+    );
   }
 }
 

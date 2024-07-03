@@ -1,6 +1,5 @@
 let currentPage2 = 0; // Trang hiện tại mặc định là 0
 const pageSize2 = 5; // Kích thước trang mặc định là 5
-const apiurl = process.env.API_URL;
 $(document).ready(function () {
   $("#closeViewModalBtn2").on("click", closeModalRevenue);
   $("#loadMoreInvoiceEmplBtn").on("click", function () {
@@ -125,11 +124,14 @@ function viewEmployee2(
         openModalRevenue();
         loadInvoices(idEmployee, currentPage2, pageSize2);
       } else {
-        alert("Không thể lấy dữ liệu doanh thu của nhân viên.");
+        showNotification(
+          "Không thể lấy dữ liệu doanh thu của nhân viên.",
+          "Error"
+        );
       }
     },
     error: function (error) {
-      alert("Đã xảy ra lỗi khi gọi API.");
+      showNotification("Đã xảy ra lỗi khi gọi API.", "Error");
     },
   });
 }
@@ -156,11 +158,14 @@ function Update(
       if (response.status === "OK") {
         showEmployeeInfo(response.data);
       } else {
-        alert("Không thể lấy dữ liệu doanh thu của nhân viên.");
+        showNotification(
+          "Không thể lấy dữ liệu doanh thu của nhân viên.",
+          "Error"
+        );
       }
     },
     error: function (error) {
-      alert("Đã xảy ra lỗi khi gọi API.");
+      showNotification("Đã xảy ra lỗi khi gọi API Update.", "Error");
     },
   });
 }
@@ -189,11 +194,11 @@ function loadInvoices(employeeId, page, size) {
           $("#loadMoreInvoiceEmplBtn").removeClass("hidden"); // Hiển thị nút "Load More" nếu chưa đến trang cuối
         }
       } else {
-        alert("Không thể lấy danh sách hóa đơn.");
+        showNotification("Không thể lấy danh sách hóa đơn.", "Error");
       }
     },
     error: function (error) {
-      alert("Đã xảy ra lỗi khi gọi API.");
+      showNotification("Đã xảy ra lỗi khi gọi API load invoices.", "Error");
     },
   });
 }

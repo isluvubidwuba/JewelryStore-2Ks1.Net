@@ -330,16 +330,18 @@ public class UserInfoService implements IUserInfoService {
     @Override
     public ResponseData getUserInfo(int id) {
         UserInfo userInfo = iUserInfoRepository.findById(id).orElse(null);
+        UserInfoDTO dto = userInfo.getDTO();
+        dto.setImage(url.trim() + filePath.trim() + dto.getImage());
         ResponseData responseData = new ResponseData();
         responseData.setStatus(HttpStatus.OK);
-        responseData.setData(userInfo.getDTO());
+        responseData.setData(dto);
         return responseData;
     }
 
     private Page<UserInfoDTO> convertToDTOPage(Page<UserInfo> userPage) {
         List<UserInfoDTO> dtoList = userPage.getContent().stream().map(userinfo -> {
             UserInfoDTO dto = userinfo.getDTO();
-            dto.setImage(url.trim() + filePath.trim() + dto.getImage());
+
             return dto;
         }).collect(Collectors.toList());
         return new PageImpl<>(dtoList, userPage.getPageable(), userPage.getTotalElements());

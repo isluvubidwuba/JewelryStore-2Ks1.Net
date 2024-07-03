@@ -1,4 +1,3 @@
-const apiurl = process.env.API_URL;
 $(document).ready(function () {
   // Sự kiện click cho nút Active select
   $(document).on("click", "#active-selected-products", function () {
@@ -160,14 +159,17 @@ function activeSelectedProducts(promotionId) {
           promotionId,
           $("#promotion-name-listapply").text()
         );
-        alert("Active successful");
+        showNotification("Active successful", "OK");
       },
       error: function (error) {
         console.error("Error inactivating selected products:", error);
       },
     });
   } else {
-    alert("Please select at least one product to inactive.");
+    showNotification(
+      "Please select at least one product to inactive.",
+      "Error"
+    );
   }
 }
 
@@ -301,7 +303,10 @@ function fetchProductsByPromotion(promotionId, promotionName) {
         populateCategoryFilter([...new Set(categories)]);
         populateMaterialFilter([...new Set(materials)]);
       } else {
-        alert("Không tìm thấy sản phẩm nào cho promotion này.");
+        showNotification(
+          "Không tìm thấy sản phẩm nào cho promotion này.",
+          "Error"
+        );
       }
     },
     error: function (error) {
@@ -318,7 +323,7 @@ function deleteSelectedProducts(promotionId) {
   });
   if (selectedProductIds.length > 0) {
     $.ajax({
-      url: `http://${apiurl}/promotion-for-product/remove-promotion`,
+      url: `http://${apiurl}/promotion-generic/remove`,
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -326,7 +331,8 @@ function deleteSelectedProducts(promotionId) {
       contentType: "application/json",
       data: JSON.stringify({
         promotionId: promotionId,
-        productIds: selectedProductIds,
+        entityIds: selectedProductIds,
+        entityType: "PRODUCT",
       }),
       success: function (response) {
         // Sau khi xóa thành công, tải lại danh sách sản phẩm
@@ -335,15 +341,16 @@ function deleteSelectedProducts(promotionId) {
             promotionId,
             $("#promotion-name-listapply").text()
           );
-          alert("Remove successful");
+          showNotification(response.desc, "OK");
         }
       },
       error: function (error) {
+        showNotification(response.desc, "error");
         console.error("Error deleting selected products:", error);
       },
     });
   } else {
-    alert("Please select at least one product to delete.");
+    showNotification("Please select at least one product to delete.", "Error");
   }
 }
 
@@ -413,6 +420,8 @@ function addSelectedProductsToPromotion(promotionId) {
         entityType: entity,
       }),
       success: function (response) {
+        showNotification(response.desc, "OK");
+
         // Sau khi thêm thành công, tải lại danh sách sản phẩm
         fetchProductsByPromotion(
           promotionId,
@@ -425,6 +434,6 @@ function addSelectedProductsToPromotion(promotionId) {
       },
     });
   } else {
-    alert("Please select at least one product to add.");
+    showNotification(response.desc, "Error");
   }
 }

@@ -1,4 +1,3 @@
-const apiurl = process.env.API_URL;
 $(document).ready(function () {
   $(document).on("click", "#modalToggle_Customer_Apply", function () {
     const promotionId = $("#modalToggle_Customer_Apply").attr(
@@ -172,7 +171,10 @@ function applyPromotionToSelectedCustomers(promotionId) {
       },
     });
   } else {
-    alert("Please select at least one customer type to add.");
+    showNotification(
+      "Please select at least one customer type to add.",
+      "error"
+    );
   }
 }
 
@@ -198,7 +200,7 @@ function removePromotionFromSelectedCustomers(promotionId) {
       success: function (response) {
         if (response.status === "OK") {
           fetchCustomersByPromotion(promotionId);
-          alert("Remove successful");
+          showNotification(response.desc, "OK");
         }
       },
       error: function (error) {
@@ -206,7 +208,10 @@ function removePromotionFromSelectedCustomers(promotionId) {
       },
     });
   } else {
-    alert("Please select at least one customer type to delete.");
+    showNotification(
+      "Please select at least one customer type to delete.",
+      "error"
+    );
   }
 }
 
@@ -232,7 +237,7 @@ function activateSelectedCustomers(promotionId) {
       success: function (response) {
         if (response.status === "OK") {
           fetchCustomersByPromotion(promotionId);
-          alert("Activate successful");
+          showNotification("Activate successful", "OK");
         }
       },
       error: function (error) {
@@ -240,7 +245,10 @@ function activateSelectedCustomers(promotionId) {
       },
     });
   } else {
-    alert("Please select at least one customer type to activate.");
+    showNotification(
+      "Please select at least one customer type to activate.",
+      "Error"
+    );
   }
 }
 
