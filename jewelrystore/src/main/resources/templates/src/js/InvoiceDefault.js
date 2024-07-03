@@ -130,6 +130,7 @@ $(document).ready(function () {
           alert(response.desc || "User inserted successfully");
           $("#insertUserModal").addClass("hidden");
           clearInsertForm(); // Clear form fields
+          console.log(response.data.id);
           getUserById(response.data.id);
         },
         error: function (jqXHR, textStatus, errorThrown) {

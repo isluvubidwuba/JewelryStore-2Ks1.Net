@@ -2,7 +2,6 @@ const apiurl = process.env.API_URL;
 $(document).ready(function () {
   setupEventListeners();
   fetchPromotions();
-  loadComponents2();
   setupModalToggles();
   submitInsertForm();
   submitUpdateForm(); // Call the function to handle update form submission
@@ -16,31 +15,8 @@ $(document).ready(function () {
 
 const token = localStorage.getItem("token");
 let currentPage = 0;
-const itemsPerPage = 2; // Số lượng mục trên mỗi trang
+const itemsPerPage = 3; // Số lượng mục trên mỗi trang
 let promotions = []; // Lưu trữ danh sách promotions đã tải về
-
-// load components
-function loadComponents2() {
-  const components = [
-    {
-      id: "pagination-placeholder",
-      url: "components/pagination-promotion.html",
-    },
-    { id: "modal-placeholder", url: "components/modal-insert-promotion.html" },
-  ];
-
-  components.forEach((component) => {
-    $("#" + component.id).load(component.url, function (response, status, xhr) {
-      if (status === "error") {
-        console.error(
-          "Error loading the component:",
-          xhr.status,
-          xhr.statusText
-        );
-      }
-    });
-  });
-}
 
 // fetch all promotions
 function fetchPromotions(keyword = "") {
@@ -494,14 +470,17 @@ function deletePromotion(promotionId) {
       Authorization: `Bearer ${token}`,
     },
     success: function (response) {
-      alert(response.desc); // Hiển thị thông báo trả về từ API
+      showNotification(response.desc, "OK");
       $("#deleteModal").addClass("hidden");
+
       fetchPromotions(0); // Tải lại danh sách promotion
     },
     error: function (error) {
       $("#deleteModal").addClass("hidden");
-      console.error("Error deleting promotion:", error);
-      alert("An error occurred while deleting the promotion.");
+      showNotification(
+        "An error occurred while deleting the promotion.",
+        "Error"
+      );
     },
   });
 }
@@ -532,11 +511,15 @@ function submitUpdateForm() {
         success: function (response) {
           clearForm("#form-update");
           $("#crud-update-modal").addClass("hidden");
-          alert(response.desc);
+          showNotification(response.desc, "OK");
           fetchPromotions(0); // Tải lại danh sách promotion
         },
         error: function (xhr, status, error) {
-          alert("An error occurred while submitting the form.");
+          showNotification(
+            "An error occurred while submitting the form.",
+            "ERROR"
+          );
+
           console.log(xhr.responseText);
         },
       });
@@ -641,8 +624,7 @@ function submitInsertForm() {
         success: function (response) {
           clearForm("#form-insert");
           $("#crud-modal").addClass("hidden");
-          alert(response.desc);
-
+          showNotification(response.desc, "OK");
           // Fetch promotions và tính toán trang cuối cùng
           fetchPromotions().then(() => {
             const totalPages = Math.ceil(promotions.length / itemsPerPage);
@@ -652,7 +634,10 @@ function submitInsertForm() {
           });
         },
         error: function (xhr, status, error) {
-          alert("An error occurred while submitting the form.");
+          showNotification(
+            "An error occurred while submitting the form.",
+            "Error"
+          );
           console.log(xhr.responseText);
         },
       });

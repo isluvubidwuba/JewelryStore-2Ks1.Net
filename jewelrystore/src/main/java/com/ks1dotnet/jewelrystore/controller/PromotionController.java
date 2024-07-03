@@ -54,6 +54,12 @@ public class PromotionController {
         return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
+    @GetMapping("/valid")
+    public ResponseEntity<?> checkExpiredPromotion() {
+        ResponseData responseData = iPromotionService.deleteExpiredPromotions();
+        return new ResponseEntity<>(responseData, responseData.getStatus());
+    }
+
     @PostMapping("/create")
     public ResponseEntity<?> create(
             @RequestParam(required = false) MultipartFile file,

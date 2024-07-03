@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -97,6 +96,45 @@ public class EmployeeController {
             responseData = iEmployeeService.updateEmployee(file, id, firstName, lastName,
                     employeeDTO.getRole().getId(), pincodeCheck, employeeDTO.isStatus(), phoneNumber, mailCheck,
                     address);
+        } else {
+            responseData = new ResponseData(HttpStatus.BAD_REQUEST, "Not have permission", null);
+        }
+
+        return new ResponseEntity<>(responseData, responseData.getStatus());
+    }
+
+    @PostMapping("/update2")
+    public ResponseEntity<ResponseData> updateEmployee2(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(required = false) MultipartFile file,
+            @RequestParam(required = false) String id,
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String lastName,
+            @RequestParam(required = false) String phoneNumber,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String address) {
+        ResponseData responseData;
+        String idEmployeeFromToken = jwtUtilsHelper.getEmployeeIdFromToken(token.substring(7));
+        EmployeeDTO employeeDTO = iEmployeeService.findById(idEmployeeFromToken).getDTO();
+
+        // Sử dụng dữ liệu cũ nếu dữ liệu mới không có hoặc rỗng
+        String firstNameToUpdate = firstName != null ? (firstName.isEmpty() ? employeeDTO.getFirstName() : firstName)
+                : employeeDTO.getFirstName();
+        String lastNameToUpdate = lastName != null ? (lastName.isEmpty() ? employeeDTO.getLastName() : lastName)
+                : employeeDTO.getLastName();
+        String phoneNumberToUpdate = phoneNumber != null
+                ? (phoneNumber.isEmpty() ? employeeDTO.getPhoneNumber() : phoneNumber)
+                : employeeDTO.getPhoneNumber();
+        String emailToUpdate = email != null ? (email.isEmpty() ? employeeDTO.getEmail() : email)
+                : employeeDTO.getEmail();
+        String addressToUpdate = address != null ? (address.isEmpty() ? employeeDTO.getAddress() : address)
+                : employeeDTO.getAddress();
+
+        if (employeeDTO.getId().equals(id)) {
+            responseData = iEmployeeService.updateEmployee(file, idEmployeeFromToken, firstNameToUpdate,
+                    lastNameToUpdate,
+                    employeeDTO.getRole().getId(), employeeDTO.getPinCode(), employeeDTO.isStatus(),
+                    phoneNumberToUpdate, emailToUpdate, addressToUpdate);
         } else {
             responseData = new ResponseData(HttpStatus.BAD_REQUEST, "Not have permission", null);
         }
