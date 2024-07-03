@@ -29,6 +29,10 @@ $(document).ready(function () {
 
 
 
+
+
+
+
   function setupInsertModalToggle() {
     // Function to display the image preview
     function readURL(input) {
@@ -108,6 +112,7 @@ $(document).ready(function () {
           alert(response.desc || 'User inserted successfully');
           $('#insertUserModal').addClass('hidden');
           clearInsertForm(); // Clear form fields
+          console.log(response.data.id);
           getUserById(response.data.id);
         },
         error: function (jqXHR, textStatus, errorThrown) {

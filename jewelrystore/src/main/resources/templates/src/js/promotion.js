@@ -14,7 +14,7 @@ $(document).ready(function () {
 
 const token = localStorage.getItem("token");
 let currentPage = 0;
-const itemsPerPage = 2; // Số lượng mục trên mỗi trang
+const itemsPerPage = 3; // Số lượng mục trên mỗi trang
 let promotions = []; // Lưu trữ danh sách promotions đã tải về
 
 // fetch all promotions
