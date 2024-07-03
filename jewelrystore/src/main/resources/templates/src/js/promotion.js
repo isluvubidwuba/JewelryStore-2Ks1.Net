@@ -493,14 +493,17 @@ function deletePromotion(promotionId) {
       Authorization: `Bearer ${token}`,
     },
     success: function (response) {
-      alert(response.desc); // Hiển thị thông báo trả về từ API
+      showNotification(response.desc, "OK");
       $("#deleteModal").addClass("hidden");
+
       fetchPromotions(0); // Tải lại danh sách promotion
     },
     error: function (error) {
       $("#deleteModal").addClass("hidden");
-      console.error("Error deleting promotion:", error);
-      alert("An error occurred while deleting the promotion.");
+      showNotification(
+        "An error occurred while deleting the promotion.",
+        "Error"
+      );
     },
   });
 }
@@ -531,11 +534,15 @@ function submitUpdateForm() {
         success: function (response) {
           clearForm("#form-update");
           $("#crud-update-modal").addClass("hidden");
-          alert(response.desc);
+          showNotification(response.desc, "OK");
           fetchPromotions(0); // Tải lại danh sách promotion
         },
         error: function (xhr, status, error) {
-          alert("An error occurred while submitting the form.");
+          showNotification(
+            "An error occurred while submitting the form.",
+            "ERROR"
+          );
+
           console.log(xhr.responseText);
         },
       });
@@ -640,8 +647,7 @@ function submitInsertForm() {
         success: function (response) {
           clearForm("#form-insert");
           $("#crud-modal").addClass("hidden");
-          alert(response.desc);
-
+          showNotification(response.desc, "OK");
           // Fetch promotions và tính toán trang cuối cùng
           fetchPromotions().then(() => {
             const totalPages = Math.ceil(promotions.length / itemsPerPage);
@@ -651,7 +657,10 @@ function submitInsertForm() {
           });
         },
         error: function (xhr, status, error) {
-          alert("An error occurred while submitting the form.");
+          showNotification(
+            "An error occurred while submitting the form.",
+            "Error"
+          );
           console.log(xhr.responseText);
         },
       });
