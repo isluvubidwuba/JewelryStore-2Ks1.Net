@@ -13,16 +13,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.ks1dotnet.jewelrystore.dto.ProductDTO;
+import com.ks1dotnet.jewelrystore.entity.Inventory;
 import com.ks1dotnet.jewelrystore.entity.Product;
 import com.ks1dotnet.jewelrystore.exception.BadRequestException;
 import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
 import com.ks1dotnet.jewelrystore.exception.RunTimeExceptionV1;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.ICounterRepository;
+import com.ks1dotnet.jewelrystore.repository.IInventoryRepository;
 import com.ks1dotnet.jewelrystore.repository.IMaterialRepository;
 import com.ks1dotnet.jewelrystore.repository.IProductCategoryRepository;
 import com.ks1dotnet.jewelrystore.repository.IProductRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IProductService;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class ProductService implements IProductService {
@@ -34,6 +38,9 @@ public class ProductService implements IProductService {
     IProductCategoryRepository iProductCategoryRepository;
     @Autowired
     ICounterRepository iCounterRepository;
+    @Autowired
+    public IInventoryRepository iInventoryRepository;
+
     @Value("${fileUpload.productPath}")
     private String filePath;
     @Value("${firebase.img-url}")
@@ -139,8 +146,8 @@ public class ProductService implements IProductService {
 
             iProductRepository.saveAll(productsToUpdate);
 
-            List<ProductDTO> updatedProductDTOs =
-                    productsToUpdate.stream().map(Product::getDTO).collect(Collectors.toList());
+            List<ProductDTO> updatedProductDTOs = productsToUpdate.stream().map(Product::getDTO)
+                    .collect(Collectors.toList());
 
             return new ResponseData(HttpStatus.OK, "All products updated successfully!",
                     updatedProductDTOs);
@@ -157,6 +164,7 @@ public class ProductService implements IProductService {
     }
 
     @Override
+    @Transactional
     public ResponseData insert(ProductDTO t) {
         try {
             if (t == null)
@@ -191,8 +199,15 @@ public class ProductService implements IProductService {
 
             t.setProductCode(productCode);
             t.setBarCode(barcode);
-
             Product savedProduct = iProductRepository.save(new Product(t));
+
+            Inventory inventory = new Inventory();
+            inventory.setProduct(savedProduct);
+            inventory.setQuantity(0);
+            inventory.setTotal_import(0);
+            inventory.setTotal_sold(0);
+            iInventoryRepository.save(inventory);
+
             return new ResponseData(HttpStatus.CREATED, "Create product successfully",
                     savedProduct.getDTO());
         } catch (Exception e) {
