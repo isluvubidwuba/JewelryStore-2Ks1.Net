@@ -92,7 +92,6 @@ public class CustomerTypeService implements ICustomerTypeService {
                     .map(ct -> new CustomerTypeDTO(ct.getId(), ct.getType(), ct.getPointCondition()))
                     .collect(Collectors.toList());
 
-
             List<EarnPointsDTO> updatedEarnPointsDTOList = new ArrayList<>();
 
             for (EarnPoints earnPoints : earnPointsList) {
@@ -125,7 +124,6 @@ public class CustomerTypeService implements ICustomerTypeService {
                         earnPoints.setCustomerType(newCustomerType);
                         EarnPoints savedEarnPoints = iEarnPointsRepository.save(earnPoints); // Lưu và lấy kết quả trả
                                                                                              // về
-                        System.out.println("Saved EarnPoints: " + savedEarnPoints); // In ra thông tin để kiểm tra
 
                         // Chuyển đổi từ entity sang DTO để trả về
                         EarnPointsDTO earnPointsDTO = new EarnPointsDTO(

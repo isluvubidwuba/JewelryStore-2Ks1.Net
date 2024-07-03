@@ -341,7 +341,7 @@ public class UserInfoService implements IUserInfoService {
     private Page<UserInfoDTO> convertToDTOPage(Page<UserInfo> userPage) {
         List<UserInfoDTO> dtoList = userPage.getContent().stream().map(userinfo -> {
             UserInfoDTO dto = userinfo.getDTO();
-
+            dto.setImage(url.trim() + filePath.trim() + dto.getImage());
             return dto;
         }).collect(Collectors.toList());
         return new PageImpl<>(dtoList, userPage.getPageable(), userPage.getTotalElements());
