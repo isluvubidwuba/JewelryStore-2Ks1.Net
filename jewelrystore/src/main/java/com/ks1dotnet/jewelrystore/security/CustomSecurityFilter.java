@@ -75,7 +75,7 @@ public class CustomSecurityFilter {
                                                                 "/employee/upload/**",
                                                                 "/earnpoints/**", "/gemStone/**",
                                                                 "/employee/listemployee/**",
-                                                                "/employee/update")
+                                                                "/employee/update", "/employee/update2")
                                                 .permitAll()
                                                 // Employee
                                                 .requestMatchers("/employee/listpage",
