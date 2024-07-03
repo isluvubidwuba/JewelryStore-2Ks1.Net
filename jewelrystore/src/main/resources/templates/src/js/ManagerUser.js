@@ -26,7 +26,7 @@ function fetchRoles() {
         populateRoleSelect(roles, "#update-role"); // Populate role select for update modal
         populateRoleSelect(roles, "#insert-role");
       } else {
-        alert("Fail to load Role");
+        showNotification("Fail to load Role.", "error");
       }
     },
     error: function (error) {
@@ -83,13 +83,13 @@ function setupModalToggle() {
       contentType: "application/x-www-form-urlencoded",
       data: $(this).serialize(),
       success: function (response) {
-        alert(response);
+        showNotification(response, "OK");
         $("#addRoleModal").addClass("hidden");
         fetchRoles();
       },
       error: function (error) {
         console.error("Error adding role:", error);
-        alert("Error adding role!");
+        showNotification("Error adding role!", "OK");
       },
     });
   });
@@ -418,7 +418,8 @@ function updateUser() {
     },
     success: function (response) {
       if (response.status === "OK") {
-        alert("User updated successfully!");
+        showNotification("User updated successfully!", "OK");
+
         $("#updateUserModal").addClass("hidden");
         clearImagePreview(); // Xóa hình ảnh sau khi cập nhật thành công
         clearForm(); // Xóa dữ liệu trong form sau khi cập nhật thành công
@@ -430,15 +431,18 @@ function updateUser() {
           fetchSuppliers(0);
         }
       } else {
-        alert("Error updating user: " + response.desc);
+        showNotification("Error updating user: " + response.desc, "OK");
       }
     },
     error: function (error) {
       if (error.responseJSON) {
-        alert("Error updating user: " + error.responseJSON.desc);
+        showNotification(
+          "Error updating user: " + error.responseJSON.desc,
+          "OK"
+        );
       } else {
         console.error("Error updating user:", error);
-        alert("Error updating user!");
+        showNotification("Error updating user!", "OK");
       }
     },
   });
@@ -582,19 +586,24 @@ function setupInsertModalToggle() {
         },
         success: function (response) {
           if (response.status === "OK") {
-            alert("Insert Successful !");
+            showNotification("Insert Successful!", "OK");
             $("#insertUserModal").addClass("hidden");
             clearInsertForm(); // Xóa các trường trong form
             switchTabByRole(selectedRole);
           } else {
-            alert("Error while insert user " + response.desc);
+            showNotification(
+              "Error while insert user " + response.desc,
+              "error"
+            );
           }
         },
         error: function (error) {
           console.error("Error while insert user:", error);
-          alert(
+          showNotification(
             "Error while insert user: " +
-              (error.responseJSON ? error.responseJSON.desc : "System Error")
+              (error.responseJSON ? error.responseJSON.desc : "System Error"),
+            "error",
+            "error"
           );
         },
       });
@@ -631,16 +640,17 @@ function setupInsertRoleModalToggle() {
         },
         success: function (response) {
           if (response.status === "OK") {
-            alert("Role inserted successfully!");
+            showNotification("Role inserted successfully!", "OK");
+
             $("#addRoleModal").addClass("hidden");
             fetchRoles(); // Refresh the roles
           } else {
-            alert("Error inserting role: " + response.desc);
+            showNotification("Error inserting role: " + response.desc, "error");
           }
         },
         error: function (error) {
           console.error("Error inserting role:", error);
-          alert("Error inserting role!");
+          showNotification("Error inserting role!", "error");
         },
       });
     });
@@ -660,14 +670,17 @@ function validateForm(form) {
   const phoneNumber = form.find('input[name="phoneNumber"]').val();
 
   if (!isValidEmail(email)) {
-    alert("Invalid email address.");
+    showNotification("Invalid email address.", "error");
+
     return false;
   }
 
   if (!isValidPhoneNumber(phoneNumber)) {
-    alert(
-      "Invalid phone number. It should contain only digits and be between 10 to 12 digits long."
+    showNotification(
+      "Invalid phone number. It should contain only digits and be between 10 to 12 digits long.",
+      "error"
     );
+
     return false;
   }
 
@@ -779,7 +792,7 @@ function updateUniqueCustomerType() {
         Authorization: `Bearer ${token}`,
       },
       success: function (response) {
-        alert("Update successful!");
+        showNotification(response.desc, "OK");
         $("#updateCustomerTypeModal").addClass("hidden");
         fetchUniqueRankData(); // Refresh the data in the main modal
         location.reload();
@@ -857,7 +870,8 @@ function addUniqueCustomerType() {
         Authorization: `Bearer ${token}`,
       },
       success: function (response) {
-        alert("Customer Type added successfully!");
+        showNotification("Customer Type added successfully!", "OK");
+
         $("#addCustomerTypeModal").addClass("hidden");
         fetchUniqueRankData(); // Refresh the data in the main modal
         location.reload();
@@ -897,7 +911,7 @@ function deleteUniqueCustomerType() {
           Authorization: `Bearer ${token}`,
         },
         success: function (response) {
-          alert("Delete successful!");
+          showNotification("Delete successful!", "OK");
           $("#updateCustomerTypeModal").addClass("hidden");
           fetchUniqueRankData(); // Refresh the data in the main modal
           location.reload();
