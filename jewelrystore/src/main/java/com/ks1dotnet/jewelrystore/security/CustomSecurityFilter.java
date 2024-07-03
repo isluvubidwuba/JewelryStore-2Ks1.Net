@@ -49,7 +49,7 @@ public class CustomSecurityFilter {
                                                                 "employee/validateOtp",
                                                                 "employee/changePass",
                                                                 "/product/**", "/material/**")
-                                                .permitAll().requestMatchers("/promotion/files/**")
+                                                .permitAll().requestMatchers("/promotion/files/**", "/promotion/valid")
                                                 .permitAll()
                                                 .requestMatchers("/promotion/viewPolicyByInvoiceType/**",
                                                                 "/promotion/by-user",

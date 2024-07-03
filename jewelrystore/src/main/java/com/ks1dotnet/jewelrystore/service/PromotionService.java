@@ -149,16 +149,18 @@ public class PromotionService implements IPromotionService {
     }
 
     @Override
-    public void deleteExpiredPromotions() {
+    public ResponseData deleteExpiredPromotions() {
         try {
             List<Promotion> expiredPromotions = iPromotionRepository.findByEndDateBefore(LocalDate.now());
             for (Promotion promotion : expiredPromotions) {
                 promotion.setStatus(false);
                 iPromotionRepository.save(promotion);
             }
+
         } catch (Exception e) {
             throw new BadRequestException("Failed to delete expired promotions", e.getMessage());
         }
+        return new ResponseData(HttpStatus.OK, "Valid expired promotion", true);
     }
 
     @Override

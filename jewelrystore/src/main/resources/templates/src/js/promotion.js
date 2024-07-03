@@ -1,7 +1,6 @@
 $(document).ready(function () {
   setupEventListeners();
   fetchPromotions();
-  loadComponents2();
   setupModalToggles();
   submitInsertForm();
   submitUpdateForm(); // Call the function to handle update form submission
@@ -17,29 +16,6 @@ const token = localStorage.getItem("token");
 let currentPage = 0;
 const itemsPerPage = 2; // Số lượng mục trên mỗi trang
 let promotions = []; // Lưu trữ danh sách promotions đã tải về
-
-// load components
-function loadComponents2() {
-  const components = [
-    {
-      id: "pagination-placeholder",
-      url: "components/pagination-promotion.html",
-    },
-    { id: "modal-placeholder", url: "components/modal-insert-promotion.html" },
-  ];
-
-  components.forEach((component) => {
-    $("#" + component.id).load(component.url, function (response, status, xhr) {
-      if (status === "error") {
-        console.error(
-          "Error loading the component:",
-          xhr.status,
-          xhr.statusText
-        );
-      }
-    });
-  });
-}
 
 // fetch all promotions
 function fetchPromotions(keyword = "") {

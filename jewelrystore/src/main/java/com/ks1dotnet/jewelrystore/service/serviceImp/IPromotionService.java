@@ -26,7 +26,7 @@ public interface IPromotionService {
 
         void deletePromotion(int id);
 
-        void deleteExpiredPromotions();
+        ResponseData deleteExpiredPromotions();
 
         public List<Promotion> getAllPromotionByProductAndInvoiceType(Product product, int invoiceId);
 
