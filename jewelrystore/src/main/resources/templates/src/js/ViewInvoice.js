@@ -5,7 +5,7 @@ $(document).ready(function () {
     if (invoiceInput) {
       getInvoiceData(invoiceInput);
     } else {
-      alert("Please enter the invoice code !!!");
+      showNotification("Please enter the invoice code !!!", "error");
     }
   });
 });
@@ -31,11 +31,11 @@ function getInvoiceData(invoice) {
           $("#createReinvoice").addClass("hidden");
         }
       } else {
-        alert("KUnable to get invoice data !!!");
+        showNotification("Unable to get invoice data !!!", "error");
       }
     },
     error: function () {
-      alert("An error occurred while calling the API !!!");
+      showNotification("An error occurred while calling the API !!!", "error");
     },
   });
 }

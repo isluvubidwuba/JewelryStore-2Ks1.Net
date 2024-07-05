@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Document</title>
+  <title>Invoice Default</title>
   <link href="css/styles.css" rel="stylesheet" />
   <script src="js/jquery.min.js"></script>
   <script src="js/InvoiceDefault.js"></script>
@@ -19,8 +19,9 @@
       overflow-y: auto;
     }
   </style>
-
-  <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+<div id="notification-placeholder">
+  @@include('components/notification.html')
+</div>
 </head>
 
 
@@ -331,6 +332,7 @@
           </div>
         </div>
       </div>
+    </div>
     </div>
 
     <!-- View invoice modal -->

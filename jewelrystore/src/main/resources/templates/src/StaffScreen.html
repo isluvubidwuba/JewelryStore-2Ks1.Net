@@ -51,12 +51,16 @@
         margin-top: 10px;
       }
     </style>
+    <div id="notification-placeholder">
+      @@include('components/notification.html')
+    </div>
   </head>
   <body class="bg-gray-100">
     <div id="container" class="flex">
       <div id="sidebarContainer" class="bg-gray-800 h-screen text-white">
         @@include('components/sidebarForStaff.html')
       </div>
+
       <div class="flex-grow p-4">
         <div
           id="employeeDetails"

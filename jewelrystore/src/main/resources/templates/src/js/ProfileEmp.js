@@ -92,13 +92,14 @@ function saveChanges() {
           document.querySelector("#employeeImage img").src =
             URL.createObjectURL(fileInput.files[0]);
         }
+        showNotification(data.desc, "OK");
         cancelChanges();
       } else {
-        alert("Update failed: " + data.desc);
+        showNotification("Update failed: " + data.desc, "Error");
       }
     })
     .catch((error) => {
-      console.error("Error:", error);
+      showNotification("Error when call API.", "Error");
     });
 }
 
