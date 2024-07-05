@@ -341,7 +341,7 @@ public class UserInfoService implements IUserInfoService {
     private Page<UserInfoDTO> convertToDTOPage(Page<UserInfo> userPage) {
         List<UserInfoDTO> dtoList = userPage.getContent().stream().map(userinfo -> {
             UserInfoDTO dto = userinfo.getDTO();
-
+            dto.setImage(url.trim() + filePath.trim() + dto.getImage());
             return dto;
         }).collect(Collectors.toList());
         return new PageImpl<>(dtoList, userPage.getPageable(), userPage.getTotalElements());
@@ -378,6 +378,28 @@ public class UserInfoService implements IUserInfoService {
     public ResponseData findByPhoneNumber(String phone) {
         try {
             Optional<UserInfo> optionalUserInfo = iUserInfoRepository.findByPhoneNumber(phone);
+            if (optionalUserInfo.isPresent()) {
+                UserInfo userInfo = optionalUserInfo.get();
+                ResponseData responseData = new ResponseData();
+                responseData.setData(userInfo.getDTO());
+                responseData.setStatus(HttpStatus.OK);
+                responseData.setDesc("Found Customer In The System");
+                return responseData;
+            } else {
+                ResponseData responseData = new ResponseData();
+                responseData.setStatus(HttpStatus.NOT_FOUND);
+                responseData.setDesc("Not Found Customer In The System !!!");
+                return responseData;
+            }
+        } catch (Exception e) {
+            throw new RunTimeExceptionV1("An error occurred while finding the customer", e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseData findByEmail(String mail) {
+        try {
+            Optional<UserInfo> optionalUserInfo = iUserInfoRepository.findByEmail(mail);
             if (optionalUserInfo.isPresent()) {
                 UserInfo userInfo = optionalUserInfo.get();
                 ResponseData responseData = new ResponseData();
