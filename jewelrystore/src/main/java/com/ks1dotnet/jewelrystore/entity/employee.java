@@ -68,9 +68,6 @@ public class Employee {
     @Column(name = "otp_generated_time")
     private LocalDateTime otpGenerDateTime;
 
-    @Column(name = "token")
-    private String token;
-
     @ManyToOne
     @JoinColumn(name = "id_role")
     private Role role;
