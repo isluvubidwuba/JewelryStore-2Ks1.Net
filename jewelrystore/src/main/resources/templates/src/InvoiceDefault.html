@@ -20,7 +20,15 @@
     }
   </style>
 
-  <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+  <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2">
+    <div id="toast-success" class="hidden bg-green-500 text-white p-4 rounded">
+      <span class="ml-3"></span>
+    </div>
+    <div id="toast-error" class="hidden bg-red-500 text-white p-4 rounded">
+      <span class="ml-3"></span>
+    </div>
+  </div>
+  
 </head>
 
 
@@ -62,7 +70,7 @@
           <input type="text" id="search-contact-customer" class="border border-gray-300 p-2 rounded-md pr-10"
             placeholder="Enter Phonenumber Or Email" />
           <span id="clear-contact-button" class="absolute right-2 top-2 cursor-pointer text-gray-500"
-            style="display: none" onclick="clearInput()">
+            style="display: none">
             &times;
           </span>
         </div>
@@ -148,104 +156,151 @@
     </div>
   </div>
 
-  <!-- View invoice modal -->
-  <div id="view-invoice-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center">
-    <div class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-7xl sm:w-full">
-      <div class="bg-white p-4">
-        <div class="flex justify-between items-center">
-          <h3 class="text-lg leading-6 font-medium text-gray-900">
-            Invoice Details
-          </h3>
-          <button type="button" class="text-gray-400 hover:text-gray-500 close-view-invoice-modal-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        <div class="mt-4" id="invoice-details">
-          <!-- Invoice details will be displayed here dynamically -->
-        </div>
+
+
+</body>
+
+
+
+
+<!-- View invoice modal -->
+<div id="view-invoice-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center">
+  <div class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-7xl sm:w-full">
+    <div class="bg-white p-4">
+      <div class="flex justify-between items-center">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">
+          Invoice Details
+        </h3>
+        <button type="button" class="text-gray-400 hover:text-gray-500 close-view-invoice-modal-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="mt-4" id="invoice-details">
+        <!-- Invoice details will be displayed here dynamically -->
+      </div>
+    </div>
+    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+      <button type="button"
+        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm close-view-invoice-modal-btn">
+        Close
+      </button>
+      <button type="button" id="cancel-invoice-btn"
+        class="mt-3 w-full inline-flex justify-center rounded-md border border-red-300 shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 sm:mt-0 sm:w-auto sm:text-sm">
+        Cancel Invoice
+      </button>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Cancel invoice modal -->
+<div id="cancel-invoice-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center">
+  <div class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-7xl sm:w-full">
+    <div class="bg-white p-4">
+      <div class="flex justify-between items-center">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">
+          Cancel Invoice
+        </h3>
+        <button type="button" class="text-gray-400 hover:text-gray-500 close-cancel-invoice-modal-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="mt-4">
+        <textarea id="cancel-note" class="w-full p-2 border border-gray-300 rounded-md"
+          placeholder="Enter the reason for cancellation"></textarea>
+      </div>
+    </div>
+    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+      <button type="button" id="confirm-cancel-btn"
+        class="mt-3 w-full inline-flex justify-center rounded-md border border-red-300 shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 sm:mt-0 sm:w-auto sm:text-sm">
+        Confirm Cancel
+      </button>
+      <button type="button"
+        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm close-cancel-invoice-modal-btn">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+<!-- Payment modal -->
+<div id="payment-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center">
+  <div class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-2xl sm:w-full">
+    <div class="bg-white p-4">
+      <div class="flex justify-between items-center">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">
+          Billing Information
+        </h3>
+        <button type="button" class="text-gray-400 hover:text-gray-500" id="close-payment-modal">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="mt-4">
+        <p id="customer-info"></p>
+        <p id="amount-info"></p>
+        <label for="bank-select" class="block text-sm font-medium text-gray-700">Select The Bank</label>
+        <select id="bank-select"
+          class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+          <option value="">Select the bank</option>
+          <option value="">QR code</option>
+          <option value="NCB">Ngân hàng Quốc Dân (NCB)</option>
+          <option value="VIETCOMBANK">
+            Ngân hàng Thương mại Cổ phần Ngoại thương Việt Nam (Vietcombank)
+          </option>
+          <option value="TECHCOMBANK">
+            Ngân hàng Thương mại Cổ phần Kỹ Thương Việt Nam (Techcombank)
+          </option>
+          <option value="BIDV">
+            Ngân hàng Thương mại Cổ phần Đầu tư và Phát triển Việt Nam
+            (BIDV)
+          </option>
+          <option value="VIETINBANK">
+            Ngân hàng Thương mại Cổ phần Công Thương Việt Nam (Vietinbank)
+          </option>
+          <option value="AGRIBANK">
+            Ngân hàng Nông nghiệp và Phát triển Nông thôn Việt Nam
+            (Agribank)
+          </option>
+          <option value="SACOMBANK">
+            Ngân hàng Thương mại Cổ phần Sài Gòn Thương Tín (Sacombank)
+          </option>
+          <option value="VPBANK">
+            Ngân hàng Thương mại Cổ phần Việt Nam Thịnh Vượng (VPBank)
+          </option>
+          <option value="ACB">
+            Ngân hàng Thương mại Cổ phần Á Châu (ACB)
+          </option>
+          <option value="TPBANK">
+            Ngân hàng Thương mại Cổ phần Tiên Phong (TPBank)
+          </option>
+          <option value="EXIMBANK">
+            Ngân hàng Xuất Nhập Khẩu Việt Nam (Eximbank)
+          </option>
+          <!-- Thêm các tùy chọn ngân hàng khác tại đây -->
+        </select>
       </div>
       <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
         <button type="button"
-          class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm close-view-invoice-modal-btn">
-          Close
+          class="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+          id="redirect-to-bank">
+          Direct Banking
         </button>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Payment modal -->
-  <div id="payment-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center">
-    <div class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-2xl sm:w-full">
-      <div class="bg-white p-4">
-        <div class="flex justify-between items-center">
-          <h3 class="text-lg leading-6 font-medium text-gray-900">
-            Billing Information
-          </h3>
-          <button type="button" class="text-gray-400 hover:text-gray-500" id="close-payment-modal">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        <div class="mt-4">
-          <p id="customer-info"></p>
-          <p id="amount-info"></p>
-          <label for="bank-select" class="block text-sm font-medium text-gray-700">Select The Bank</label>
-          <select id="bank-select"
-            class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-            <option value="">Select the bank</option>
-            <option value="">QR code</option>
-            <option value="NCB">Ngân hàng Quốc Dân (NCB)</option>
-            <option value="VIETCOMBANK">
-              Ngân hàng Thương mại Cổ phần Ngoại thương Việt Nam (Vietcombank)
-            </option>
-            <option value="TECHCOMBANK">
-              Ngân hàng Thương mại Cổ phần Kỹ Thương Việt Nam (Techcombank)
-            </option>
-            <option value="BIDV">
-              Ngân hàng Thương mại Cổ phần Đầu tư và Phát triển Việt Nam
-              (BIDV)
-            </option>
-            <option value="VIETINBANK">
-              Ngân hàng Thương mại Cổ phần Công Thương Việt Nam (Vietinbank)
-            </option>
-            <option value="AGRIBANK">
-              Ngân hàng Nông nghiệp và Phát triển Nông thôn Việt Nam
-              (Agribank)
-            </option>
-            <option value="SACOMBANK">
-              Ngân hàng Thương mại Cổ phần Sài Gòn Thương Tín (Sacombank)
-            </option>
-            <option value="VPBANK">
-              Ngân hàng Thương mại Cổ phần Việt Nam Thịnh Vượng (VPBank)
-            </option>
-            <option value="ACB">
-              Ngân hàng Thương mại Cổ phần Á Châu (ACB)
-            </option>
-            <option value="TPBANK">
-              Ngân hàng Thương mại Cổ phần Tiên Phong (TPBank)
-            </option>
-            <option value="EXIMBANK">
-              Ngân hàng Xuất Nhập Khẩu Việt Nam (Eximbank)
-            </option>
-            <!-- Thêm các tùy chọn ngân hàng khác tại đây -->
-          </select>
-        </div>
-        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-          <button type="button"
-            class="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-            id="redirect-to-bank">
-            Direct Banking
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</body>
 
 <!-- Modal Xác Nhận -->
 <div id="confirm-modal" class="fixed z-10 inset-0 overflow-y-auto hidden">

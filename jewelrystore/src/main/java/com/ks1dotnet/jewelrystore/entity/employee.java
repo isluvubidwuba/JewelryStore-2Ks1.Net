@@ -3,10 +3,7 @@ package com.ks1dotnet.jewelrystore.entity;
 import java.time.LocalDateTime;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.ks1dotnet.jewelrystore.dto.EmployeeDTO;
-import com.ks1dotnet.jewelrystore.repository.IInvoiceRepository;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -67,9 +64,6 @@ public class Employee {
 
     @Column(name = "otp_generated_time")
     private LocalDateTime otpGenerDateTime;
-
-    @Column(name = "token")
-    private String token;
 
     @ManyToOne
     @JoinColumn(name = "id_role")

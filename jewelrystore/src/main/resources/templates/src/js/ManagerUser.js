@@ -292,9 +292,8 @@ function populateTable(data, ranks, currentPage, role) {
     }
     const row = `<tr class="text-center">
                   <td class="py-2 px-4 border-b">${count++}</td>
-                  <td class="py-2 px-4 border-b" id="${role.toLowerCase()}-image-${
-      item.id
-    }">
+                  <td class="py-2 px-4 border-b" id="${role.toLowerCase()}-image-${item.id
+      }">
                     Loading...
                   </td>
                   <td class="py-2 px-4 border-b">${item.fullName}</td>
@@ -302,9 +301,8 @@ function populateTable(data, ranks, currentPage, role) {
                   <td class="py-2 px-4 border-b">${item.email}</td>
                   <td class="py-2 px-4 border-b">${item.address}</td>
                   ${rankInfo}
-                  <td class="py-2 px-4 border-b"><button class="edit-btn" data-id="${
-                    item.id
-                  }"><i class="fas fa-edit"></i></button></td>
+                  <td class="py-2 px-4 border-b"><button class="edit-btn" data-id="${item.id
+      }"><i class="fas fa-edit"></i></button></td>
                 </tr>`;
     tableBody.append(row);
 
@@ -484,6 +482,33 @@ function setupSearch(role) {
         "criteria"
       );
       const query = $(`#${role.toLowerCase()}-search-input`).val();
+
+
+      // Validate input based on criteria
+      if (criteria === "numberphone") {
+        if (!/^\d{10}$/.test(query)) {
+          showNotification(
+            "Phone number must be exactly 10 digits.",
+            "error"
+          );
+          return;
+        }
+      } else if (criteria === "email") {
+        if (
+          !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(query)
+        ) {
+          showNotification(
+            "Invalid email format.",
+            "error"
+          );
+          return;
+        }
+      }
+
+
+
+
+
       searchByRole(role, criteria, query, 0);
     });
 }
@@ -601,7 +626,7 @@ function setupInsertModalToggle() {
           console.error("Error while insert user:", error);
           showNotification(
             "Error while insert user: " +
-              (error.responseJSON ? error.responseJSON.desc : "System Error"),
+            (error.responseJSON ? error.responseJSON.desc : "System Error"),
             "error",
             "error"
           );
