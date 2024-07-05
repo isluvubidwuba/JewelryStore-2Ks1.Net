@@ -2444,6 +2444,10 @@ video {
   z-index: 10;
 }
 
+.focus\:z-40:focus {
+  z-index: 40;
+}
+
 .focus\:border-blue-500:focus {
   --tw-border-opacity: 1;
   border-color: rgb(59 130 246 / var(--tw-border-opacity));
