@@ -58,6 +58,8 @@ function fetchPromotions(keyword = "") {
     },
     error: function (error) {
       console.error("Error fetching promotions:", error);
+      showNotification("Error fetching promotions.", "Error");
+
       deferred.reject(error);
     },
   });

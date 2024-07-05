@@ -193,6 +193,7 @@ function viewEmployee(id) {
       }
     },
     error: function (error) {
+      showNotification("Error while fetching employee details", "error");
       if (error.responseJSON) {
         showNotification(
           "Error while fetching employee details" + error.responseJSON.desc,
@@ -251,6 +252,7 @@ function updateEmployee() {
       }
     },
     error: function (error) {
+      showNotification("Error update employee!", "error");
       if (error.responseJSON) {
         showNotification(
           "Failed while update employee: " + error.responseJSON.desc,
@@ -332,6 +334,7 @@ function handleInsertEmployee(event) {
       }
     },
     error: function (error) {
+      showNotification("Error inserting user!", "Error");
       if (error.responseJSON) {
         showNotification(
           "Error while inserting employee: " + error.responseJSON.desc,
@@ -339,7 +342,7 @@ function handleInsertEmployee(event) {
         );
       } else {
         console.error("Error while inserting employee: ", error);
-        showNotification("Error updating user!", "Error");
+        showNotification("Error inserting user!", "Error");
       }
     },
   });
@@ -360,6 +363,7 @@ function handleSendMailEmployee(idEmploy) {
       }
     },
     error: function (error) {
+      showNotification("Error send mail user!", "Error");
       if (error.responseJSON) {
         showNotification(
           "Error while send mail employee: " + error.responseJSON.desc,
@@ -438,6 +442,7 @@ function deleteEmployee() {
         }
       },
       error: function (error) {
+        showNotification("Error deleting employee!", "Error");
         console.error("Error while deleting employee:", error); // Ghi log lỗi
         if (error.responseJSON) {
           showNotification(
