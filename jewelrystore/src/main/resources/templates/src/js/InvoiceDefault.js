@@ -83,14 +83,16 @@ $(document).ready(function () {
       const phoneNumber = form.find('input[name="phoneNumber"]').val();
 
       if (!isValidEmail(email)) {
-        alert("Invalid email address.");
+        showNotification("Invalid email address.", "error");
         return false;
       }
 
       if (!isValidPhoneNumber(phoneNumber)) {
-        alert(
-          "Invalid phone number. It should contain only digits and be between 10 to 12 digits long."
+        showNotification(
+          "Invalid phone number. It should contain only digits and be between 10 to 12 digits long.",
+          "error"
         );
+
         return false;
       }
 
@@ -134,7 +136,7 @@ $(document).ready(function () {
           Authorization: `Bearer ${token}`,
         },
         success: function (response) {
-          alert(response.desc || "User inserted successfully");
+          showNotification(response.desc || "User inserted successfully", "OK");
           $("#insertUserModal").addClass("hidden");
           clearInsertForm(); // Clear form fields
           console.log(response.data.id);
@@ -142,7 +144,10 @@ $(document).ready(function () {
         },
         error: function (jqXHR, textStatus, errorThrown) {
           var response = jqXHR.responseJSON;
-          alert(response.desc || "Error inserting user: " + errorThrown);
+          showNotification(
+            response.desc || "Error inserting user: " + errorThrown,
+            "error"
+          );
         },
       });
     });
@@ -228,20 +233,22 @@ $(document).ready(function () {
         if (response.status === "OK" && response.data) {
           getUserById(response.data.id);
         } else {
-          alert(response.desc);
+          showNotification(response.desc, "error");
         }
       },
       error: function (xhr, status, error) {
         if (xhr.responseJSON && xhr.responseJSON.desc) {
-          alert(xhr.responseJSON.desc);
+          showNotification(xhr.responseJSON.desc, "error");
         } else {
           console.error("Error fetching user info:", error);
-          alert("An error occurred while searching for a user");
+          showNotification(
+            "An error occurred while searching for a user",
+            "error"
+          );
         }
       },
     });
   });
-
 
 
 
@@ -255,7 +262,11 @@ $(document).ready(function () {
 
   $("#create-invoice-button").click(function () {
     if (!checkUserSelection()) {
-      alert("Vui lòng chọn người dùng trước khi tạo hóa đơn.");
+      showNotification(
+        "Vui lòng chọn người dùng trước khi tạo hóa đơn.",
+        "error"
+      );
+
       return;
     }
     storeValuesInSession(); // Lưu giá trị vào session trước khi hiển thị modal
@@ -312,17 +323,22 @@ $(document).ready(function () {
     console.log("employeeID:", employeeID);
 
     if (!userId || !userName || !productMap || !employeeID) {
-      alert("TInformation is incomplete. Please check again !!!");
+      showNotification(
+        "Information is incomplete. Please check again !!!",
+        "error"
+      );
+
       return;
     }
 
     let modalContent = `
             <p>Client: ${userName}</p>
             <p>ID Client: ${userId}</p>
-            <p>Promotion: ${userPromotion
-        ? userPromotion.name + " - " + userPromotion.value + "%"
-        : "Do not have !!!"
-      }</p>
+            <p>Promotion: ${
+              userPromotion
+                ? userPromotion.name + " - " + userPromotion.value + "%"
+                : "Do not have !!!"
+            }</p>
             <p>Employee: ${employeeID}</p>
             <p>Total number of products: ${Object.keys(productMap).length}</p>
         `;
@@ -384,10 +400,10 @@ $(document).ready(function () {
           renderSidebarProduct(barcode);
           updateTotalPrice();
           // Hiển thị thông báo thành công
-          showToast("Added product successfully", "success");
+          showNotification("Added product successfully", "OK");
         } else {
           // Hiển thị thông báo lỗi từ phản hồi của API
-          showToast(
+          showNotification(
             response.desc || "An error occurred, please try again !!!",
             "error"
           );
@@ -397,68 +413,43 @@ $(document).ready(function () {
         const response = error.responseJSON;
         console.log("Error fetching product data:", error);
         // Hiển thị thông báo lỗi nếu yêu cầu AJAX gặp lỗi
-        showToast(response.desc || "Product Out Of Stock", "error");
+        showNotification(response.desc || "Product Out Of Stock", "error");
       },
     });
   }
 
-
-
-  function showToast(message, type) {
-    const toastContainer = $("#toast-container");
-    const toast = $(`
-          <div class="toast p-4 rounded-lg shadow-md text-white font-medium"></div>
-      `).text(message);
-
-    if (type === "success") {
-      toast.addClass("bg-green-500");
-    } else {
-      toast.addClass("bg-red-500");
-    }
-
-    toastContainer.append(toast);
-    toast.addClass("show");
-
-    // Tự động ẩn sau 2 giây
-    setTimeout(() => {
-      toast.addClass("opacity-0");
-      setTimeout(() => toast.remove(), 500); // Xóa phần tử khỏi DOM sau khi ẩn
-    }, 2000);
-
-    // Ẩn thông báo khi nhấn vào
-    toast.click(() => {
-      toast.addClass("opacity-0");
-      setTimeout(() => toast.remove(), 500);
-    });
-  }
-
-
-  // ===============================Thực hiện view sản phẩm khi nhập barcode thành công =============================================
   function renderProductCard(barcode) {
     const productData = productMap[barcode];
     const productCard = $(`
         <div id="product-${barcode}" class="product-card border p-4 mb-4 rounded-md shadow-md grid grid-cols-12 gap-4">
             <div class="col-span-4">
-                <img src="${productData.product.imgPath}" alt="${productData.product.name
-      }" class="w-full h-auto rounded-md">
+                <img src="${productData.product.imgPath}" alt="${
+      productData.product.name
+    }" class="w-full h-auto rounded-md">
             </div>
             <div class="col-span-8">
-                <h3 class="text-xl font-semibold mb-2">${productData.product.name
-      }</h3>
-                <p class="text-sm text-gray-600 mb-1"><strong>Product code: </strong> ${productData.product.productCode
-      }</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Material: </strong> ${productData.product.materialDTO.name
-      }</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Category: </strong> ${productData.product.productCategoryDTO.name
-      }</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Barcode: </strong> ${productData.product.barCode
-      }</p>
+                <h3 class="text-xl font-semibold mb-2">${
+                  productData.product.name
+                }</h3>
+                <p class="text-sm text-gray-600 mb-1"><strong>Product code: </strong> ${
+                  productData.product.productCode
+                }</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Material: </strong> ${
+                  productData.product.materialDTO.name
+                }</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Category: </strong> ${
+                  productData.product.productCategoryDTO.name
+                }</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Barcode: </strong> ${
+                  productData.product.barCode
+                }</p>
                 <p class="text-sm text-gray-600 mb-1"><strong>Toltal price: </strong> ${new Intl.NumberFormat(
-        "vi-VN",
-        { style: "currency", currency: "VND" }
-      ).format(productData.totalPrice)}</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Quantity: </strong> <span id="quantity-${barcode}">${productData.quantity
-      }</span></p>
+                  "vi-VN",
+                  { style: "currency", currency: "VND" }
+                ).format(productData.totalPrice)}</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Quantity: </strong> <span id="quantity-${barcode}">${
+      productData.quantity
+    }</span></p>
             </div>
         </div>
     `);
@@ -472,12 +463,13 @@ $(document).ready(function () {
                 <td class="px-4 py-2">${productData.product.name}</td>
                 <td class="px-4 py-2">${productData.product.productCode}</td>
                 <td class="px-4 py-2 total-price">${new Intl.NumberFormat(
-      "vi-VN",
-      { style: "currency", currency: "VND" }
-    ).format(productData.totalPrice)}</td>
+                  "vi-VN",
+                  { style: "currency", currency: "VND" }
+                ).format(productData.totalPrice)}</td>
                 <td class="px-4 py-2">
-                    <input type="number" id="sidebar-quantity-${barcode}" class="quantity-input border p-1" value="${productData.quantity
-      }" min="1" max="${productData.inventory}">
+                    <input type="number" id="sidebar-quantity-${barcode}" class="quantity-input border p-1" value="${
+      productData.quantity
+    }" min="1" max="${productData.inventory}">
                 </td>
                 <td class="px-4 py-2">
                     <button class="remove-product-btn bg-red-500 text-white p-1" data-barcode="${barcode}">Delete</button>
@@ -491,7 +483,8 @@ $(document).ready(function () {
       if (newQuantity > 0 && newQuantity <= productData.inventory) {
         updateProductQuantity(barcode, newQuantity);
       } else {
-        alert("Quantity exceeds inventory quantity.");
+        showNotification("Quantity exceeds inventory quantity.", "error");
+
         $(this).val(productData.quantity);
       }
     });
@@ -537,6 +530,7 @@ $(document).ready(function () {
     delete productMap[barcode];
     $(`#product-${barcode}`).remove();
     $(`#sidebar-product-${barcode}`).remove();
+    showNotification("Removed product.", "OK");
     updateTotalPrice();
   }
 
@@ -580,7 +574,7 @@ $(document).ready(function () {
       getUserById(userId);
       clearUserIdInput();
     } else {
-      alert("Please enter user ID !!!");
+      showNotification("Please enter user ID !!!", "error");
     }
   });
 
@@ -610,12 +604,12 @@ $(document).ready(function () {
           sessionStorage.setItem("selectedUserName", user.fullName); // Lưu tên người dùng vào sessionStorage
           fetchUserPromotions(user.id); // Gọi hàm để lấy khuyến mãi của người dùng
         } else {
-          alert("Unable to load user data !!!");
+          showNotification("Unable to load user data !!!", "error");
         }
       },
       error: function (error) {
         console.error("Error loading user data !!!", error); // Log lỗi nếu có
-        alert("Error loading user data !!!");
+        showNotification("Error loading user data !!!", "error");
       },
     });
   }
@@ -649,12 +643,12 @@ $(document).ready(function () {
 
           updateTotalPrice(); // Cập nhật giá trị sau khi có khuyến mãi
         } else {
-          alert("Can Not Load Information User");
+          showNotification("Can Not Load Information User", "error");
         }
       },
       error: function (error) {
         console.error("Error While Loading Information User:", error);
-        alert("Error While Loading Information User!");
+        showNotification("Error While Loading Information User!", "error");
       },
     });
   }
@@ -665,14 +659,19 @@ $(document).ready(function () {
   //===============Phần này quan trọng nhất về việc lấy các biến đã lưu của sản phẩm employee và user để gửi về tạo hoá đơn ==========================
   function createInvoice(paymentMethod, note) {
     if (!selectedUserId) {
-      alert("Please select a user before creating an invoice !!!");
+      showNotification(
+        "Please select a user before creating an invoice !!!",
+        "error"
+      );
       return;
     }
 
     if (Object.keys(productMap).length === 0) {
-      alert(
-        "There are no products in the invoice. Please add products before creating an invoice !!!"
+      showNotification(
+        "There are no products in the invoice. Please add products before creating an invoice !!!",
+        "error"
       );
+
       return;
     }
 
@@ -702,16 +701,23 @@ $(document).ready(function () {
       },
       success: function (response) {
         if (response.status === "OK") {
-          alert("The invoice has been created successfully !!!");
+          showNotification(
+            "The invoice has been created successfully !!!",
+            "error"
+          );
+
           createdInvoiceId = response.data; // Lưu ID của hóa đơn vừa tạo
           viewInvoice(createdInvoiceId); // Gọi hàm để hiển thị hóa đơn
         } else {
-          alert("Unable to create invoice. Please try again !!!");
+          showNotification(
+            "Unable to create invoice. Please try again !!!",
+            "error"
+          );
         }
       },
       error: function (error) {
         console.error("Error when creating invoice: ", error);
-        alert("Error when creating invoice !!!");
+        showNotification("Error when creating invoice !!!", "error");
       },
     });
   }
@@ -770,26 +776,31 @@ $(document).ready(function () {
                             <div class="text-gray-700 text-right">
                                 <div class="font-bold text-xl mb-2">INVOICE</div>
                                 <div class="text-sm">Date: ${new Date(
-            invoiceData.createdDate
-          ).toLocaleDateString()}</div>
-                                <div class="text-sm">Invoice #: ${invoiceData.id
-            }</div>
+                                  invoiceData.createdDate
+                                ).toLocaleDateString()}</div>
+                                <div class="text-sm">Invoice #: ${
+                                  invoiceData.id
+                                }</div>
                             </div>
                         </div>
                         <div class="border-b-2 border-gray-300 pb-8 mb-8">
                             <h2 class="text-2xl font-bold mb-4">Customer and Employee Information</h2>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <div class="text-gray-700 mb-2"><strong>Customer: </strong> ${userInfo.fullName
-            }</div>
-                                    <div class="text-gray-700 mb-2"><strong>ID: </strong> ${userInfo.id
-            }</div>
+                                    <div class="text-gray-700 mb-2"><strong>Customer: </strong> ${
+                                      userInfo.fullName
+                                    }</div>
+                                    <div class="text-gray-700 mb-2"><strong>ID: </strong> ${
+                                      userInfo.id
+                                    }</div>
                                 </div>
                                 <div>
-                                    <div class="text-gray-700 mb-2"><strong>STAFF: </strong> ${employeeInfo.firstName
-            } ${employeeInfo.lastName}</div>
-                                    <div class="text-gray-700 mb-2"><strong>ID: </strong> ${employeeInfo.id
-            }</div>
+                                    <div class="text-gray-700 mb-2"><strong>STAFF: </strong> ${
+                                      employeeInfo.firstName
+                                    } ${employeeInfo.lastName}</div>
+                                    <div class="text-gray-700 mb-2"><strong>ID: </strong> ${
+                                      employeeInfo.id
+                                    }</div>
                                 </div>
                             </div>
                         </div>
@@ -804,41 +815,44 @@ $(document).ready(function () {
                             </thead>
                             <tbody>
                                 ${orderDetails
-              .map(
-                (order) => `
+                                  .map(
+                                    (order) => `
                                 <tr>
-                                    <td class="py-4 text-gray-700">${order.productDTO.name
-                  }</td>
-                                    <td class="py-4 text-gray-700">${order.productDTO.productCode
-                  }</td>
-                                    <td class="py-4 text-gray-700">${order.quantity
-                  }</td>
+                                    <td class="py-4 text-gray-700">${
+                                      order.productDTO.name
+                                    }</td>
+                                    <td class="py-4 text-gray-700">${
+                                      order.productDTO.productCode
+                                    }</td>
+                                    <td class="py-4 text-gray-700">${
+                                      order.quantity
+                                    }</td>
                                     <td class="py-4 text-gray-700">${new Intl.NumberFormat(
-                    "vi-VN",
-                    { style: "currency", currency: "VND" }
-                  ).format(order.totalPrice)}</td>
+                                      "vi-VN",
+                                      { style: "currency", currency: "VND" }
+                                    ).format(order.totalPrice)}</td>
                                 </tr>
                                 `
-              )
-              .join("")}
+                                  )
+                                  .join("")}
                             </tbody>
                         </table>
                         <div class="grid grid-cols-2 gap-4">
                             <div class="text-gray-700">Total original price: </div>
                             <div class="text-gray-700 text-right">${new Intl.NumberFormat(
-                "vi-VN",
-                { style: "currency", currency: "VND" }
-              ).format(invoiceData.totalPriceRaw)}</div>
+                              "vi-VN",
+                              { style: "currency", currency: "VND" }
+                            ).format(invoiceData.totalPriceRaw)}</div>
                             <div class="text-gray-700">Reduced price: </div>
                             <div class="text-gray-700 text-right">${new Intl.NumberFormat(
-                "vi-VN",
-                { style: "currency", currency: "VND" }
-              ).format(invoiceData.discountPrice)}</div>
+                              "vi-VN",
+                              { style: "currency", currency: "VND" }
+                            ).format(invoiceData.discountPrice)}</div>
                             <div class="text-gray-700 font-bold text-xl">Total price: </div>
                             <div class="text-gray-700 font-bold text-xl text-right">${new Intl.NumberFormat(
-                "vi-VN",
-                { style: "currency", currency: "VND" }
-              ).format(invoiceData.totalPrice)}</div>
+                              "vi-VN",
+                              { style: "currency", currency: "VND" }
+                            ).format(invoiceData.totalPrice)}</div>
                         </div>
                         
                     </div>
@@ -846,12 +860,12 @@ $(document).ready(function () {
 
           $("#view-invoice-modal").removeClass("hidden");
         } else {
-          alert("Unable to load invoice details");
+          showNotification("Unable to load invoice details", "error");
         }
       },
       error: function (error) {
         console.error("Unable to load invoice details", error);
-        alert("Unable to load invoice details !!!");
+        showNotification("Unable to load invoice details !!!", "error");
       },
     });
   }
@@ -917,14 +931,19 @@ $(document).ready(function () {
   //============================= Phần này xử lý việc chuyển sang trang vnpay để thanh toán hoá đơn=================================
   function initiatePayment(amount, bankCode) {
     if (!selectedUserId) {
-      alert("Please select a user before creating an invoice !!!");
+      showNotification(
+        "Please select a user before creating an invoice !!!",
+        "error"
+      );
       return;
     }
 
     if (Object.keys(productMap).length === 0) {
-      alert(
-        "There are no products in the invoice. Please add products before creating an invoice !!!"
+      showNotification(
+        "There are no products in the invoice. Please add products before creating an invoice !!!",
+        "error"
       );
+
       return;
     }
 
@@ -947,14 +966,15 @@ $(document).ready(function () {
         ) {
           window.location.href = response.data.paymentUrl;
         } else {
-          alert(
-            "Can error occurred while initiating payment. Please try again !!!"
+          showNotification(
+            "Can error occurred while initiating payment. Please try again !!!",
+            "error"
           );
         }
       },
       error: function (error) {
         console.error("Error initiating payment:", error);
-        alert("Error initiating payment.");
+        showNotification("Error initiating payment.", "error");
       },
     });
   }
@@ -975,6 +995,7 @@ $(document).ready(function () {
           let notificationId;
 
           if (status === 'OK') {
+            showNotification(message, "OK");
             notificationId = 'toast-success';
             // Lấy các thông tin đã lưu trữ từ sessionStorage
             selectedUserId = sessionStorage.getItem('selectedUserId');
@@ -993,15 +1014,8 @@ $(document).ready(function () {
             sessionStorage.removeItem('productMap');
             sessionStorage.removeItem('employeeID');
           } else {
-            notificationId = 'toast-error';
-          }
-
-          const notification = document.getElementById(notificationId);
-          if (notification) {
-            notification.querySelector('.ml-3').textContent = message;
-            notification.classList.remove('hidden');
-          } else {
-            console.error(`Notification element with ID ${notificationId} not found`);
+            showNotification(message, "Error");
+            
           }
           // Xóa các tham số URL sau khi xử lý
           console.log("Check việc đã xoá các tham số trên URL từ VNPAY trả về");

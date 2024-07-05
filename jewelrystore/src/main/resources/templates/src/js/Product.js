@@ -42,6 +42,8 @@ function fetchProduct(page, size) {
       }
     },
     error: function (error) {
+      showNotification("Error fetching product.", "Error");
+
       console.error("Error fetching product:", error);
     },
   });
@@ -457,7 +459,7 @@ function searchProducts(query) {
       }
     },
     error: function (xhr, status, error) {
-      alert("An error occurred while submitting the form.");
+      showNotification("An error occurred while submitting the form.", "error");
       console.log(xhr.responseText);
     },
   });
@@ -494,6 +496,7 @@ async function fetchData(url) {
       return [];
     }
   } catch (error) {
+    showNotification(`Error fetching data from ${url}.`, "Error");
     console.error(`Error fetching data from ${url}:`, error);
     return [];
   }
@@ -536,12 +539,16 @@ function setupFormSubmission(
         contentType: "application/json; charset=utf-8",
         success: successCallback,
         error: function (xhr, status, error) {
-          alert("An error occurred while submitting the form.");
+          showNotification(
+            "An error occurred while submitting the form.",
+            "Error"
+          );
+
           console.log(xhr.responseText);
         },
       });
     } else {
-      alert("You must fill all fields.");
+      showNotification("You must fill all fields.", "Error");
     }
   });
 }
@@ -560,12 +567,14 @@ function validateFormFields(formSelector) {
 }
 
 function handleFormInsertResponse(response) {
-  alert("Form submitted successfully.");
+  showNotification("Form submitted successfully.", "OK");
 }
 
 function handleFormUpdateResponse(response) {
   const product = response.data;
   //alert(response.desc);
+  showNotification(response.desc, "OK");
+
   $("#cancel-update").click();
   const $row = $(`tr[data-id-product="${product.id}"]`);
 
@@ -634,13 +643,16 @@ async function uploadImage(file) {
       processData: false,
       contentType: false,
       error: function (xhr, status, error) {
-        alert("An error occurred while submitting the form.");
+        showNotification(
+          "An error occurred while submitting the form.",
+          "error"
+        );
         console.log(xhr.responseText);
       },
     });
     return response.data;
   } catch (error) {
-    alert("An error occurred while uploading the image");
+    showNotification("An error occurred while uploading the image.", "error");
     console.error(error);
     return "none";
   }

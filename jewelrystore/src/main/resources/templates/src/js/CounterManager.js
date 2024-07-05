@@ -37,7 +37,7 @@ function fetchCounters() {
 }
 
 function generateTabs(counters) {
-  const tabsContainer = $("#counter-tabs");
+  const tabsContainer = $("#counter-tabs").empty();
   counters.forEach((counter, index) => {
     if (counter.id === 1) return; // Bỏ qua quầy có id là 1
 
@@ -110,7 +110,7 @@ function generateTabs(counters) {
 }
 
 function generateTabContents(counters) {
-  const contentsContainer = $("#tab-contents");
+  const contentsContainer = $("#tab-contents").empty();
   counters.forEach((counter, index) => {
     if (counter.id === 1) return; // Bỏ qua nội dung của quầy có id là 1
 
@@ -312,15 +312,16 @@ function createCounterModal() {
       },
       success: function (response) {
         if (response.status === "OK") {
-          alert("Counter created successfully");
-          location.reload(); // Reload the page to update the counter list
+          showNotification("Counter created successfully.", "OK");
+
+          fetchCounters();
         } else {
-          alert("Error creating counter");
+          showNotification("Error creating counter.", "error");
         }
       },
       error: function (error) {
         console.error("Error:", error);
-        alert("Error creating counter");
+        showNotification("Error creating counter.", "error");
       },
     });
 
@@ -450,16 +451,17 @@ function setupAddProductModal() {
       data: JSON.stringify(selectedProducts),
       success: function (response) {
         if (response.status === "OK") {
-          alert("Products added to counter successfully");
+          showNotification("Products added to counter successfully", "OK");
+
           $("#combinedModal").addClass("hidden");
           switchToTab(counterId); // Chuyển tới tab theo counterId
         } else {
-          alert("Error adding products to counter");
+          showNotification("Error adding products to counter", "Error");
         }
       },
       error: function (error) {
         console.error("Error:", error);
-        alert("Error adding products to counter");
+        showNotification("Error adding products to counter", "Error");
       },
     });
     $("#combinedModal").addClass("hidden");
@@ -486,7 +488,7 @@ function fetchCountersForSelect() {
 }
 
 function populateCounterSelect(counters) {
-  const counterSelect = $("#counterSelect");
+  const counterSelect = $("#counterSelect").empty();
   counterSelect.empty(); // Xóa các tùy chọn cũ
   const defaultOption = $("<option>", {
     value: "",
@@ -580,7 +582,8 @@ function deleteCounter(counterId) {
     },
     success: function (response) {
       if (response.status === "OK") {
-        alert("Counter deleted successfully");
+        showNotification("Counter deleted successfully", "OK");
+
         // Xóa tab và nội dung tab ngay lập tức
         $(`#counter-tabs a[data-tab="tab-${counterId}"]`)
           .closest("li")
@@ -589,12 +592,12 @@ function deleteCounter(counterId) {
         fetchCountersForSelect();
         switchToTab(2); // Chuyển đến tab có counter id = 2
       } else {
-        alert("Error deleting counter");
+        showNotification("Error deleting counter", "Error");
       }
     },
     error: function (error) {
       console.error("Error:", error);
-      alert("Error deleting counter");
+      showNotification("Error deleting counter", "Error");
     },
   });
 }
@@ -669,12 +672,12 @@ function handleUpdateCounter() {
       Authorization: `Bearer ${token}`,
     },
     success: function () {
-      alert("Counter updated successfully");
+      showNotification("Counter updated successfully", "OK");
       fetchInactiveCounters();
-      location.reload();
+      fetchCounters();
     },
     error: function () {
-      alert("Failed to update counter");
+      showNotification("Failed to update counter", "Error");
     },
   });
 }

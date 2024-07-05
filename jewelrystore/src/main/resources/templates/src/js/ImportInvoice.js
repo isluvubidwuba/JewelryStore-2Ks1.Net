@@ -104,11 +104,11 @@ $(document).ready(function () {
           addProductToTable(product);
           $("#barcodeInput").val("");
         } else {
-          alert("No products found with this barcode !!!");
+          showNotification("No products found with this barcode !!!", "error");
         }
       },
       error: function () {
-        alert("No products found with this barcode !!!");
+        showNotification("No products found with this barcode !!!", "error");
       },
     });
   }
@@ -126,11 +126,11 @@ $(document).ready(function () {
           displaySupplierInfo(response);
           $("#supplierInput").val("");
         } else {
-          alert("No supplier found with this code !!!");
+          showNotification("No supplier found with this code !!!", "error");
         }
       },
       error: function () {
-        alert("No supplier found with this code !!!");
+        showNotification("No supplier found with this code !!!", "error");
       },
     });
   }
@@ -148,14 +148,16 @@ $(document).ready(function () {
 
     // Kiểm tra xem giá trị có rỗng hay không
     if (paymentMethod === null || paymentMethod === "") {
-      alert("Payment method has not been selected !!!");
+      showNotification("Payment method has not been selected !!!", "error");
       return;
     }
     let employeeID = localStorage.getItem("userId"); // ID của nhân viên từ token
     if (!employeeID || !supplierId) {
-      alert(
-        "Please select a provider and make sure the employee is logged in !!!"
+      showNotification(
+        "Please select a provider and make sure the employee is logged in !!!",
+        "error"
       );
+
       return;
     }
 
@@ -194,16 +196,22 @@ $(document).ready(function () {
       data: JSON.stringify(importInvoiceRequestWrapper),
       success: function (response) {
         if (response.status === "OK") {
-          alert("Invoice created successfully !!!");
+          showNotification("Invoice created successfully !!!", "OK");
           // Xóa các sản phẩm khỏi bảng và đặt lại tổng giá tiền
           selectedProductsTable.empty();
           updateTotalPrice();
         } else {
-          alert("Invoice creation failed: " + response.desc);
+          showNotification(
+            "Invoice creation failed: " + response.desc,
+            "error"
+          );
         }
       },
       error: function () {
-        alert("Can error occurred while creating the invoice !!!");
+        showNotification(
+          "Can error occurred while creating the invoice !!!",
+          "error"
+        );
       },
     });
   }

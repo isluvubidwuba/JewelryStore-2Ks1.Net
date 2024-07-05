@@ -7,6 +7,9 @@
     <link href="css/styles.css" rel="stylesheet" />
     <script src="js/jquery.min.js"></script>
     <script src="js/ImportInvoice.js"></script>
+    <div id="notification-placeholder">
+      @@include('components/notification.html')
+    </div>
   </head>
 
   <body class="bg-gray-100 h-screen flex">
@@ -88,13 +91,13 @@
               <input
                 type="text"
                 id="supplierInput"
-                class="w-full px-3 py-2 border rounded-l-md focus:outline-none focus:ring-2 "
+                class="w-full px-3 py-2 border rounded-l-md focus:outline-none focus:ring-2"
                 placeholder="Enter Supplier ID"
               />
               <button
                 type="button"
                 id="searchSupplier"
-                class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded-r-md "
+                class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded-r-md"
               >
                 Search
               </button>

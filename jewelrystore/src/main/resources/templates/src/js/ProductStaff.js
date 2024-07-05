@@ -256,7 +256,7 @@ function getPriceProduct(barcode, idInvocie, idPromo, idPrice) {
     },
     error: function (xhr, status, error) {
       console.error("Error:", error);
-      alert("Failed to send data: " + error);
+      showNotification("Failed to send data: " + error, "error");
     },
   });
 }
@@ -449,7 +449,7 @@ function searchProducts(query) {
       }
     },
     error: function (xhr, status, error) {
-      alert("An error occurred while submitting the form.");
+      showNotification("An error occurred while submitting the form.", "error");
       console.log(xhr.responseText);
     },
   });

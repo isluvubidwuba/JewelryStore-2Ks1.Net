@@ -28,10 +28,13 @@ $(document).ready(function () {
             } else if (currentUser.id === response.data.userInfoDTO.id) {
               updateInvoiceDetails(response.data, invoiceId);
             } else {
-              alert("Different users. Please check again !!!");
+              showNotification(
+                "Different users. Please check again !!!",
+                "error"
+              );
             }
           } else {
-            alert("Invoice not found");
+            showNotification("Invoice not found", "error");
           }
         },
         error: function (error) {
@@ -39,7 +42,7 @@ $(document).ready(function () {
         },
       });
     } else {
-      alert("Please enter Invoice ID !!!");
+      showNotification("Please enter Invoice ID", "error");
     }
   });
 
@@ -113,7 +116,7 @@ $(document).ready(function () {
 
           updateTotalPrice();
         } else {
-          alert("Invalid quantity. Please check again !!!");
+          showNotification("Invalid quantity. Please check again !!!", "error");
         }
       } else {
         if (quantity <= availableReturnQuantity) {
@@ -139,7 +142,7 @@ $(document).ready(function () {
                   detailId
                 );
               } else {
-                alert("Error when creating invoice !!!");
+                showNotification("Error when creating invoice !!!", "error");
               }
             },
             error: function (error) {
@@ -147,7 +150,7 @@ $(document).ready(function () {
             },
           });
         } else {
-          alert("Invalid quantity. Please check again !!!");
+          showNotification("Invalid quantity. Please check again !!!", "error");
         }
       }
     });
@@ -215,7 +218,7 @@ $(document).ready(function () {
         var newQuantity = parseInt($(this).val());
         var maxQuantity = parseInt($(this).attr("max"));
         if (newQuantity > maxQuantity) {
-          alert("Invalid quantity. Please check again !!!");
+          showNotification("Invalid quantity. Please check again !!!", "error");
           $(this).val(maxQuantity);
           newQuantity = maxQuantity;
         } else if (newQuantity <= 0) {
@@ -228,6 +231,8 @@ $(document).ready(function () {
       .off("click")
       .on("click", function () {
         $(this).closest("tr").remove();
+        showNotification("Removed product", "error");
+
         updateTotalPrice();
       });
   }
@@ -272,9 +277,11 @@ $(document).ready(function () {
     var selectedProducts = $("#selected-products tr");
 
     if (selectedProducts.length === 0) {
-      alert(
-        "Please select at least one product before creating an invoice !!!"
+      showNotification(
+        "Please select at least one product before creating an invoice !!!",
+        "error"
       );
+
       return;
     }
 
@@ -306,10 +313,10 @@ $(document).ready(function () {
       },
       success: function (response) {
         if (response.status === "OK") {
-          alert("Buyback successful !!!");
+          showNotification(response.desc, "OK");
           viewInvoice(response.data); // Thêm dòng này để gọi hàm viewInvoice
         } else {
-          alert("Error when buyingback !!!");
+          showNotification("Error when buyingback !!!", "error");
         }
       },
       error: function (error) {
@@ -436,12 +443,12 @@ $(document).ready(function () {
           $("#total-price").text(formatCurrency(0));
           currentUser = null;
         } else {
-          alert("Unable to load invoice details");
+          showNotification("Unable to load invoice details", "error");
         }
       },
       error: function (error) {
         console.error("Unable to load invoice details", error);
-        alert("Unable to load invoice details !!!");
+        showNotification("Unable to load invoice details !!!", "error");
       },
     });
   }
