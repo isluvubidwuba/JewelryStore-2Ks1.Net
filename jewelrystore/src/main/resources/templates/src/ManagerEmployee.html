@@ -14,20 +14,17 @@
   <!-- Google Fonts -->
   <style>
     @import url("https://fonts.googleapis.com/css?family=Karla:400,700&display=swap");
-      .table-container {
-        overflow: auto;
-      }
-    </style>
-    <div id="notification-placeholder">
-      @@include('components/notification.html')
-    </div>
-  </head>
 
     .table-container {
       overflow: auto;
     }
   </style>
+  <div id="notification-placeholder">
+    @@include('components/notification.html')
+  </div>
 </head>
+
+
 
 <body class="bg-gray-100 font-family-karla flex w-screen h-full overflow-x-hidden">
   <!-- Sidebar -->
@@ -56,7 +53,7 @@
           <div class="flex relative mb-3" x-data="{ open: false }">
             <label for="search-dropdown" class="mb-2 text-sm font-medium text-gray-900 sr-only">Search</label>
             <button @click="open = !open" @click.away="open = false"
-              class="flex-shrink-0 z-30 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 rounded-l-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100"
+              class="flex-shrink-0 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 rounded-l-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100"
               type="button">
               Search by <span id="selected-criteria" class="ml-1">ID</span>
               <svg class="w-2.5 h-2.5 ml-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -73,8 +70,9 @@
               x-transition:leave="transition ease-in duration-75"
               x-transition:leave-start="opacity-100 transform scale-100"
               x-transition:leave-end="opacity-0 transform scale-95"
-              class="absolute left-0 mt-2 bg-white divide-y divide-gray-100 rounded-lg shadow w-44 z-20">
-              <ul class="mt-6 py-1 text-sm text-gray-700" aria-labelledby="dropdown-button">
+              class="absolute left-0 mt-2 bg-white divide-y divide-gray-100 rounded-lg shadow w-44 z-20"
+              style="top: 100%; margin-top: 0;">
+              <ul class="py-1 text-sm text-gray-700" aria-labelledby="dropdown-button">
                 <li class="p-1">
                   <button type="button" class="dropdown-item w-full text-left px-2 py-1 hover:bg-gray-100"
                     @click="open = false; document.getElementById('selected-criteria').innerText = 'ID'">
@@ -104,7 +102,7 @@
 
             <!-- Search Input -->
             <input type="search" id="searchInput"
-              class="block p-2.5 w-full z-10 text-sm text-gray-900 bg-gray-50 rounded-r-lg border border-gray-300"
+              class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-r-lg border border-gray-300"
               placeholder="Search..." />
             <button id="searchButton" type="submit"
               class="top-0 right-0 p-2.5 text-sm font-medium text-white bg-black rounded-r-lg border border-gray-700 hover:bg-gray-700 focus:ring-4 focus:outline-none">
@@ -117,6 +115,8 @@
             </button>
           </div>
         </form>
+
+
 
         <!-- Employee Table -->
         <div class="relative overflow-x-auto shadow-md sm:rounded-lg">

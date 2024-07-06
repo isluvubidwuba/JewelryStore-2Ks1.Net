@@ -3,6 +3,29 @@ $(document).ready(function () {
   const token = localStorage.getItem("token");
   let currentUser = null; // Biến lưu thông tin người dùng hiện tại
   let employeeId = localStorage.getItem("userId"); // ID của nhân viên từ localStorage
+  //Function 
+  initializeClearButton();
+
+
+
+  // Function to initialize the clear button functionality for specified input and clear button
+  function initializeClearButton() {
+    // Show or hide the clear input button based on the input value
+    $("#invoiceid-input").on("input", function () {
+      if ($(this).val().length > 0) {
+        $("#clear-input").removeClass("hidden");
+      } else {
+        $("#clear-input").addClass("hidden");
+      }
+    });
+
+    // Clear input field when "X" is clicked
+    $("#clear-input").click(function () {
+      $("#invoiceid-input").val("").trigger("input"); // Clear input and trigger input event to hide the clear button
+    });
+  }
+
+
 
   $("#add-invoiceid-button").click(function () {
     var invoiceId = $("#invoiceid-input").val();
@@ -52,7 +75,7 @@ $(document).ready(function () {
 
     $.each(invoice.listOrderInvoiceDetail, function (index, detail) {
       var row =
-        "<tr>" +
+        '<tr class="text-center">' +
         '<td class="px-4 py-2">' +
         detail.id +
         "</td>" +
@@ -164,8 +187,8 @@ $(document).ready(function () {
     );
     userInfoDiv.append(
       "<p><strong>Phone Number:</strong> " +
-        userInfo.phoneNumber.trim() +
-        "</p>"
+      userInfo.phoneNumber.trim() +
+      "</p>"
     );
     userInfoDiv.append("<p><strong>Email:</strong> " + userInfo.email + "</p>");
     $("#selected-user-info").removeClass("hidden");
@@ -273,6 +296,7 @@ $(document).ready(function () {
     }).format(amount);
   }
 
+  // Code to show confirmation modal when clicking "Create Invoice" button
   $("#checkout-button").click(function () {
     var selectedProducts = $("#selected-products tr");
 
@@ -281,16 +305,33 @@ $(document).ready(function () {
         "Please select at least one product before creating an invoice !!!",
         "error"
       );
-
       return;
     }
 
+    // Populate modal content with relevant information
+    var confirmModalContent = $("#confirm-modal-content");
+    confirmModalContent.empty();
+    selectedProducts.each(function () {
+      var productName = $(this).find("td:nth-child(2)").text();
+      var productQuantity = $(this).find(".product-quantity-input").val();
+      confirmModalContent.append(`
+        <p><strong>Product:</strong> ${productName}, <strong>Quantity:</strong> ${productQuantity}</p>
+      `);
+    });
+
+    // Show the confirmation modal
+    $("#confirm-modal").removeClass("hidden");
+  });
+
+  // Handle confirmation button click
+  $("#confirm-modal-yes").click(function () {
+    // Proceed with creating the invoice
+    var selectedProducts = $("#selected-products tr");
     var barcodeQuantityMap = {};
 
-    $("#selected-products tr").each(function () {
+    selectedProducts.each(function () {
       var detailId = $(this).data("detail-id");
       var quantity = parseInt($(this).find(".product-quantity-input").val());
-
       barcodeQuantityMap[detailId] = quantity;
     });
 
@@ -323,6 +364,15 @@ $(document).ready(function () {
         console.error("Error when buyingback: ", error);
       },
     });
+
+    // Hide the confirmation modal
+    $("#confirm-modal").addClass("hidden");
+  });
+
+  // Handle cancellation button click
+  $("#confirm-modal-no").click(function () {
+    // Hide the confirmation modal
+    $("#confirm-modal").addClass("hidden");
   });
 
   // Hàm viewInvoice để hiển thị chi tiết hóa đơn
@@ -354,31 +404,26 @@ $(document).ready(function () {
                                 <div class="text-gray-700 text-right">
                                     <div class="font-bold text-xl mb-2">INVOICE</div>
                                     <div class="text-sm">Date: ${new Date(
-                                      invoiceData.createdDate
-                                    ).toLocaleDateString()}</div>
-                                    <div class="text-sm">Invoice #: ${
-                                      invoiceData.id
-                                    }</div>
+            invoiceData.createdDate
+          ).toLocaleDateString()}</div>
+                                    <div class="text-sm">Invoice #: ${invoiceData.id
+            }</div>
                                 </div>
                             </div>
                             <div class="border-b-2 border-gray-300 pb-8 mb-8">
                                 <h2 class="text-2xl font-bold mb-4">Customer and Employee Information</h2>
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
-                                        <div class="text-gray-700 mb-2"><strong>Customer: </strong> ${
-                                          userInfo.fullName
-                                        }</div>
-                                        <div class="text-gray-700 mb-2"><strong>ID: </strong> ${
-                                          userInfo.id
-                                        }</div>
+                                        <div class="text-gray-700 mb-2"><strong>Customer: </strong> ${userInfo.fullName
+            }</div>
+                                        <div class="text-gray-700 mb-2"><strong>ID: </strong> ${userInfo.id
+            }</div>
                                     </div>
                                     <div>
-                                        <div class="text-gray-700 mb-2"><strong>STAFF: </strong> ${
-                                          employeeInfo.firstName
-                                        } ${employeeInfo.lastName}</div>
-                                        <div class="text-gray-700 mb-2"><strong>ID: </strong> ${
-                                          employeeInfo.id
-                                        }</div>
+                                        <div class="text-gray-700 mb-2"><strong>STAFF: </strong> ${employeeInfo.firstName
+            } ${employeeInfo.lastName}</div>
+                                        <div class="text-gray-700 mb-2"><strong>ID: </strong> ${employeeInfo.id
+            }</div>
                                     </div>
                                 </div>
                             </div>
@@ -393,43 +438,40 @@ $(document).ready(function () {
                                 </thead>
                                 <tbody>
                                     ${orderDetails
-                                      .map(
-                                        (order) => `
+              .map(
+                (order) => `
                                     <tr>
-                                        <td class="py-4 text-gray-700">${
-                                          order.productDTO.name
-                                        }</td>
-                                        <td class="py-4 text-gray-700">${
-                                          order.productDTO.productCode
-                                        }</td>
-                                        <td class="py-4 text-gray-700">${
-                                          order.quantity
-                                        }</td>
+                                        <td class="py-4 text-gray-700">${order.productDTO.name
+                  }</td>
+                                        <td class="py-4 text-gray-700">${order.productDTO.productCode
+                  }</td>
+                                        <td class="py-4 text-gray-700">${order.quantity
+                  }</td>
                                         <td class="py-4 text-gray-700">${new Intl.NumberFormat(
-                                          "vi-VN",
-                                          { style: "currency", currency: "VND" }
-                                        ).format(order.totalPrice)}</td>
+                    "vi-VN",
+                    { style: "currency", currency: "VND" }
+                  ).format(order.totalPrice)}</td>
                                     </tr>`
-                                      )
-                                      .join("")}
+              )
+              .join("")}
                                 </tbody>
                             </table>
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="text-gray-700">Total original price: </div>
                                 <div class="text-gray-700 text-right">${new Intl.NumberFormat(
-                                  "vi-VN",
-                                  { style: "currency", currency: "VND" }
-                                ).format(invoiceData.totalPriceRaw)}</div>
+                "vi-VN",
+                { style: "currency", currency: "VND" }
+              ).format(invoiceData.totalPriceRaw)}</div>
                                 <div class="text-gray-700">Reduced price: </div>
                                 <div class="text-gray-700 text-right">${new Intl.NumberFormat(
-                                  "vi-VN",
-                                  { style: "currency", currency: "VND" }
-                                ).format(invoiceData.discountPrice)}</div>
+                "vi-VN",
+                { style: "currency", currency: "VND" }
+              ).format(invoiceData.discountPrice)}</div>
                                 <div class="text-gray-700 font-bold text-xl">Total price:</div>
                                 <div class="text-gray-700 font-bold text-xl text-right">${new Intl.NumberFormat(
-                                  "vi-VN",
-                                  { style: "currency", currency: "VND" }
-                                ).format(invoiceData.totalPrice)}</div>
+                "vi-VN",
+                { style: "currency", currency: "VND" }
+              ).format(invoiceData.totalPrice)}</div>
                             </div>
                         </div>
                     `);
@@ -462,6 +504,20 @@ $(document).ready(function () {
     $("#product-table-body").empty();
     $("#user-details").empty();
     $("#total-price").text(formatCurrency(0));
+    initializeClearButton();
     currentUser = null;
   });
+
+
+  $("#clear-infomation-button").click(function () {
+    // Clear all information for a new transaction
+    $("#selected-products").empty();
+    $("#product-table-body").empty();
+    $("#user-details").empty();
+    $("#total-price").text(formatCurrency(0));
+    currentUser = null;
+
+    showNotification("All information has been cleared", "OK");
+  });
+
 });
