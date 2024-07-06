@@ -474,8 +474,11 @@ $(document).ready(function () {
       if (newQuantity > 0 && newQuantity <= productData.inventory) {
         updateProductQuantity(barcode, newQuantity);
       } else {
-        showNotification("Quantity exceeds inventory quantity.", "error");
-
+        showNotification(
+          "Quantity exceeds inventory quantity. Avaiable: " +
+            productData.inventory,
+          "error"
+        );
         $(this).val(productData.quantity);
       }
     });
