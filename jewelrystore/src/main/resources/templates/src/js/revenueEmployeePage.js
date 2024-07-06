@@ -39,7 +39,7 @@ function displayEmployeeDetails(employee) {
                     name="firstName"
                   />
                   <h2 id="employeeRole" class="text-2xl text-gray-500">
-                    ADMIN
+                  ${employee.role.name}
                   </h2>
                 </div>
               </div>`;
