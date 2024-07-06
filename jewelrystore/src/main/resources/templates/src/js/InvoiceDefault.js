@@ -358,6 +358,26 @@ $(document).ready(function () {
   }
 
   // ==============================Phần này thực hiện add sản phẩm vào trước khi thanh toán ======================================================
+  CheckClearBarcodeInput();
+
+  function CheckClearBarcodeInput() {
+    $("#barcode-input").on("input", function () {
+      if ($(this).val().length > 0) {
+        $("#clear-barcode-input").removeClass("hidden");
+      } else {
+        $("#clear-barcode-input").addClass("hidden");
+      }
+    });
+    $("#clear-barcode-input").click(function () {
+      clearBarcodeInput();
+    });
+  }
+
+  function clearBarcodeInput() {
+    $("#barcode-input").val("");
+    $("#clear-barcode-input").addClass("hidden");
+  }
+
   function addProductByBarcode(barcode) {
     if (productMap[barcode]) {
       updateProductQuantity(barcode, productMap[barcode].quantity + 1);
@@ -978,11 +998,9 @@ $(document).ready(function () {
         .then((data) => {
           const message = data.desc;
           const status = data.status;
-          let notificationId;
 
           if (status === "OK") {
             showNotification(message, "OK");
-            notificationId = "toast-success";
             // Lấy các thông tin đã lưu trữ từ sessionStorage
             selectedUserId = sessionStorage.getItem("selectedUserId");
             selectedUserName = sessionStorage.getItem("selectedUserName");
@@ -1043,6 +1061,8 @@ $(document).ready(function () {
     $("#product-sold").empty();
     updateTotalPrice();
     clearUserIdInput();
+    clearBarcodeInput();
+    showNotification("Clear All Information Successfully", "OK");
   }
 
   // Xử lý callback từ VNPAY khi trang được tải

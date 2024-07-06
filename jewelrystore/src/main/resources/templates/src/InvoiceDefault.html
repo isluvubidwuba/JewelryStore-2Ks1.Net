@@ -33,10 +33,39 @@
     </div>
   </head>
 
-  <body class="bg-gray-100 h-screen flex">
-    <!-- side bar -->
-    <div id="sidebarContainer" class="h-screen text-white">
-      @@include('components/sidebarForStaff.html')
+
+<body class="bg-gray-100 h-screen flex">
+  <!-- side bar -->
+  <div id="sidebarContainer" class="h-screen text-white">
+    @@include('components/sidebarForStaff.html')
+  </div>
+
+  <div class="flex flex-1 p-6">
+    <!-- Product list -->
+    <div class="w-1/2 bg-white rounded-lg shadow-md p-8">
+
+      <div class="flex items-center mb-6">
+        <div class="relative">
+          <input type="text" id="barcode-input" class="border p-2 pr-8" placeholder="Enter barcode" />
+          <span id="clear-barcode-input"
+            class="absolute right-2 top-2 cursor-pointer text-gray-500 hidden">&times;</span>
+        </div>
+        <button id="add-barcode-button" class="ml-4 bg-black hover:bg-gray-700 text-white p-2">
+          Add
+        </button>
+      </div>
+
+
+
+
+
+
+
+
+
+      <div id="product-sold">
+        <!-- hiện ra các sản phẩm đã chọn  -->
+      </div>
     </div>
 
     <div class="flex flex-1 p-6">
