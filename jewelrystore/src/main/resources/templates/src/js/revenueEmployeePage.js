@@ -39,7 +39,7 @@ function displayEmployeeDetails(employee) {
                     name="firstName"
                   />
                   <h2 id="employeeRole" class="text-2xl text-gray-500">
-                    ADMIN
+                  ${employee.role.name}
                   </h2>
                 </div>
               </div>`;
@@ -171,11 +171,14 @@ function viewEmployee2(
         showEmployeeInfo(response.data);
         loadInvoices(currentPage2, pageSize2);
       } else {
-        alert("Không thể lấy dữ liệu doanh thu của nhân viên.");
+        showNotification(
+          "Error when retrieving employee revenue data.",
+          "Error"
+        );
       }
     },
     error: function (error) {
-      alert("Đã xảy ra lỗi khi gọi API.");
+      showNotification("Error when call API.", "Error");
     },
   });
 }
@@ -202,11 +205,14 @@ function Update(
       if (response.status === "OK") {
         showEmployeeInfo(response.data);
       } else {
-        alert("Không thể lấy dữ liệu doanh thu của nhân viên.");
+        showNotification(
+          "Error when retrieving employee revenue data.",
+          "Error"
+        );
       }
     },
     error: function (error) {
-      alert("Đã xảy ra lỗi khi gọi API.");
+      showNotification("Error when call API.", "Error");
     },
   });
 }
@@ -235,11 +241,11 @@ function loadInvoices(page, size) {
           $("#loadMoreInvoiceEmplBtn").removeClass("hidden"); // Hiển thị nút "Load More" nếu chưa đến trang cuối
         }
       } else {
-        alert("Không thể lấy danh sách hóa đơn.");
+        showNotification("Load fail invoice.", "Error");
       }
     },
     error: function (error) {
-      alert("Đã xảy ra lỗi khi gọi API.");
+      showNotification("Error when call API.", "Error");
     },
   });
 }

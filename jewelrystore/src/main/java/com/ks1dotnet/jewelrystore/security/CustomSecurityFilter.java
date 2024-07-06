@@ -18,6 +18,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class CustomSecurityFilter {
+        private static final String[] WHITE_LIST_URL = { "/api/v1/auth/**", "/v2/api-docs", "/v3/api-docs",
+                        "/v3/api-docs/**", "/swagger-resources", "/swagger-resources/**", "/configuration/ui",
+                        "/configuration/security", "/swagger-ui/**", "/webjars/**", "/swagger-ui.html", "/api/auth/**",
+                        "/api/test/**", "/authenticate" };
 
         @Autowired
         CustomUserDetailService customUserDetailService;
@@ -45,6 +49,7 @@ public class CustomSecurityFilter {
                                 .sessionManagement(session -> session.sessionCreationPolicy(
                                                 SessionCreationPolicy.STATELESS))
                                 .authorizeHttpRequests(authz -> authz
+                                                .requestMatchers(WHITE_LIST_URL).permitAll()
                                                 .requestMatchers("/authentication/**", "/proxy",
                                                                 "/payment/**", "/mail/sendOtp/**",
                                                                 "employee/validateOtp",
@@ -127,7 +132,7 @@ public class CustomSecurityFilter {
                                                                 "/userinfo/searchsupplier",
                                                                 "/userinfo/getcustomer/{id}",
                                                                 "/userinfo/findsupplier/{id}",
-                                                                "/userinfo/phonenumbercustomer")
+                                                                "/userinfo/phonenumberandmailcustomer")
                                                 .hasAnyAuthority("STAFF", "MANAGER", "ADMIN")
 
                                                 .requestMatchers("/userinfo/update",
@@ -137,7 +142,12 @@ public class CustomSecurityFilter {
                                                 .requestMatchers("/userinfo/**", "/role/insert",
                                                                 "/customertype/**")
                                                 .hasAuthority("ADMIN")
-
+                                                // .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() //
+                                                // Swagger
+                                                // // UI
+                                                // // và
+                                                // // OpenAPI
+                                                // // docs
                                                 .anyRequest().authenticated())
                                 .exceptionHandling(exception -> exception
                                                 .accessDeniedHandler(customAccessDeniedHandler))

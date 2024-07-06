@@ -96,7 +96,6 @@ public class CustomerTypeService implements ICustomerTypeService {
                                     ct.getType(), ct.getPointCondition()))
                             .collect(Collectors.toList());
 
-
             List<EarnPointsDTO> updatedEarnPointsDTOList = new ArrayList<>();
 
             for (EarnPoints earnPoints : earnPointsList) {
@@ -120,7 +119,15 @@ public class CustomerTypeService implements ICustomerTypeService {
                         newCustomerType.setPointCondition(newCustomerTypeDTO.getPointCondition());
 
                         earnPoints.setCustomerType(newCustomerType);
-                        EarnPoints savedEarnPoints = iEarnPointsRepository.save(earnPoints);
+                        EarnPoints savedEarnPoints = iEarnPointsRepository.save(earnPoints); // Lưu
+                                                                                             // và
+                                                                                             // lấy
+                                                                                             // kết
+                                                                                             // quả
+                                                                                             // trả
+                                                                                             // về
+
+                        // Chuyển đổi từ entity sang DTO để trả về
                         EarnPointsDTO earnPointsDTO = new EarnPointsDTO(savedEarnPoints.getId(),
                                 savedEarnPoints.getPoint(),
                                 new UserInfoDTO(savedEarnPoints.getUserInfo().getId(),

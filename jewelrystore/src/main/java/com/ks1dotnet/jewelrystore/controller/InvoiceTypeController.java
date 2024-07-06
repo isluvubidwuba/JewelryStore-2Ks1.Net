@@ -1,12 +1,9 @@
 package com.ks1dotnet.jewelrystore.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,57 +36,30 @@ public class InvoiceTypeController {
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ResponseData> getInvoiceTypeById(@PathVariable int id) {
+    // @GetMapping("/{id}")
+    // public ResponseEntity<ResponseData> getInvoiceTypeById(@PathVariable int id)
+    // {
+    // ResponseData responseData = invoiceTypeService.getInvoiceTypeById(id);
+    // return new ResponseEntity<>(responseData, responseData.getStatus());
+    // }
+
+    // @PostMapping("/create")
+    // public ResponseEntity<ResponseData> createInvoiceType(@RequestParam String
+    // name) {
+    // if (name.trim().isEmpty()) {
+    // throw new BadRequestException("cannot insert null into name");
+    // }
+    // ResponseData responseData = invoiceTypeService.createInvoiceType(name);
+    // return new ResponseEntity<>(responseData, responseData.getStatus());
+    // }
+
+    @GetMapping("/update")
+    public ResponseEntity<ResponseData> updateInvoiceType(@RequestParam int id,
+            @RequestParam float rate) {
 
         try {
-            ResponseData responseData = invoiceTypeService.getInvoiceTypeById(id);
+            ResponseData responseData = invoiceTypeService.updateInvoiceType(id, rate);
             return new ResponseEntity<>(responseData, responseData.getStatus());
-        } catch (ApplicationException e) {
-            throw new ApplicationException(
-                    "Error at getInvoiceTypeById InvoiceTypeController: " + e.getMessage(),
-                    e.getErrorString(), e.getStatus());
-        } catch (Exception e) {
-            throw new ApplicationException(
-                    "Error at getInvoiceTypeById InvoiceTypeController: " + e.getMessage(),
-                    "Something wrong while get invoice type by id!");
-        }
-    }
-
-    @PostMapping("/create")
-    public ResponseEntity<ResponseData> createInvoiceType(@RequestParam String name) {
-
-        try {
-            if (name.trim().isEmpty()) {
-                throw new ApplicationException("Cannot insert null into name",
-                        HttpStatus.BAD_REQUEST);
-            }
-            ResponseData responseData = invoiceTypeService.createInvoiceType(name);
-            return new ResponseEntity<>(responseData, responseData.getStatus());
-
-        } catch (ApplicationException e) {
-            throw new ApplicationException(
-                    "Error at createInvoiceType InvoiceTypeController: " + e.getMessage(),
-                    e.getErrorString(), e.getStatus());
-        } catch (Exception e) {
-            throw new ApplicationException(
-                    "Error at createInvoiceType InvoiceTypeController: " + e.getMessage(),
-                    "Something wrong while create invoice type!");
-        }
-    }
-
-    @PostMapping("/update/{id}")
-    public ResponseEntity<ResponseData> updateInvoiceType(@PathVariable int id,
-            @RequestParam String name) {
-
-        try {
-            if (name.trim().isEmpty()) {
-                throw new ApplicationException("Cannot insert null into name",
-                        HttpStatus.BAD_REQUEST);
-            }
-            ResponseData responseData = invoiceTypeService.updateInvoiceType(id, name);
-            return new ResponseEntity<>(responseData, responseData.getStatus());
-
         } catch (ApplicationException e) {
             throw new ApplicationException(
                     "Error at updateInvoiceType InvoiceTypeController: " + e.getMessage(),

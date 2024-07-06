@@ -57,4 +57,7 @@ public interface IUserInfoRepository extends JpaRepository<UserInfo, Integer> {
         @Query("SELECT u FROM UserInfo u WHERE u.role.id = 4 AND u.phoneNumber LIKE %:phoneNumber%")
         public Optional<UserInfo> findByPhoneNumber(@Param("phoneNumber") String phoneNumber);
 
+        @Query("SELECT u FROM UserInfo u WHERE u.role.id = 4 AND u.email LIKE %:email%")
+        public Optional<UserInfo> findByEmail(@Param("email") String email);
+
 }

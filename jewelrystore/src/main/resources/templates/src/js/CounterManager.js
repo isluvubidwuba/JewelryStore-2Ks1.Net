@@ -37,7 +37,7 @@ function fetchCounters() {
 }
 
 function generateTabs(counters) {
-  const tabsContainer = $("#counter-tabs");
+  const tabsContainer = $("#counter-tabs").empty();
   counters.forEach((counter, index) => {
     if (counter.id === 1) return; // Bỏ qua quầy có id là 1
 
@@ -49,11 +49,10 @@ function generateTabs(counters) {
 
     const tabLink = $("<a>", {
       href: "#",
-      class: `inline-block py-3 px-4 rounded-lg ${
-        index === 0
+      class: `inline-block py-3 px-4 rounded-lg ${index === 0
           ? "text-white bg-black active"
           : "text-gray-300 bg-black hover:bg-gray-700"
-      }`,
+        }`,
       text: counter.name,
       "data-tab": `tab-${counter.id}`,
     });
@@ -110,7 +109,7 @@ function generateTabs(counters) {
 }
 
 function generateTabContents(counters) {
-  const contentsContainer = $("#tab-contents");
+  const contentsContainer = $("#tab-contents").empty();
   counters.forEach((counter, index) => {
     if (counter.id === 1) return; // Bỏ qua nội dung của quầy có id là 1
 
@@ -213,9 +212,8 @@ function generateTabContents(counters) {
 
 function fetchProductsByCounter(counterId, page = 1) {
   $.ajax({
-    url: `http://${apiurl}/counter/listproductsbycounter?counterId=${counterId}&page=${
-      page - 1
-    }`,
+    url: `http://${apiurl}/counter/listproductsbycounter?counterId=${counterId}&page=${page - 1
+      }`,
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -312,15 +310,16 @@ function createCounterModal() {
       },
       success: function (response) {
         if (response.status === "OK") {
-          alert("Counter created successfully");
-          location.reload(); // Reload the page to update the counter list
+          showNotification("Counter created successfully.", "OK");
+
+          fetchCounters();
         } else {
-          alert("Error creating counter");
+          showNotification("Error creating counter.", "error");
         }
       },
       error: function (error) {
         console.error("Error:", error);
-        alert("Error creating counter");
+        showNotification("Error creating counter.", "error");
       },
     });
 
@@ -368,7 +367,6 @@ function fetchProductsForCounter() {
           })
         ),
       ];
-      console.log(materials);
 
       populateCategoryFilter(categories);
       populateMaterialFilter(materials);
@@ -423,7 +421,6 @@ function setupAddProductModal() {
     $("#selectCounterSection").addClass("hidden");
     $("#combinedModal").removeClass("hidden");
     fetchProductsForCounter();
-    setupCategoryFilter();
   });
 
   $("#closeCombinedModal, #cancelAddProduct, #cancelSelectCounter").on(
@@ -450,16 +447,17 @@ function setupAddProductModal() {
       data: JSON.stringify(selectedProducts),
       success: function (response) {
         if (response.status === "OK") {
-          alert("Products added to counter successfully");
+          showNotification("Products added to counter successfully", "OK");
+
           $("#combinedModal").addClass("hidden");
           switchToTab(counterId); // Chuyển tới tab theo counterId
         } else {
-          alert("Error adding products to counter");
+          showNotification("Error adding products to counter", "Error");
         }
       },
       error: function (error) {
         console.error("Error:", error);
-        alert("Error adding products to counter");
+        showNotification("Error adding products to counter", "Error");
       },
     });
     $("#combinedModal").addClass("hidden");
@@ -486,7 +484,7 @@ function fetchCountersForSelect() {
 }
 
 function populateCounterSelect(counters) {
-  const counterSelect = $("#counterSelect");
+  const counterSelect = $("#counterSelect").empty();
   counterSelect.empty(); // Xóa các tùy chọn cũ
   const defaultOption = $("<option>", {
     value: "",
@@ -509,12 +507,10 @@ function populateCounterSelect(counters) {
 
 function setupFilters() {
   $("#categoryFilter").on("change", function () {
-    const selectedCategory = $(this).val();
     filterProducts();
   });
 
   $("#materialFilter").on("change", function () {
-    const selectedMaterial = $(this).val();
     filterProducts();
   });
 }
@@ -580,7 +576,8 @@ function deleteCounter(counterId) {
     },
     success: function (response) {
       if (response.status === "OK") {
-        alert("Counter deleted successfully");
+        showNotification("Counter deleted successfully", "OK");
+
         // Xóa tab và nội dung tab ngay lập tức
         $(`#counter-tabs a[data-tab="tab-${counterId}"]`)
           .closest("li")
@@ -589,12 +586,12 @@ function deleteCounter(counterId) {
         fetchCountersForSelect();
         switchToTab(2); // Chuyển đến tab có counter id = 2
       } else {
-        alert("Error deleting counter");
+        showNotification("Error deleting counter", "Error");
       }
     },
     error: function (error) {
       console.error("Error:", error);
-      alert("Error deleting counter");
+      showNotification("Error deleting counter", "Error");
     },
   });
 }
@@ -626,28 +623,22 @@ function populateInactiveCounterTable(counters) {
             <tr class="text-center">
                 <td class="py-2 px-4 border-b">${counter.id}</td>
                 <td class="py-2 px-4">
-                    <input type="text" value="${
-                      counter.name
-                    }" class="name-input border rounded p-1" data-id="${
-      counter.id
-    }" />
+                    <input type="text" value="${counter.name
+      }" class="name-input border rounded p-1" data-id="${counter.id
+      }" />
                 </td>
                 <td class="py-2 px-4 border-b">
-                    <select class="status-select rounded p-1" data-id="${
-                      counter.id
-                    }">
-                        <option value="true" ${
-                          counter.status ? "selected" : ""
-                        }>Active</option>
-                        <option value="false" ${
-                          !counter.status ? "selected" : ""
-                        }>Inactive</option>
+                    <select class="status-select rounded p-1" data-id="${counter.id
+      }">
+                        <option value="true" ${counter.status ? "selected" : ""
+      }>Active</option>
+                        <option value="false" ${!counter.status ? "selected" : ""
+      }>Inactive</option>
                     </select>
                 </td>
                 <td class="py-2 px-4 border-b">
-                    <button class="update-btn bg-green-500 text-white px-2 py-1 rounded" data-id="${
-                      counter.id
-                    }">Update</button>
+                    <button class="update-btn bg-green-500 text-white px-2 py-1 rounded" data-id="${counter.id
+      }">Update</button>
                 </td>
             </tr>
         `;
@@ -669,12 +660,12 @@ function handleUpdateCounter() {
       Authorization: `Bearer ${token}`,
     },
     success: function () {
-      alert("Counter updated successfully");
+      showNotification("Counter updated successfully", "OK");
       fetchInactiveCounters();
-      location.reload();
+      fetchCounters();
     },
     error: function () {
-      alert("Failed to update counter");
+      showNotification("Failed to update counter", "Error");
     },
   });
 }

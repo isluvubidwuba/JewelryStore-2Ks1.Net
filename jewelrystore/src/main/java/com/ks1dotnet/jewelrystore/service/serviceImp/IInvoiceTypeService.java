@@ -10,7 +10,7 @@ public interface IInvoiceTypeService {
 
     ResponseData createInvoiceType(String name);
 
-    ResponseData updateInvoiceType(int id, String name);
+    ResponseData updateInvoiceType(int id, float rate);
 
     InvoiceType findById(Integer invoiceTypeId);
 

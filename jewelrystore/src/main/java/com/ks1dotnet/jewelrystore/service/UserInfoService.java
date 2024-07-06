@@ -341,9 +341,11 @@ public class UserInfoService implements IUserInfoService {
     @Override
     public ResponseData getUserInfo(int id) {
         UserInfo userInfo = iUserInfoRepository.findById(id).orElse(null);
+        UserInfoDTO dto = userInfo.getDTO();
+        dto.setImage(url.trim() + filePath.trim() + dto.getImage());
         ResponseData responseData = new ResponseData();
         responseData.setStatus(HttpStatus.OK);
-        responseData.setData(userInfo.getDTO());
+        responseData.setData(dto);
         return responseData;
     }
 
@@ -408,6 +410,28 @@ public class UserInfoService implements IUserInfoService {
             throw new ApplicationException(
                     "Error at findByPhoneNumber UserInfoService: " + e.getMessage(),
                     "An error occurred while finding the customer");
+        }
+    }
+
+    @Override
+    public ResponseData findByEmail(String mail) {
+        try {
+            Optional<UserInfo> optionalUserInfo = iUserInfoRepository.findByEmail(mail);
+            if (optionalUserInfo.isPresent()) {
+                UserInfo userInfo = optionalUserInfo.get();
+                ResponseData responseData = new ResponseData();
+                responseData.setData(userInfo.getDTO());
+                responseData.setStatus(HttpStatus.OK);
+                responseData.setDesc("Found Customer In The System");
+                return responseData;
+            } else {
+                ResponseData responseData = new ResponseData();
+                responseData.setStatus(HttpStatus.NOT_FOUND);
+                responseData.setDesc("Not Found Customer In The System !!!");
+                return responseData;
+            }
+        } catch (Exception e) {
+            throw new RunTimeExceptionV1("An error occurred while finding the customer", e.getMessage());
         }
     }
 

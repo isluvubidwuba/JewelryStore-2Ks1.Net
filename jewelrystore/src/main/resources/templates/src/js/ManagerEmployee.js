@@ -44,11 +44,11 @@ function fetchEmployees(page) {
         updatePagination(response.data.currentPage, response.data.totalPages);
         currentPage = response.data.currentPage;
       } else {
-        alert("Failed to load employee data.");
+        showNotification("Failed to load employee data.", "error");
       }
     },
     error: function () {
-      alert("Error while fetching employee data.");
+      showNotification("Error while fetching employee data.", "error");
     },
   });
 }
@@ -68,21 +68,18 @@ function renderEmployees(employees) {
               <td class="px-6 py-4" id="employee-image-${employee.id}">
                   Loading...
               </td>
-              <td class="px-6 py-3">${employee.lastName} ${
-      employee.firstName
-    }</td>
+              <td class="px-6 py-3">${employee.firstName} ${employee.lastName
+      }</td>
               <td class="px-6 py-3">${employee.role.name}</td>
               <td class="px-6 py-3">${statusLabel}</td>
               <td class="px-6 py-3">${formatCurrency(
-                employee.totalRevenue
-              )}</td>
+        employee.totalRevenue
+      )}</td>
               <td class="px-6 py-3">
-                  <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" onclick="viewEmployee('${
-                    employee.id
-                  }')">View</button>
-                  <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" onclick="viewEmployee2('${
-                    employee.id
-                  }')">Revenue</button>
+                  <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" onclick="viewEmployee('${employee.id
+      }')">View</button>
+                  <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" onclick="viewEmployee2('${employee.id
+      }')">Revenue</button>
                   
               </td>
           </tr>
@@ -136,15 +133,18 @@ function fetchRoles(selectElementId) {
             );
           });
       } else {
-        alert("Failed to load roles: " + response.desc);
+        showNotification("Failed to load roles: " + response.desc, "error");
       }
     },
     error: function (error) {
       if (error.responseJSON) {
-        alert("Error while load roles: " + error.responseJSON.desc);
+        showNotification(
+          "Error while load roles: " + error.responseJSON.desc,
+          "error"
+        );
       } else {
         console.error("Error while load roles: ", error);
-        alert("Error load roles!");
+        showNotification("Error load roles!", "error");
       }
     },
   });
@@ -182,17 +182,22 @@ function viewEmployee(id) {
         }
         openModal();
       } else {
-        alert("Failed to load employee details." + response.desc);
+        showNotification(
+          "Failed to load employee details." + response.desc,
+          "error"
+        );
       }
     },
     error: function (error) {
+      showNotification("Error while fetching employee details", "error");
       if (error.responseJSON) {
-        alert(
-          "Error while fetching employee details : " + error.responseJSON.desc
+        showNotification(
+          "Error while fetching employee details" + error.responseJSON.desc,
+          "error"
         );
       } else {
         console.error("Error while fetching employee details : ", error);
-        alert("Error fetching employee details :!");
+        showNotification("Error fetching employee details :!", "error");
       }
     },
   });
@@ -231,20 +236,27 @@ function updateEmployee() {
     contentType: false,
     success: function (response) {
       if (response.status === "OK") {
-        alert(response.desc);
+        showNotification(response.desc, "OK");
         clearUpdateForm();
         closeModal();
         fetchEmployees(currentPage);
       } else {
-        alert("Failed to update employee: " + response.desc);
+        showNotification(
+          "Failed to update employee: " + response.desc,
+          "error"
+        );
       }
     },
     error: function (error) {
+      showNotification("Error update employee!", "error");
       if (error.responseJSON) {
-        alert("Error while update employee: " + error.responseJSON.desc);
+        showNotification(
+          "Failed while update employee: " + error.responseJSON.desc,
+          "error"
+        );
       } else {
         console.error("Error while update employee: ", error);
-        alert("Error update employee!");
+        showNotification("Error update employee!", "error");
       }
     },
   });
@@ -306,20 +318,27 @@ function handleInsertEmployee(event) {
     },
     success: function (response) {
       if (response.status === "OK") {
-        alert(response.desc);
+        showNotification(response.desc, "OK");
         handleSendMailEmployee(response.data);
         fetchEmployees(currentPage);
         closeInsertModal();
       } else {
-        alert("Failed to update employee: " + response.desc);
+        showNotification(
+          "Failed to update employee: " + response.desc,
+          "Error"
+        );
       }
     },
     error: function (error) {
+      showNotification("Error inserting user!", "Error");
       if (error.responseJSON) {
-        alert("Error while inserting employee: " + error.responseJSON.desc);
+        showNotification(
+          "Error while inserting employee: " + error.responseJSON.desc,
+          "Error"
+        );
       } else {
         console.error("Error while inserting employee: ", error);
-        alert("Error updating user!");
+        showNotification("Error inserting user!", "Error");
       }
     },
   });
@@ -334,21 +353,26 @@ function handleSendMailEmployee(idEmploy) {
     },
     success: function (response) {
       if (response.status === "OK") {
-        alert(response.desc);
+        showNotification(response.desc, "OK");
       } else {
-        alert(response.desc);
+        showNotification(response.desc, "Error");
       }
     },
     error: function (error) {
+      showNotification("Error send mail user!", "Error");
       if (error.responseJSON) {
-        alert("Error while send mail employee: " + error.responseJSON.desc);
+        showNotification(
+          "Error while send mail employee: " + error.responseJSON.desc,
+          "Error"
+        );
       } else {
         console.error("Error while send mail employee: ", error);
-        alert("Error send mail user!");
+        showNotification("Error send mail user!", "Error");
       }
     },
   });
 }
+
 function initializeSearchForm() {
   $("#dropdown-button").click(function () {
     $("#dropdown").toggleClass("hidden");
@@ -364,11 +388,37 @@ function initializeSearchForm() {
     event.preventDefault();
     const criteria = $("#selected-criteria").text().toLowerCase();
     const query = $("#searchInput").val();
+
+    // Validation
+    if (criteria === "id" && !/^SE\d{8}$/.test(query)) {
+      showNotification("Invalid ID format. ID should start with 'SE' followed by 8 digits.", "Error");
+      return;
+    }
+
+    if (criteria === "role" && !["ADMIN", "MANAGER", "STAFF"].includes(query.toUpperCase())) {
+      showNotification("Invalid role. Valid roles are ADMIN, MANAGER, STAFF.", "Error");
+      return;
+    }
+
+    if (criteria === "status" && !["active", "inactive"].includes(query.toLowerCase())) {
+      showNotification("Invalid status. Valid statuses are active or inactive.", "Error");
+      return;
+    }
+
     searchEmployees(criteria, query, 0);
   });
 }
 
 function searchEmployees(criteria, query, page) {
+  // Transform criteria values
+  if (criteria === "role") {
+    query = query.toUpperCase();
+  }
+
+  if (criteria === "status") {
+    query = query.toLowerCase();
+  }
+
   $.ajax({
     url: `http://${apiurl}/employee/search`,
     type: "POST",
@@ -382,11 +432,11 @@ function searchEmployees(criteria, query, page) {
         updatePagination(response.data.currentPage, response.data.totalPages);
         currentPage = response.data.currentPage;
       } else {
-        alert("Failed to search employee data.");
+        showNotification("Failed to search employee data.", "Error");
       }
     },
     error: function () {
-      alert("Error while searching employee data.");
+      showNotification("Error while searching employee data.", "Error");
     },
   });
 }
@@ -404,19 +454,26 @@ function deleteEmployee() {
       success: function (response) {
         console.log("Delete response:", response); // Ghi log phản hồi
         if (response.status === "OK") {
-          alert(response.desc);
+          showNotification(response.desc, "Error");
           closeModal();
           fetchEmployees(currentPage);
         } else {
-          alert("Failed to delete employee: " + response.desc);
+          showNotification(
+            "Failed to delete employee: " + response.desc,
+            "Error"
+          );
         }
       },
       error: function (error) {
+        showNotification("Error deleting employee!", "Error");
         console.error("Error while deleting employee:", error); // Ghi log lỗi
         if (error.responseJSON) {
-          alert("Error while deleting employee: " + error.responseJSON.desc);
+          showNotification(
+            "Error while deleting employee: " + error.responseJSON.desc,
+            "Error"
+          );
         } else {
-          alert("Error deleting employee!");
+          showNotification("Error deleting employee!", "Error");
         }
       },
     });

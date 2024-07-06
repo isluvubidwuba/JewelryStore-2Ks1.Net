@@ -167,7 +167,10 @@ function applyPromotionToSelectedGemstones(promotionId) {
       },
     });
   } else {
-    alert("Please select at least one gemstone type to add.");
+    showNotification(
+      "Please select at least one gemstone type to add.",
+      "Error"
+    );
   }
 }
 
@@ -193,7 +196,7 @@ function removePromotionFromSelectedGemstones(promotionId) {
       success: function (response) {
         if (response.status === "OK") {
           fetchGemstonesByPromotion(promotionId);
-          alert("Remove successful");
+          showNotification(response.desc, "Error");
         }
       },
       error: function (error) {
@@ -201,7 +204,10 @@ function removePromotionFromSelectedGemstones(promotionId) {
       },
     });
   } else {
-    alert("Please select at least one gemstone type to delete.");
+    showNotification(
+      "Please select at least one gemstone type to activate.",
+      "Error"
+    );
   }
 }
 
@@ -227,7 +233,7 @@ function activateSelectedGemstones(promotionId) {
       success: function (response) {
         if (response.status === "OK") {
           fetchGemstonesByPromotion(promotionId);
-          alert("Activate successful");
+          showNotification("Activate successful.", "OK");
         }
       },
       error: function (error) {
@@ -235,7 +241,10 @@ function activateSelectedGemstones(promotionId) {
       },
     });
   } else {
-    alert("Please select at least one gemstone type to activate.");
+    showNotification(
+      "Please select at least one gemstone type to activate.",
+      "Error"
+    );
   }
 }
 

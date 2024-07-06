@@ -15,7 +15,7 @@ $(document).ready(function () {
 
 const token = localStorage.getItem("token");
 let currentPage = 0;
-const itemsPerPage = 3; // Số lượng mục trên mỗi trang
+const itemsPerPage = 2; // Số lượng mục trên mỗi trang
 let promotions = []; // Lưu trữ danh sách promotions đã tải về
 
 // fetch all promotions
@@ -58,6 +58,8 @@ function fetchPromotions(keyword = "") {
     },
     error: function (error) {
       console.error("Error fetching promotions:", error);
+      showNotification("Error fetching promotions.", "Error");
+
       deferred.reject(error);
     },
   });
@@ -525,11 +527,14 @@ function submitUpdateForm() {
       });
     } else {
       if (!allFieldsFilled) {
-        alert("You must fill all fields.");
+        showNotification("You must fill all fields.", "Error");
       } else if (!numberFieldValid) {
-        alert("Number must be greater than 0 and less than 100.");
+        showNotification(
+          "Number must be greater than 0 and less than 100.",
+          "Error"
+        );
       } else if (!datesValid) {
-        alert("End date must be after start date.");
+        showNotification("End date must be after start date.", "Error");
       }
     }
   });
@@ -643,12 +648,16 @@ function submitInsertForm() {
       });
     } else {
       if (!allFieldsFilled) {
-        alert("You must fill all fields.");
+        showNotification("You must fill all fields.", "Error");
       } else if (!numberFieldValid) {
-        alert("Number must be greater than 0 và less than 100.");
+        showNotification(
+          "Number must be greater than 0 and less than 100.",
+          "Error"
+        );
       } else if (!datesValid) {
-        alert(
-          "Start date and end date must be greater than the current date and end date must be after start date."
+        showNotification(
+          "Start date and end date must be greater than the current date and end date must be after start date.",
+          "Error"
         );
       }
     }
@@ -684,11 +693,14 @@ function fetchInvoiceType() {
           );
         });
       } else {
-        alert("Failed to fetch invoice types.");
+        showNotification("Failed to fetch invoice types.", "Error");
       }
     },
     error: function (xhr, status, error) {
-      alert("An error occurred while loading invoice types.");
+      showNotification(
+        "An error occurred while loading invoice types.",
+        "Error"
+      );
       console.log(xhr.responseText);
     },
   });

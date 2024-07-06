@@ -90,7 +90,7 @@ function activeSelectedCategories(promotionId) {
       success: function (response) {
         if (response.status === "OK") {
           fetchCategoriesByPromotion(promotionId);
-          alert("Activate successful");
+          showNotification("Active successful", "OK");
         }
       },
       error: function (error) {
@@ -98,7 +98,10 @@ function activeSelectedCategories(promotionId) {
       },
     });
   } else {
-    alert("Please select at least one category to activate.");
+    showNotification(
+      "Please select at least one category to activate.",
+      "Error"
+    );
   }
 }
 
@@ -133,7 +136,7 @@ function fetchCategoriesByPromotion(promotionId) {
           categoryTableBody.append(row);
         });
       } else if (response.status === "NOT_FOUND") {
-        alert("No categories found for this promotion.");
+        showNotification("No categories found for this promotion.", "Error");
       } else {
         $("#notiBlankCategory").text("No categories found for this promotion.");
       }
@@ -166,7 +169,7 @@ function removePromotionFromSelectedCategories(promotionId) {
       success: function (response) {
         if (response.status === "OK") {
           fetchCategoriesByPromotion(promotionId);
-          alert("Remove successful");
+          showNotification("Remove successful.", "OK");
         }
       },
       error: function (error) {
@@ -174,7 +177,7 @@ function removePromotionFromSelectedCategories(promotionId) {
       },
     });
   } else {
-    alert("Please select at least one category to delete.");
+    showNotification("Please select at least one category to delete.", "error");
   }
 }
 
@@ -238,6 +241,7 @@ function applyPromotionToSelectedCategories(promotionId) {
       }),
       success: function (response) {
         fetchCategoriesByPromotion(promotionId);
+        showNotification(response.desc, "OK");
         $("#add-categories-modal").addClass("hidden");
       },
       error: function (error) {
@@ -245,7 +249,7 @@ function applyPromotionToSelectedCategories(promotionId) {
       },
     });
   } else {
-    alert("Please select at least one category to add.");
+    showNotification("Please select at least one category to add.", "error");
   }
 }
 

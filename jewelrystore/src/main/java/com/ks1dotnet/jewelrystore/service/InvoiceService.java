@@ -456,7 +456,7 @@ public class InvoiceService implements IInvoiceService {
                                 String barcode = entry.getKey();
                                 int quantity = Integer.parseInt(entry.getValue());
                                 double price = barcodePriceMap.get(barcode);
-                                System.out.println("quanttiy: " + quantity);
+
                                 Product product = iProductRepository.findByBarCode(barcode);
                                 if (product == null) {
                                         throw new ApplicationException(
@@ -466,8 +466,6 @@ public class InvoiceService implements IInvoiceService {
 
                                 Inventory inventory = product.getInventory();
                                 inventory.setQuantity(inventory.getQuantity() + quantity);
-                                System.out.println(
-                                                "quanttiy: " + inventory.getQuantity() + quantity);
 
                                 inventory.setTotal_import(inventory.getTotal_import() + quantity);
                                 iInventoryRepository.save(inventory);

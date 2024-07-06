@@ -1,31 +1,8 @@
-<!-- HTML cho thông báo -->
+<!-- HTML cho thông báo
 <div
-  id="notification"
-  class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative hidden z-50"
-  role="alert"
->
-  <div class="flex items-center space-x-2">
-    <strong class="font-bold">Thông báo:</strong>
-    <span id="notification-message" class="block sm:inline"></span>
-  </div>
-
-  <button
-    type="button"
-    class="absolute top-0 bottom-0 right-0 px-4 py-3"
-    onclick="this.parentElement.style.display = 'none';"
-  >
-    <svg
-      class="fill-current h-6 w-6 text-green-500"
-      role="button"
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 20 20"
-    >
-      <path
-        d="M14.348 5.652a1 1 0 011.415 0c.39.391.39 1.024 0 1.415L11.414 11l4.349 4.348a1 1 0 01-1.415 1.415L10 12.414l-4.348 4.349a1 1 0 01-1.415-1.415L8.586 11 4.236 6.652a1 1 0 011.415-1.415L10 9.586l4.348-4.349z"
-      />
-    </svg>
-  </button>
-</div>
+  id="notification-container"
+  class="fixed top-0 right-0 m-4 space-y-2 z-50"
+></div> -->
 
 <header class="header w-full items-center bg-white py-2 px-6 hidden sm:flex">
   <div class="w-1/2">
@@ -50,7 +27,7 @@
   <div x-data="{ isOpen: false }" class="relative w-1/2 flex justify-end">
     <button
       @click="isOpen = !isOpen"
-      class="relative z-20 w-12 h-12 rounded-full overflow-hidden border-4 border-gray-400 hover:border-gray-300 focus:border-gray-300 focus:outline-none"
+      class="relative z-10 w-12 h-12 rounded-full overflow-hidden border-4 border-gray-400 hover:border-gray-300 focus:border-gray-300 focus:outline-none"
     >
       <img
         src="https://i1.sndcdn.com/artworks-TB5xPgIAwOZwLXJl-5fPYhg-t500x500.jpg
@@ -93,19 +70,43 @@
       }
     });
   });
-  function showNotification(desc, status) {
-    $("#notification-message").text(desc);
-    $("#notification")
-      .removeClass("bg-green-100 border-green-400 text-green-700")
-      .removeClass("bg-red-100 border-red-400 text-red-700");
 
-    if (status === "OK") {
-      $("#notification").addClass(
-        "bg-green-100 border-green-400 text-green-700"
-      );
-    } else {
-      $("#notification").addClass("bg-red-100 border-red-400 text-red-700");
-    }
-    $("#notification").show();
-  }
+  // function showNotification(desc, status) {
+  //   // Tạo một div mới cho thông báo
+  //   var notification = $("<div>", {
+  //     class:
+  //       "bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative z-50 w-auto",
+  //     role: "alert",
+  //   }).append(
+  //     $("<div>", {
+  //       class: "flex items-center space-x-2",
+  //     }).append(
+  //       $("<span>", {
+  //         class: "block sm:inline",
+  //         text: desc,
+  //       })
+  //     )
+  //   );
+
+  //   // Thay đổi lớp CSS dựa trên status
+  //   if (status === "OK") {
+  //     notification.addClass(
+  //       "bg-green-100 border-green-400 text-green-700 mx-10"
+  //     );
+  //   } else {
+  //     notification
+  //       .removeClass("bg-green-100 border-green-400 text-green-700 mx-10")
+  //       .addClass("bg-red-100 border-red-400 text-red-700 mx-10");
+  //   }
+
+  //   // Append thông báo mới vào container
+  //   $("#notification-container").append(notification);
+
+  //   // Tự động ẩn thông báo sau 3 giây
+  //   setTimeout(function () {
+  //     notification.fadeOut(400, function () {
+  //       $(this).remove();
+  //     });
+  //   }, 3000);
+  // }
 </script>

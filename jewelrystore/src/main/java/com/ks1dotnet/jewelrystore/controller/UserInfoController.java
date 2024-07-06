@@ -111,10 +111,16 @@ public class UserInfoController {
         return new ResponseEntity<>(responseData.getData(), responseData.getStatus());
     }
 
-    @GetMapping("/phonenumbercustomer")
+    @GetMapping("/phonenumberandmailcustomer")
     public ResponseEntity<?> getPhoneNumberCustomer(@RequestParam String phone) {
-        ResponseData responseData = iUserInfoService.findByPhoneNumber(phone);
-        return new ResponseEntity<>(responseData, responseData.getStatus());
+        if (phone.contains("@")) {
+            ResponseData responseData = iUserInfoService.findByEmail(phone);
+            return new ResponseEntity<>(responseData, responseData.getStatus());
+        } else {
+            ResponseData responseData = iUserInfoService.findByPhoneNumber(phone);
+            return new ResponseEntity<>(responseData, responseData.getStatus());
+        }
+
     }
 
 }
