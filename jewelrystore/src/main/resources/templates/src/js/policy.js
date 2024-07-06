@@ -52,6 +52,7 @@ function renderPromotions(page, policies) {
   promotionsToRender.forEach((data, index) => {
     let applicableButton = "";
     switch (data.promotionType) {
+      case "gemstone":
       case "category":
       case "material":
       case "customer":
@@ -231,6 +232,8 @@ function attachModalHandlers() {
             let name;
             if (promotionType.toLowerCase() === "customer") {
               name = item.customerTypeDTO.type;
+            } else if (promotionType.toLowerCase() === "gemstone") {
+              name = item.gemStoneTypeDTO.name;
             } else {
               name = item[`${promotionType.toLowerCase()}DTO`].name;
             }
@@ -243,11 +246,13 @@ function attachModalHandlers() {
           });
           $("#detail-modal_CategoryApply").removeClass("hidden");
         } else {
-          alert("Failed to fetch applied data");
+          showNotification(response.desc, "Error");
         }
       },
-      error: function (xhr, status, error) {
-        alert("Error fetching applied data");
+      error: function (response) {
+        console.log(response.responseJSON.desc);
+        // Hiển thị thông báo lỗi nếu yêu cầu AJAX gặp lỗi
+        showNotification(response.responseJSON.desc, "error");
       },
     });
   });
