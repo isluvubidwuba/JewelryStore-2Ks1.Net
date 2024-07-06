@@ -166,7 +166,6 @@ function viewEmployee(id) {
 
         $("#viewEmployeeImage").attr("src", imageUrl);
         $("#viewEmployeeId").val(employee.id);
-        $("#viewPinCode").val(employee.pinCode);
         $("#viewFirstName").val(employee.firstName);
         $("#viewLastName").val(employee.lastName);
         $("#viewPhoneNumber").val(employee.phoneNumber);

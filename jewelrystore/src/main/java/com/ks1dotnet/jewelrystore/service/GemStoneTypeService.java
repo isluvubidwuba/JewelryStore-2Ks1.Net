@@ -12,9 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.ks1dotnet.jewelrystore.dto.GemStoneTypeDTO;
 import com.ks1dotnet.jewelrystore.entity.GemStoneType;
-import com.ks1dotnet.jewelrystore.exception.BadRequestException;
-import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
-import com.ks1dotnet.jewelrystore.exception.RunTimeExceptionV1;
+import com.ks1dotnet.jewelrystore.exception.ApplicationException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IGemStoneTypeRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IGemStoneTypeService;
@@ -28,17 +26,17 @@ public class GemStoneTypeService implements IGemStoneTypeService {
     public ResponseData Page(int page, int size) {
         try {
             Page<GemStoneType> p = iGemStoneTypeRepository.findAll(PageRequest.of(page, size));
-            return new ResponseData(HttpStatus.OK, "Find all products successfully", convertToDtoPage(p));
+            return new ResponseData(HttpStatus.OK, "Find all products successfully",
+                    convertToDtoPage(p));
 
-        } catch (RuntimeException e) {
-            throw new RunTimeExceptionV1("Find all product error", e.getMessage());
+        } catch (Exception e) {
+            throw new ApplicationException("Error at page GemStoneTypeService: " + e.getMessage(),
+                    "Find all product error");
         }
     }
 
     private Page<GemStoneTypeDTO> convertToDtoPage(Page<GemStoneType> productPage) {
-        List<GemStoneTypeDTO> dtoList = productPage.getContent()
-                .stream()
-                .map(GemStoneType::getDTO)
+        List<GemStoneTypeDTO> dtoList = productPage.getContent().stream().map(GemStoneType::getDTO)
                 .collect(Collectors.toList());
 
         return new PageImpl<>(dtoList, productPage.getPageable(), productPage.getTotalElements());
@@ -47,7 +45,8 @@ public class GemStoneTypeService implements IGemStoneTypeService {
     @Override
     public ResponseData findById(Integer id) {
         GemStoneType gsc = iGemStoneTypeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Gem stone type not found with id" + id));
+                .orElseThrow(() -> new ApplicationException("Gem stone type not found with id" + id,
+                        HttpStatus.NOT_FOUND));
         return new ResponseData(HttpStatus.OK, "Find gem stone type successfully", gsc.getDTO());
     }
 
@@ -55,11 +54,19 @@ public class GemStoneTypeService implements IGemStoneTypeService {
     public ResponseData insert(GemStoneTypeDTO t) {
         try {
             if (t.getId() != 0 && iGemStoneTypeRepository.existsById(t.getId()))
-                throw new BadRequestException("Can not create gem stone type that already exsist failed!");
+                throw new ApplicationException(
+                        "Can not create gem stone type that already exsist failed!",
+                        HttpStatus.BAD_REQUEST);
             iGemStoneTypeRepository.save(new GemStoneType(t));
             return new ResponseData(HttpStatus.CREATED, "Create gem stone type successfully", t);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at findById GemStoneTypeService: " + e.getMessage(), e.getErrorString(),
+                    e.getStatus());
         } catch (Exception e) {
-            throw new BadRequestException("Create gem stone type failed");
+            throw new ApplicationException(
+                    "Error at findById GemStoneTypeService: " + e.getMessage(),
+                    "Create gem stone type failed");
         }
     }
 
@@ -67,11 +74,17 @@ public class GemStoneTypeService implements IGemStoneTypeService {
     public ResponseData update(GemStoneTypeDTO t) {
         try {
             if (t.getId() == 0 && !iGemStoneTypeRepository.existsById(t.getId()))
-                throw new BadRequestException("Can not update gem stone type that not exsist failed!");
+                throw new ApplicationException(
+                        "Can not update gem stone type that not exsist failed!",
+                        HttpStatus.BAD_REQUEST);
             iGemStoneTypeRepository.save(new GemStoneType(t));
             return new ResponseData(HttpStatus.OK, "Update gem stone type successfully", t);
+        } catch (ApplicationException e) {
+            throw new ApplicationException("Error at update GemStoneTypeService: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            throw new BadRequestException("Update gem stone type failed");
+            throw new ApplicationException("Error at update GemStoneTypeService: " + e.getMessage(),
+                    "Update gem stone type failed");
         }
     }
 
@@ -79,8 +92,7 @@ public class GemStoneTypeService implements IGemStoneTypeService {
     public ResponseData existsById(Integer id) {
         boolean exists = iGemStoneTypeRepository.existsById(id);
         return new ResponseData(exists ? HttpStatus.OK : HttpStatus.NOT_FOUND,
-                exists ? "Gem stone type exists!" : "Gem stone type not found!",
-                exists);
+                exists ? "Gem stone type exists!" : "Gem stone type not found!", exists);
     }
 
 }

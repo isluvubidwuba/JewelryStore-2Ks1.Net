@@ -19,8 +19,7 @@ public interface IEmployeeService {
         public ResponseData getHomePageEmployee(int page);
 
         public ResponseData insertEmployee(MultipartFile file, String firstName, String lastName,
-                        String pinCode, String phoneNumber, String email, String address,
-                        int roleId, boolean status);
+                        String phoneNumber, String email, String address, int roleId);
 
         public ResponseData updateEmployee(MultipartFile file, String id, String firstName,
                         String lastName, int roleId, String pinCode, boolean status,
@@ -35,4 +34,6 @@ public interface IEmployeeService {
         public ResponseData deleteEmployee(String id);
 
         public ResponseData validateOtp(String otp, String idEmployee);
+
+        public ResponseData myProfile();
 }

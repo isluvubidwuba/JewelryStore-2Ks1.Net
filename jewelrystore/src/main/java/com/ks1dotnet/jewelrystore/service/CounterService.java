@@ -6,15 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
 import com.ks1dotnet.jewelrystore.dto.CounterDTO;
 import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 import com.ks1dotnet.jewelrystore.entity.Counter;
 import com.ks1dotnet.jewelrystore.entity.Product;
+import com.ks1dotnet.jewelrystore.exception.ApplicationException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.ICounterRepository;
 import com.ks1dotnet.jewelrystore.repository.IProductRepository;
@@ -44,8 +43,8 @@ public class CounterService implements ICounterSerivce {
 
     @Override
     public ResponseData addProductsToCounter(int counterId, List<ProductDTO> products) {
-        Counter counter = iCounterRepository.findById(counterId)
-                .orElseThrow(() -> new IllegalArgumentException("Counter not found"));
+        Counter counter = iCounterRepository.findById(counterId).orElseThrow(
+                () -> new ApplicationException("Counter not found!", HttpStatus.NOT_FOUND));
 
         List<Product> productList = new ArrayList<>();
         for (ProductDTO dto : products) {
@@ -62,9 +61,8 @@ public class CounterService implements ICounterSerivce {
         // Lấy tất cả sản phẩm thuộc counter này
         List<Product> allProductsInCounter = iProductRepository.findByCounterId(counterId);
 
-        List<ProductDTO> updatedProductDTOs = allProductsInCounter.stream()
-                .map(Product::getDTO)
-                .collect(Collectors.toList());
+        List<ProductDTO> updatedProductDTOs =
+                allProductsInCounter.stream().map(Product::getDTO).collect(Collectors.toList());
 
         ResponseData responseData = new ResponseData();
         responseData.setData(updatedProductDTOs);
@@ -90,7 +88,9 @@ public class CounterService implements ICounterSerivce {
         }
 
         response.put("products", productDTOList);
-        response.put("totalPages", (products.size() + pageSize - 1) / pageSize); // manually calculate total pages
+        response.put("totalPages", (products.size() + pageSize - 1) / pageSize); // manually
+                                                                                 // calculate total
+                                                                                 // pages
         response.put("currentPage", page);
         return response;
     }
@@ -99,7 +99,8 @@ public class CounterService implements ICounterSerivce {
     @Override
     public ResponseData getAllProductsInCounterOne() {
         List<Product> products = iProductRepository.findByCounterId(1);
-        List<ProductDTO> productDTOs = products.stream().map(Product::getDTO).collect(Collectors.toList());
+        List<ProductDTO> productDTOs =
+                products.stream().map(Product::getDTO).collect(Collectors.toList());
         ResponseData responseData = new ResponseData();
         responseData.setStatus(HttpStatus.OK);
         responseData.setData(productDTOs);
@@ -109,8 +110,8 @@ public class CounterService implements ICounterSerivce {
 
     @Override
     public ResponseData moveProductsToCounter(List<Integer> productIds, int newCounterId) {
-        Counter newCounter = iCounterRepository.findById(newCounterId)
-                .orElseThrow(() -> new IllegalArgumentException("Counter not found"));
+        Counter newCounter = iCounterRepository.findById(newCounterId).orElseThrow(
+                () -> new ApplicationException("Counter not found", HttpStatus.NOT_FOUND));
 
         List<Product> updatedProducts = new ArrayList<>();
         for (Integer productId : productIds) {
@@ -120,7 +121,8 @@ public class CounterService implements ICounterSerivce {
                 product.setCounter(newCounter);
                 updatedProducts.add(product);
             } else {
-                throw new IllegalArgumentException("Product with id " + productId + " not found");
+                throw new ApplicationException("Product with id " + productId + " not found!",
+                        HttpStatus.NOT_FOUND);
             }
         }
 
@@ -160,7 +162,8 @@ public class CounterService implements ICounterSerivce {
     @Override
     public ResponseData getAllProducts() {
         List<Product> products = iProductRepository.findAll();
-        List<ProductDTO> productDTOs = products.stream().map(Product::getDTO).collect(Collectors.toList());
+        List<ProductDTO> productDTOs =
+                products.stream().map(Product::getDTO).collect(Collectors.toList());
 
         ResponseData responseData = new ResponseData();
         responseData.setData(productDTOs);
@@ -172,7 +175,8 @@ public class CounterService implements ICounterSerivce {
     @Override
     public ResponseData getAllCountersActive() {
         List<Counter> counters = iCounterRepository.findAllActiveCounters();
-        List<CounterDTO> counterDTOs = counters.stream().map(Counter::getDTO).collect(Collectors.toList());
+        List<CounterDTO> counterDTOs =
+                counters.stream().map(Counter::getDTO).collect(Collectors.toList());
 
         ResponseData responseData = new ResponseData();
         responseData.setData(counterDTOs);
@@ -193,7 +197,8 @@ public class CounterService implements ICounterSerivce {
             if (defaultCounterOptional.isPresent()) {
                 Counter defaultCounter = defaultCounterOptional.get();
                 for (Product product : products) {
-                    product.setCounter(defaultCounter); // Set counter to the default counter with id 1
+                    product.setCounter(defaultCounter); // Set counter to the default counter with
+                                                        // id 1
                 }
                 iProductRepository.saveAll(products);
 
@@ -217,7 +222,8 @@ public class CounterService implements ICounterSerivce {
     @Override
     public ResponseData getInactiveCounters() {
         List<Counter> counters = iCounterRepository.findByStatus(false);
-        List<CounterDTO> counterDTOs = counters.stream().map(Counter::getDTO).collect(Collectors.toList());
+        List<CounterDTO> counterDTOs =
+                counters.stream().map(Counter::getDTO).collect(Collectors.toList());
 
         ResponseData responseData = new ResponseData();
         responseData.setData(counterDTOs);

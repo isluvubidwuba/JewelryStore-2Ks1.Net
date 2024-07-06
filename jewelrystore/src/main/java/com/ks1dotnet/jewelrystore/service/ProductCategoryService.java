@@ -12,9 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.ks1dotnet.jewelrystore.dto.ProductCategoryDTO;
 import com.ks1dotnet.jewelrystore.entity.ProductCategory;
-import com.ks1dotnet.jewelrystore.exception.BadRequestException;
-import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
-import com.ks1dotnet.jewelrystore.exception.RunTimeExceptionV1;
+import com.ks1dotnet.jewelrystore.exception.ApplicationException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IProductCategoryRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IProductCategoryService;
@@ -27,27 +25,29 @@ public class ProductCategoryService implements IProductCategoryService {
     @Override
     public ResponseData Page(int page, int size) {
         try {
-            Page<ProductCategory> p = iProductCategoryRepository.findAll(PageRequest.of(page, size));
-            return new ResponseData(HttpStatus.OK, "Find all products category successfully", convertToDtoPage(p));
+            Page<ProductCategory> p =
+                    iProductCategoryRepository.findAll(PageRequest.of(page, size));
+            return new ResponseData(HttpStatus.OK, "Find all products category successfully",
+                    convertToDtoPage(p));
 
-        } catch (RuntimeException e) {
-            throw new RunTimeExceptionV1("Find all product error", e.getMessage());
+        } catch (Exception e) {
+            throw new ApplicationException("Error at Page ProductCategory: " + e.getMessage(),
+                    "Find all product error");
         }
     }
 
     private Page<ProductCategoryDTO> convertToDtoPage(Page<ProductCategory> productPage) {
-        List<ProductCategoryDTO> dtoList = productPage.getContent()
-                .stream()
-                .map(ProductCategory::getDTO)
-                .collect(Collectors.toList());
+        List<ProductCategoryDTO> dtoList = productPage.getContent().stream()
+                .map(ProductCategory::getDTO).collect(Collectors.toList());
 
         return new PageImpl<>(dtoList, productPage.getPageable(), productPage.getTotalElements());
     }
 
     @Override
     public ResponseData findById(Integer id) {
-        ProductCategory gsc = iProductCategoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Product category not found with id: " + id));
+        ProductCategory gsc = iProductCategoryRepository.findById(id).orElseThrow(
+                () -> new ApplicationException("Product category not found with id: " + id,
+                        HttpStatus.NOT_FOUND));
         return new ResponseData(HttpStatus.OK, "Find Product category successfully", gsc.getDTO());
     }
 
@@ -55,11 +55,19 @@ public class ProductCategoryService implements IProductCategoryService {
     public ResponseData insert(ProductCategoryDTO t) {
         try {
             if (t.getId() != 0 && iProductCategoryRepository.existsById(t.getId()))
-                throw new BadRequestException("Can not create product category that already exsist failed!");
+                throw new ApplicationException(
+                        "Can not create product category that already exsist failed!",
+                        HttpStatus.BAD_REQUEST);
             iProductCategoryRepository.save(new ProductCategory(t));
             return new ResponseData(HttpStatus.CREATED, "Create product category successfully", t);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at insert ProductCategoryService: " + e.getMessage(), e.getErrorString(),
+                    e.getStatus());
         } catch (Exception e) {
-            throw new BadRequestException("Create product category failed");
+            throw new ApplicationException(
+                    "Error at insert ProductCategoryService: " + e.getMessage(),
+                    "Create product category failed");
         }
     }
 
@@ -67,11 +75,19 @@ public class ProductCategoryService implements IProductCategoryService {
     public ResponseData update(ProductCategoryDTO t) {
         try {
             if (t.getId() == 0 && !iProductCategoryRepository.existsById(t.getId()))
-                throw new BadRequestException("Can not update product category that not exsist failed!");
+                throw new ApplicationException(
+                        "Can not update product category that not exsist failed!",
+                        HttpStatus.BAD_REQUEST);
             iProductCategoryRepository.save(new ProductCategory(t));
             return new ResponseData(HttpStatus.OK, "Update product category successfully", t);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at update ProductCategoryService: " + e.getMessage(), e.getErrorString(),
+                    e.getStatus());
         } catch (Exception e) {
-            throw new BadRequestException("Update product category failed");
+            throw new ApplicationException(
+                    "Error at update ProductCategoryService: " + e.getMessage(),
+                    "Update product category failed");
         }
     }
 
@@ -79,8 +95,7 @@ public class ProductCategoryService implements IProductCategoryService {
     public ResponseData existsById(Integer id) {
         boolean exists = iProductCategoryRepository.existsById(id);
         return new ResponseData(exists ? HttpStatus.OK : HttpStatus.NOT_FOUND,
-                exists ? "Product category exists!" : "Product category not found!",
-                exists);
+                exists ? "Product category exists!" : "Product category not found!", exists);
     }
 
 }

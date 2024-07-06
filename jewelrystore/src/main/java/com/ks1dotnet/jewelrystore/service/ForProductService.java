@@ -16,8 +16,7 @@ import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 import com.ks1dotnet.jewelrystore.entity.ForProduct;
 import com.ks1dotnet.jewelrystore.entity.Product;
 import com.ks1dotnet.jewelrystore.entity.Promotion;
-import com.ks1dotnet.jewelrystore.exception.BadRequestException;
-import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
+import com.ks1dotnet.jewelrystore.exception.ApplicationException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IForProductRepository;
 import com.ks1dotnet.jewelrystore.repository.IProductRepository;
@@ -45,17 +44,20 @@ public class ForProductService implements IPromotionGenericService<Product> {
             List<Integer> productIds = applyPromotionDTO.getEntityIds();
 
             Promotion promotion = iPromotionRepository.findById(promotionId)
-                    .orElseThrow(() -> new BadRequestException("Not found"));
+                    .orElseThrow(() -> new ApplicationException("Not found", HttpStatus.NOT_FOUND));
             PromotionDTO promotionDTO = promotion.getDTO();
             if (promotionDTO == null) {
-                throw new ResourceNotFoundException("Promotion not found with id: " + promotionId);
+                throw new ApplicationException("Promotion not found with id: " + promotionId,
+                        HttpStatus.NOT_FOUND);
             } else if (!promotionDTO.getPromotionType().equals("product")) {
-                throw new BadRequestException("Not allowed to apply this promotion type");
+                throw new ApplicationException("Not allowed to apply this promotion type",
+                        HttpStatus.NOT_ACCEPTABLE);
             }
 
             List<Product> products = iProductRepository.findAllById(productIds);
             if (products.isEmpty()) {
-                throw new BadRequestException("No products found with the given ids");
+                throw new ApplicationException("No products found with the given ids",
+                        HttpStatus.NOT_FOUND);
             }
 
             List<ForProduct> forProductsToSave = new ArrayList<>();
@@ -80,14 +82,19 @@ public class ForProductService implements IPromotionGenericService<Product> {
             }
 
             iForProductRepository.saveAll(forProductsToSave);
-            List<ForProductDTO> forProductDTOs = forProductsToSave.stream()
-                    .map(ForProduct::getDTO)
-                    .collect(Collectors.toList());
+            List<ForProductDTO> forProductDTOs =
+                    forProductsToSave.stream().map(ForProduct::getDTO).collect(Collectors.toList());
 
             return new ResponseData(HttpStatus.OK, "Promotion applied to products successfully",
                     forProductDTOs);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at applyPromotion ForProductService: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            throw new BadRequestException("Failed to apply promotion to products", e.getMessage());
+            throw new ApplicationException(
+                    "Error at applyPromotion ForProductService: " + e.getMessage(),
+                    "Failed to apply promotion to products");
         }
     }
 
@@ -98,22 +105,32 @@ public class ForProductService implements IPromotionGenericService<Product> {
             List<Integer> productIds = applyPromotionDTO.getEntityIds();
 
             if (!iPromotionRepository.existsById(promotionId)) {
-                throw new ResourceNotFoundException("Promotion not found with id: " + promotionId);
+                throw new ApplicationException("Promotion not found with id: " + promotionId,
+                        HttpStatus.NOT_FOUND);
             }
 
-            List<ForProduct> forProducts = iForProductRepository
-                    .findByPromotionIdAndProductIds(promotionId, productIds);
+            List<ForProduct> forProducts =
+                    iForProductRepository.findByPromotionIdAndProductIds(promotionId, productIds);
 
             if (forProducts.isEmpty()) {
-                throw new BadRequestException("No products found with the given ids in the promotion");
+                throw new ApplicationException(
+                        "No products found with the given ids in the promotion",
+                        HttpStatus.NOT_FOUND);
             }
 
             forProducts.forEach(forProduct -> forProduct.setStatus(false));
             iForProductRepository.saveAll(forProducts);
 
-            return new ResponseData(HttpStatus.OK, "Promotion removed from products successfully", null);
+            return new ResponseData(HttpStatus.OK, "Promotion removed from products successfully",
+                    null);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at removePromotion ForProductService: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            throw new BadRequestException("Failed to remove promotion from products", e.getMessage());
+            throw new ApplicationException(
+                    "Error at removePromotion ForProductService: " + e.getMessage(),
+                    "Failed to remove promotion from products");
         }
     }
 
@@ -123,48 +140,60 @@ public class ForProductService implements IPromotionGenericService<Product> {
             List<ForProduct> forProducts = iForProductRepository
                     .findActiveProductPromotionsByProductIdAndInvoiceTypeId(entityId,
                             iPromotionRepository.findById(promotionId)
-                                    .orElseThrow(() -> new ResourceNotFoundException("Promotion not found"))
+                                    .orElseThrow(() -> new ApplicationException(
+                                            "Promotion not found", HttpStatus.NOT_FOUND))
                                     .getInvoiceType().getId());
 
             if (forProducts.isEmpty()) {
-                return new ResponseData(HttpStatus.OK, "Product is not in any other active promotions", null);
+                return new ResponseData(HttpStatus.OK,
+                        "Product is not in any other active promotions", null);
             }
 
-            List<PromotionDTO> otherPromotions = forProducts.stream()
-                    .filter(fg -> fg.getPromotion().getId() != promotionId)
-                    .map(fg -> fg.getPromotion().getDTO())
-                    .collect(Collectors.toList());
+            List<PromotionDTO> otherPromotions =
+                    forProducts.stream().filter(fg -> fg.getPromotion().getId() != promotionId)
+                            .map(fg -> fg.getPromotion().getDTO()).collect(Collectors.toList());
 
             if (otherPromotions.isEmpty()) {
-                return new ResponseData(HttpStatus.OK, "Product is not in any other active promotions", null);
+                return new ResponseData(HttpStatus.OK,
+                        "Product is not in any other active promotions", null);
             } else {
-                return new ResponseData(HttpStatus.CONFLICT, "Product is active in other promotions",
-                        otherPromotions);
+                return new ResponseData(HttpStatus.CONFLICT,
+                        "Product is active in other promotions", otherPromotions);
             }
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at checkInOtherActivePromotions ForProductService: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            throw new BadRequestException("Failed to check product in other active promotions",
-                    e.getMessage());
+            throw new ApplicationException(
+                    "Error at checkInOtherActivePromotions ForProductService: " + e.getMessage(),
+                    "Failed to check product in other active promotions");
         }
     }
 
     @Override
     public ResponseData getEntitiesNotInPromotion(int promotionId) {
         try {
-            List<Product> products = iForProductRepository
-                    .findProductsNotInPromotion(promotionId);
+            List<Product> products = iForProductRepository.findProductsNotInPromotion(promotionId);
             if (products == null || products.isEmpty()) {
-                throw new ResourceNotFoundException(
-                        "No products found not in the given promotion id: " + promotionId);
+                throw new ApplicationException(
+                        "No products found not in the given promotion id: " + promotionId,
+                        HttpStatus.NOT_FOUND);
             }
 
-            List<ProductDTO> productDTOs = products.stream()
-                    .map(Product::getDTO)
-                    .collect(Collectors.toList());
+            List<ProductDTO> productDTOs =
+                    products.stream().map(Product::getDTO).collect(Collectors.toList());
 
             return new ResponseData(HttpStatus.OK, "Products not in promotion found successfully",
                     productDTOs);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at getEntitiesNotInPromotion ForProductService: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            throw new BadRequestException("Failed to get products not in promotion", e.getMessage());
+            throw new ApplicationException(
+                    "Error at getEntitiesNotInPromotion ForProductService: " + e.getMessage(),
+                    "Failed to get products not in promotion");
         }
     }
 
@@ -173,19 +202,26 @@ public class ForProductService implements IPromotionGenericService<Product> {
         try {
             Promotion promotion = iPromotionRepository.findById(promotionId)
                     .orElseThrow(() -> new NotFoundException());
-            List<ForProduct> forProducts = iForProductRepository.findByPromotionId(promotion.getId());
+            List<ForProduct> forProducts =
+                    iForProductRepository.findByPromotionId(promotion.getId());
             if (forProducts == null || forProducts.isEmpty()) {
-                throw new ResourceNotFoundException(
-                        "No products found for the given promotion id: " + promotionId);
+                throw new ApplicationException(
+                        "No products found for the given promotion id: " + promotionId,
+                        HttpStatus.NOT_FOUND);
             }
 
-            List<ForProductDTO> forProductDTOs = forProducts.stream()
-                    .map(ForProduct::getDTO)
-                    .collect(Collectors.toList());
+            List<ForProductDTO> forProductDTOs =
+                    forProducts.stream().map(ForProduct::getDTO).collect(Collectors.toList());
 
             return new ResponseData(HttpStatus.OK, "Products found successfully", forProductDTOs);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at getEntitiesInPromotion ForProductService: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            throw new BadRequestException("Failed to get products by promotion id", e.getMessage());
+            throw new ApplicationException(
+                    "Error at getEntitiesInPromotion ForProductService: " + e.getMessage(),
+                    "Failed to get products by promotion id");
         }
     }
 }

@@ -15,9 +15,7 @@ import org.springframework.stereotype.Service;
 import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 import com.ks1dotnet.jewelrystore.entity.Inventory;
 import com.ks1dotnet.jewelrystore.entity.Product;
-import com.ks1dotnet.jewelrystore.exception.BadRequestException;
-import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
-import com.ks1dotnet.jewelrystore.exception.RunTimeExceptionV1;
+import com.ks1dotnet.jewelrystore.exception.ApplicationException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.ICounterRepository;
 import com.ks1dotnet.jewelrystore.repository.IInventoryRepository;
@@ -54,8 +52,9 @@ public class ProductService implements IProductService {
             return new ResponseData(HttpStatus.OK, "Find all products successfully",
                     convertToDtoPage(p));
 
-        } catch (RuntimeException e) {
-            throw new RunTimeExceptionV1("Find all product error", e.getMessage());
+        } catch (ApplicationException e) {
+            throw new ApplicationException("Find all product error: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         }
     }
 
@@ -71,8 +70,9 @@ public class ProductService implements IProductService {
 
     @Override
     public ResponseData findById(Integer id) {
-        Product gsc = iProductRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("Product not found with id: " + id));
+        Product gsc = iProductRepository.findById(id)
+                .orElseThrow(() -> new ApplicationException("Product not found with id: " + id,
+                        HttpStatus.NOT_FOUND));
         return new ResponseData(HttpStatus.OK, "Find product successfully", gsc.getDTO());
     }
 
@@ -80,10 +80,12 @@ public class ProductService implements IProductService {
     public ResponseData update(ProductDTO t) {
         try {
             if (t == null)
-                throw new BadRequestException(
-                        ": Can not update product that because the object are null");
+                throw new ApplicationException(
+                        "Can not update product that because the object are null",
+                        HttpStatus.FORBIDDEN);
             if (t.getId() == 0 || !iProductRepository.existsById(t.getId()))
-                throw new BadRequestException(": Can not update product that not exsist failed!");
+                throw new ApplicationException("Can not update product that not exsist failed!",
+                        HttpStatus.FORBIDDEN);
 
             ProductDTO product = iProductRepository.findById(t.getId()).get().getDTO();
             if (t.getName() != null && !t.getName().isEmpty())
@@ -107,8 +109,9 @@ public class ProductService implements IProductService {
             product = iProductRepository.save(new Product(product)).getDTO();
             product.setImgPath(url.trim() + filePath.trim() + product.getImgPath());
             return new ResponseData(HttpStatus.OK, "Update product successfully", product);
-        } catch (Exception e) {
-            throw new BadRequestException("Update product failed", e.getMessage());
+        } catch (ApplicationException e) {
+            throw new ApplicationException("Failed to update products: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         }
     }
 
@@ -116,20 +119,22 @@ public class ProductService implements IProductService {
     public ResponseData updateStatus(int id, int status) {
         try {
             if (id == 0 || !iProductRepository.existsById(id))
-                throw new BadRequestException(": Can not update product that not exsist failed!");
+                throw new ApplicationException("Can not update product that not exsist failed!",
+                        HttpStatus.FORBIDDEN);
             Product product = iProductRepository.findById(id).get();
             product.setStatus(status == 1);
             return new ResponseData(HttpStatus.OK, "Update product successfully",
                     iProductRepository.save(product).getDTO());
-        } catch (Exception e) {
-            throw new BadRequestException("Update product failed", e.getMessage());
+        } catch (ApplicationException e) {
+            throw new ApplicationException("Failed to update status products: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         }
     };
 
     @Override
     public ResponseData updateStatus(Map<Integer, Integer> list) {
         if (list == null || list.isEmpty()) {
-            throw new BadRequestException("Cannot update products because the input map is empty");
+            throw new ApplicationException("Cannot update products because the input map is empty");
         }
 
         try {
@@ -138,7 +143,7 @@ public class ProductService implements IProductService {
                 Integer statusValue = entry.getValue();
 
                 Product product = iProductRepository.findById(productId)
-                        .orElseThrow(() -> new BadRequestException(
+                        .orElseThrow(() -> new ApplicationException(
                                 "Product with ID " + productId + " does not exist"));
                 product.setStatus(statusValue == 1);
                 return product;
@@ -146,13 +151,14 @@ public class ProductService implements IProductService {
 
             iProductRepository.saveAll(productsToUpdate);
 
-            List<ProductDTO> updatedProductDTOs = productsToUpdate.stream().map(Product::getDTO)
-                    .collect(Collectors.toList());
+            List<ProductDTO> updatedProductDTOs =
+                    productsToUpdate.stream().map(Product::getDTO).collect(Collectors.toList());
 
             return new ResponseData(HttpStatus.OK, "All products updated successfully!",
                     updatedProductDTOs);
-        } catch (Exception e) {
-            throw new BadRequestException("Failed to update all products", e.getMessage());
+        } catch (ApplicationException e) {
+            throw new ApplicationException("Failed to update all products: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         }
     }
 
@@ -168,32 +174,39 @@ public class ProductService implements IProductService {
     public ResponseData insert(ProductDTO t) {
         try {
             if (t == null)
-                throw new BadRequestException(
-                        ": Can not create product that because the object are null");
+                throw new ApplicationException(
+                        "Can not create product that because the object are null",
+                        HttpStatus.FORBIDDEN);
             if (t.getId() != 0 && iProductRepository.existsById(t.getId()))
-                throw new BadRequestException(
-                        ": Can not create product that already exsist failed!");
+                throw new ApplicationException("Can not create product that already exsist failed!",
+                        HttpStatus.FORBIDDEN);
             if (t.getName() == null)
-                throw new BadRequestException(": Can not create product that don't have name!");
+                throw new ApplicationException(": Can not create product that don't have name!",
+                        HttpStatus.FORBIDDEN);
             if (t.getFee() == 0)
-                throw new BadRequestException(": Can not create product that don't fee!");
+                throw new ApplicationException(": Can not create product that don't fee!",
+                        HttpStatus.FORBIDDEN);
             if (t.getWeight() == 0)
-                throw new BadRequestException(": Can not create product that don't weight!");
+                throw new ApplicationException(": Can not create product that don't weight!",
+                        HttpStatus.FORBIDDEN);
             if (t.getMaterialDTO() == null)
-                throw new BadRequestException(": Can not create product that don't material!");
+                throw new ApplicationException(": Can not create product that don't material!",
+                        HttpStatus.FORBIDDEN);
             if (t.getProductCategoryDTO() == null
                     || !iProductCategoryRepository.existsById(t.getProductCategoryDTO().getId()))
-                throw new BadRequestException(": Can not create product that don't category!");
+                throw new ApplicationException(": Can not create product that don't category!",
+                        HttpStatus.FORBIDDEN);
             if (t.getImgPath() == null || t.getImgPath().isEmpty())
                 t.setImgPath("none");
             t.setMaterialDTO(
                     iMaterialRepository.findById(t.getMaterialDTO().getId()).get().getDTO());
             t.setProductCategoryDTO(iProductCategoryRepository
                     .findById(t.getProductCategoryDTO().getId()).get().getDTO());
-            t.setCounterDTO(iCounterRepository.findById(1)
-                    .orElseThrow(
-                            () -> new ResourceNotFoundException("Counter not found with id: " + 1))
-                    .getDTO());
+            t.setCounterDTO(
+                    iCounterRepository.findById(1)
+                            .orElseThrow(() -> new ApplicationException(
+                                    "Counter not found with id: " + 1, HttpStatus.FORBIDDEN))
+                            .getDTO());
             String productCode = generateProductCode();
             String barcode = generateBarcode(productCode);
 
@@ -210,8 +223,9 @@ public class ProductService implements IProductService {
 
             return new ResponseData(HttpStatus.CREATED, "Create product successfully",
                     savedProduct.getDTO());
-        } catch (Exception e) {
-            throw new BadRequestException("Create product failed", e.getMessage());
+        } catch (ApplicationException e) {
+            throw new ApplicationException("Create product failed: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         }
     }
 
@@ -272,8 +286,9 @@ public class ProductService implements IProductService {
 
             return new ResponseData(HttpStatus.OK, "Found Product successfully",
                     convertToDtoPage(listDTO));
-        } catch (Exception e) {
-            throw new RunTimeExceptionV1("Failed search product", e.getMessage());
+        } catch (ApplicationException e) {
+            throw new ApplicationException("Failed search product: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         }
     }
 

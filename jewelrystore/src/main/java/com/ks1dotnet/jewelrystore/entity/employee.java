@@ -19,13 +19,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 @Entity
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
@@ -68,9 +66,6 @@ public class Employee {
     @Column(name = "otp_generated_time")
     private LocalDateTime otpGenerDateTime;
 
-    @Column(name = "token")
-    private String token;
-
     @ManyToOne
     @JoinColumn(name = "id_role")
     private Role role;
@@ -81,9 +76,22 @@ public class Employee {
     @OneToMany(mappedBy = "employee")
     Set<Invoice> listOrderInvoice;
 
+    public Employee() {
+        this.id = "";
+        this.firstName = "";
+        this.lastName = "";
+        this.pinCode = "";
+        this.status = false;
+        this.phoneNumber = "";
+        this.email = "";
+        this.address = "";
+        this.role = new Role();
+        this.image = "";
+    }
+
     public EmployeeDTO getDTO() {
-        return new EmployeeDTO(id, firstName, lastName, pinCode, status, phoneNumber, email,
-                address, role.getDTO(), image, 0);
+        return new EmployeeDTO(id, firstName, lastName, "", status, phoneNumber, email, address,
+                role.getDTO(), image, 0);
     }
 
     public Employee(EmployeeDTO e) {

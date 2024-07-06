@@ -5,9 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
-
+import com.ks1dotnet.jewelrystore.Enum.EntityType;
 import com.ks1dotnet.jewelrystore.dto.ApplyPromotionDTO;
-import com.ks1dotnet.jewelrystore.dto.Enum.EntityType;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IGenericPromotionService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionGenericService;
@@ -36,7 +35,8 @@ public class GenericPromotionService implements IGenericPromotionService {
         } else if (service instanceof ForMaterialService) { // Thêm dòng này cho ForMaterialService
             return EntityType.MATERIAL;
         } else {
-            throw new IllegalArgumentException("Unknown service type: " + service.getClass().getName());
+            throw new IllegalArgumentException(
+                    "Unknown service type: " + service.getClass().getName());
         }
     }
 
@@ -55,7 +55,8 @@ public class GenericPromotionService implements IGenericPromotionService {
     }
 
     @Override
-    public ResponseData checkEntityInOtherPromotions(EntityType entityType, int entityId, int promotionId) {
+    public ResponseData checkEntityInOtherPromotions(EntityType entityType, int entityId,
+            int promotionId) {
         IPromotionGenericService<?> service = promotionServices.get(entityType);
         return service.checkInOtherActivePromotions(entityId, promotionId);
     }

@@ -5,6 +5,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -30,8 +31,8 @@ public class CustomSecurityFilter {
         @Bean
         public AuthenticationManager authenticationManager(HttpSecurity httpSecurity)
                         throws Exception {
-                AuthenticationManagerBuilder authenticationManagerBuilder = httpSecurity
-                                .getSharedObject(AuthenticationManagerBuilder.class);
+                AuthenticationManagerBuilder authenticationManagerBuilder =
+                                httpSecurity.getSharedObject(AuthenticationManagerBuilder.class);
                 authenticationManagerBuilder.userDetailsService(customUserDetailService)
                                 .passwordEncoder(passwordEncoder());
 
@@ -48,10 +49,14 @@ public class CustomSecurityFilter {
                                                                 "/payment/**", "/mail/sendOtp/**",
                                                                 "employee/validateOtp",
                                                                 "employee/changePass",
-                                                                "/product/**", "/material/**")
-                                                .permitAll().requestMatchers("/promotion/files/**", "/promotion/valid")
+                                                                "employee/myProfile", "/product/**",
+                                                                "/material/**")
                                                 .permitAll()
-                                                .requestMatchers("/promotion/viewPolicyByInvoiceType/**",
+                                                .requestMatchers("/promotion/files/**",
+                                                                "/promotion/valid")
+                                                .permitAll()
+                                                .requestMatchers(
+                                                                "/promotion/viewPolicyByInvoiceType/**",
                                                                 "/promotion/by-user",
                                                                 "/voucher/list")
                                                 .hasAnyAuthority("ADMIN", "MANAGER", "STAFF")
@@ -75,7 +80,8 @@ public class CustomSecurityFilter {
                                                                 "/employee/upload/**",
                                                                 "/earnpoints/**", "/gemStone/**",
                                                                 "/employee/listemployee/**",
-                                                                "/employee/update", "/employee/update2")
+                                                                "/employee/update",
+                                                                "/employee/update2")
                                                 .permitAll()
                                                 // Employee
                                                 .requestMatchers("/employee/listpage",
@@ -113,8 +119,10 @@ public class CustomSecurityFilter {
                                                 .requestMatchers("/userinfo/listcustomer",
                                                                 "/userinfo/listpage",
                                                                 "/userinfo/findcustomer/{id}",
-                                                                "/userinfo/searchcustomer", "userinfo/upload",
-                                                                "userinfo/uploadget", "/customertype/findall",
+                                                                "/userinfo/searchcustomer",
+                                                                "userinfo/upload",
+                                                                "userinfo/uploadget",
+                                                                "/customertype/findall",
                                                                 "/userinfo/listsupplier",
                                                                 "/userinfo/searchsupplier",
                                                                 "/userinfo/getcustomer/{id}",
@@ -126,7 +134,8 @@ public class CustomSecurityFilter {
                                                                 "/userinfo/insert")
                                                 .hasAnyAuthority("STAFF", "MANAGER", "ADMIN")
 
-                                                .requestMatchers("/userinfo/**", "/role/insert", "/customertype/**")
+                                                .requestMatchers("/userinfo/**", "/role/insert",
+                                                                "/customertype/**")
                                                 .hasAuthority("ADMIN")
 
                                                 .anyRequest().authenticated())

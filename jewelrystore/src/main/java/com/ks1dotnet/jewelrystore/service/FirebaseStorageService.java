@@ -13,8 +13,7 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Bucket;
 import com.google.firebase.cloud.StorageClient;
-import com.ks1dotnet.jewelrystore.exception.BadRequestException;
-import com.ks1dotnet.jewelrystore.exception.RunTimeExceptionV1;
+import com.ks1dotnet.jewelrystore.exception.ApplicationException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 
 @Service
@@ -27,7 +26,8 @@ public class FirebaseStorageService {
 
     public ResponseData uploadImage(MultipartFile file, String folder) {
         if (file.getSize() <= 0)
-            throw new BadRequestException("Upload image failed because image not found");
+            throw new ApplicationException("Upload image failed because image not found!",
+                    HttpStatus.BAD_REQUEST);
         try {
             LocalDate myLocalDate = LocalDate.now();
             String fileName = UUID.randomUUID().toString() + "_" + myLocalDate.toString();
@@ -38,8 +38,15 @@ public class FirebaseStorageService {
             bucket.create(blobInfo.getName(), file.getBytes(), file.getContentType());
 
             return new ResponseData(HttpStatus.OK, "Upload image succesfully", fileName);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at uploadImage firabaseStorageService: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
+
         } catch (Exception e) {
-            throw new RunTimeExceptionV1("Upload imgae fail ", e.getMessage());
+            throw new ApplicationException(
+                    "Error at uploadImage firabaseStorageService: " + e.getMessage(),
+                    "Error upload image!");
         }
     }
 
@@ -48,12 +55,20 @@ public class FirebaseStorageService {
             Bucket bucket = StorageClient.getInstance().bucket();
             Blob blob = bucket.get(folder + fileName);
             if (blob == null) {
-                throw new RunTimeExceptionV1("File not found: " + fileName);
+                throw new ApplicationException("File not found: " + fileName, HttpStatus.NOT_FOUND);
             }
             boolean a = blob.delete();
-            return new ResponseData(HttpStatus.OK, a ? "Delete image succesfully" : "Delete image failed", a);
+            return new ResponseData(HttpStatus.OK,
+                    a ? "Delete image succesfully" : "Delete image failed", a);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at deleteImage firabaseStorageService: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
+
         } catch (Exception e) {
-            throw new RunTimeExceptionV1("Delete imgae fail ", e.getMessage());
+            throw new ApplicationException(
+                    "Error at deleteImage firabaseStorageService: " + e.getMessage(),
+                    "Delete image failed!!");
         }
     }
 
@@ -68,10 +83,18 @@ public class FirebaseStorageService {
                 System.out.println("File URL: " + fileUrl);
                 return fileUrl;
             } else {
-                throw new RunTimeExceptionV1("File not found: " + fullPath);
+                throw new ApplicationException("File not found: " + fullPath, HttpStatus.NOT_FOUND);
             }
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at getFileUrl firabaseStorageService: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
+
+
         } catch (Exception e) {
-            throw new RunTimeExceptionV1("Error getting file URL", e.getMessage());
+            throw new ApplicationException(
+                    "Error at getFileUrl firabaseStorageService: " + e.getMessage(),
+                    "Get Url failed!!");
         }
     }
 }

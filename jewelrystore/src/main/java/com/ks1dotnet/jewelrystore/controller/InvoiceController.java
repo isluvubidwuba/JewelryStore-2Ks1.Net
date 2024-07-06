@@ -26,7 +26,7 @@ import com.ks1dotnet.jewelrystore.dto.InvoiceDetailDTO;
 import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 import com.ks1dotnet.jewelrystore.dto.RevenueDTO;
 import com.ks1dotnet.jewelrystore.entity.Invoice;
-import com.ks1dotnet.jewelrystore.exception.BadRequestException;
+import com.ks1dotnet.jewelrystore.exception.ApplicationException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.payload.request.ImportInvoiceRequestWrapper;
 import com.ks1dotnet.jewelrystore.payload.request.InvoiceDetailRequest;
@@ -49,15 +49,17 @@ public class InvoiceController {
             InvoiceDetailDTO invoiceDetailDTO = invoiceService.createInvoiceDetail(
                     request.getBarcode(), request.getInvoiceTypeId(), request.getQuantity());
 
-            ResponseData responseData = new ResponseData(HttpStatus.OK, "Invoice created successfully",
-                    invoiceDetailDTO);
+            ResponseData responseData = new ResponseData(HttpStatus.OK,
+                    "Invoice created successfully", invoiceDetailDTO);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
-        } catch (BadRequestException e) {
-            ResponseData responseData = new ResponseData(HttpStatus.BAD_REQUEST, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at createInvoice InvoiceController: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            ResponseData responseData = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ApplicationException(
+                    "Error at createInvoice InvoiceController: " + e.getMessage(),
+                    "Something wrong while create invoice detail!");
         }
     }
 
@@ -70,18 +72,20 @@ public class InvoiceController {
             }
 
             int isSuccessCreateInvoice = invoiceService.createInvoiceFromDetails(barcodeQuantity,
-                    request.getInvoiceTypeId(),
-                    request.getUserId(), request.getEmployeeId(), request.getPayment(), request.getNote());
+                    request.getInvoiceTypeId(), request.getUserId(), request.getEmployeeId(),
+                    request.getPayment(), request.getNote());
 
-            ResponseData responseData = new ResponseData(HttpStatus.OK, "Invoice created successfully",
-                    isSuccessCreateInvoice);
+            ResponseData responseData = new ResponseData(HttpStatus.OK,
+                    "Invoice created successfully", isSuccessCreateInvoice);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
-        } catch (BadRequestException e) {
-            ResponseData responseData = new ResponseData(HttpStatus.BAD_REQUEST, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at createInvoice InvoiceController: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            ResponseData responseData = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ApplicationException(
+                    "Error at createInvoice InvoiceController: " + e.getMessage(),
+                    "Something wrong while create invoice!");
         }
     }
 
@@ -89,24 +93,28 @@ public class InvoiceController {
     public ResponseEntity<ResponseData> createBuybackInvoice(@RequestBody InvoiceRequest request) {
         try {
             if (request.getInvoiceTypeId() != 3) {
-                throw new BadRequestException("Error invoice type!");
+                throw new ApplicationException("Error invoice type!", HttpStatus.BAD_REQUEST);
             }
             HashMap<Integer, Integer> barcodeQuantity = new HashMap<>();
             for (Map.Entry<String, String> entry : request.getBarcodeQuantityMap().entrySet()) {
-                barcodeQuantity.put(Integer.parseInt(entry.getKey()), Integer.parseInt(entry.getValue()));
+                barcodeQuantity.put(Integer.parseInt(entry.getKey()),
+                        Integer.parseInt(entry.getValue()));
             }
 
-            int invoiceId = invoiceService.createBuybackInvoice(barcodeQuantity, request.getInvoiceTypeId(),
-                    request.getUserId(), request.getEmployeeId(), request.getPayment(), request.getNote());
-            ResponseData responseData = new ResponseData(HttpStatus.OK, "Buyback invoice created successfully",
-                    invoiceId);
+            int invoiceId = invoiceService.createBuybackInvoice(barcodeQuantity,
+                    request.getInvoiceTypeId(), request.getUserId(), request.getEmployeeId(),
+                    request.getPayment(), request.getNote());
+            ResponseData responseData = new ResponseData(HttpStatus.OK,
+                    "Buyback invoice created successfully", invoiceId);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
-        } catch (BadRequestException e) {
-            ResponseData responseData = new ResponseData(HttpStatus.BAD_REQUEST, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at createBuybackInvoice InvoiceController: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            ResponseData responseData = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ApplicationException(
+                    "Error at createBuybackInvoice InvoiceController: " + e.getMessage(),
+                    "Something wrong while create buy back invoice!");
         }
     }
 
@@ -117,47 +125,57 @@ public class InvoiceController {
             InvoiceRequest request = importInvoiceRequestWrapper.getRequest();
             Map<String, Double> barcodePriceMap = importInvoiceRequestWrapper.getBarcodePriceMap();
             int invoiceId = invoiceService.createImportInvoice(request, barcodePriceMap);
-            ResponseData responseData = new ResponseData(HttpStatus.OK, "Import invoice created successfully",
-                    invoiceId);
+            ResponseData responseData = new ResponseData(HttpStatus.OK,
+                    "Import invoice created successfully", invoiceId);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
-        } catch (BadRequestException e) {
-            ResponseData responseData = new ResponseData(HttpStatus.BAD_REQUEST, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at createImportInvoice InvoiceController: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            ResponseData responseData = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ApplicationException(
+                    "Error at createImportInvoice InvoiceController: " + e.getMessage(),
+                    "Something wrong while create import invocie!");
         }
     }
 
     @PostMapping("/view-invoice")
     public ResponseEntity<ResponseData> viewInvoice(@RequestParam int invoice) {
         try {
-            Invoice Invoice = invoiceRepository.findById(invoice)
-                    .orElseThrow(() -> new BadRequestException("Not found invoice with id: " + invoice));
+            Invoice Invoice = invoiceRepository.findById(invoice).orElseThrow(
+                    () -> new ApplicationException("Not found invoice with id: " + invoice,
+                            HttpStatus.NOT_FOUND));
 
-            return new ResponseEntity<>(new ResponseData(HttpStatus.OK, "Get invoice successfull", Invoice.getDTO()),
+            return new ResponseEntity<>(
+                    new ResponseData(HttpStatus.OK, "Get invoice successfull", Invoice.getDTO()),
                     HttpStatus.OK);
-        } catch (BadRequestException e) {
-            ResponseData responseData = new ResponseData(HttpStatus.BAD_REQUEST, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at viewInvoice InvoiceController: " + e.getMessage(), e.getErrorString(),
+                    e.getStatus());
         } catch (Exception e) {
-            ResponseData responseData = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ApplicationException(
+                    "Error at viewInvoice InvoiceController: " + e.getMessage(),
+                    "Something wrong while view invoice!");
         }
     }
 
     @PostMapping("/cancel")
-    public ResponseEntity<ResponseData> cancelInvoice(@RequestParam int invoiceId, @RequestParam String note) {
+    public ResponseEntity<ResponseData> cancelInvoice(@RequestParam int invoiceId,
+            @RequestParam String note) {
         try {
             invoiceService.cancelInvoice(invoiceId, note);
-            ResponseData responseData = new ResponseData(HttpStatus.OK, "Invoice canceled successfully", null);
+            ResponseData responseData =
+                    new ResponseData(HttpStatus.OK, "Invoice canceled successfully", null);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
-        } catch (BadRequestException e) {
-            ResponseData responseData = new ResponseData(HttpStatus.BAD_REQUEST, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at cancelInvoice InvoiceController: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            ResponseData responseData = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ApplicationException(
+                    "Error at cancelInvoice InvoiceController: " + e.getMessage(),
+                    "Something wrong while cancel invocie!");
         }
     }
 
@@ -165,12 +183,17 @@ public class InvoiceController {
     public ResponseEntity<ResponseData> getAllInvoices() {
         try {
             List<InvoiceDTO> invoices = invoiceService.getAllInvoices();
-            ResponseData responseData = new ResponseData(HttpStatus.OK, "Retrieved all invoices successfully",
-                    invoices);
+            ResponseData responseData = new ResponseData(HttpStatus.OK,
+                    "Retrieved all invoices successfully", invoices);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at getAllInvoices InvoiceController: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            ResponseData responseData = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ApplicationException(
+                    "Error at getAllInvoices InvoiceController: " + e.getMessage(),
+                    "Something wrong while get all invoice!");
         }
     }
 
@@ -181,9 +204,14 @@ public class InvoiceController {
             ResponseData responseData = new ResponseData(HttpStatus.OK,
                     "Retrieved invoices by employee ID successfully", invoices);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at getInvoicesByEmployeeId InvoiceController: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            ResponseData responseData = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ApplicationException(
+                    "Error at getInvoicesByEmployeeId InvoiceController: " + e.getMessage(),
+                    "Something wrong while get invoice by employee id : " + employeeId);
         }
     }
 
@@ -193,12 +221,18 @@ public class InvoiceController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate) {
         try {
             List<InvoiceDTO> invoices = invoiceService.getInvoicesByDateRange(startDate, endDate);
-            ResponseData responseData = new ResponseData(HttpStatus.OK, "Retrieved invoices by date range successfully",
-                    invoices);
+            ResponseData responseData = new ResponseData(HttpStatus.OK,
+                    "Retrieved invoices by date range successfully", invoices);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at getInvoicesByDateRange InvoiceController: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            ResponseData responseData = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ApplicationException(
+                    "Error at getInvoicesByDateRange InvoiceController: " + e.getMessage(),
+                    "Something wrong while get invoice by date range from " + startDate + " to "
+                            + endDate + " !");
         }
     }
 
@@ -206,153 +240,204 @@ public class InvoiceController {
     public ResponseEntity<ResponseData> getInvoicesByUserId(@RequestParam int userId) {
         try {
             List<InvoiceDTO> invoices = invoiceService.getInvoicesByUserId(userId);
-            ResponseData responseData = new ResponseData(HttpStatus.OK, "Retrieved invoices by user ID successfully",
-                    invoices);
+            ResponseData responseData = new ResponseData(HttpStatus.OK,
+                    "Retrieved invoices by user ID successfully", invoices);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at getInvoicesByUserId InvoiceController: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            ResponseData responseData = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ApplicationException(
+                    "Error at getInvoicesByUserId InvoiceController: " + e.getMessage(),
+                    "Something wrong while get invocie by user id!");
         }
     }
 
     @GetMapping("/revenue/counter")
     public ResponseEntity<ResponseData> calculateRevenueByCounter(@RequestParam String period,
-            @RequestParam int year,
-            @RequestParam(required = false) Integer quarterOrMonth) {
+            @RequestParam int year, @RequestParam(required = false) Integer quarterOrMonth) {
         try {
-            List<RevenueDTO<CounterDTO>> revenueByCounter = invoiceService.calculateRevenueByCounter(period, year,
-                    quarterOrMonth);
-            ResponseData responseData = new ResponseData(HttpStatus.OK, "Retrieved revenue by counter successfully",
-                    revenueByCounter);
+            List<RevenueDTO<CounterDTO>> revenueByCounter =
+                    invoiceService.calculateRevenueByCounter(period, year, quarterOrMonth);
+            ResponseData responseData = new ResponseData(HttpStatus.OK,
+                    "Retrieved revenue by counter successfully", revenueByCounter);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
-        } catch (BadRequestException e) {
-            ResponseData responseData = new ResponseData(HttpStatus.BAD_REQUEST, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at calculateRevenueByCounter InvoiceController: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            ResponseData responseData = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ApplicationException(
+                    "Error at calculateRevenueByCounter InvoiceController: " + e.getMessage(),
+                    "Something wrong while calculate revenue by counter!");
         }
     }
 
     @GetMapping("/revenue/employee")
     public ResponseEntity<ResponseData> calculateRevenueByEmployee(@RequestParam String period,
-            @RequestParam int year,
-            @RequestParam(required = false) Integer month) {
+            @RequestParam int year, @RequestParam(required = false) Integer month) {
         try {
-            List<RevenueDTO<EmployeeDTO>> revenueByEmployee = invoiceService.calculateRevenueByEmployee(period, year,
-                    month);
-            ResponseData responseData = new ResponseData(HttpStatus.OK, "Retrieved revenue by employee successfully",
-                    revenueByEmployee);
+            List<RevenueDTO<EmployeeDTO>> revenueByEmployee =
+                    invoiceService.calculateRevenueByEmployee(period, year, month);
+            ResponseData responseData = new ResponseData(HttpStatus.OK,
+                    "Retrieved revenue by employee successfully", revenueByEmployee);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
-        } catch (BadRequestException e) {
-            ResponseData responseData = new ResponseData(HttpStatus.BAD_REQUEST, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at calculateRevenueByEmployee InvoiceController: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            ResponseData responseData = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ApplicationException(
+                    "Error at calculateRevenueByEmployee InvoiceController: " + e.getMessage(),
+                    "Something wrong calculate revenue by employee!");
         }
     }
 
     @GetMapping("/revenue/employeeId")
     public ResponseEntity<ResponseData> calculateRevenueByEmployeeID(@RequestParam String period,
-            @RequestParam int year,
-            @RequestParam(required = false) Integer month, @RequestParam String employeeId) {
+            @RequestParam int year, @RequestParam(required = false) Integer month,
+            @RequestParam String employeeId) {
         try {
-            EmployeeRevenueDTO revenueDTO = invoiceService.calculateRevenueByEmployeeID(period, year, month,
-                    employeeId);
-            ResponseData responseData = new ResponseData(HttpStatus.OK, "Retrieved revenue by employee successfully",
-                    revenueDTO);
+            EmployeeRevenueDTO revenueDTO =
+                    invoiceService.calculateRevenueByEmployeeID(period, year, month, employeeId);
+            ResponseData responseData = new ResponseData(HttpStatus.OK,
+                    "Retrieved revenue by employee successfully", revenueDTO);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
-        } catch (BadRequestException e) {
-            ResponseData responseData = new ResponseData(HttpStatus.BAD_REQUEST, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at calculateRevenueByEmployeeID InvoiceController: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            ResponseData responseData = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ApplicationException(
+                    "Error at calculateRevenueByEmployeeID InvoiceController: " + e.getMessage(),
+                    "Something wrong while calculate revenue by employee id!");
         }
     }
 
     @GetMapping
     public ResponseEntity<?> getInvoices(@RequestParam int page, @RequestParam int size) {
-        Page<InvoiceDTO> invoices = invoiceService.getInvoices(page, size);
-        ResponseData responseData = new ResponseData(HttpStatus.OK,
-                "Get invoice page: " + page + " Size: " + size + " successfully", invoices);
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
+
+        try {
+            Page<InvoiceDTO> invoices = invoiceService.getInvoices(page, size);
+            ResponseData responseData = new ResponseData(HttpStatus.OK,
+                    "Get invoice page: " + page + " Size: " + size + " successfully", invoices);
+            return new ResponseEntity<>(responseData, HttpStatus.OK);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at getInvoices InvoiceController: " + e.getMessage(), e.getErrorString(),
+                    e.getStatus());
+        } catch (Exception e) {
+            throw new ApplicationException(
+                    "Error at getInvoices InvoiceController: " + e.getMessage(),
+                    "Something wrong while get invoices!");
+        }
     }
 
     @GetMapping("/employee")
-    public ResponseEntity<?> getInvoicesByEmployeeId(@RequestParam String employeeId, @RequestParam int page,
-            @RequestParam int size) {
-        Page<InvoiceDTO> invoices = invoiceService.getInvoicesByEmployeeId(employeeId, page, size);
-        ResponseData responseData = new ResponseData(HttpStatus.OK,
-                "Get top invoices for employee ID: " + employeeId + " Page: " + page + " Size: " + size
-                        + " successfully",
-                invoices);
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
+    public ResponseEntity<?> getInvoicesByEmployeeId(@RequestParam String employeeId,
+            @RequestParam int page, @RequestParam int size) {
+
+        try {
+            Page<InvoiceDTO> invoices =
+                    invoiceService.getInvoicesByEmployeeId(employeeId, page, size);
+            ResponseData responseData =
+                    new ResponseData(
+                            HttpStatus.OK, "Get top invoices for employee ID: " + employeeId
+                                    + " Page: " + page + " Size: " + size + " successfully",
+                            invoices);
+            return new ResponseEntity<>(responseData, HttpStatus.OK);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at getInvoicesByEmployeeId InvoiceController: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
+        } catch (Exception e) {
+            throw new ApplicationException(
+                    "Error at getInvoicesByEmployeeId InvoiceController: " + e.getMessage(),
+                    "Something wrong get invoices by employee!");
+        }
     }
 
     @GetMapping("/employee2")
-    public ResponseEntity<?> getInvoicesByEmployeeId2(@RequestParam String employeeId, @RequestParam int page,
-            @RequestParam int size) {
-        Page<InvoiceDTO> invoices = invoiceService.getInvoicesByEmployeeId2(employeeId, page, size);
-        ResponseData responseData = new ResponseData(HttpStatus.OK,
-                "Get top invoices for employee ID: " + employeeId + " Page: " + page + " Size: " + size
-                        + " successfully",
-                invoices);
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
+    public ResponseEntity<?> getInvoicesByEmployeeId2(@RequestParam String employeeId,
+            @RequestParam int page, @RequestParam int size) {
+
+        try {
+            Page<InvoiceDTO> invoices =
+                    invoiceService.getInvoicesByEmployeeId2(employeeId, page, size);
+            ResponseData responseData =
+                    new ResponseData(
+                            HttpStatus.OK, "Get top invoices for employee ID: " + employeeId
+                                    + " Page: " + page + " Size: " + size + " successfully",
+                            invoices);
+            return new ResponseEntity<>(responseData, HttpStatus.OK);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at getInvoicesByEmployeeId2 InvoiceController: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
+        } catch (Exception e) {
+            throw new ApplicationException(
+                    "Error at getInvoicesByEmployeeId2 InvoiceController: " + e.getMessage(),
+                    "Something wrong get invoices by employee!");
+        }
     }
 
     @GetMapping("/revenue/top5employees")
     public ResponseEntity<ResponseData> getTop5EmployeesByRevenue(@RequestParam String period,
-            @RequestParam int year,
-            @RequestParam(required = false) Integer month) {
+            @RequestParam int year, @RequestParam(required = false) Integer month) {
         try {
-            List<RevenueDTO<EmployeeDTO>> top5Employees = invoiceService.getTop5EmployeesByRevenue(period, year, month);
+            List<RevenueDTO<EmployeeDTO>> top5Employees =
+                    invoiceService.getTop5EmployeesByRevenue(period, year, month);
             ResponseData responseData = new ResponseData(HttpStatus.OK,
                     "Retrieved top 5 employees by revenue successfully", top5Employees);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
-        } catch (BadRequestException e) {
-            ResponseData responseData = new ResponseData(HttpStatus.BAD_REQUEST, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at getTop5EmployeesByRevenue InvoiceController: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            ResponseData responseData = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ApplicationException(
+                    "Error at getTop5EmployeesByRevenue InvoiceController: " + e.getMessage(),
+                    "Something wrong get top 5 employees by revenue!");
         }
     }
 
     @GetMapping("/revenue/top5products")
     public ResponseEntity<ResponseData> getTop5ProductsByRevenue(@RequestParam String period,
-            @RequestParam int year,
-            @RequestParam(required = false) Integer month) {
+            @RequestParam int year, @RequestParam(required = false) Integer month) {
         try {
-            List<RevenueDTO<ProductDTO>> top5Products = invoiceService.getTop5ProductsByRevenue(period, year, month);
+            List<RevenueDTO<ProductDTO>> top5Products =
+                    invoiceService.getTop5ProductsByRevenue(period, year, month);
             ResponseData responseData = new ResponseData(HttpStatus.OK,
                     "Retrieved top 5 products by revenue successfully", top5Products);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
-        } catch (BadRequestException e) {
-            ResponseData responseData = new ResponseData(HttpStatus.BAD_REQUEST, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at getTop5ProductsByRevenue InvoiceController: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            ResponseData responseData = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ApplicationException(
+                    "Error at getTop5ProductsByRevenue InvoiceController: " + e.getMessage(),
+                    "Something wrong get top 5 product by revenue!");
         }
     }
 
     @GetMapping("/revenue/store")
     public ResponseEntity<ResponseData> calculateRevenueByStore(@RequestParam String period,
-            @RequestParam int year,
-            @RequestParam(required = false) Integer month) {
+            @RequestParam int year, @RequestParam(required = false) Integer month) {
         try {
             double revenue = invoiceService.calculateStoreRevenue(period, year, month);
-            ResponseData responseData = new ResponseData(HttpStatus.OK, "Retrieved store revenue successfully",
-                    revenue);
+            ResponseData responseData = new ResponseData(HttpStatus.OK,
+                    "Retrieved store revenue successfully", revenue);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
-        } catch (BadRequestException e) {
-            ResponseData responseData = new ResponseData(HttpStatus.BAD_REQUEST, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at calculateRevenueByStore InvoiceController: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            ResponseData responseData = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ApplicationException(
+                    "Error at calculateRevenueByStore InvoiceController: " + e.getMessage(),
+                    "Something wrong while calcualate revenue by store!");
         }
     }
 
@@ -363,12 +448,14 @@ public class InvoiceController {
             ResponseData responseData = new ResponseData(HttpStatus.OK,
                     "Retrieved revenue and invoice count successfully", result);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
-        } catch (BadRequestException e) {
-            ResponseData responseData = new ResponseData(HttpStatus.BAD_REQUEST, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at getRevenueAndInvoiceCount InvoiceController: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            ResponseData responseData = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ApplicationException(
+                    "Error at getRevenueAndInvoiceCount InvoiceController: " + e.getMessage(),
+                    "Something wrong while get revenue and invoice!");
         }
     }
 

@@ -1,67 +1,63 @@
 package com.ks1dotnet.jewelrystore.controller;
 
-import java.util.HashMap;
 import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.ks1dotnet.jewelrystore.entity.Employee;
+import com.ks1dotnet.jewelrystore.exception.ApplicationException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IAuthenticationService;
-import com.ks1dotnet.jewelrystore.utils.JwtUtilsHelper;
+import jakarta.servlet.http.Cookie;
 
 @RestController
 @RequestMapping("/authentication")
 @CrossOrigin("*")
+
 public class AuthenticationController {
     @Autowired
     private IAuthenticationService iAuthenticationService;
 
-    @Autowired
-    private JwtUtilsHelper jwtUtilsHelper;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
     @PostMapping("/signup")
-    private ResponseEntity<?> login(@RequestBody Employee emp) {
-        ResponseData responseData = new ResponseData();
-        try {
-            Employee employee = iAuthenticationService.findById(emp.getId());
-            if (employee == null) {
-                responseData.setDesc("SignUp fail. Not found employee");
-                responseData.setStatus(HttpStatus.NOT_FOUND);
-            } else if (passwordEncoder.matches(emp.getPinCode(), employee.getPinCode())) {
-                String token = jwtUtilsHelper.generateToken(employee.getId(), employee.getRole().getName());
-                responseData.setDesc("SignUp successful");
-                responseData.setStatus(HttpStatus.OK);
-
-                // Trả về token, id và role của người dùng
-                Map<String, Object> responseDataMap = new HashMap<>();
-                responseDataMap.put("token", token);
-                responseDataMap.put("id", employee.getId());
-                responseDataMap.put("role", employee.getRole().getName());
-                responseData.setData(responseDataMap);
-
-            } else {
-                responseData.setDesc("SignUp fail. Pincode Error");
-                responseData.setStatus(HttpStatus.NOT_FOUND);
-                responseData.setData("");
-            }
-        } catch (Exception e) {
-            responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-            responseData.setDesc("SignUp fail. Internal Server Error");
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<?> login(@RequestParam String id, @RequestParam String pinCode) {
+        ResponseData responseData = iAuthenticationService.login(id, pinCode);
+        Map<String, String> dataMap = (Map<String, String>) responseData.getData();
+        if (dataMap != null && dataMap.containsKey("rt")) {
+            String refreshToken = (String) dataMap.get("rt");
+            Cookie newCookie = new Cookie("rt", refreshToken);
+            newCookie.setHttpOnly(true);
+            newCookie.setPath("/");
+            newCookie.setMaxAge(7 * 24 * 60 * 60);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Set-Cookie", String.format("%s=%s; HttpOnly; Secure; Path=/; Max-Age=%d",
+                    newCookie.getName(), newCookie.getValue(), newCookie.getMaxAge()));
+            dataMap.remove("rt");
+            responseData.setData(dataMap);
+            return new ResponseEntity<>(responseData, headers, responseData.getStatus());
+        } else {
+            throw new ApplicationException("Refresh token not found in response data",
+                    HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        ResponseData responseData = iAuthenticationService.logout();
+        return new ResponseEntity<>(responseData, responseData.getStatus());
+    }
+
+    @GetMapping("/refreshToken")
+    public ResponseEntity<?> getRefreshToken() {
+
+        ResponseData responseData = iAuthenticationService.refreshToken();
+        return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
 }

@@ -97,7 +97,7 @@ public class MailService {
                         message.append("<p>Kính gửi ").append(username).append(",</p>");
                         message.append("<p>Để xác nhận đổi mật khẩu, vui lòng sử dụng mã OTP sau:</p>");
                         message.append("<p><strong>").append(otp).append("</strong></p>");
-                        message.append("<p>Mã này sẽ hết hạn sau 1 phút.</p>");
+                        message.append("<p>Mã này sẽ hết hạn sau 5 phút.</p>");
                         message.append("<p>Trân trọng,</p>");
                         message.append("<p>Đội ngũ hỗ trợ kỹ thuật</p>");
                         message.append("</div>");

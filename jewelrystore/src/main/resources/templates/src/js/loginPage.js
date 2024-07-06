@@ -1,56 +1,7 @@
-const apiurl = process.env.API_URL;
 $(document).ready(function () {
-  const handleLogin = () => {
-    const id = $("#name").val();
-    const pincode = $("#pincode").val();
-
-    $.ajax({
-      url: `http://${apiurl}/authentication/signup`,
-      type: "POST",
-      contentType: "application/json",
-      data: JSON.stringify({ id, pinCode: pincode }),
-      success: ({ status, data, desc }) => {
-        if (status === "OK" && data) {
-          const { token, id, role } = data;
-
-          if (token && id && role) {
-            localStorage.setItem("token", token);
-            localStorage.setItem("userId", id);
-            localStorage.setItem("userRole", role);
-
-            const redirectUrl =
-              role === "ADMIN" || role === "MANAGER"
-                ? "DashboardAdmin.html"
-                : role === "STAFF"
-                ? "StaffScreen.html"
-                : null;
-
-            if (redirectUrl) {
-              window.location.href = redirectUrl;
-            } else {
-              alert("Role Not Available!");
-            }
-          } else {
-            alert("Error Data From Server!");
-          }
-        } else {
-          alert(desc);
-        }
-      },
-      error: (error) => {
-        console.error("Error:", error);
-      },
-    });
-  };
-  var _token = null;
-  const handleSendOtp = () => {
-    const idEmploy = $("#idEmployyee").val();
-    if (!idEmploy) return;
-    $("#resendButton").attr("data-idEm", idEmploy);
-    sendOtp(idEmploy);
-    toggleForms("#forgetPasswordForm", "#otpForm");
-    countDownResend();
-  };
+  validPromotion;
+  handleLogin;
+  handleSendOtp;
 
   $("#loginButton").click(handleLogin);
   $("#forgetPassword").click(() => {
@@ -82,7 +33,56 @@ $(document).ready(function () {
     toggleForms("#forgetPasswordForm, #otpForm, #changePassForm", "#loginForm");
   });
 });
+const handleLogin = () => {
+  const id = $("#name").val();
+  const pincode = $("#pincode").val();
 
+  $.ajax({
+    url: `http://${apiurl}/authentication/signup`,
+    type: "POST",
+    data: { id: id, pinCode: pincode },
+    success: ({ status, data, desc }) => {
+      if (status === "OK" && data) {
+        const { at } = data;
+
+        if (at) {
+          const { sub, role } = parseJwt(at);
+          localStorage.setItem("userRole", at);
+          localStorage.setItem("userId", sub);
+          localStorage.setItem("role", role);
+
+          const redirectUrl =
+            role === "ADMIN" || role === "MANAGER"
+              ? "DashboardAdmin.html"
+              : role === "STAFF"
+              ? "StaffScreen.html"
+              : null;
+
+          if (redirectUrl) {
+            window.location.href = redirectUrl;
+          } else {
+            alert("Role Not Available!");
+          }
+        } else {
+          alert("Error Data From Server!");
+        }
+      } else {
+        alert(desc);
+      }
+    },
+    error: (error) => {
+      console.error("Error:", error);
+    },
+  });
+};
+const handleSendOtp = () => {
+  const idEmploy = $("#idEmployyee").val();
+  if (!idEmploy) return;
+  $("#resendButton").attr("data-idEm", idEmploy);
+  sendOtp(idEmploy);
+  toggleForms("#forgetPasswordForm", "#otpForm");
+  countDownResend();
+};
 const toggleForms = (hideSelector, showSelector) => {
   $(hideSelector).addClass("hidden");
   $(showSelector).removeClass("hidden");
@@ -188,6 +188,21 @@ const changePasss = (password) => {
       } else {
         console.error("Error while change password : ", error);
         alert("Error while change password!");
+      }
+    },
+  });
+};
+
+const validPromotion = () => {
+  $.ajax({
+    url: `http://${apiurl}/promotion/valid`,
+    type: "GET",
+    contentType: "application/json",
+    error: (error) => {
+      if (error.responseJSON) {
+        alert(error.responseJSON.desc);
+      } else {
+        console.error("Error valid promo ", error);
       }
     },
   });
