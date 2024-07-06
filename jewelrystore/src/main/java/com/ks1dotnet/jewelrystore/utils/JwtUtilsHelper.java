@@ -1,19 +1,20 @@
 package com.ks1dotnet.jewelrystore.utils;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.UUID;
 import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import com.ks1dotnet.jewelrystore.Enum.TokenType;
 import com.ks1dotnet.jewelrystore.exception.ApplicationException;
 import com.ks1dotnet.jewelrystore.repository.IInvalidatedTokenRepository;
-import ch.qos.logback.core.subst.Token;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
@@ -87,5 +88,15 @@ public class JwtUtilsHelper {
         }
     }
 
+    public static Claims getClaims(String tokenType) {
+        Authentication context = SecurityContextHolder.getContext().getAuthentication();
+        if (context == null || !context.isAuthenticated()
+                || "anonymousUser".equals(context.getPrincipal())) {
+            throw new ApplicationException("User not authenticated!", HttpStatus.UNAUTHORIZED);
+        }
+
+        Map<String, Claims> claimsMap = (Map<String, Claims>) context.getCredentials();
+        return claimsMap.get(tokenType);
+    }
 
 }

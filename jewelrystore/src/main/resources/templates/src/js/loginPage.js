@@ -41,15 +41,16 @@ const handleLogin = () => {
     url: `http://${apiurl}/authentication/signup`,
     type: "POST",
     data: { id: id, pinCode: pincode },
+
     success: ({ status, data, desc }) => {
       if (status === "OK" && data) {
         const { at } = data;
 
         if (at) {
           const { sub, role } = parseJwt(at);
-          localStorage.setItem("userRole", at);
+          localStorage.setItem("token", at);
           localStorage.setItem("userId", sub);
-          localStorage.setItem("role", role);
+          localStorage.setItem("userRole", role);
 
           const redirectUrl =
             role === "ADMIN" || role === "MANAGER"

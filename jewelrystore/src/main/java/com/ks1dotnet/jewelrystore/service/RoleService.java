@@ -14,6 +14,7 @@ import com.ks1dotnet.jewelrystore.entity.Role;
 import com.ks1dotnet.jewelrystore.exception.ApplicationException;
 import com.ks1dotnet.jewelrystore.repository.IRoleRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IRoleService;
+import com.ks1dotnet.jewelrystore.utils.JwtUtilsHelper;
 import io.jsonwebtoken.Claims;
 
 @Service
@@ -23,14 +24,9 @@ public class RoleService implements IRoleService {
 
     @Override
     public List<RoleDTO> findAll() {
-        Authentication context = SecurityContextHolder.getContext().getAuthentication();
-        if (context == null || !context.isAuthenticated()
-                || context.getPrincipal().equals("anonymousUser")) {
-            throw new ApplicationException("User not authenticated!", HttpStatus.UNAUTHORIZED);
-        }
-        Map<String, Claims> claimsMap = (Map<String, Claims>) context.getCredentials();
 
-        Claims RTTokenClaims = claimsMap.get("rt");
+
+        Claims RTTokenClaims = JwtUtilsHelper.getClaims("at");
         List<Role> listRole;
         if ("admin".equals(RTTokenClaims.getSubject()))
             listRole = iRoleRepository.findAll();

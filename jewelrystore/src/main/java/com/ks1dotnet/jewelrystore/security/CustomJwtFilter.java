@@ -35,28 +35,48 @@ public class CustomJwtFilter extends OncePerRequestFilter {
         try {
             String tokenAT = getTokenFromHeader(request);
             String tokenRT = getRefreshTokenFromCookies(request);
-            if (tokenAT != null && tokenRT != null) {
-                Claims claimsAT = jwtUtilsHelper.verifyToken(tokenAT);
+            Map<String, Claims> mapClaims = new HashMap<>();
+
+            if ("/authentication/refreshToken".equals(request.getRequestURI()) && tokenRT != null) {
                 Claims claimsRT = jwtUtilsHelper.verifyToken(tokenRT);
-                String role = claimsAT.get("role", String.class);
-                String id = claimsAT.getSubject();
-                Map<String, Claims> mapClaims = new HashMap<>();
-                mapClaims.put("at", claimsAT);
                 mapClaims.put("rt", claimsRT);
+
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-                        new UsernamePasswordAuthenticationToken(id, mapClaims,
-                                List.of(new SimpleGrantedAuthority(role)));
+                        new UsernamePasswordAuthenticationToken(claimsRT.getSubject(), mapClaims,
+                                List.of(new SimpleGrantedAuthority(
+                                        claimsRT.get("role", String.class))));
+                SecurityContext securityContext = SecurityContextHolder.getContext();
+                securityContext.setAuthentication(usernamePasswordAuthenticationToken);
+
+                // Proceed with the filter chain for refresh token endpoint
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+
+            if (tokenAT != null) {
+                Claims claimsAT = jwtUtilsHelper.verifyToken(tokenAT);
+                mapClaims.put("at", claimsAT);
+                if (tokenRT != null) {
+                    Claims claimsRT = jwtUtilsHelper.verifyToken(tokenRT);
+                    mapClaims.put("rt", claimsRT);
+
+                }
+                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
+                        new UsernamePasswordAuthenticationToken(claimsAT.getSubject(), mapClaims,
+                                List.of(new SimpleGrantedAuthority(
+                                        claimsAT.get("role", String.class))));
                 SecurityContext securityContext = SecurityContextHolder.getContext();
                 securityContext.setAuthentication(usernamePasswordAuthenticationToken);
             }
+
+
             filterChain.doFilter(request, response);
         } catch (ApplicationException e) {
             handleException(response, e);
         } catch (Exception e) {
             handleException(response, new ApplicationException("Internal Server Error",
                     HttpStatus.INTERNAL_SERVER_ERROR));
-        } finally {
-            SecurityContextHolder.clearContext();
         }
     }
 
@@ -72,7 +92,7 @@ public class CustomJwtFilter extends OncePerRequestFilter {
     private String getRefreshTokenFromCookies(HttpServletRequest request) {
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
-                if ("refreshToken".equals(cookie.getName())) {
+                if ("rt".equals(cookie.getName())) {
                     return cookie.getValue();
                 }
             }

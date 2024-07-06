@@ -92,13 +92,7 @@ public class AuthenticationService implements IAuthenticationService {
     @Override
     public ResponseData refreshToken() {
         try {
-            var context = SecurityContextHolder.getContext().getAuthentication();
-            if (context == null || !context.isAuthenticated()
-                    || context.getPrincipal().equals("anonymousUser")) {
-                throw new ApplicationException("User not authenticated!", HttpStatus.UNAUTHORIZED);
-            }
-            Map<String, Claims> claimsMap = (Map<String, Claims>) context.getCredentials();
-            Claims RTTokenClaims = claimsMap.get("rt");
+            Claims RTTokenClaims = jwtUtilsHelper.getClaims("rt");
             String at = jwtUtilsHelper.generateToken(RTTokenClaims.getSubject(),
                     RTTokenClaims.get("role", String.class), 5, TokenType.ACCESS_TOKEN);
             return new ResponseData(HttpStatus.OK, "Refresh token successfully", at);

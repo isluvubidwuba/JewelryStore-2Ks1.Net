@@ -65,7 +65,7 @@ public class EmployeeService implements IEmployeeService {
                () -> new ApplicationException("User not exist!", HttpStatus.NOT_FOUND));
          EmployeeDTO emp = employee.getDTO();
          emp.setImage(url.trim() + filePath.trim() + emp.getImage());
-         response.setData(emp);
+         response.setData(context);
          response.setDesc("My profile");
          response.setStatus(HttpStatus.OK);
       } catch (ApplicationException e) {
