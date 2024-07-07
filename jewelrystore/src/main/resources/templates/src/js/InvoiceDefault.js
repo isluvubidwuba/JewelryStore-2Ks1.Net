@@ -49,6 +49,9 @@ $(document).ready(function () {
       addProductByBarcode(barcode);
       $("#barcode-input").val("");
     }
+
+
+
   });
 
   // ============================Phần này thực hiện add customer mới vào system =========================================================
@@ -259,7 +262,6 @@ $(document).ready(function () {
         "Vui lòng chọn người dùng trước khi tạo hóa đơn.",
         "error"
       );
-
       return;
     }
     storeValuesInSession(); // Lưu giá trị vào session trước khi hiển thị modal
@@ -379,7 +381,16 @@ $(document).ready(function () {
 
   function addProductByBarcode(barcode) {
     if (productMap[barcode]) {
-      updateProductQuantity(barcode, productMap[barcode].quantity + 1);
+      const newQuantity = productMap[barcode].quantity + 1;
+      if (newQuantity <= productMap[barcode].inventory) {
+        updateProductQuantity(barcode, newQuantity);
+      } else {
+        showNotification(
+          "Quantity exceeds inventory quantity. Available: " +
+          productMap[barcode].inventory,
+          "error"
+        );
+      }
       return;
     }
 
