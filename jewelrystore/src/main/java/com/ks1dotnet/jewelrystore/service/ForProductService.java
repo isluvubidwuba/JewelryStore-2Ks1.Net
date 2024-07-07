@@ -175,10 +175,10 @@ public class ForProductService implements IPromotionGenericService<Product> {
                     .orElseThrow(() -> new NotFoundException());
             List<ForProduct> forProducts = iForProductRepository.findByPromotionId(promotion.getId());
             if (forProducts == null || forProducts.isEmpty()) {
-                throw new ResourceNotFoundException(
-                        "No products found for the given promotion id: " + promotionId);
-            }
+                return new ResponseData(HttpStatus.BAD_REQUEST,
+                        "No products found for the given promotion id: " + promotionId, null);
 
+            }
             List<ForProductDTO> forProductDTOs = forProducts.stream()
                     .map(ForProduct::getDTO)
                     .collect(Collectors.toList());

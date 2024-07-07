@@ -20,7 +20,6 @@ $(document).ready(function () {
   //function
   setupInsertModalToggle();
 
-
   //==================================== Phần này là scaning barcode để thanh toán ==========================================================
   $(document).on("keypress", press);
 
@@ -51,8 +50,6 @@ $(document).ready(function () {
       $("#barcode-input").val("");
     }
   });
-
-
 
   // ============================Phần này thực hiện add customer mới vào system =========================================================
   function setupInsertModalToggle() {
@@ -169,10 +166,6 @@ $(document).ready(function () {
     $("#insertEmployeeImagePreview").attr("src", "#").hide();
   }
 
-
-
-
-
   //======================== Phần này thực hiện việc add search user bằng Phone và email =======================================================
   // Gắn sự kiện click vào nút clear-contact-button
   $("#clear-contact-button").on("click", clearUserIdInput);
@@ -216,7 +209,10 @@ $(document).ready(function () {
 
     // Kiểm tra input là số điện thoại hay email hợp lệ
     if (!isValidPhone(input) && !isValidEmail(input)) {
-      showNotification("Please enter a valid phone number or email address", "Error");
+      showNotification(
+        "Please enter a valid phone number or email address",
+        "Error"
+      );
       return;
     }
 
@@ -248,8 +244,6 @@ $(document).ready(function () {
       },
     });
   });
-
-
 
   // Phần này thực hiện phần tính toán tạo hoá đơn của vnpay ===================================================================
   $("#confirm-user-selection").click(function () {
@@ -362,20 +356,18 @@ $(document).ready(function () {
       });
   }
 
-
-
   // ==============================Phần này thực hiện add sản phẩm vào trước khi thanh toán ======================================================
   CheckClearBarcodeInput();
 
   function CheckClearBarcodeInput() {
-    $('#barcode-input').on('input', function () {
+    $("#barcode-input").on("input", function () {
       if ($(this).val().length > 0) {
-        $('#clear-barcode-input').removeClass('hidden');
+        $("#clear-barcode-input").removeClass("hidden");
       } else {
-        $('#clear-barcode-input').addClass('hidden');
+        $("#clear-barcode-input").addClass("hidden");
       }
     });
-    $('#clear-barcode-input').click(function () {
+    $("#clear-barcode-input").click(function () {
       clearBarcodeInput();
     });
   }
@@ -384,7 +376,6 @@ $(document).ready(function () {
     $('#barcode-input').val('');
     $('#clear-barcode-input').addClass('hidden');
   }
-
 
   function addProductByBarcode(barcode) {
     if (productMap[barcode]) {
@@ -494,8 +485,11 @@ $(document).ready(function () {
       if (newQuantity > 0 && newQuantity <= productData.inventory) {
         updateProductQuantity(barcode, newQuantity);
       } else {
-        showNotification("Quantity exceeds inventory quantity.", "error");
-
+        showNotification(
+          "Quantity exceeds inventory quantity. Avaiable: " +
+          productData.inventory,
+          "error"
+        );
         $(this).val(productData.quantity);
       }
     });
@@ -504,7 +498,6 @@ $(document).ready(function () {
       removeProduct(barcode);
     });
   }
-
 
   // ===========================================Phần này là tính tiền cho sản phẩm =========================================================
 
@@ -589,8 +582,6 @@ $(document).ready(function () {
     }
   });
 
-
-
   //========================== Phần này khi lấy được thông tin của user id có thể được tạo hoặc được tìm ===============================
   function getUserById(userId) {
     $.ajax({
@@ -663,9 +654,6 @@ $(document).ready(function () {
       },
     });
   }
-
-
-
 
   //===============Phần này quan trọng nhất về việc lấy các biến đã lưu của sản phẩm employee và user để gửi về tạo hoá đơn ==========================
   function createInvoice(paymentMethod, note) {
@@ -753,11 +741,7 @@ $(document).ready(function () {
     $("#selected-products").empty();
     $("#product-sold").empty(); // Xóa tất cả các phần tử con của #product-sold
     updateTotalPrice();
-
   }
-
-
-
 
   // ================================Sau khi tạo hoá đơn thành công thì sẽ hiện ra hoá đơn cho khách hàng ============================================
   function viewInvoice(invoiceId) {
@@ -883,8 +867,6 @@ $(document).ready(function () {
     $("#selected-products").empty();
   }
 
-
-
   // ==============Phần này xử lý về việc nếu như không hàng muốn thay đổi hay lỗi của employee gì đó thì sẽ cancel cho hoá đơn vừa được tạo===============
   // Open cancel invoice modal
   $("#cancel-invoice-btn").on("click", function () {
@@ -901,7 +883,9 @@ $(document).ready(function () {
   // Confirm cancel
   $("#confirm-cancel-btn").on("click", function () {
     const invoiceId = $("#invoice-details").data("invoice-id");
-    console.log("Check thong tin gui ve back end cua cancel invoice : " + invoiceId);
+    console.log(
+      "Check thong tin gui ve back end cua cancel invoice : " + invoiceId
+    );
     const cancelNote = $("#cancel-note").val();
 
     $.ajax({
@@ -909,28 +893,25 @@ $(document).ready(function () {
       method: "POST",
       data: {
         invoiceId: invoiceId,
-        note: cancelNote
+        note: cancelNote,
       },
       headers: {
         Authorization: `Bearer ${token}`,
       },
       success: function (response) {
         if (response.status === "OK") {
-
-
           showNotification("Invoice cancelled successfully", "OK");
 
           $("#cancel-invoice-modal").addClass("hidden");
           clearAllData(); // Xóa thông tin sau khi xem hóa đơn
         } else {
           showNotification("Unable to cancel invoice", "Error");
-
         }
       },
       error: function (error) {
         console.error("Unable to cancel invoice", error);
         showNotification("Unable to cancel invoice", "Error");
-      }
+      },
     });
   });
 
@@ -985,50 +966,51 @@ $(document).ready(function () {
     });
   }
 
-
   //============================Phần này quan trọng !! khi thanh toán từ vnpay thành công thì vnpay sẽ trả về trang này cùng url có  paymentSuccess
   function handleVnPayCallback() {
     const urlParams = new URLSearchParams(window.location.search);
-    const vnpResponseCode = urlParams.get('vnp_ResponseCode');
+    const vnpResponseCode = urlParams.get("vnp_ResponseCode");
     console.log("Checking vnpResponseCode: " + vnpResponseCode);
 
     if (vnpResponseCode !== null) {
-      fetch('http://localhost:8080/payment/vn-pay-callback?vnp_ResponseCode=' + vnpResponseCode)
-        .then(response => response.json())
-        .then(data => {
+      fetch(
+        "http://localhost:8080/payment/vn-pay-callback?vnp_ResponseCode=" +
+        vnpResponseCode
+      )
+        .then((response) => response.json())
+        .then((data) => {
           const message = data.desc;
           const status = data.status;
 
-          if (status === 'OK') {
+          if (status === "OK") {
             showNotification(message, "OK");
             // Lấy các thông tin đã lưu trữ từ sessionStorage
-            selectedUserId = sessionStorage.getItem('selectedUserId');
-            selectedUserName = sessionStorage.getItem('selectedUserName');
-            userPromotion = JSON.parse(sessionStorage.getItem('userPromotion'));
-            productMap = JSON.parse(sessionStorage.getItem('productMap'));
-            employeeID = sessionStorage.getItem('employeeID');
+            selectedUserId = sessionStorage.getItem("selectedUserId");
+            selectedUserName = sessionStorage.getItem("selectedUserName");
+            userPromotion = JSON.parse(sessionStorage.getItem("userPromotion"));
+            productMap = JSON.parse(sessionStorage.getItem("productMap"));
+            employeeID = sessionStorage.getItem("employeeID");
 
             // Tạo hóa đơn với thông tin thanh toán qua VNPAY và sử dụng các biến đã khai báo
             createInvoice("VNPAY", null);
 
             // Xóa các thông tin đã lưu trữ sau khi xử lý
-            sessionStorage.removeItem('selectedUserId');
-            sessionStorage.removeItem('selectedUserName');
-            sessionStorage.removeItem('userPromotion');
-            sessionStorage.removeItem('productMap');
-            sessionStorage.removeItem('employeeID');
+            sessionStorage.removeItem("selectedUserId");
+            sessionStorage.removeItem("selectedUserName");
+            sessionStorage.removeItem("userPromotion");
+            sessionStorage.removeItem("productMap");
+            sessionStorage.removeItem("employeeID");
           } else {
             showNotification(message, "Error");
-
           }
           // Xóa các tham số URL sau khi xử lý
           console.log("Check việc đã xoá các tham số trên URL từ VNPAY trả về");
           const url = new URL(window.location);
-          url.search = ''; // Xóa tất cả các tham số
+          url.search = ""; // Xóa tất cả các tham số
           window.history.replaceState({}, document.title, url);
           console.log("URL parameters cleared");
         })
-        .catch(error => console.error('Error:', error));
+        .catch((error) => console.error("Error:", error));
     }
   }
 
@@ -1036,8 +1018,6 @@ $(document).ready(function () {
   function checkUserSelection() {
     return selectedUserId !== null;
   }
-
-
 
   $("#reset-order-button").click(function () {
     resetOrder();
@@ -1070,4 +1050,20 @@ $(document).ready(function () {
 
   // Xử lý callback từ VNPAY khi trang được tải
   handleVnPayCallback();
+
+  // Hàm in hóa đơn
+  function printInvoice() {
+    var printContents = document.getElementById("invoice-details").innerHTML;
+    document.body.innerHTML = printContents;
+    window.print();
+
+    setTimeout(function () {
+      location.reload();
+    }, 100);
+  }
+
+  // Gắn sự kiện click cho nút in hóa đơn
+  $("#print-invoice-btn").click(function () {
+    printInvoice();
+  });
 });
