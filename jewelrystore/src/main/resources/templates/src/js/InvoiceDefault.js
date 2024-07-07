@@ -381,8 +381,8 @@ $(document).ready(function () {
   }
 
   function clearBarcodeInput() {
-      $('#barcode-input').val('');
-      $('#clear-barcode-input').addClass('hidden');
+    $('#barcode-input').val('');
+    $('#clear-barcode-input').addClass('hidden');
   }
 
 
