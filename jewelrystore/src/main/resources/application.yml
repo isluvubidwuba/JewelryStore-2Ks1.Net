@@ -37,6 +37,14 @@ firebase:
 jwt:
   privateKey: wQwCoOrdAU3iyXZsqshyOKiC2xzW9C7R+/3HjwQ2cEk=
 
+rateEarnPoint:
+  rate: 100000
+
+invoiceID:
+  Sell: 1
+  Imports: 2
+  BuyBack: 3
+
 payment:
   vnPay:
     url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
