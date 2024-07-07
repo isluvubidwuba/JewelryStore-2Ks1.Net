@@ -35,13 +35,15 @@ $(document).ready(function () {
 });
 const handleLogin = () => {
   const id = $("#name").val();
-  const pincode = $("#pincode").val();
+  const pinCode = $("#pincode").val();
 
   $.ajax({
     url: `http://${apiurl}/authentication/signup`,
     type: "POST",
-    data: { id: id, pinCode: pincode },
-
+    data: { id: id, pinCode: pinCode },
+    xhrFields: {
+      withCredentials: true, // Ensures cookies are included for all AJAX calls
+    },
     success: ({ status, data, desc }) => {
       if (status === "OK" && data) {
         const { at } = data;
@@ -71,8 +73,14 @@ const handleLogin = () => {
         alert(desc);
       }
     },
-    error: (error) => {
-      console.error("Error:", error);
+    error: (xhr, status, error) => {
+      console.error("Error response:", xhr.responseText); // Log the error response
+      console.error("Error status:", status); // Log the error status
+      console.error("Error details:", error); // Log the error details
+      showNotification(
+        "Login failed: " + (xhr.responseJSON?.desc || "Unknown error"),
+        "error"
+      );
     },
   });
 };
@@ -127,15 +135,14 @@ const sendOtp = (idEmploy) => {
     contentType: "application/json",
     success: ({ status, desc }) => {
       if (status !== "OK") {
-        alert(desc);
+        showNotification(desc, "error");
       }
     },
     error: (error) => {
       if (error.responseJSON) {
-        alert(error.responseJSON.desc);
+        showNotification(error.responseJSON.desc, "error");
       } else {
-        console.error("Error while send OTP to employee email : ", error);
-        alert("Error while send OTP to employee email!");
+        showNotification("Error while send OTP to employee email!", "error");
       }
     },
   });
@@ -146,18 +153,17 @@ const validateOtp = (idEmploy, otp) => {
     type: "POST",
     data: { otp: otp, idEmployee: idEmploy },
     success: ({ status, desc, data }) => {
-      _token = data;
+      token = data;
       toggleForms("#otpForm", "#changePassForm");
       if (status !== "OK") {
-        alert(desc);
+        showNotification(desc, "error");
       }
     },
     error: (error) => {
       if (error.responseJSON) {
-        alert(error.responseJSON.desc);
+        showNotification(error.responseJSON.desc, "error");
       } else {
-        console.error("Error while validate OTP : ", error);
-        alert("Error validate OTP!");
+        showNotification("Error validate OTP!", "error");
       }
     },
   });
@@ -169,26 +175,25 @@ const changePasss = (password) => {
     type: "POST",
     data: {
       pwd: password,
-      token: _token,
+      token: token,
       idEmploy: $("#resendButton").attr("data-idEm"),
     },
     success: ({ status, desc, data }) => {
-      _token = null;
+      token = null;
       $("#resendButton").attr("data-idEm", "");
       if (status == "OK") {
-        alert("Change password successfully");
+        showNotification("Change password successfully", "OK");
         toggleForms("#changePassForm", "#loginForm");
       }
       if (status !== "OK") {
-        alert(desc);
+        showNotification(desc, "Error");
       }
     },
     error: (error) => {
       if (error.responseJSON) {
-        alert(error.responseJSON.desc);
+        showNotification(error.responseJSON.desc);
       } else {
-        console.error("Error while change password : ", error);
-        alert("Error while change password!");
+        showNotification("Error while change password!");
       }
     },
   });
@@ -201,9 +206,9 @@ const validPromotion = () => {
     contentType: "application/json",
     error: (error) => {
       if (error.responseJSON) {
-        alert(error.responseJSON.desc);
+        showNotification(error.responseJSON.desc);
       } else {
-        console.error("Error valid promo ", error);
+        showNotification("Error valid promo");
       }
     },
   });

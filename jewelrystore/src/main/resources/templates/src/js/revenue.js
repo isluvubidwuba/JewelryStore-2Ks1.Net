@@ -1,4 +1,3 @@
-const apiurl = process.env.API_URL;
 $(document).ready(function () {
   const periods = [
     "TODAY",

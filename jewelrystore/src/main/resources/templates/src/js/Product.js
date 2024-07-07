@@ -1,4 +1,3 @@
-const apiurl = process.env.API_URL;
 $(document).ready(function () {
   init();
 });
@@ -11,7 +10,6 @@ function init() {
   setupSearch();
   setUpOnChange();
 }
-var token = null;
 const state = {
   querySet: [],
   page: 1,

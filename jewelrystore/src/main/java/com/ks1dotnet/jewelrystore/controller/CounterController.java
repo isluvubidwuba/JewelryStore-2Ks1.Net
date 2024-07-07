@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +22,7 @@ import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.ICounterSerivce;
 
 @RestController
-@RequestMapping("/counter")
+@RequestMapping("${apiURL}/counter")
 @CrossOrigin("*")
 public class CounterController {
 
@@ -30,6 +31,7 @@ public class CounterController {
 
     // insert các quầy
     @PostMapping("/insert")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> insertCounter(@RequestParam String name) {
         ResponseData responseData = iCounterSerivce.insert(name);
         return new ResponseEntity<>(responseData, HttpStatus.OK);
@@ -43,7 +45,8 @@ public class CounterController {
     }
 
     @PostMapping("/addproductsforcounter")
-    public ResponseEntity<?> addProductsToCounter(@RequestParam int counterId, @RequestBody List<ProductDTO> products) {
+    public ResponseEntity<?> addProductsToCounter(@RequestParam int counterId,
+            @RequestBody List<ProductDTO> products) {
         ResponseData responseData = iCounterSerivce.addProductsToCounter(counterId, products);
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
@@ -102,8 +105,8 @@ public class CounterController {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<ResponseData> updateCounter(@RequestParam int id, @RequestParam String name,
-            @RequestParam boolean status) {
+    public ResponseEntity<ResponseData> updateCounter(@RequestParam int id,
+            @RequestParam String name, @RequestParam boolean status) {
         ResponseData responseData = iCounterSerivce.updateCounter(id, name, status);
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }

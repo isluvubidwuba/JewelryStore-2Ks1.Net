@@ -1,4 +1,3 @@
-const apiurl = process.env.API_URL;
 $(document).ready(function () {
   const token = localStorage.getItem("token");
   var selectedInvoiceType = "";

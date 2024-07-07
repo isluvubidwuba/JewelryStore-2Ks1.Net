@@ -17,7 +17,7 @@ import com.ks1dotnet.jewelrystore.service.MailService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IEmployeeService;
 
 @RestController
-@RequestMapping("/mail")
+@RequestMapping("${apiURL}/mail")
 @CrossOrigin("*")
 public class MailController {
     @Autowired

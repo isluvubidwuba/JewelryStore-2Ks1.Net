@@ -1,46 +1,50 @@
 package com.ks1dotnet.jewelrystore.security;
 
 import static org.springframework.security.config.Customizer.withDefaults;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import jakarta.annotation.PostConstruct;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class CustomSecurityFilter {
-        private static final String[] WHITE_LIST_URL = { "/api/v1/auth/**", "/v2/api-docs", "/v3/api-docs",
-                        "/v3/api-docs/**", "/swagger-resources", "/swagger-resources/**", "/configuration/ui",
-                        "/configuration/security", "/swagger-ui/**", "/webjars/**", "/swagger-ui.html", "/api/auth/**",
-                        "/api/test/**", "/authenticate" };
-
-        @Autowired
-        CustomUserDetailService customUserDetailService;
-
+        private static final String[] WHITE_LIST_URL = {"/api/v1/auth/**", "/v2/api-docs",
+                        "/v3/api-docs", "/v3/api-docs/**", "/swagger-resources",
+                        "/swagger-resources/**", "/configuration/ui", "/configuration/security",
+                        "/swagger-ui/**", "/webjars/**", "/swagger-ui.html", "/api/auth/**",
+                        "/api/test/**", "/authenticate"};
+        @Value("${apiURL}")
+        private String apiURL;
+        private String[] PUBLIC_API = {apiURL + "/authentication/**"};
         @Autowired
         CustomJwtFilter customJwtFilter;
 
         @Autowired
         CustomAccessDeniedHandler customAccessDeniedHandler;
 
-        @Bean
-        public AuthenticationManager authenticationManager(HttpSecurity httpSecurity)
-                        throws Exception {
-                AuthenticationManagerBuilder authenticationManagerBuilder =
-                                httpSecurity.getSharedObject(AuthenticationManagerBuilder.class);
-                authenticationManagerBuilder.userDetailsService(customUserDetailService)
-                                .passwordEncoder(passwordEncoder());
+        @PostConstruct
+        public void init() {
+                PUBLIC_API = new String[] {apiURL + "/authentication/**", apiURL + "/mail/**"};
+        }
 
-                return authenticationManagerBuilder.build();
+        @Bean
+        UserDetailsService emptyDetailsService() {
+                return username -> {
+                        throw new UsernameNotFoundException(
+                                        "no local users, only JWT tokens allowed");
+                };
         }
 
         @Bean
@@ -50,109 +54,13 @@ public class CustomSecurityFilter {
                                                 SessionCreationPolicy.STATELESS))
                                 .authorizeHttpRequests(authz -> authz
                                                 .requestMatchers(WHITE_LIST_URL).permitAll()
-                                                .requestMatchers("/authentication/**", "/proxy",
-                                                                "/payment/**", "/mail/sendOtp/**",
-                                                                "employee/validateOtp",
-                                                                "employee/changePass",
-                                                                "employee/myProfile", "/product/**",
-                                                                "/material/**")
-                                                .permitAll()
-                                                .requestMatchers("/promotion/files/**",
-                                                                "/promotion/valid")
-                                                .permitAll()
-                                                .requestMatchers(
-                                                                "/promotion/viewPolicyByInvoiceType/**",
-                                                                "/promotion/by-user",
-                                                                "/voucher/list")
-                                                .hasAnyAuthority("ADMIN", "MANAGER", "STAFF")
-                                                .requestMatchers("/policy/**").hasAuthority("ADMIN")
-                                                .requestMatchers(
-                                                                "/promotion/getHomePagePromotion**",
-                                                                "/promotion/getById",
-                                                                "/promotion-generic/in-promotion/**",
-                                                                "/voucher/list",
-                                                                "/voucher/*/categories",
-                                                                "/invoice/**")
-                                                .hasAnyAuthority("STAFF", "ADMIN", "MANAGER")
-                                                .requestMatchers("/promotion/**",
-                                                                "/promotion-for-product/**",
-                                                                "/voucher/**")
-                                                .hasAuthority("ADMIN")
-
-                                                // Những phần permit all của counter employe
-                                                // userinfo
-                                                .requestMatchers("/authentication/**", "/role/list",
-                                                                "/employee/upload/**",
-                                                                "/earnpoints/**", "/gemStone/**",
-                                                                "/employee/listemployee/**",
-                                                                "/employee/update",
-                                                                "/employee/update2")
-                                                .permitAll()
-                                                // Employee
-                                                .requestMatchers("/employee/listpage",
-                                                                "/employee/search",
-                                                                "/employee/upload")
-                                                .hasAnyAuthority("ADMIN", "MANAGER")
-                                                .requestMatchers("/employee/insert",
-                                                                "/employee/delete/**")
-                                                .hasAuthority("ADMIN")
-                                                .requestMatchers("/employee/**")
-                                                .hasAnyAuthority("ADMIN", "MANAGER")
-
-                                                // Counter
-                                                .requestMatchers("/counter/allactivecounter",
-                                                                "/counter/listproductsbycounter",
-                                                                "/counter/addproductsforcounter",
-                                                                "/counter/products/counter1",
-                                                                "/counter/products/all",
-                                                                "/counter/product/details",
-                                                                "/counter/moveProductsToCounter")
-                                                .hasAnyAuthority("MANAGER", "STAFF", "ADMIN")
-                                                .requestMatchers("/counter/update",
-                                                                "/counter/inactive",
-                                                                "/counter/delete/{id}",
-                                                                "/counter/insert")
-                                                .hasAuthority("ADMIN")
-
-                                                // Customer Type
-                                                // .requestMatchers("/customertype/findall")
-                                                // .hasAnyAuthority("MANAGER", "STAFF", "ADMIN")
-                                                // .requestMatchers("/customertype/**")
-                                                // .hasAuthority("ADMIN")
-
-                                                // User Information
-                                                .requestMatchers("/userinfo/listcustomer",
-                                                                "/userinfo/listpage",
-                                                                "/userinfo/findcustomer/{id}",
-                                                                "/userinfo/searchcustomer",
-                                                                "userinfo/upload",
-                                                                "userinfo/uploadget",
-                                                                "/customertype/findall",
-                                                                "/userinfo/listsupplier",
-                                                                "/userinfo/searchsupplier",
-                                                                "/userinfo/getcustomer/{id}",
-                                                                "/userinfo/findsupplier/{id}",
-                                                                "/userinfo/phonenumberandmailcustomer")
-                                                .hasAnyAuthority("STAFF", "MANAGER", "ADMIN")
-
-                                                .requestMatchers("/userinfo/update",
-                                                                "/userinfo/insert")
-                                                .hasAnyAuthority("STAFF", "MANAGER", "ADMIN")
-
-                                                .requestMatchers("/userinfo/**", "/role/insert",
-                                                                "/customertype/**")
-                                                .hasAuthority("ADMIN")
-                                                // .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() //
-                                                // Swagger
-                                                // // UI
-                                                // // và
-                                                // // OpenAPI
-                                                // // docs
-                                                .anyRequest().authenticated())
+                                                .requestMatchers(PUBLIC_API).permitAll()
+                                                .anyRequest().hasAuthority("ACCESS_TOKEN"))
                                 .exceptionHandling(exception -> exception
                                                 .accessDeniedHandler(customAccessDeniedHandler))
                                 .addFilterBefore(customJwtFilter,
                                                 UsernamePasswordAuthenticationFilter.class);
+
                 return http.build();
         }
 

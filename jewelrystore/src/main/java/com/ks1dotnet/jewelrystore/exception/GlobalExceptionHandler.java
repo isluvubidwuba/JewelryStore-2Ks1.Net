@@ -36,4 +36,16 @@ public class GlobalExceptionHandler {
                 new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL SERVER ERROR", null);
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ResponseData> handleGlobalRuntimeException(RuntimeException ex,
+            WebRequest request) {
+        if (!ex.getMessage().isEmpty()) {
+            log.error(ex.getMessage());
+            log.error("Cause: ", ex.getCause());
+        }
+        ResponseData responseData =
+                new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL SERVER ERROR", null);
+        return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }

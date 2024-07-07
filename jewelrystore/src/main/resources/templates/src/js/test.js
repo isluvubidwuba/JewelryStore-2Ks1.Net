@@ -1,6 +1,5 @@
 let page = 0;
 const pageSize = 6;
-const token = localStorage.getItem("token");
 let chart;
 // Hàm định dạng tiền tệ
 function formatCurrency(amount) {

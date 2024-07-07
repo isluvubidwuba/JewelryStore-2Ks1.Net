@@ -13,7 +13,7 @@ import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IGemStoneTypeService;
 
 @RestController
-@RequestMapping("/gemStone/type")
+@RequestMapping("${apiURL}/gemStone/type")
 @CrossOrigin("*")
 public class GemStoneTypeController {
     @Autowired

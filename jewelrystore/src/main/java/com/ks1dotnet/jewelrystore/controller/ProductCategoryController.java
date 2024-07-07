@@ -13,7 +13,7 @@ import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IProductCategoryService;
 
 @RestController
-@RequestMapping("/product/category")
+@RequestMapping("${apiURL}/product/category")
 @CrossOrigin("*")
 public class ProductCategoryController {
     @Autowired

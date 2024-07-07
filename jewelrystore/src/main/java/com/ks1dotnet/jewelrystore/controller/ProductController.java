@@ -22,7 +22,7 @@ import com.ks1dotnet.jewelrystore.service.FirebaseStorageService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IProductService;
 
 @RestController
-@RequestMapping("/product")
+@RequestMapping("${apiURL}/product")
 @CrossOrigin("*")
 public class ProductController {
     @Value("${fileUpload.productPath}")

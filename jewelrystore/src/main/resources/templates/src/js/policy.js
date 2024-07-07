@@ -1,5 +1,3 @@
-const apiurl = process.env.API_URL;
-const token = localStorage.getItem("token");
 let currentPage = 0;
 const itemsPerPage = 5;
 let promotions = [];

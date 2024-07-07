@@ -15,7 +15,7 @@ import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IGemStoneCategoryService;
 
 @RestController
-@RequestMapping("/gemStone/category")
+@RequestMapping("${apiURL}/gemStone/category")
 @CrossOrigin("*")
 public class GemStoneCategoryController {
     @Autowired

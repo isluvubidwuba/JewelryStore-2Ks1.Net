@@ -18,7 +18,7 @@ import com.ks1dotnet.jewelrystore.service.FirebaseStorageService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IUserInfoService;
 
 @RestController
-@RequestMapping("/userinfo")
+@RequestMapping("${apiURL}/userinfo")
 @CrossOrigin("*")
 public class UserInfoController {
 
@@ -32,30 +32,21 @@ public class UserInfoController {
     private FirebaseStorageService firebaseStorageService;
 
     @PostMapping("/insert")
-    public ResponseEntity<?> insertUserInfo(
-            @RequestParam(required = false) MultipartFile file,
-            @RequestParam String fullName,
-            @RequestParam String phoneNumber,
-            @RequestParam String email,
-            @RequestParam int roleId,
-            @RequestParam String address) {
+    public ResponseEntity<?> insertUserInfo(@RequestParam(required = false) MultipartFile file,
+            @RequestParam String fullName, @RequestParam String phoneNumber,
+            @RequestParam String email, @RequestParam int roleId, @RequestParam String address) {
 
-        ResponseData responseData = iUserInfoService.insertUserInfo(file, fullName, phoneNumber, email, roleId,
-                address);
+        ResponseData responseData = iUserInfoService.insertUserInfo(file, fullName, phoneNumber,
+                email, roleId, address);
         return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
     @PostMapping("/update")
-    public ResponseEntity<?> updateUser(
-            @RequestParam(required = false) MultipartFile file,
-            @RequestParam int id,
-            @RequestParam String fullName,
-            @RequestParam String phoneNumber,
-            @RequestParam String email,
-            @RequestParam int roleId,
-            @RequestParam String address) {
-        ResponseData responseData = iUserInfoService.updateUserInfo(file, id, fullName, phoneNumber, email, roleId,
-                address);
+    public ResponseEntity<?> updateUser(@RequestParam(required = false) MultipartFile file,
+            @RequestParam int id, @RequestParam String fullName, @RequestParam String phoneNumber,
+            @RequestParam String email, @RequestParam int roleId, @RequestParam String address) {
+        ResponseData responseData = iUserInfoService.updateUserInfo(file, id, fullName, phoneNumber,
+                email, roleId, address);
         return new ResponseEntity<>(responseData, responseData.getStatus());
 
     }
@@ -73,15 +64,15 @@ public class UserInfoController {
     }
 
     @PostMapping("/searchcustomer")
-    public ResponseEntity<?> findByCriteriaCustomer(@RequestParam String criteria, @RequestParam String query,
-            @RequestParam int page) {
+    public ResponseEntity<?> findByCriteriaCustomer(@RequestParam String criteria,
+            @RequestParam String query, @RequestParam int page) {
         ResponseData responseData = iUserInfoService.findByCriteriaCustomer(criteria, query, page);
         return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
     @PostMapping("/searchsupplier")
-    public ResponseEntity<?> findByCriteriaSupplier(@RequestParam String criteria, @RequestParam String query,
-            @RequestParam int page) {
+    public ResponseEntity<?> findByCriteriaSupplier(@RequestParam String criteria,
+            @RequestParam String query, @RequestParam int page) {
         ResponseData responseData = iUserInfoService.findByCriteriaSupplier(criteria, query, page);
         return new ResponseEntity<>(responseData, responseData.getStatus());
     }

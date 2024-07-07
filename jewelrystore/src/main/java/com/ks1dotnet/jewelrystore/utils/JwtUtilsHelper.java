@@ -22,8 +22,10 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
+@Slf4j
 public class JwtUtilsHelper {
 
     @Value("${jwt.privateKey}")
@@ -49,52 +51,47 @@ public class JwtUtilsHelper {
                 .compact();
     }
 
-
     public Claims verifyToken(String token) {
         try {
-            if (token.startsWith("Bearer "))
-                token = token.split(" ")[1];
             SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(privateKey));
             Claims tokenClaim =
                     Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
-            if (iInvalidatedTokenRepository.existsById(tokenClaim.getId()))
-                throw new ApplicationException("JWT invalid!", HttpStatus.UNAUTHORIZED);
-            return tokenClaim;
-        } catch (ApplicationException e) {
-            throw new ApplicationException("Error at verifyToken JwtUtilsHelper: " + e.getMessage(),
-                    e.getErrorString(), e.getStatus());
+            if (!iInvalidatedTokenRepository.existsById(tokenClaim.getId())) {
+                return tokenClaim;
+            } else
+                log.info("User already logout!");
         } catch (JwtException | IllegalArgumentException e) {
             handleJwtException(e);
         } catch (Exception e) {
-            throw new ApplicationException("Error at verifyToken JwtUtilsHelper: " + e.getMessage(),
-                    "JWT verification failed", HttpStatus.UNAUTHORIZED);
+            log.info("Exception at verifyToken JwtUtilsHelper: " + e.getMessage());
         }
         return null;
     }
 
+
+
     private void handleJwtException(Exception e) {
         if (e instanceof ExpiredJwtException) {
-            throw new ApplicationException("JWT has expired", HttpStatus.UNAUTHORIZED);
+            log.info("User has expired");
         } else if (e instanceof UnsupportedJwtException) {
-            throw new ApplicationException("JWT is unsupported", HttpStatus.UNAUTHORIZED);
+            log.info("User is unsupported");
         } else if (e instanceof MalformedJwtException) {
-            throw new ApplicationException("JWT is malformed", HttpStatus.UNAUTHORIZED);
+            log.info("User is malformed");
         } else if (e instanceof SignatureException) {
-            throw new ApplicationException("JWT signature does not match", HttpStatus.UNAUTHORIZED);
+            log.info("User signature does not match");
         } else if (e instanceof IllegalArgumentException) {
-            throw new ApplicationException("JWT token is null or empty", HttpStatus.UNAUTHORIZED);
+            log.info("User token is null or empty");
         } else {
-            throw new ApplicationException("JWT verification failed", HttpStatus.UNAUTHORIZED);
+            log.info("User verification failed");
         }
     }
 
-    public static Claims getClaims(String tokenType) {
+    public static Claims getAuthorizationByTokenType(String tokenType) {
         Authentication context = SecurityContextHolder.getContext().getAuthentication();
         if (context == null || !context.isAuthenticated()
                 || "anonymousUser".equals(context.getPrincipal())) {
             throw new ApplicationException("User not authenticated!", HttpStatus.UNAUTHORIZED);
         }
-
         Map<String, Claims> claimsMap = (Map<String, Claims>) context.getCredentials();
         return claimsMap.get(tokenType);
     }

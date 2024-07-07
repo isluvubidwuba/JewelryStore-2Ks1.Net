@@ -33,7 +33,6 @@ public interface IEmployeeService {
 
         public ResponseData deleteEmployee(String id);
 
-        public ResponseData validateOtp(String otp, String idEmployee);
 
         public ResponseData myProfile();
 }

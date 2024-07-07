@@ -9,4 +9,7 @@ public interface IAuthenticationService {
 
     public ResponseData refreshToken();
 
+    public ResponseData validateOtp(String otp, String idEmployee);
+
+
 }

@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.ks1dotnet.jewelrystore.dto.GemStoneOfProductDTO;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IGemStoneCategoryService;
@@ -18,7 +17,7 @@ import com.ks1dotnet.jewelrystore.service.serviceImp.IGemStoneTypeService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IProductService;
 
 @RestController
-@RequestMapping("/gemStone")
+@RequestMapping("${apiURL}/gemStone")
 @CrossOrigin("*")
 public class GemStoneOfProductController {
     @Autowired

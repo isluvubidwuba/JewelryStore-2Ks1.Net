@@ -431,7 +431,9 @@ public class UserInfoService implements IUserInfoService {
                 return responseData;
             }
         } catch (Exception e) {
-            throw new RunTimeExceptionV1("An error occurred while finding the customer", e.getMessage());
+            throw new ApplicationException(
+                    "Error at findByEmail UserInfoService: " + e.getMessage(),
+                    "An error occurred while finding the customer");
         }
     }
 

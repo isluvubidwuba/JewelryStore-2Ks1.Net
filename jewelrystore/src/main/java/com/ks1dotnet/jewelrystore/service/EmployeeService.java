@@ -15,8 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,6 +27,7 @@ import com.ks1dotnet.jewelrystore.repository.IEmployeeRepository;
 import com.ks1dotnet.jewelrystore.repository.IInvoiceRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IEmployeeService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IRoleService;
+import com.ks1dotnet.jewelrystore.utils.JwtUtilsHelper;
 
 @Service
 public class EmployeeService implements IEmployeeService {
@@ -51,21 +51,16 @@ public class EmployeeService implements IEmployeeService {
    private FirebaseStorageService firebaseStorageService;
 
    @Override
+   @PostAuthorize("returnObject.data.email == authentication.name")
    public ResponseData myProfile() {
       ResponseData response = new ResponseData();
       try {
-         Authentication context = SecurityContextHolder.getContext().getAuthentication();
-         if (context == null || !context.isAuthenticated()
-               || context.getPrincipal().equals("anonymousUser")) {
-            throw new ApplicationException("User not authenticated!", HttpStatus.UNAUTHORIZED);
-         }
-
-         String id = context.getName();
+         String id = JwtUtilsHelper.getAuthorizationByTokenType("at").getSubject();
          Employee employee = iEmployeeRepository.findById(id).orElseThrow(
                () -> new ApplicationException("User not exist!", HttpStatus.NOT_FOUND));
          EmployeeDTO emp = employee.getDTO();
          emp.setImage(url.trim() + filePath.trim() + emp.getImage());
-         response.setData(context);
+         response.setData(emp);
          response.setDesc("My profile");
          response.setStatus(HttpStatus.OK);
       } catch (ApplicationException e) {
@@ -379,19 +374,6 @@ public class EmployeeService implements IEmployeeService {
       return new PageImpl<>(dtolist, empPage.getPageable(), empPage.getTotalElements());
    }
 
-   @Override
-   public ResponseData validateOtp(String otp, String idEmployee) {
-      Employee em = iEmployeeRepository.findById(idEmployee).orElse(null);
-      if (em == null)
-         return new ResponseData(HttpStatus.NOT_FOUND, "Not found employee with id " + idEmployee,
-               null);
-      if (em.getOtp().equals(otp) && Duration.between(em.getOtpGenerDateTime(), LocalDateTime.now())
-            .getSeconds() > (50 * 60)) {
-         return new ResponseData(HttpStatus.REQUEST_TIMEOUT, "OTP code is timeout ", null);
-      }
-      if (!em.getOtp().equals(otp))
-         return new ResponseData(HttpStatus.BAD_REQUEST, "OTP code is not correct ", null);
-      return new ResponseData(HttpStatus.OK, "OK ", null);
-   }
+
 
 }

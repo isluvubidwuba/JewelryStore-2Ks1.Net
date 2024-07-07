@@ -16,7 +16,7 @@ import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IGenericPromotionService;
 
 @RestController
-@RequestMapping("/promotion-generic")
+@RequestMapping("${apiURL}/promotion-generic")
 @CrossOrigin("*")
 public class GenericPromotionController {
     @Autowired

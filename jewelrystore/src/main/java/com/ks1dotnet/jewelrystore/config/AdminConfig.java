@@ -6,10 +6,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.ks1dotnet.jewelrystore.entity.Employee;
-import com.ks1dotnet.jewelrystore.entity.Role;
 import com.ks1dotnet.jewelrystore.repository.IEmployeeRepository;
 import com.ks1dotnet.jewelrystore.repository.IRoleRepository;
-import com.ks1dotnet.jewelrystore.service.serviceImp.IEmployeeService;
 import lombok.Getter;
 import lombok.Setter;
 

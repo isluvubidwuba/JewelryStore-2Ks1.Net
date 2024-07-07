@@ -1,8 +1,5 @@
-const apiurl = process.env.API_URL;
 let currentPage2 = 0; // Trang hiện tại mặc định là 0
 const pageSize2 = 5; // Kích thước trang mặc định là 5
-const token = localStorage.getItem("token");
-const userId = localStorage.getItem("userId");
 
 $(document).ready(function () {
   $("#loadMoreInvoiceEmplBtn").on("click", function () {

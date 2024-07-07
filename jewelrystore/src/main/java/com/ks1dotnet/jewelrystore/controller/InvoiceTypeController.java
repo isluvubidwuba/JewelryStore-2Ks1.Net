@@ -12,7 +12,7 @@ import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IInvoiceTypeService;
 
 @RestController
-@RequestMapping("/invoice-type")
+@RequestMapping("${apiURL}/invoice-type")
 @CrossOrigin("*")
 public class InvoiceTypeController {
 

@@ -1,4 +1,3 @@
-const apiurl = process.env.API_URL;
 var keybuffer = [];
 
 $(document).ready(function () {

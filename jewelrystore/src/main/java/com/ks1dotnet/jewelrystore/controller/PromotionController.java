@@ -28,7 +28,7 @@ import com.ks1dotnet.jewelrystore.repository.IPromotionRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionService;
 
 @RestController
-@RequestMapping("/promotion")
+@RequestMapping("${apiURL}/promotion")
 @CrossOrigin("*")
 public class PromotionController {
     @Autowired

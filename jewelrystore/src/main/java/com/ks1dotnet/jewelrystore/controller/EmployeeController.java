@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -24,10 +25,9 @@ import com.ks1dotnet.jewelrystore.service.FirebaseStorageService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IEmployeeService;
 import com.ks1dotnet.jewelrystore.utils.JwtUtilsHelper;
 import io.jsonwebtoken.Claims;
-import lombok.var;
 
 @RestController
-@RequestMapping("/employee")
+@RequestMapping("${apiURL}/employee")
 @CrossOrigin("*")
 public class EmployeeController {
 
@@ -53,6 +53,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/myProfile")
+    @PreAuthorize("hasAuthority('ACCESS_TOKEN')")
     private ResponseEntity<?> getMyProfile() {
         ResponseData responseData = iEmployeeService.myProfile();
         return new ResponseEntity<>(responseData, responseData.getStatus());
@@ -195,20 +196,7 @@ public class EmployeeController {
         }
     }
 
-    @PostMapping("/validateOtp")
-    public ResponseEntity<?> validateOtp(@RequestParam("otp") String otp,
-            @RequestParam String idEmployee) {
-        if (!idEmployee.startsWith("SE"))
-            throw new ApplicationException("No employee found " + idEmployee, HttpStatus.NOT_FOUND);
-        if (otp.isEmpty())
-            throw new ApplicationException("Otp can not be empty", HttpStatus.BAD_REQUEST);
-        ResponseData responseData = iEmployeeService.validateOtp(otp, idEmployee);
-        if (responseData.getStatus() != HttpStatus.OK)
-            return new ResponseEntity<>(responseData, responseData.getStatus());
-        String token = jwtUtilsHelper.generateToken(idEmployee, "", 5, TokenType.ACCESS_TOKEN);
-        responseData.setData(token);
-        return new ResponseEntity<>(responseData, responseData.getStatus());
-    }
+
 
     @GetMapping("/getstaff")
     public ResponseEntity<?> getStaff() {

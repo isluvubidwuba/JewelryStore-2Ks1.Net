@@ -13,7 +13,7 @@ import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IEarnPointsService;
 
 @RestController
-@RequestMapping("/earnpoints")
+@RequestMapping("${apiURL}/earnpoints")
 @CrossOrigin("*")
 public class EarnPointsController {
     @Autowired

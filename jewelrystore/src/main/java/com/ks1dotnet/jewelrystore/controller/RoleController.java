@@ -17,7 +17,7 @@ import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IRoleService;
 
 @RestController
-@RequestMapping("/role")
+@RequestMapping("${apiURL}/role")
 @CrossOrigin("*")
 public class RoleController {
 

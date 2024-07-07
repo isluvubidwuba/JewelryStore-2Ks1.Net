@@ -13,24 +13,22 @@ import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.CustomerTypeService;
 
 @RestController
-@RequestMapping("/customertype")
+@RequestMapping("${apiURL}/customertype")
 @CrossOrigin("*")
 public class CustomerTypeController {
     @Autowired
     private CustomerTypeService customerTypeService;
 
     @PostMapping("/updatepointcondition")
-    public ResponseEntity<?> updatePointCondition(
-            @RequestParam Integer id,
-            @RequestParam String type,
-            @RequestParam Integer pointCondition) {
-        ResponseData responseData = customerTypeService.updatePointCondition(id, type, pointCondition);
+    public ResponseEntity<?> updatePointCondition(@RequestParam Integer id,
+            @RequestParam String type, @RequestParam Integer pointCondition) {
+        ResponseData responseData =
+                customerTypeService.updatePointCondition(id, type, pointCondition);
         return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?> addCustomerType(
-            @RequestParam String type,
+    public ResponseEntity<?> addCustomerType(@RequestParam String type,
             @RequestParam Integer pointCondition) {
         ResponseData responseData = customerTypeService.addCustomerType(type, pointCondition);
         return new ResponseEntity<>(responseData, responseData.getStatus());
@@ -38,7 +36,8 @@ public class CustomerTypeController {
 
     @PostMapping("/delete")
     public ResponseEntity<?> deleteCustomerType(@RequestParam Integer customerTypeId) {
-        ResponseData responseData = customerTypeService.deleteCustomerTypeAndUpdateRanks(customerTypeId);
+        ResponseData responseData =
+                customerTypeService.deleteCustomerTypeAndUpdateRanks(customerTypeId);
         return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 

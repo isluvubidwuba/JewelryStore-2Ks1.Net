@@ -1,5 +1,3 @@
-const apiurl = process.env.API_URL;
-var token = null;
 let listGemsDetail = null;
 let timeout = null;
 $(document).ready(function () {

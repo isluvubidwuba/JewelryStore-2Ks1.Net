@@ -16,7 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/payment")
+@RequestMapping("${apiURL}/payment")
 @RequiredArgsConstructor
 @CrossOrigin("*")
 public class PaymentController {
@@ -24,7 +24,8 @@ public class PaymentController {
 
     @GetMapping("/vn-pay")
     public ResponseObject<PaymentDTO.VNPayResponse> pay(HttpServletRequest request) {
-        return new ResponseObject<>(HttpStatus.OK, "Success", paymentService.createVnPayPayment(request));
+        return new ResponseObject<>(HttpStatus.OK, "Success",
+                paymentService.createVnPayPayment(request));
     }
 
     @GetMapping("/vn-pay-callback")
@@ -34,7 +35,8 @@ public class PaymentController {
 
         if (status == null) {
             System.out.println("No response code.");
-            ResponseData responseData = new ResponseData(HttpStatus.BAD_REQUEST, "No response code.", null);
+            ResponseData responseData =
+                    new ResponseData(HttpStatus.BAD_REQUEST, "No response code.", null);
             return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
         }
 

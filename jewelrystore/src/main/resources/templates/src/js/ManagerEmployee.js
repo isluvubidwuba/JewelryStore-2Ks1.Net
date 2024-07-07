@@ -1,11 +1,9 @@
-const apiurl = process.env.API_URL;
 $(document).ready(function () {
   initializeInsertEmployee();
   initializePagination();
   initializeSearchForm();
   fetchEmployees(0);
 });
-const token = localStorage.getItem("token");
 
 let currentPage = 0;
 
@@ -68,18 +66,21 @@ function renderEmployees(employees) {
               <td class="px-6 py-4" id="employee-image-${employee.id}">
                   Loading...
               </td>
-              <td class="px-6 py-3">${employee.firstName} ${employee.lastName
-      }</td>
+              <td class="px-6 py-3">${employee.firstName} ${
+      employee.lastName
+    }</td>
               <td class="px-6 py-3">${employee.role.name}</td>
               <td class="px-6 py-3">${statusLabel}</td>
               <td class="px-6 py-3">${formatCurrency(
-        employee.totalRevenue
-      )}</td>
+                employee.totalRevenue
+              )}</td>
               <td class="px-6 py-3">
-                  <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" onclick="viewEmployee('${employee.id
-      }')">View</button>
-                  <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" onclick="viewEmployee2('${employee.id
-      }')">Revenue</button>
+                  <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" onclick="viewEmployee('${
+                    employee.id
+                  }')">View</button>
+                  <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" onclick="viewEmployee2('${
+                    employee.id
+                  }')">Revenue</button>
                   
               </td>
           </tr>
@@ -391,17 +392,32 @@ function initializeSearchForm() {
 
     // Validation
     if (criteria === "id" && !/^SE\d{8}$/.test(query)) {
-      showNotification("Invalid ID format. ID should start with 'SE' followed by 8 digits.", "Error");
+      showNotification(
+        "Invalid ID format. ID should start with 'SE' followed by 8 digits.",
+        "Error"
+      );
       return;
     }
 
-    if (criteria === "role" && !["ADMIN", "MANAGER", "STAFF"].includes(query.toUpperCase())) {
-      showNotification("Invalid role. Valid roles are ADMIN, MANAGER, STAFF.", "Error");
+    if (
+      criteria === "role" &&
+      !["ADMIN", "MANAGER", "STAFF"].includes(query.toUpperCase())
+    ) {
+      showNotification(
+        "Invalid role. Valid roles are ADMIN, MANAGER, STAFF.",
+        "Error"
+      );
       return;
     }
 
-    if (criteria === "status" && !["active", "inactive"].includes(query.toLowerCase())) {
-      showNotification("Invalid status. Valid statuses are active or inactive.", "Error");
+    if (
+      criteria === "status" &&
+      !["active", "inactive"].includes(query.toLowerCase())
+    ) {
+      showNotification(
+        "Invalid status. Valid statuses are active or inactive.",
+        "Error"
+      );
       return;
     }
 

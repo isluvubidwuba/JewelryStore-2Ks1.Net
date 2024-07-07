@@ -1,6 +1,7 @@
 package com.ks1dotnet.jewelrystore.security;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,13 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ks1dotnet.jewelrystore.exception.ApplicationException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.utils.JwtUtilsHelper;
 import io.jsonwebtoken.Claims;
@@ -23,8 +22,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
+@Slf4j
 public class CustomJwtFilter extends OncePerRequestFilter {
     @Autowired
     JwtUtilsHelper jwtUtilsHelper;
@@ -35,58 +36,50 @@ public class CustomJwtFilter extends OncePerRequestFilter {
         try {
             String tokenAT = getTokenFromHeader(request);
             String tokenRT = getRefreshTokenFromCookies(request);
-            Map<String, Claims> mapClaims = new HashMap<>();
 
-            if ("/authentication/refreshToken".equals(request.getRequestURI()) && tokenRT != null) {
-                Claims claimsRT = jwtUtilsHelper.verifyToken(tokenRT);
-                mapClaims.put("rt", claimsRT);
+            Claims claimsAT = tokenAT != null ? jwtUtilsHelper.verifyToken(tokenAT) : null;
+            Claims claimsRT = tokenRT != null ? jwtUtilsHelper.verifyToken(tokenRT) : null;
 
-                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-                        new UsernamePasswordAuthenticationToken(claimsRT.getSubject(), mapClaims,
-                                List.of(new SimpleGrantedAuthority(
-                                        claimsRT.get("role", String.class))));
-                SecurityContext securityContext = SecurityContextHolder.getContext();
-                securityContext.setAuthentication(usernamePasswordAuthenticationToken);
-
-                // Proceed with the filter chain for refresh token endpoint
-                filterChain.doFilter(request, response);
+            if (claimsAT == null && claimsRT == null) {
+                registerAuthorization(null, null, null, request, response, filterChain);
                 return;
             }
 
+            Map<String, Claims> mapClaims = new HashMap<>();
+            List<SimpleGrantedAuthority> listAuthority = new ArrayList<>();
 
-            if (tokenAT != null) {
-                Claims claimsAT = jwtUtilsHelper.verifyToken(tokenAT);
+            if (claimsAT != null) {
                 mapClaims.put("at", claimsAT);
-                if (tokenRT != null) {
-                    Claims claimsRT = jwtUtilsHelper.verifyToken(tokenRT);
-                    mapClaims.put("rt", claimsRT);
-
-                }
-                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-                        new UsernamePasswordAuthenticationToken(claimsAT.getSubject(), mapClaims,
-                                List.of(new SimpleGrantedAuthority(
-                                        claimsAT.get("role", String.class))));
-                SecurityContext securityContext = SecurityContextHolder.getContext();
-                securityContext.setAuthentication(usernamePasswordAuthenticationToken);
+                listAuthority.add(new SimpleGrantedAuthority(claimsAT.get("role", String.class)));
+                listAuthority
+                        .add(new SimpleGrantedAuthority(claimsAT.get("token_type", String.class)));
             }
 
+            if (claimsRT != null) {
+                mapClaims.put("rt", claimsRT);
+                listAuthority
+                        .add(new SimpleGrantedAuthority(claimsRT.get("token_type", String.class)));
+            }
 
-            filterChain.doFilter(request, response);
-        } catch (ApplicationException e) {
-            handleException(response, e);
+            registerAuthorization(
+                    claimsAT != null ? claimsAT.getSubject()
+                            : (claimsRT != null ? claimsRT.getSubject() : null),
+                    mapClaims, listAuthority, request, response, filterChain);
         } catch (Exception e) {
-            handleException(response, new ApplicationException("Internal Server Error",
-                    HttpStatus.INTERNAL_SERVER_ERROR));
+            log.error("Exception at doFilterInternal CustomeJwtFilter: " + e.getMessage());
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.setContentType("application/json");
+            response.getWriter()
+                    .write(new ObjectMapper()
+                            .writeValueAsString(new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR,
+                                    "Something wrong at while authorize!", null)));
         }
     }
 
     private String getTokenFromHeader(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
-        String token = null;
-        if (StringUtils.hasText(header) && header.startsWith("Bearer ")) {
-            token = header.split(" ")[1];
-        }
-        return token;
+        return (StringUtils.hasText(header) && header.startsWith("Bearer ")) ? header.substring(7)
+                : null;
     }
 
     private String getRefreshTokenFromCookies(HttpServletRequest request) {
@@ -100,11 +93,14 @@ public class CustomJwtFilter extends OncePerRequestFilter {
         return null;
     }
 
-    private void handleException(HttpServletResponse response, ApplicationException e)
-            throws IOException {
-        response.setStatus(e.getStatus().value());
-        response.setContentType("application/json");
-        response.getWriter().write(new ObjectMapper()
-                .writeValueAsString(new ResponseData(e.getStatus(), e.getErrorString(), null)));
+
+    private void registerAuthorization(String subject, Map<String, Claims> mapClaims,
+            List<SimpleGrantedAuthority> listAuthority, HttpServletRequest request,
+            HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(subject, mapClaims, listAuthority);
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        filterChain.doFilter(request, response);
     }
 }

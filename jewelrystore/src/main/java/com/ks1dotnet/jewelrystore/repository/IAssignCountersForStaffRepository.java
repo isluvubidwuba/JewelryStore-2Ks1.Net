@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import com.ks1dotnet.jewelrystore.entity.AssignCountersForStaff;
 
 @Repository
-public interface IAssignCountersForStaffRepository extends JpaRepository<AssignCountersForStaff, Integer> {
+public interface IAssignCountersForStaffRepository
+        extends JpaRepository<AssignCountersForStaff, Integer> {
 
 }

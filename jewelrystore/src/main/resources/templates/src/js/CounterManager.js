@@ -1,4 +1,3 @@
-const apiurl = process.env.API_URL;
 $(document).ready(function () {
   fetchCounters();
   createCounterModal();
@@ -6,8 +5,6 @@ $(document).ready(function () {
   setupFilters();
   setupMaintenanceCounterModal();
 });
-
-const token = localStorage.getItem("token");
 
 function fetchCounters() {
   $.ajax({
@@ -49,10 +46,11 @@ function generateTabs(counters) {
 
     const tabLink = $("<a>", {
       href: "#",
-      class: `inline-block py-3 px-4 rounded-lg ${index === 0
+      class: `inline-block py-3 px-4 rounded-lg ${
+        index === 0
           ? "text-white bg-black active"
           : "text-gray-300 bg-black hover:bg-gray-700"
-        }`,
+      }`,
       text: counter.name,
       "data-tab": `tab-${counter.id}`,
     });
@@ -212,8 +210,9 @@ function generateTabContents(counters) {
 
 function fetchProductsByCounter(counterId, page = 1) {
   $.ajax({
-    url: `http://${apiurl}/counter/listproductsbycounter?counterId=${counterId}&page=${page - 1
-      }`,
+    url: `http://${apiurl}/counter/listproductsbycounter?counterId=${counterId}&page=${
+      page - 1
+    }`,
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -623,22 +622,28 @@ function populateInactiveCounterTable(counters) {
             <tr class="text-center">
                 <td class="py-2 px-4 border-b">${counter.id}</td>
                 <td class="py-2 px-4">
-                    <input type="text" value="${counter.name
-      }" class="name-input border rounded p-1" data-id="${counter.id
-      }" />
+                    <input type="text" value="${
+                      counter.name
+                    }" class="name-input border rounded p-1" data-id="${
+      counter.id
+    }" />
                 </td>
                 <td class="py-2 px-4 border-b">
-                    <select class="status-select rounded p-1" data-id="${counter.id
-      }">
-                        <option value="true" ${counter.status ? "selected" : ""
-      }>Active</option>
-                        <option value="false" ${!counter.status ? "selected" : ""
-      }>Inactive</option>
+                    <select class="status-select rounded p-1" data-id="${
+                      counter.id
+                    }">
+                        <option value="true" ${
+                          counter.status ? "selected" : ""
+                        }>Active</option>
+                        <option value="false" ${
+                          !counter.status ? "selected" : ""
+                        }>Inactive</option>
                     </select>
                 </td>
                 <td class="py-2 px-4 border-b">
-                    <button class="update-btn bg-green-500 text-white px-2 py-1 rounded" data-id="${counter.id
-      }">Update</button>
+                    <button class="update-btn bg-green-500 text-white px-2 py-1 rounded" data-id="${
+                      counter.id
+                    }">Update</button>
                 </td>
             </tr>
         `;
