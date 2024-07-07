@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -42,6 +43,12 @@ public class InvoiceController {
     private IInvoiceService invoiceService;
     @Autowired
     private IInvoiceRepository invoiceRepository;
+    @Value("${invoiceID.Sell}")
+    private int Sell;
+    @Value("${invoiceID.Imports}")
+    private int Imports;
+    @Value("${invoiceID.BuyBack}")
+    private int BuyBack;
 
     @PostMapping("/create-detail")
     public ResponseEntity<ResponseData> createInvoice(@RequestBody InvoiceDetailRequest request) {
@@ -135,6 +142,27 @@ public class InvoiceController {
             Invoice Invoice = invoiceRepository.findById(invoice)
                     .orElseThrow(() -> new BadRequestException("Not found invoice with id: " + invoice));
 
+            return new ResponseEntity<>(new ResponseData(HttpStatus.OK, "Get invoice successfull", Invoice.getDTO()),
+                    HttpStatus.OK);
+        } catch (BadRequestException e) {
+            ResponseData responseData = new ResponseData(HttpStatus.BAD_REQUEST, e.getMessage(), null);
+            return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            ResponseData responseData = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
+            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/view-invoice-resale")
+    public ResponseEntity<ResponseData> viewInvoiceResale(@RequestParam int invoice) {
+        try {
+            Invoice Invoice = invoiceRepository.findById(invoice)
+                    .orElseThrow(() -> new BadRequestException("Not found invoice with id: " + invoice));
+            if (Invoice.getId() != Sell) {
+                return new ResponseEntity<>(
+                        new ResponseData(HttpStatus.NOT_FOUND, "This invoice cannot buy back", null),
+                        HttpStatus.NOT_FOUND);
+            }
             return new ResponseEntity<>(new ResponseData(HttpStatus.OK, "Get invoice successfull", Invoice.getDTO()),
                     HttpStatus.OK);
         } catch (BadRequestException e) {

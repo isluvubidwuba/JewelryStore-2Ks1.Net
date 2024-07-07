@@ -383,14 +383,15 @@ public class InvoiceService implements IInvoiceService {
                         Invoice invoice = new Invoice();
                         UserInfo user = userInfoService.findById(request.getUserId());
                         invoice.setUserInfo(user);
-                        if (request.getInvoiceTypeId() != BuyBack) {
+                        if (request.getInvoiceTypeId() != Imports) {
                                 throw new BadRequestException("ERROR with method create import error invoice type");
                         }
                         if (user.getRole().getId() != 5) {
                                 throw new BadRequestException(
                                                 "ERROR with method create import error user not is SUPPLIER type");
                         }
-                        invoice.setInvoiceType(invoiceTypeService.findById(2)); // Đặt loại hóa đơn là 2 cho import
+                        invoice.setInvoiceType(invoiceTypeService.findById(Imports)); // Đặt loại hóa đơn là 2 cho
+                                                                                      // import
                         invoice.setDate(new Date());
                         invoice.setEmployee(iEmployeeRepository.findById(request.getEmployeeId())
                                         .orElseThrow(() -> new BadRequestException("NOT FOUND EMPLOYEE WITH THIS TOKEN:"
@@ -917,6 +918,6 @@ public class InvoiceService implements IInvoiceService {
                 Page<Invoice> invoices = invoiceRepository
                                 .findByEmployeeIdAndInvoiceTypeIdAndStatus(employeeId, Sell, true, pageable);
                 return invoices.map(Invoice::getDTO);
-        } 
+        }
 
 }
