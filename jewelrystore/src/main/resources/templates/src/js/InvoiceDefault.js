@@ -327,15 +327,63 @@ $(document).ready(function () {
     }
 
     let modalContent = `
-            <p>Client: ${userName}</p>
-            <p>ID Client: ${userId}</p>
-            <p>Promotion: ${userPromotion
+      <div class="bg-white rounded-lg shadow-lg px-8 py-10 max-w-7xl mx-auto">
+        <div class="flex items-center justify-between mb-8">
+          <div class="flex items-center">
+            <img class="h-8 w-8 mr-2" src="https://tailwindflex.com/public/images/logos/favicon-32x32.png" alt="Logo" />
+            <div class="text-gray-700 font-semibold text-lg">2KS 1NET</div>
+          </div>
+          <div class="text-gray-700 text-right">
+            <div class="font-bold text-xl mb-2">CONFIRM ORDER</div>
+          </div>
+        </div>
+        <div class="border-b-2 border-gray-300 pb-8 mb-8">
+          <h2 class="text-2xl font-bold mb-4">Customer and Employee Information</h2>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <div class="text-gray-700 mb-2"><strong>Customer: </strong> ${userName}</div>
+            </div>
+            <div>
+              <div class="text-gray-700 mb-2"><strong>STAFF: </strong> ${employeeID}</div>
+            </div>
+          </div>
+        </div>
+        <table class="w-full text-left mb-8">
+          <thead>
+            <tr>
+              <th class="text-gray-700 font-bold uppercase py-2">Barcode</th>
+              <th class="text-gray-700 font-bold uppercase py-2">Quantity</th>
+              <th class="text-gray-700 font-bold uppercase py-2">Total Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${Object.values(productMap)
+        .map(
+          (product) => `
+            <tr>
+              <td class="py-4 text-gray-700">${product.product.barCode}</td>
+              <td class="py-4 text-gray-700">${product.quantity}</td>
+              <td class="py-4 text-gray-700">${new Intl.NumberFormat(
+            "vi-VN",
+            { style: "currency", currency: "VND" }
+          ).format(product.totalPrice)}</td>
+            </tr>
+            `
+        )
+        .join("")}
+          </tbody>
+        </table>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="text-gray-700">Promotion: </div>
+          <div class="text-gray-700 text-right">${userPromotion
         ? userPromotion.name + " - " + userPromotion.value + "%"
         : "Do not have !!!"
-      }</p>
-            <p>Employee: ${employeeID}</p>
-            <p>Total number of products: ${Object.keys(productMap).length}</p>
-        `;
+      }</div>
+          <div class="text-gray-700">Total number of products: </div>
+          <div class="text-gray-700 text-right">${Object.keys(productMap).length}</div>
+        </div>
+      </div>
+    `;
 
     $("#confirm-modal-content").html(modalContent);
     $("#confirm-modal").removeClass("hidden");
@@ -357,6 +405,7 @@ $(document).ready(function () {
         $("#confirm-modal").addClass("hidden");
       });
   }
+
 
   // ==============================Phần này thực hiện add sản phẩm vào trước khi thanh toán ======================================================
   CheckClearBarcodeInput();
@@ -853,7 +902,6 @@ $(document).ready(function () {
                 { style: "currency", currency: "VND" }
               ).format(invoiceData.totalPrice)}</div>
                         </div>
-                        
                     </div>
                     `);
 
