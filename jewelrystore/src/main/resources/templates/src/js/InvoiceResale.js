@@ -25,6 +25,11 @@ $(document).ready(function () {
     });
   }
 
+  function clearInputInvoiceID() {
+    $("#invoiceid-input").val("");
+    $("#clear-input").addClass("hidden");
+  }
+
 
 
   $("#add-invoiceid-button").click(function () {
@@ -34,7 +39,7 @@ $(document).ready(function () {
       formData.append("invoice", invoiceId);
 
       $.ajax({
-        url: `http://${apiurl}/invoice/view-invoice`,
+        url: `http://${apiurl}/invoice/view-invoice-resale`,
         method: "POST",
         data: formData,
         processData: false,
@@ -48,20 +53,18 @@ $(document).ready(function () {
               currentUser = response.data.userInfoDTO;
               updateUserInfo(currentUser);
               updateInvoiceDetails(response.data, invoiceId);
+              showNotification(response.desc, "OK");
             } else if (currentUser.id === response.data.userInfoDTO.id) {
               updateInvoiceDetails(response.data, invoiceId);
             } else {
-              showNotification(
-                "Different users. Please check again !!!",
-                "error"
-              );
+              showNotification("Different users. Please check again !!!", "error");
             }
-          } else {
-            showNotification("Invoice not found", "error");
           }
         },
         error: function (error) {
           console.error("Error when getting invoice: ", error);
+          var errorMessage = error.responseJSON && error.responseJSON.desc ? error.responseJSON.desc : "Unknown error occurred";
+          showNotification(errorMessage, "error");
         },
       });
     } else {
@@ -535,7 +538,7 @@ $(document).ready(function () {
     $("#product-table-body").empty();
     $("#user-details").empty();
     $("#total-price").text(formatCurrency(0));
-    initializeClearButton();
+    clearInputInvoiceID();
     currentUser = null;
   });
 
@@ -547,7 +550,7 @@ $(document).ready(function () {
     $("#user-details").empty();
     $("#total-price").text(formatCurrency(0));
     currentUser = null;
-
+    clearInputInvoiceID();
     showNotification("All information has been cleared", "OK");
   });
 

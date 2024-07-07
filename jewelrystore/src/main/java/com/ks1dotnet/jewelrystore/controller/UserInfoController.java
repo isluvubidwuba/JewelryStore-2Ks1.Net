@@ -123,4 +123,16 @@ public class UserInfoController {
 
     }
 
+    @GetMapping("/phonenumberandmailsupplier")
+    public ResponseEntity<?> getPhoneNumberSupplier(@RequestParam String citeria) {
+        if (citeria.contains("@")) {
+            ResponseData responseData = iUserInfoService.findByEmailSupplier(citeria);
+            return new ResponseEntity<>(responseData, responseData.getStatus());
+        } else {
+            ResponseData responseData = iUserInfoService.findByPhoneSupplier(citeria);
+            return new ResponseEntity<>(responseData, responseData.getStatus());
+        }
+
+    }
+
 }
