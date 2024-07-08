@@ -49,9 +49,6 @@ $(document).ready(function () {
       addProductByBarcode(barcode);
       $("#barcode-input").val("");
     }
-
-
-
   });
 
   // ============================Phần này thực hiện add customer mới vào system =========================================================
@@ -329,10 +326,11 @@ $(document).ready(function () {
     let modalContent = `
             <p>Client: ${userName}</p>
             <p>ID Client: ${userId}</p>
-            <p>Promotion: ${userPromotion
-        ? userPromotion.name + " - " + userPromotion.value + "%"
-        : "Do not have !!!"
-      }</p>
+            <p>Promotion: ${
+              userPromotion
+                ? userPromotion.name + " - " + userPromotion.value + "%"
+                : "Do not have !!!"
+            }</p>
             <p>Employee: ${employeeID}</p>
             <p>Total number of products: ${Object.keys(productMap).length}</p>
         `;
@@ -375,8 +373,8 @@ $(document).ready(function () {
   }
 
   function clearBarcodeInput() {
-    $('#barcode-input').val('');
-    $('#clear-barcode-input').addClass('hidden');
+    $("#barcode-input").val("");
+    $("#clear-barcode-input").addClass("hidden");
   }
 
   function addProductByBarcode(barcode) {
@@ -387,7 +385,7 @@ $(document).ready(function () {
       } else {
         showNotification(
           "Quantity exceeds inventory quantity. Available: " +
-          productMap[barcode].inventory,
+            productMap[barcode].inventory,
           "error"
         );
       }
@@ -444,26 +442,33 @@ $(document).ready(function () {
     const productCard = $(`
         <div id="product-${barcode}" class="product-card border p-4 mb-4 rounded-md shadow-md grid grid-cols-12 gap-4">
             <div class="col-span-4">
-                <img src="${productData.product.imgPath}" alt="${productData.product.name
-      }" class="w-full h-auto rounded-md">
+                <img src="${productData.product.imgPath}" alt="${
+      productData.product.name
+    }" class="w-full h-auto rounded-md">
             </div>
             <div class="col-span-8">
-                <h3 class="text-xl font-semibold mb-2">${productData.product.name
-      }</h3>
-                <p class="text-sm text-gray-600 mb-1"><strong>Product code: </strong> ${productData.product.productCode
-      }</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Material: </strong> ${productData.product.materialDTO.name
-      }</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Category: </strong> ${productData.product.productCategoryDTO.name
-      }</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Barcode: </strong> ${productData.product.barCode
-      }</p>
+                <h3 class="text-xl font-semibold mb-2">${
+                  productData.product.name
+                }</h3>
+                <p class="text-sm text-gray-600 mb-1"><strong>Product code: </strong> ${
+                  productData.product.productCode
+                }</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Material: </strong> ${
+                  productData.product.materialDTO.name
+                }</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Category: </strong> ${
+                  productData.product.productCategoryDTO.name
+                }</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Barcode: </strong> ${
+                  productData.product.barCode
+                }</p>
                 <p class="text-sm text-gray-600 mb-1"><strong>Toltal price: </strong> ${new Intl.NumberFormat(
-        "vi-VN",
-        { style: "currency", currency: "VND" }
-      ).format(productData.totalPrice)}</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Quantity: </strong> <span id="quantity-${barcode}">${productData.quantity
-      }</span></p>
+                  "vi-VN",
+                  { style: "currency", currency: "VND" }
+                ).format(productData.totalPrice)}</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Quantity: </strong> <span id="quantity-${barcode}">${
+      productData.quantity
+    }</span></p>
             </div>
         </div>
     `);
@@ -477,12 +482,13 @@ $(document).ready(function () {
                 <td class="px-4 py-2">${productData.product.name}</td>
                 <td class="px-4 py-2">${productData.product.productCode}</td>
                 <td class="px-4 py-2 total-price">${new Intl.NumberFormat(
-      "vi-VN",
-      { style: "currency", currency: "VND" }
-    ).format(productData.totalPrice)}</td>
+                  "vi-VN",
+                  { style: "currency", currency: "VND" }
+                ).format(productData.totalPrice)}</td>
                 <td class="px-4 py-2">
-                    <input type="number" id="sidebar-quantity-${barcode}" class="quantity-input border p-1" value="${productData.quantity
-      }" min="1" max="${productData.inventory}">
+                    <input type="number" id="sidebar-quantity-${barcode}" class="quantity-input border p-1" value="${
+      productData.quantity
+    }" min="1" max="${productData.inventory}">
                 </td>
                 <td class="px-4 py-2">
                     <button class="remove-product-btn bg-red-500 text-white p-1" data-barcode="${barcode}">Delete</button>
@@ -498,7 +504,7 @@ $(document).ready(function () {
       } else {
         showNotification(
           "Quantity exceeds inventory quantity. Avaiable: " +
-          productData.inventory,
+            productData.inventory,
           "error"
         );
         $(this).val(productData.quantity);
@@ -783,26 +789,31 @@ $(document).ready(function () {
                             <div class="text-gray-700 text-right">
                                 <div class="font-bold text-xl mb-2">INVOICE</div>
                                 <div class="text-sm">Date: ${new Date(
-            invoiceData.createdDate
-          ).toLocaleDateString()}</div>
-                                <div class="text-sm">Invoice #: ${invoiceData.id
-            }</div>
+                                  invoiceData.date
+                                ).toLocaleDateString()}</div>
+                                <div class="text-sm">Invoice #: ${
+                                  invoiceData.id
+                                }</div>
                             </div>
                         </div>
                         <div class="border-b-2 border-gray-300 pb-8 mb-8">
                             <h2 class="text-2xl font-bold mb-4">Customer and Employee Information</h2>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <div class="text-gray-700 mb-2"><strong>Customer: </strong> ${userInfo.fullName
-            }</div>
-                                    <div class="text-gray-700 mb-2"><strong>ID: </strong> ${userInfo.id
-            }</div>
+                                    <div class="text-gray-700 mb-2"><strong>Customer: </strong> ${
+                                      userInfo.fullName
+                                    }</div>
+                                    <div class="text-gray-700 mb-2"><strong>Phone number: </strong> ${
+                                      userInfo.phoneNumber
+                                    }</div>
                                 </div>
                                 <div>
-                                    <div class="text-gray-700 mb-2"><strong>STAFF: </strong> ${employeeInfo.firstName
-            } ${employeeInfo.lastName}</div>
-                                    <div class="text-gray-700 mb-2"><strong>ID: </strong> ${employeeInfo.id
-            }</div>
+                                    <div class="text-gray-700 mb-2"><strong>STAFF: </strong> ${
+                                      employeeInfo.firstName
+                                    } ${employeeInfo.lastName}</div>
+                                    <div class="text-gray-700 mb-2"><strong>ID: </strong> ${
+                                      employeeInfo.id
+                                    }</div>
                                 </div>
                             </div>
                         </div>
@@ -817,41 +828,44 @@ $(document).ready(function () {
                             </thead>
                             <tbody>
                                 ${orderDetails
-              .map(
-                (order) => `
+                                  .map(
+                                    (order) => `
                                 <tr>
-                                    <td class="py-4 text-gray-700">${order.productDTO.name
-                  }</td>
-                                    <td class="py-4 text-gray-700">${order.productDTO.productCode
-                  }</td>
-                                    <td class="py-4 text-gray-700">${order.quantity
-                  }</td>
+                                    <td class="py-4 text-gray-700">${
+                                      order.productDTO.name
+                                    }</td>
+                                    <td class="py-4 text-gray-700">${
+                                      order.productDTO.productCode
+                                    }</td>
+                                    <td class="py-4 text-gray-700">${
+                                      order.quantity
+                                    }</td>
                                     <td class="py-4 text-gray-700">${new Intl.NumberFormat(
-                    "vi-VN",
-                    { style: "currency", currency: "VND" }
-                  ).format(order.totalPrice)}</td>
+                                      "vi-VN",
+                                      { style: "currency", currency: "VND" }
+                                    ).format(order.totalPrice)}</td>
                                 </tr>
                                 `
-              )
-              .join("")}
+                                  )
+                                  .join("")}
                             </tbody>
                         </table>
                         <div class="grid grid-cols-2 gap-4">
                             <div class="text-gray-700">Total original price: </div>
                             <div class="text-gray-700 text-right">${new Intl.NumberFormat(
-                "vi-VN",
-                { style: "currency", currency: "VND" }
-              ).format(invoiceData.totalPriceRaw)}</div>
+                              "vi-VN",
+                              { style: "currency", currency: "VND" }
+                            ).format(invoiceData.totalPriceRaw)}</div>
                             <div class="text-gray-700">Reduced price: </div>
                             <div class="text-gray-700 text-right">${new Intl.NumberFormat(
-                "vi-VN",
-                { style: "currency", currency: "VND" }
-              ).format(invoiceData.discountPrice)}</div>
+                              "vi-VN",
+                              { style: "currency", currency: "VND" }
+                            ).format(invoiceData.discountPrice)}</div>
                             <div class="text-gray-700 font-bold text-xl">Total price: </div>
                             <div class="text-gray-700 font-bold text-xl text-right">${new Intl.NumberFormat(
-                "vi-VN",
-                { style: "currency", currency: "VND" }
-              ).format(invoiceData.totalPrice)}</div>
+                              "vi-VN",
+                              { style: "currency", currency: "VND" }
+                            ).format(invoiceData.totalPrice)}</div>
                         </div>
                         
                     </div>
@@ -986,7 +1000,7 @@ $(document).ready(function () {
     if (vnpResponseCode !== null) {
       fetch(
         "http://localhost:8080/payment/vn-pay-callback?vnp_ResponseCode=" +
-        vnpResponseCode
+          vnpResponseCode
       )
         .then((response) => response.json())
         .then((data) => {
