@@ -158,7 +158,7 @@ public class InvoiceController {
         try {
             Invoice Invoice = invoiceRepository.findById(invoice)
                     .orElseThrow(() -> new BadRequestException("Not found invoice with id: " + invoice));
-            if (Invoice.getId() != Sell) {
+            if (Invoice.getInvoiceType().getId() != Sell) {
                 return new ResponseEntity<>(
                         new ResponseData(HttpStatus.NOT_FOUND, "This invoice cannot buy back", null),
                         HttpStatus.NOT_FOUND);
