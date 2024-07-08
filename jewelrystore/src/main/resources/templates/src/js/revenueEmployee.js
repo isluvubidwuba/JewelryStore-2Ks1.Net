@@ -100,7 +100,7 @@ function showInvoiceList(invoices) {
 }
 
 // Cập nhật hàm viewEmployee để nhận thêm tham số period và month cho modal
-function viewEmployee2(
+export function viewEmployee2(
   idEmployee,
   period = "month",
   year = new Date().getFullYear(),
@@ -111,23 +111,23 @@ function viewEmployee2(
   currentPage2 = 0; // Reset lại trang hiện tại về 0 khi hiển thị nhân viên mới
   $("#invoiceEmployeeBody").empty(); // Xóa nội dung của bảng trước khi tải dữ liệu mới
   userService.sendAjaxWithAuthen(
-    `http://${userservice.getapiurl()}/api/invoice/revenue/employeeId`,
+    `http://${userService.getApiUrl()}/api/invoice/revenue/employeeId`,
     "GET",
     handleSuccessviewEmployee2,
     handleErrorviewEmployee2,
-    {
+    $.param({
       period: period,
       year: year,
       month: period === "month" ? month : null,
       employeeId: idEmployee,
-    }
+    })
   );
 }
 function handleSuccessviewEmployee2(response) {
   if (response.status === "OK") {
     showEmployeeInfo(response.data);
     openModalRevenue();
-    loadInvoices(idEmployee, currentPage2, pageSize2);
+    loadInvoices(response.data.employee.id, currentPage2, pageSize2);
   } else {
     showNotification("Không thể lấy dữ liệu doanh thu của nhân viên.", "Error");
   }
@@ -143,16 +143,16 @@ function Update(
   month = new Date().getMonth() + 1
 ) {
   userService.sendAjaxWithAuthen(
-    `http://${userservice.getapiurl()}/api/invoice/revenue/employeeId`,
+    `http://${userService.getApiUrl()}/api/invoice/revenue/employeeId`,
     "GET",
     handleSuccessUpdate,
     handleErrorUpdate,
-    {
+    $.param({
       period: period,
       year: year,
       month: period === "month" ? month : null,
       employeeId: idEmployee,
-    }
+    })
   );
 }
 function handleSuccessUpdate(response) {
@@ -168,15 +168,15 @@ function handleErrorUpdate() {
 // Hàm tải danh sách hóa đơn
 function loadInvoices(employeeId, page, size) {
   userService.sendAjaxWithAuthen(
-    `http://${userservice.getapiurl()}/api/invoice/employee`,
+    `http://${userService.getApiUrl()}/api/invoice/employee`,
     "GET",
     handleSuccessLoadInvoices,
     handleErrorLoadInvoices,
-    {
+    $.param({
       employeeId: employeeId,
       page: page,
       size: size,
-    }
+    })
   );
 }
 function handleErrorLoadInvoices() {

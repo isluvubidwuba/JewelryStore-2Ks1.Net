@@ -458,60 +458,64 @@ function searchSuggestion(listProduct) {
 }
 
 async function fetchProductCategory() {
-  return fetchData(
+  return await fetchData(
     `http://${userService.getApiUrl()}/api/product/category/all`
   );
 }
 
 async function fetchMaterial() {
-  return fetchData(`http://${userService.getApiUrl()}/api/material/all`);
+  return await fetchData(`http://${userService.getApiUrl()}/api/material/all`);
 }
 
 async function fetchGemStoneOfProduct(productId) {
-  return fetchData(
+  return await fetchData(
     `http://${userService.getApiUrl()}/api/gemStone/product?id=${productId}`
   );
 }
 
 async function fetchData(url) {
-  await userService.sendAjaxWithAuthen(
-    url,
-    "GET",
-    function (response) {
-      if (response.status === "OK" && response.data) {
-        return response.data.content;
-      } else {
-        console.error(`Failed to fetch data from ${url}`);
-        return [];
-      }
-    },
-    function (error) {
-      console.error(`Error fetching data from ${url}:`, error);
+  try {
+    const response = await userService.sendAjaxWithAuthen(
+      url,
+      "GET",
+      null,
+      null,
+      null
+    );
+    console.log(response);
+    if (response.status === "OK" && response.data) {
+      return response.data.content;
+    } else {
+      console.error(`Failed to fetch data from ${url}`);
       return [];
-    },
-    null
-  );
-}
-async function fetchData2(url) {
-  await userService.sendAjaxWithAuthen(
-    url,
-    "GET",
-    function (response) {
-      if (response.status === "OK" && response.data) {
-        return response.data;
-      } else {
-        console.error(`Failed to fetch data from ${url}`);
-        return [];
-      }
-    },
-    function (error) {
-      console.error(`Error fetching data from ${url}:`, error);
-      return [];
-    },
-    null
-  );
+    }
+  } catch (error) {
+    console.error(`Error fetching data from ${url}:`, error);
+    return [];
+  }
 }
 
+async function fetchData2(url) {
+  try {
+    const response = await userService.sendAjaxWithAuthen(
+      url,
+      "GET",
+      null,
+      null,
+      null
+    );
+
+    if (response.status === "OK" && response.data) {
+      return response.data;
+    } else {
+      console.error(`Failed to fetch2 data from ${url}`);
+      return [];
+    }
+  } catch (error) {
+    console.error(`Error fetching 2 data from ${url}:`, error);
+    return [];
+  }
+}
 function setupFormSubmissions() {
   setupFormSubmission(
     "#submit-insert",

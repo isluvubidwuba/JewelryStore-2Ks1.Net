@@ -34,7 +34,7 @@ function fetchEmployeeImage(employeeId, imageUrl) {
 
 function fetchEmployees(page) {
   userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/employee/listpage`,
+    `http://${userService.getApiUrl()}/api/employee/listpage?page=${page}`,
     "GET",
     function (response) {
       if (response.status === "OK") {
@@ -117,7 +117,7 @@ function updatePagination(currentPage, totalPages) {
 
 function fetchRoles(selectElementId) {
   userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/role/list`,
+    `http://${userService.getApiUrl()}/api/role/list`,
     "GET",
     function (response) {
       if (response.status === "OK") {
@@ -154,7 +154,7 @@ function viewEmployee(id) {
   fetchRoles("viewRole"); // Fetch roles before opening the modal
 
   userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/employee/listemployee/${id}`,
+    `http://${userService.getApiUrl()}/api/employee/listemployee/${id}`,
     "GET",
     function (response) {
       if (response.status === "OK") {
@@ -225,7 +225,7 @@ function updateEmployee() {
   }
 
   userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/employee/update`,
+    `http://${userService.getApiUrl()}/api/employee/update`,
     "POST",
     function (response) {
       if (response.status === "OK") {
@@ -301,7 +301,7 @@ function handleInsertEmployee(event) {
   event.preventDefault();
   var formData = new FormData($("#insertEmployeeForm")[0]);
   userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/employee/insert`,
+    `http://${userService.getApiUrl()}/api/employee/insert`,
     "POST",
     function (response) {
       if (response.status === "OK") {
@@ -334,7 +334,7 @@ function handleInsertEmployee(event) {
 
 function handleSendMailEmployee(idEmploy) {
   userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/mail/sendInfo/${idEmploy}`,
+    `http://${userService.getApiUrl()}/api/employee/sendInfo/${idEmploy}`,
     "POST",
     function (response) {
       if (response.status === "OK") {
@@ -421,7 +421,7 @@ function searchEmployees(criteria, query, page) {
   }
 
   userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/employee/search`,
+    `http://${userService.getApiUrl()}/api/employee/search`,
     "POST",
     function (response) {
       if (response.status === "OK") {
@@ -444,7 +444,7 @@ function deleteEmployee() {
 
   if (confirm("Are you sure you want to delete this employee?")) {
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/employee/delete/${employeeId}`,
+      `http://${userService.getApiUrl()}/api/employee/delete/${employeeId}`,
       "GET",
       function (response) {
         console.log("Delete response:", response); // Ghi log phản hồi

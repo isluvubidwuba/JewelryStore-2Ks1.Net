@@ -178,7 +178,6 @@ class UserService {
         formData.append(key, obj[key]);
       }
     });
-
     return formData;
   }
 }

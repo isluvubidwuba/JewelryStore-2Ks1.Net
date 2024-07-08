@@ -1,5 +1,5 @@
 import UserService from "./userService.js";
-
+import { viewEmployee2 } from "./revenueEmployee.js";
 const userService = new UserService();
 
 let page = 0;
@@ -14,6 +14,19 @@ function formatCurrency(amount) {
 }
 
 $(document).ready(function () {
+  function handleDivClick(event) {
+    // Check if the clicked element has the data-viewEmployeeId2 attribute
+    var $target = $(event.target).closest("[data-viewEmployeeId2]");
+    var viewEmployeeId2 = $target.data("viewemployeeid2");
+
+    if (viewEmployeeId2 !== undefined) {
+      // Call the viewEmployee2 function with the value of data-viewEmployeeId2
+      viewEmployee2(viewEmployeeId2);
+    }
+  }
+
+  // Add event listener to the document to capture clicks on any div with data-viewEmployeeId2 attribute
+  $(document).on("click", "[data-viewEmployeeId2]", handleDivClick);
   const currentMonth = new Date().getMonth() + 1;
   $("#monthSelect").val(currentMonth);
   // Khởi tạo biểu đồ
@@ -142,13 +155,11 @@ function loadTop5EmployeesByRevenue() {
     data.month = month;
   }
   userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/invoice/revenue/top5employees?period=${
-      data.period
-    }&year=${data.year}&month=${data.month}`,
+    `http://${userService.getApiUrl()}/api/invoice/revenue/top5employees`,
     "GET",
     handleSuccessLoadTop5EmployeesByRevenue,
     handleErrorLoadTop5EmployeesByRevenue,
-    null
+    $.param(data)
   );
 }
 function handleErrorLoadTop5EmployeesByRevenue(error) {
@@ -167,9 +178,9 @@ function handleSuccessLoadTop5EmployeesByRevenue(response) {
     const formattedRevenue = formatCurrency(employeeData.revenue);
 
     const repCard = `
-                      <div class="flex flex-col bg-gray-50 max-w-sm shadow-md py-4 px-10 md:px-8 rounded-md cursor-pointer" onclick="viewEmployee2('${
+                      <div class="flex flex-col bg-gray-50 max-w-sm shadow-md py-4 px-10 md:px-8 rounded-md cursor-pointer" data-viewEmployeeId2="${
                         employee.id
-                      }')">
+                      }" >
                         <div class="flex flex-col md:flex-row gap-2 md:gap-4">
                           <img class="rounded-full border-4 border-gray-300 h-24 w-24 mx-auto mb-4 object-cover"
                             src="${
@@ -205,13 +216,11 @@ function loadCounterRevenue() {
     quarterOrMonth: month,
   };
   userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/invoice/revenue/counter?period=${
-      data.period
-    }&year=${data.year}&quarterOrMonth=${data.quarterOrMonth}`,
+    `http://${userService.getApiUrl()}/api/invoice/revenue/counter`,
     "GET",
     handleSuccessLoadCounterRevenue,
     handleErrorLoadCounterRevenue,
-    null
+    $.param(data)
   );
 }
 function handleSuccessLoadCounterRevenue(response) {
@@ -279,13 +288,11 @@ function loadTop5ProductsByRevenue() {
     data.month = month;
   }
   userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/invoice/revenue/top5products?period=${
-      data.period
-    }&year=${data.year}&month=${data.month}`,
+    `http://${userService.getApiUrl()}/api/invoice/revenue/top5products`,
     "GET",
     handleSuccessLoadTop5ProductsByRevenue,
     handleErrorLoadTop5ProductsByRevenue,
-    null
+    $.param(data)
   );
 }
 function handleErrorLoadTop5ProductsByRevenue(error) {
