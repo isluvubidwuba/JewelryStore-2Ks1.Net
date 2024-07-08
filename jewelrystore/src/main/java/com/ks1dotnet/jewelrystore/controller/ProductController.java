@@ -23,7 +23,7 @@ import com.ks1dotnet.jewelrystore.service.serviceImp.IProductService;
 
 @RestController
 @RequestMapping("${apiURL}/product")
-@CrossOrigin("*")
+@CrossOrigin(origins = "${domain}", allowCredentials = "true")
 public class ProductController {
     @Value("${fileUpload.productPath}")
     private String filePath;

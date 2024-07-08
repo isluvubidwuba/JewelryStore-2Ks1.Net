@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,7 +26,6 @@ import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.MailService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IAuthenticationService;
 import com.ks1dotnet.jewelrystore.utils.JwtUtilsHelper;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import jakarta.servlet.http.Cookie;
 
 @RestController
@@ -44,7 +44,6 @@ public class AuthenticationController {
     @PostMapping("/signup")
     public ResponseEntity<?> login(@RequestBody Employee e) {
         try {
-            System.out.println(e);
             ResponseData responseData = iAuthenticationService.login(e.getId(), e.getPinCode());
             Map<String, String> dataMap = (Map<String, String>) responseData.getData();
 

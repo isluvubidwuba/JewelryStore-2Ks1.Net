@@ -16,7 +16,7 @@
 
 // @RestController
 // @RequestMapping("/order")
-// @CrossOrigin("*")
+// @CrossOrigin(origins = "${domain}", allowCredentials = "true")
 // public class OrderController {
 
 // @Autowired

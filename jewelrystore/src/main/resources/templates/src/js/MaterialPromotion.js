@@ -1,3 +1,6 @@
+import UserService from "./userService.js";
+
+const userService = new UserService();
 $(document).ready(function () {
   $(document).on("click", "#modalToggle_Material_Apply", function () {
     const promotionId = $("#modalToggle_Material_Apply").attr(
@@ -61,50 +64,48 @@ $(document).ready(function () {
 function fetchMaterialsByPromotion(promotionId) {
   var materialTableBody = $("#material-apply-promotion");
   materialTableBody.empty();
-  $.ajax({
-    url: `http://${apiurl}/promotion-generic/in-promotion/MATERIAL/${promotionId}`,
-    type: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService.sendAjaxWithAuthen(
+    `http://${userService.getApiUrl()}/api/promotion-generic/in-promotion/MATERIAL/${promotionId}`,
+    "GET",
+    function (response) {
       var materials = response.data;
       if (materials.length > 0 && response.status === "OK") {
         $("#notiBlankMaterial").text("");
         materials.forEach(function (material) {
           const row = `
-              <tr>
-                <td class="px-6 py-3">${material.materialDTO.id}</td>
-                <td class="px-6 py-3">${material.materialDTO.name}</td>
-                <td class="px-6 py-3">${material.materialDTO.purity}</td>
-                <td class="px-6 py-3">${material.materialDTO.priceAtTime}</td>
-                <td class="px-6 py-3">
-                  <input type="checkbox" class="material-checkbox common-material-checkbox" value="${
-                    material.materialDTO.id
-                  }">
-                </td>
-                <td class="px-6 py-3">${
-                  material.status ? "Active" : "Inactive"
-                }</td>
-              </tr>
-            `;
+            <tr>
+              <td class="px-6 py-3">${material.materialDTO.id}</td>
+              <td class="px-6 py-3">${material.materialDTO.name}</td>
+              <td class="px-6 py-3">${material.materialDTO.purity}</td>
+              <td class="px-6 py-3">${material.materialDTO.priceAtTime}</td>
+              <td class="px-6 py-3">
+                <input type="checkbox" class="material-checkbox common-material-checkbox" value="${
+                  material.materialDTO.id
+                }">
+              </td>
+              <td class="px-6 py-3">${
+                material.status ? "Active" : "Inactive"
+              }</td>
+            </tr>
+          `;
           materialTableBody.append(row);
         });
       } else {
         $("#notiBlankMaterial").text("No materials found for this promotion.");
       }
     },
-    error: function (error) {
+    function (error) {
       console.error("Error fetching materials by promotion:", error);
     },
-  });
+    null
+  );
 }
 
 function fetchMaterialsNotInPromotion(promotionId) {
   var materialTableBody = $("#material-not-apply-promotion");
   materialTableBody.empty();
   $.ajax({
-    url: `http://${apiurl}/promotion-generic/not-in-promotion/MATERIAL/${promotionId}`,
+    url: `http://${userService.getApiUrl()}/api/promotion-generic/not-in-promotion/MATERIAL/${promotionId}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -149,7 +150,7 @@ function applyPromotionToSelectedMaterials(promotionId) {
 
   if (selectedMaterialIds.length > 0) {
     $.ajax({
-      url: `http://${apiurl}/promotion-generic/apply`,
+      url: `http://${userService.getApiUrl()}/api/promotion-generic/apply`,
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -184,7 +185,7 @@ function removePromotionFromSelectedMaterials(promotionId) {
 
   if (selectedMaterialIds.length > 0) {
     $.ajax({
-      url: `http://${apiurl}/promotion-generic/remove`,
+      url: `http://${userService.getApiUrl()}/api/promotion-generic/remove`,
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -221,7 +222,7 @@ function activateSelectedMaterials(promotionId) {
 
   if (selectedMaterialIds.length > 0) {
     $.ajax({
-      url: `http://${apiurl}/promotion-generic/apply`,
+      url: `http://${userService.getApiUrl()}/api/promotion-generic/apply`,
       type: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -252,7 +253,7 @@ function activateSelectedMaterials(promotionId) {
 
 function checkMaterialInOtherPromotions(materialId, promotionId, checkbox) {
   $.ajax({
-    url: `http://${apiurl}/promotion-generic/check/MATERIAL/${materialId}/${promotionId}`,
+    url: `http://${userService.getApiUrl()}/api/promotion-generic/check/MATERIAL/${materialId}/${promotionId}`,
     type: "GET",
     headers: {
       Authorization: `Bearer ${token}`,

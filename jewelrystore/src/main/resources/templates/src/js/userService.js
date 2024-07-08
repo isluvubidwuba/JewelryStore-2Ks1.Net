@@ -51,69 +51,135 @@ class UserService {
     );
     return JSON.parse(jsonPayload);
   }
-  setUpAjax() {
-    $.ajaxSetup({
-      xhrFields: {
-        withCredentials: true, // Ensures cookies are included for all AJAX calls
-      },
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      crossDomain: true,
-    });
+  determineContentType(data) {
+    if (typeof data === "string") {
+      return "application/x-www-form-urlencoded; charset=UTF-8";
+    } else if (data instanceof FormData) {
+      return false; // Let jQuery set the content type to multipart/form-data
+    } else if (typeof data === "object") {
+      return "application/json; charset=UTF-8";
+    }
+    return "application/x-www-form-urlencoded; charset=UTF-8";
   }
-  setUp;
-}
-var token = localStorage.getItem("token");
-var userId = localStorage.getItem("userId");
-var userRole = localStorage.getItem("userRole");
-var apiurl = process.env.API_URL;
-$(document).ready(function () {
-  //setUpAjax();
-  if ($("#loginForm").length === 0 && !token) {
-    window.location.href = "Login.html";
+
+  async sendAjax(url, type, successCallback, errorCallback, data) {
+    try {
+      const contentType = this.determineContentType(data);
+      const processData = !(data instanceof FormData); // Disable processData for FormData
+      return await new Promise((resolve, reject) => {
+        $.ajax({
+          url: url,
+          method: type,
+          data:
+            contentType === "application/json; charset=UTF-8"
+              ? JSON.stringify(data)
+              : data,
+          contentType: contentType,
+          processData: processData,
+          xhrFields: {
+            withCredentials: true, // Ensures cookies are included for all AJAX calls
+          },
+          headers: {
+            Authorization: `Bearer ${this.token}`,
+          },
+          success: (response) => {
+            if (successCallback) successCallback(response);
+            resolve(response);
+          },
+          error: (error) => {
+            if (errorCallback) errorCallback(error);
+            reject(error);
+          },
+        });
+      });
+    } catch (error) {
+      console.error("Error setting up AJAX request:", error);
+      if (errorCallback) {
+        errorCallback(error);
+      }
+    }
   }
-  logout();
-});
 
-function logout() {
-  $("#logout").click(function (event) {
-    event.preventDefault(); // Prevent the default link behavior
-    $.ajax({
-      url: `http://${apiurl}/api/authentication/logout`, // Replace with your API endpoint
-      type: "POST",
-      success: function () {
-        localStorage.removeItem("token");
-        window.location.href = "Login.html";
+  async authenticate() {
+    const authResponse = await this.sendAjax(
+      `http://${this.apiurl}/api/authentication/isAuthenticated`,
+      "GET",
+      function (response) {
+        return response;
       },
-      error: function (xhr) {
-        showNotification("Logout failed:" + xhr.responseJSON?.desc);
+      function (error) {
+        return error;
       },
+      null
+    );
+
+    console.log("authResponse:", authResponse); // Log the authResponse
+
+    if (!authResponse) {
+      console.error("authResponse is undefined or null");
+      return { authenticated: false };
+    }
+
+    if (
+      authResponse.responseJSON &&
+      authResponse.responseJSON.status === "FORBIDDEN"
+    ) {
+      return { authenticated: false };
+    }
+
+    if (authResponse.status === "OK") {
+      const authData = authResponse.data;
+      if (authData.at === "Valid" && authData.rt === "Valid") {
+        return { authenticated: true };
+      }
+
+      if (authData.at !== "Valid" && authData.rt === "Valid") {
+        const refreshTokenResponse = await this.sendAjax(
+          `http://${this.apiurl}/api/authentication/refreshToken`,
+          "GET",
+          null,
+          null,
+          null
+        );
+
+        console.log("refreshTokenResponse:", refreshTokenResponse); // Log the refreshTokenResponse
+
+        if (refreshTokenResponse && refreshTokenResponse.status === "OK") {
+          this.setToken(refreshTokenResponse.data.at);
+          return { authenticated: true };
+        }
+      } else if (authData.at === "Valid") {
+        return { authenticated: true };
+      }
+    }
+
+    return { authenticated: false };
+  }
+
+  async sendAjaxWithAuthen(url, type, successCallback, errorCallback, data) {
+    try {
+      const authResult = await this.authenticate();
+      if (!authResult.authenticated) {
+        throw new Error("User is not authenticated");
+      }
+      return this.sendAjax(url, type, successCallback, errorCallback, data);
+    } catch (error) {
+      console.error("Error in sendAjaxWithAuthen:", error);
+      if (errorCallback) {
+        errorCallback(error);
+      }
+    }
+  }
+  convertToFormData(obj) {
+    const formData = new FormData();
+
+    Object.keys(obj).forEach((key) => {
+      if (obj[key] !== null && obj[key] !== undefined) {
+        formData.append(key, obj[key]);
+      }
     });
-  });
-}
 
-// async function setupAjaxPost(
-//   url,
-//   successCallback,
-//   errorCallback,
-//   formToObject
-// ) {
-//   try {
-//     const formData = await formToObject();
-//     await $.ajax({
-//       url,
-//       type: "POST",
-//       data: JSON.stringify(formData),
-//       processData: false,
-//       contentType: "application/json; charset=utf-8",
-//       success: successCallback,
-//       error: errorCallback,
-//     });
-//   } catch (error) {
-//     console.error("Error setting up AJAX POST request:", error);
-//     if (errorCallback) {
-//       errorCallback(error);
-//     }
-//   }
-// }
+    return formData;
+  }
+}
+export default UserService;

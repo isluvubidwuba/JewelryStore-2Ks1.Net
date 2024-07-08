@@ -15,12 +15,12 @@ import io.jsonwebtoken.Claims;
 public class RoleService implements IRoleService {
     @Autowired
     private IRoleRepository iRoleRepository;
+    @Autowired
+    private JwtUtilsHelper jwtUtilsHelper;
 
     @Override
     public List<RoleDTO> findAll() {
-
-
-        Claims RTTokenClaims = JwtUtilsHelper.getAuthorizationByTokenType("at");
+        Claims RTTokenClaims = jwtUtilsHelper.getAuthorizationByTokenType("at");
         List<Role> listRole;
         if ("admin".equals(RTTokenClaims.getSubject()))
             listRole = iRoleRepository.findAll();

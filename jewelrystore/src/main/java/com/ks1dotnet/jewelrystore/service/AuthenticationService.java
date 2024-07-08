@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.ks1dotnet.jewelrystore.Enum.TokenType;
-import com.ks1dotnet.jewelrystore.dto.EmployeeDTO;
 import com.ks1dotnet.jewelrystore.entity.Employee;
 import com.ks1dotnet.jewelrystore.entity.InvalidatedToken;
 import com.ks1dotnet.jewelrystore.exception.ApplicationException;
@@ -33,6 +32,9 @@ public class AuthenticationService implements IAuthenticationService {
     private IInvalidatedTokenRepository iInvalidatedTokenRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private Utils utils;
 
     @Override
     public ResponseData login(String idEmp, String pinCode) {
@@ -66,7 +68,7 @@ public class AuthenticationService implements IAuthenticationService {
     public ResponseData logout() {
 
         try {
-            Claims RTTokenClaims = JwtUtilsHelper.getAuthorizationByTokenType("rt");
+            Claims RTTokenClaims = jwtUtilsHelper.getAuthorizationByTokenType("rt");
             InvalidatedToken invalidatedToken =
                     new InvalidatedToken(RTTokenClaims.getId(), RTTokenClaims.getExpiration()
                             .toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
@@ -132,7 +134,7 @@ public class AuthenticationService implements IAuthenticationService {
         Employee emp = iAuthenticationRepository.findById(idEmp)
                 .orElseThrow(() -> new ApplicationException("No employee found with id: " + idEmp,
                         HttpStatus.NOT_FOUND));
-        String otp = Utils.generateOtp();
+        String otp = utils.generateOtp();
         emp.setOtp(otp);
         emp.setOtpGenerDateTime(LocalDateTime.now());
         iAuthenticationRepository.save(emp);

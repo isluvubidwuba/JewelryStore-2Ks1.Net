@@ -14,7 +14,7 @@ import com.ks1dotnet.jewelrystore.service.serviceImp.IEarnPointsService;
 
 @RestController
 @RequestMapping("${apiURL}/earnpoints")
-@CrossOrigin("*")
+@CrossOrigin(origins = "${domain}", allowCredentials = "true")
 public class EarnPointsController {
     @Autowired
     private IEarnPointsService iEarnPointsService;

@@ -38,7 +38,7 @@ import com.ks1dotnet.jewelrystore.service.serviceImp.IInvoiceService;
 
 @RestController
 @RequestMapping("${apiURL}/invoice")
-@CrossOrigin("*")
+@CrossOrigin(origins = "${domain}", allowCredentials = "true")
 public class InvoiceController {
     @Autowired
     private IInvoiceService invoiceService;

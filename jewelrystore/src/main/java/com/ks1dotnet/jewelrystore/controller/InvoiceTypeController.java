@@ -14,7 +14,7 @@ import com.ks1dotnet.jewelrystore.service.serviceImp.IInvoiceTypeService;
 
 @RestController
 @RequestMapping("${apiURL}/invoice-type")
-@CrossOrigin("*")
+@CrossOrigin(origins = "${domain}", allowCredentials = "true")
 public class InvoiceTypeController {
 
     @Autowired

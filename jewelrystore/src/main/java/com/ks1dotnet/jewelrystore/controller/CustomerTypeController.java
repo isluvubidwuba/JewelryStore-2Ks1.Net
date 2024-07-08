@@ -15,7 +15,7 @@ import com.ks1dotnet.jewelrystore.service.CustomerTypeService;
 
 @RestController
 @RequestMapping("${apiURL}/customertype")
-@CrossOrigin("*")
+@CrossOrigin(origins = "${domain}", allowCredentials = "true")
 public class CustomerTypeController {
     @Autowired
     private CustomerTypeService customerTypeService;

@@ -77,7 +77,7 @@ public class JwtUtilsHelper {
 
 
 
-    public static String handleJwtException(Exception e) {
+    public String handleJwtException(Exception e) {
         String error = null;
         if (e instanceof ExpiredJwtException) {
             error = "User has expired";
@@ -97,7 +97,7 @@ public class JwtUtilsHelper {
         return error;
     }
 
-    public static Claims getAuthorizationByTokenType(String tokenType) {
+    public Claims getAuthorizationByTokenType(String tokenType) {
         Authentication context = SecurityContextHolder.getContext().getAuthentication();
         if (context == null || !context.isAuthenticated()
                 || "anonymousUser".equals(context.getPrincipal())) {

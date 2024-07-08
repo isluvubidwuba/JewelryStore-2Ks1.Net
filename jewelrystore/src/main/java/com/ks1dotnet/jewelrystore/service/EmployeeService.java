@@ -1,7 +1,5 @@
 package com.ks1dotnet.jewelrystore.service;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,7 +13,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -50,12 +47,15 @@ public class EmployeeService implements IEmployeeService {
    @Autowired
    private FirebaseStorageService firebaseStorageService;
 
+   @Autowired
+   private JwtUtilsHelper jwtUtilsHelper;
+
    @Override
-   @PostAuthorize("returnObject.data.email == authentication.name")
+   // @PostAuthorize("returnObject.data.email == authentication.name")
    public ResponseData myProfile() {
       ResponseData response = new ResponseData();
       try {
-         String id = JwtUtilsHelper.getAuthorizationByTokenType("at").getSubject();
+         String id = jwtUtilsHelper.getAuthorizationByTokenType("at").getSubject();
          Employee employee = iEmployeeRepository.findById(id).orElseThrow(
                () -> new ApplicationException("User not exist!", HttpStatus.NOT_FOUND));
          EmployeeDTO emp = employee.getDTO();

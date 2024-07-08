@@ -20,7 +20,7 @@ import com.ks1dotnet.jewelrystore.service.serviceImp.IUserInfoService;
 
 @RestController
 @RequestMapping("${apiURL}/userinfo")
-@CrossOrigin("*")
+@CrossOrigin(origins = "${domain}", allowCredentials = "true")
 public class UserInfoController {
 
     @Autowired

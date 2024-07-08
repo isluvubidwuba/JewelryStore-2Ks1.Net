@@ -1,3 +1,7 @@
+import UserService from "./userService.js";
+
+const userService = new UserService();
+
 $(document).ready(function () {
   $("#submitInvoice").click(function () {
     var invoiceInput = $("#invoiceInput").val();
@@ -10,40 +14,32 @@ $(document).ready(function () {
 });
 
 function getInvoiceData(invoice) {
-  const token = localStorage.getItem("token");
-
-  $.ajax({
-    url: `http://${apiurl}/invoice/view-invoice`,
-    type: "POST",
-    data: { invoice: invoice },
-    dataType: "json",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
-      if (response.status === "OK") {
-        populateInvoice(response.data);
-        $("#invoiceContent").removeClass("hidden"); // Hiển thị div sau khi có dữ liệu
-      } else if (response.status === "BAD_REQUEST") {
-        showNotification(response.desc, "error"); // Hiển thị thông báo lỗi khi không tìm thấy hóa đơn
-      } else {
-        showNotification("Unable to get invoice data !!!", "error");
-      }
-    },
-    error: function (xhr) {
-      if (xhr.status === 400) {
-        var response = JSON.parse(xhr.responseText);
-        showNotification(response.desc, "error");
-      } else {
-        showNotification(
-          "An error occurred while calling the API !!!",
-          "error"
-        );
-      }
-    },
-  });
+  userService.sendAjaxWithAuthen(
+    `http://${userService.getApiUrl()}/api/invoice/view-invoice`,
+    "POST",
+    handleSuccessGetInvoiceData,
+    handleErrorGetInvoiceData,
+    { invoice: invoice }
+  );
 }
-
+function handleErrorGetInvoiceData(xhr) {
+  if (xhr.status === 400) {
+    var response = JSON.parse(xhr.responseText);
+    showNotification(response.desc, "error");
+  } else {
+    showNotification("An error occurred while calling the API !!!", "error");
+  }
+}
+function handleSuccessGetInvoiceData(response) {
+  if (response.status === "OK") {
+    populateInvoice(response.data);
+    $("#invoiceContent").removeClass("hidden"); // Hiển thị div sau khi có dữ liệu
+  } else if (response.status === "BAD_REQUEST") {
+    showNotification(response.desc, "error"); // Hiển thị thông báo lỗi khi không tìm thấy hóa đơn
+  } else {
+    showNotification("Unable to get invoice data !!!", "error");
+  }
+}
 function populateInvoice(data) {
   var content = `
     <div class="text-center mb-8">

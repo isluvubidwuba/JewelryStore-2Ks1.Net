@@ -1,3 +1,7 @@
+import UserService from "./userService.js";
+
+const userService = new UserService();
+
 $(document).ready(function () {
   validPromotion;
   handleLogin;
@@ -36,59 +40,50 @@ $(document).ready(function () {
 const handleLogin = () => {
   const id = $("#name").val();
   const pinCode = $("#pincode").val();
-
-  $.ajax({
-    url: `http://${apiurl}/api/authentication/signup`,
-    type: "POST",
-    data: JSON.stringify({ id, pinCode }),
-    xhrFields: {
-      withCredentials: true, // Ensures cookies are included for all AJAX calls
-    },
-    contentType: "application/json; charset=utf-8",
-    processData: false,
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: ({ status, data, desc }) => {
-      if (status === "OK" && data) {
-        const { at } = data;
-
-        if (at) {
-          const { sub, role } = parseJwt(at);
-          localStorage.setItem("token", at);
-          localStorage.setItem("userId", sub);
-          localStorage.setItem("userRole", role);
-
-          const redirectUrl =
-            role === "ADMIN" || role === "MANAGER"
-              ? "DashboardAdmin.html"
-              : role === "STAFF"
-              ? "StaffScreen.html"
-              : null;
-
-          if (redirectUrl) {
-            window.location.href = redirectUrl;
-          } else {
-            alert("Role Not Available!");
-          }
-        } else {
-          alert("Error Data From Server!");
-        }
-      } else {
-        alert(desc);
-      }
-    },
-    error: (xhr, status, error) => {
-      console.error("Error response:", xhr.responseText); // Log the error response
-      console.error("Error status:", status); // Log the error status
-      console.error("Error details:", error); // Log the error details
-      showNotification(
-        "Login failed: " + (xhr.responseJSON?.desc || "Unknown error"),
-        "error"
-      );
-    },
-  });
+  userService.sendAjax(
+    `http://${userService.getApiUrl()}/api/authentication/signup`,
+    "POST",
+    handleLoginSuccess,
+    handleLoginError,
+    { id, pinCode }
+  );
 };
+function handleLoginError(xhr) {
+  showNotification(
+    "Login failed: " + (xhr.responseJSON?.desc || "Unknown error"),
+    "error"
+  );
+}
+function handleLoginSuccess(response) {
+  const { status, data, desc } = response;
+  if (status === "OK" && data) {
+    const { at } = data;
+
+    if (at) {
+      const { sub, role } = userService.parseJwt(at);
+      localStorage.setItem("token", at);
+      localStorage.setItem("userId", sub);
+      localStorage.setItem("userRole", role);
+
+      const redirectUrl =
+        role === "ADMIN" || role === "MANAGER"
+          ? "DashboardAdmin.html"
+          : role === "STAFF"
+          ? "StaffScreen.html"
+          : null;
+
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
+      } else {
+        alert("Role Not Available!");
+      }
+    } else {
+      alert("Error Data From Server!");
+    }
+  } else {
+    alert(desc);
+  }
+}
 const handleSendOtp = () => {
   const idEmploy = $("#idEmployyee").val();
   if (!idEmploy) return;

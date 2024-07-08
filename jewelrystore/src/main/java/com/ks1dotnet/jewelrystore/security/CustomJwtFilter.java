@@ -2,6 +2,8 @@ package com.ks1dotnet.jewelrystore.security;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +36,7 @@ public class CustomJwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
         try {
+
             String tokenAT = getTokenFromHeader(request);
             String tokenRT = getRefreshTokenFromCookies(request);
             log.info("At doFilterInternal CustomJwtFilter");

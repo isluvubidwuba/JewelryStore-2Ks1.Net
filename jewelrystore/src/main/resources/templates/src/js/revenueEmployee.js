@@ -1,3 +1,7 @@
+import UserService from "./userService.js";
+
+const userService = new UserService();
+
 let currentPage2 = 0; // Trang hiện tại mặc định là 0
 const pageSize2 = 5; // Kích thước trang mặc định là 5
 $(document).ready(function () {
@@ -106,34 +110,30 @@ function viewEmployee2(
   $("#monthSelectModal").val(month);
   currentPage2 = 0; // Reset lại trang hiện tại về 0 khi hiển thị nhân viên mới
   $("#invoiceEmployeeBody").empty(); // Xóa nội dung của bảng trước khi tải dữ liệu mới
-  $.ajax({
-    url: `http://${apiurl}/invoice/revenue/employeeId`,
-    type: "GET",
-    data: {
+  userService.sendAjaxWithAuthen(
+    `http://${userservice.getapiurl()}/api/invoice/revenue/employeeId`,
+    "GET",
+    handleSuccessviewEmployee2,
+    handleErrorviewEmployee2,
+    {
       period: period,
       year: year,
       month: period === "month" ? month : null,
       employeeId: idEmployee,
-    },
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
-      if (response.status === "OK") {
-        showEmployeeInfo(response.data);
-        openModalRevenue();
-        loadInvoices(idEmployee, currentPage2, pageSize2);
-      } else {
-        showNotification(
-          "Không thể lấy dữ liệu doanh thu của nhân viên.",
-          "Error"
-        );
-      }
-    },
-    error: function (error) {
-      showNotification("Đã xảy ra lỗi khi gọi API.", "Error");
-    },
-  });
+    }
+  );
+}
+function handleSuccessviewEmployee2(response) {
+  if (response.status === "OK") {
+    showEmployeeInfo(response.data);
+    openModalRevenue();
+    loadInvoices(idEmployee, currentPage2, pageSize2);
+  } else {
+    showNotification("Không thể lấy dữ liệu doanh thu của nhân viên.", "Error");
+  }
+}
+function handleErrorviewEmployee2() {
+  showNotification("Đã xảy ra lỗi khi gọi API.", "Error");
 }
 // Cập nhật hàm viewEmployee để nhận thêm tham số period và month cho modal
 function Update(
@@ -142,67 +142,60 @@ function Update(
   year = new Date().getFullYear(),
   month = new Date().getMonth() + 1
 ) {
-  $.ajax({
-    url: `http://${apiurl}/invoice/revenue/employeeId`,
-    type: "GET",
-    data: {
+  userService.sendAjaxWithAuthen(
+    `http://${userservice.getapiurl()}/api/invoice/revenue/employeeId`,
+    "GET",
+    handleSuccessUpdate,
+    handleErrorUpdate,
+    {
       period: period,
       year: year,
       month: period === "month" ? month : null,
       employeeId: idEmployee,
-    },
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
-      if (response.status === "OK") {
-        showEmployeeInfo(response.data);
-      } else {
-        showNotification(
-          "Không thể lấy dữ liệu doanh thu của nhân viên.",
-          "Error"
-        );
-      }
-    },
-    error: function (error) {
-      showNotification("Đã xảy ra lỗi khi gọi API Update.", "Error");
-    },
-  });
+    }
+  );
 }
-
+function handleSuccessUpdate(response) {
+  if (response.status === "OK") {
+    showEmployeeInfo(response.data);
+  } else {
+    showNotification("Không thể lấy dữ liệu doanh thu của nhân viên.", "Error");
+  }
+}
+function handleErrorUpdate() {
+  showNotification("Đã xảy ra lỗi khi gọi API Update.", "Error");
+}
 // Hàm tải danh sách hóa đơn
 function loadInvoices(employeeId, page, size) {
-  $.ajax({
-    url: `http://${apiurl}/invoice/employee`,
-    type: "GET",
-    data: {
+  userService.sendAjaxWithAuthen(
+    `http://${userservice.getapiurl()}/api/invoice/employee`,
+    "GET",
+    handleSuccessLoadInvoices,
+    handleErrorLoadInvoices,
+    {
       employeeId: employeeId,
       page: page,
       size: size,
-    },
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
-      if (response.status === "OK") {
-        showInvoiceList(response.data.content);
-        currentPage2++; // Tăng số trang sau mỗi lần tải
-        // Kiểm tra xem đã đến trang cuối cùng chưa
-        if (response.data.last) {
-          $("#loadMoreInvoiceEmplBtn").addClass("hidden"); // Ẩn nút "Load More"
-        } else {
-          $("#loadMoreInvoiceEmplBtn").removeClass("hidden"); // Hiển thị nút "Load More" nếu chưa đến trang cuối
-        }
-      } else {
-        showNotification("Không thể lấy danh sách hóa đơn.", "Error");
-      }
-    },
-    error: function (error) {
-      showNotification("Đã xảy ra lỗi khi gọi API load invoices.", "Error");
-    },
-  });
+    }
+  );
 }
-
+function handleErrorLoadInvoices() {
+  showNotification("Đã xảy ra lỗi khi gọi API load invoices.", "Error");
+}
+function handleSuccessLoadInvoices(response) {
+  if (response.status === "OK") {
+    showInvoiceList(response.data.content);
+    currentPage2++; // Tăng số trang sau mỗi lần tải
+    // Kiểm tra xem đã đến trang cuối cùng chưa
+    if (response.data.last) {
+      $("#loadMoreInvoiceEmplBtn").addClass("hidden"); // Ẩn nút "Load More"
+    } else {
+      $("#loadMoreInvoiceEmplBtn").removeClass("hidden"); // Hiển thị nút "Load More" nếu chưa đến trang cuối
+    }
+  } else {
+    showNotification("Không thể lấy danh sách hóa đơn.", "Error");
+  }
+}
 // Hàm đóng modal
 function closeModalRevenue() {
   $("#viewEmployeeModal2").addClass("hidden");

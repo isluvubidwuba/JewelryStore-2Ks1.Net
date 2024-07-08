@@ -23,7 +23,7 @@ import com.ks1dotnet.jewelrystore.service.serviceImp.ICounterSerivce;
 
 @RestController
 @RequestMapping("${apiURL}/counter")
-@CrossOrigin("*")
+@CrossOrigin(origins = "${domain}", allowCredentials = "true")
 public class CounterController {
 
     @Autowired

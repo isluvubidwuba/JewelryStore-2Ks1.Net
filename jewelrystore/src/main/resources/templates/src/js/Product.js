@@ -1,9 +1,11 @@
+import UserService from "./userService.js";
+
+const userService = new UserService();
 $(document).ready(function () {
   init();
 });
 
 function init() {
-  token = localStorage.getItem("token");
   fetchProduct(state.currentServerPage, state.size); // Fetch products on page load
   setupModalToggles();
   setupFormSubmissions();
@@ -26,14 +28,11 @@ let listGemsDetail = null;
 let timeout = null;
 
 function fetchProduct(page, size) {
-  const linkProduct = `http://${apiurl}/product/all?page=${page}&size=${size}`;
-  $.ajax({
-    url: linkProduct,
-    method: "GET",
-    xhrFields: {
-      withCredentials: true, // Ensures cookies are included for all AJAX calls
-    },
-    success: function (response) {
+  const linkProduct = `http://${userService.getApiUrl()}/api/product/all?page=${page}&size=${size}`;
+  userService.sendAjaxWithAuthen(
+    linkProduct,
+    "GET",
+    function (response) {
       if (response && response.data) {
         const { content, totalElements } = response.data;
         state.querySet = content; // Replace with new records
@@ -42,12 +41,13 @@ function fetchProduct(page, size) {
         buildTable(state, "There are no  product"); // Build table after fetching products
       }
     },
-    error: function (error) {
+    function (error) {
       showNotification("Error fetching product.", "Error");
 
       console.error("Error fetching product:", error);
     },
-  });
+    null
+  );
 }
 
 function buildTable(state, noti) {
@@ -222,7 +222,9 @@ async function setupModalToggles() {
   fetchDropdownData("#Counter", fetchCounter);
 }
 async function fetchCounter() {
-  return fetchData2(`http://${apiurl}/counter/allactivecounter`);
+  return fetchData2(
+    `http://${userService.getApiUrl()}/api/counter/allactivecounter`
+  );
 }
 async function fetchDropdownData(elementId, fetchDataFunc) {
   const dataList = await fetchDataFunc();
@@ -231,26 +233,7 @@ async function fetchDropdownData(elementId, fetchDataFunc) {
     $(elementId).append(option);
   });
 }
-async function fetchData2(url) {
-  try {
-    const response = await $.ajax({
-      url,
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (response.status === "OK" && response.data) {
-      return response.data;
-    } else {
-      console.error(`Failed to fetch data from ${url}`);
-      return [];
-    }
-  } catch (error) {
-    console.error(`Error fetching data from ${url}:`, error);
-    return [];
-  }
-}
+
 function setUpFormUpdateModal() {
   const detailsMapping = [
     { updateBtn: "#update-name", detail: "#name_detail" },
@@ -445,7 +428,7 @@ function setupSearch() {
 
 function searchProducts(query) {
   $.ajax({
-    url: `http://${apiurl}/product/search`,
+    url: `http://${userService.getApiUrl()}/api/product/search`,
     type: "POST",
     data: $.param({
       search: query,
@@ -476,45 +459,72 @@ function searchSuggestion(listProduct) {
 }
 
 async function fetchProductCategory() {
-  return fetchData(`http://${apiurl}/product/category/all`);
+  return fetchData(
+    `http://${userService.getApiUrl()}/api/product/category/all`
+  );
 }
 
 async function fetchMaterial() {
-  return fetchData(`http://${apiurl}/material/all`);
+  return fetchData(`http://${userService.getApiUrl()}/api/material/all`);
 }
 
 async function fetchGemStoneOfProduct(productId) {
-  return fetchData(`http://${apiurl}/gemStone/product?id=${productId}`);
+  return fetchData(
+    `http://${userService.getApiUrl()}/api/gemStone/product?id=${productId}`
+  );
 }
 
 async function fetchData(url) {
-  try {
-    const response = await $.ajax({ url, method: "GET" });
-    if (response.status === "OK" && response.data) {
-      return response.data.content;
-    } else {
-      console.error(`Failed to fetch data from ${url}`);
+  await userService.sendAjaxWithAuthen(
+    url,
+    "GET",
+    function (response) {
+      if (response.status === "OK" && response.data) {
+        return response.data.content;
+      } else {
+        console.error(`Failed to fetch data from ${url}`);
+        return [];
+      }
+    },
+    function (error) {
+      console.error(`Error fetching data from ${url}:`, error);
       return [];
-    }
-  } catch (error) {
-    showNotification(`Error fetching data from ${url}.`, "Error");
-    console.error(`Error fetching data from ${url}:`, error);
-    return [];
-  }
+    },
+    null
+  );
+}
+async function fetchData2(url) {
+  await userService.sendAjaxWithAuthen(
+    url,
+    "GET",
+    function (response) {
+      if (response.status === "OK" && response.data) {
+        return response.data;
+      } else {
+        console.error(`Failed to fetch data from ${url}`);
+        return [];
+      }
+    },
+    function (error) {
+      console.error(`Error fetching data from ${url}:`, error);
+      return [];
+    },
+    null
+  );
 }
 
 function setupFormSubmissions() {
   setupFormSubmission(
     "#submit-insert",
     "#form-insert",
-    `http://${apiurl}/product/create`,
+    `http://${userService.getApiUrl()}/api/product/create`,
     handleFormInsertResponse,
     insertFormToProduct
   );
   setupFormSubmission(
     "#submit-update",
     "#form-update",
-    `http://${apiurl}/product/update`,
+    `http://${userService.getApiUrl()}/api/product/update`,
     handleFormUpdateResponse,
     updateFormToProduct
   );
@@ -532,14 +542,11 @@ function setupFormSubmission(
     if (validateFormFields(formSelector)) {
       const formData = await formToObject();
       console.log(formData);
-      await $.ajax({
+      userService.sendAjaxWithAuthen(
         url,
-        type: "POST",
-        data: JSON.stringify(formData),
-        processData: false,
-        contentType: "application/json; charset=utf-8",
-        success: successCallback,
-        error: function (xhr, status, error) {
+        "POST",
+        successCallback,
+        function (xhr, status, error) {
           showNotification(
             "An error occurred while submitting the form.",
             "Error"
@@ -547,7 +554,8 @@ function setupFormSubmission(
 
           console.log(xhr.responseText);
         },
-      });
+        JSON.stringify(formData)
+      );
     } else {
       showNotification("You must fill all fields.", "Error");
     }
@@ -637,20 +645,21 @@ async function uploadImage(file) {
   var formData = new FormData();
   formData.append("file", file);
   try {
-    const response = await $.ajax({
-      url: `http://${apiurl}/product/upload`,
-      type: "POST",
-      data: formData,
-      processData: false,
-      contentType: false,
-      error: function (xhr, status, error) {
+    const response = await userService.sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/product/upload`,
+      "POST",
+      function (response) {
+        return response.data;
+      },
+      function (xhr, status, error) {
         showNotification(
           "An error occurred while submitting the form.",
           "error"
         );
         console.log(xhr.responseText);
       },
-    });
+      formData
+    );
     return response.data;
   } catch (error) {
     showNotification("An error occurred while uploading the image.", "error");

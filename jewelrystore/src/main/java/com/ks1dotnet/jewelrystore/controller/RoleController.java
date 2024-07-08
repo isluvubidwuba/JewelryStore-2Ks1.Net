@@ -18,7 +18,7 @@ import com.ks1dotnet.jewelrystore.service.serviceImp.IRoleService;
 
 @RestController
 @RequestMapping("${apiURL}/role")
-@CrossOrigin("*")
+@CrossOrigin(origins = "${domain}", allowCredentials = "true")
 public class RoleController {
 
     @Autowired

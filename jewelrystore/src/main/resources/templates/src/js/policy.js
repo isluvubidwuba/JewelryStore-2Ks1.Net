@@ -1,15 +1,16 @@
+import UserService from "./userService.js";
+
+const userService = new UserService();
 let currentPage = 0;
 const itemsPerPage = 5;
 let promotions = [];
 
 function fetchPolicies() {
-  $.ajax({
-    url: `http://${apiurl}/promotion/viewPolicyByInvoiceType/` + invoicetype,
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService.sendAjaxWithAuthen(
+    `http://${userService.getApiUrl()}/api/promotion/viewPolicyByInvoiceType/` +
+      invoicetype,
+    "GET",
+    function (response) {
       if (response.status === "OK") {
         promotions = response.data;
         renderPromotions(currentPage, promotions);
@@ -18,10 +19,11 @@ function fetchPolicies() {
         alert("Failed to fetch data");
       }
     },
-    error: function (xhr, status, error) {
+    function (xhr, status, error) {
       alert("Error fetching data");
     },
-  });
+    null
+  );
 }
 
 function searchPolicies(keyword) {
@@ -217,13 +219,10 @@ function attachModalHandlers() {
     $("#ListApply").text(
       `List ${promotionType.toLowerCase()} apply: ${promotionName}`
     );
-    $.ajax({
-      url: `http://${apiurl}/promotion-generic/in-promotion/${promotionType}/${promotionId}`,
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (response) {
+    userService.sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/promotion-generic/in-promotion/${promotionType}/${promotionId}`,
+      "GET",
+      function (response) {
         if (response.status === "OK") {
           $("#category-apply-promotion").empty();
           response.data.forEach((item, index) => {
@@ -236,23 +235,24 @@ function attachModalHandlers() {
               name = item[`${promotionType.toLowerCase()}DTO`].name;
             }
             $("#category-apply-promotion").append(`
-              <tr>
-                <td class="px-6 py-3">${index + 1}</td>
-                <td class="px-6 py-3">${name}</td>
-              </tr>
-            `);
+            <tr>
+              <td class="px-6 py-3">${index + 1}</td>
+              <td class="px-6 py-3">${name}</td>
+            </tr>
+          `);
           });
           $("#detail-modal_CategoryApply").removeClass("hidden");
         } else {
           showNotification(response.desc, "Error");
         }
       },
-      error: function (response) {
+      function (response) {
         console.log(response.responseJSON.desc);
         // Hiển thị thông báo lỗi nếu yêu cầu AJAX gặp lỗi
         showNotification(response.responseJSON.desc, "error");
       },
-    });
+      null
+    );
   });
 
   $("#modalClose_CategoryApply").click(function () {

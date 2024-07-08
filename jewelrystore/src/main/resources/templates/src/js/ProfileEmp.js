@@ -1,3 +1,6 @@
+import UserService from "./userService.js";
+
+const userService = new UserService();
 $(document).ready(function () {
   // Xử lý sự kiện khi click vào vùng hình ảnh
   document
@@ -67,40 +70,13 @@ function saveChanges() {
   if (fileInput.files[0]) {
     formData.append("file", fileInput.files[0]);
   }
-
-  fetch("http://localhost:8080/employee/update2", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.status === "OK") {
-        document.querySelector(
-          "#employeeName .value"
-        ).textContent = `${data.data.firstName} ${data.data.lastName}`;
-        document.querySelector("#employeePhoneNumber .value").textContent =
-          data.data.phoneNumber;
-        document.querySelector("#employeeEmail .value").textContent =
-          data.data.email;
-        document.querySelector("#employeeAddress .value").textContent =
-          data.data.address;
-
-        if (fileInput.files[0]) {
-          document.querySelector("#employeeImage img").src =
-            URL.createObjectURL(fileInput.files[0]);
-        }
-        showNotification(data.desc, "OK");
-        cancelChanges();
-      } else {
-        showNotification("Update failed: " + data.desc, "Error");
-      }
-    })
-    .catch((error) => {
-      showNotification("Error when call API.", "Error");
-    });
+  userService.sendAjaxWithAuthen(
+    `http://${userService.getApiUrl()}/api/employee/update2`,
+    "POST",
+    handleSuccess,
+    handleError,
+    formData
+  );
 }
 
 function cancelChanges() {
@@ -111,4 +87,32 @@ function cancelChanges() {
     element.parentElement.style.display = "block";
   });
   document.querySelector(".edit-buttons").style.display = "none";
+}
+
+function handleSuccess(data) {
+  if (data.status === "OK") {
+    document.querySelector(
+      "#employeeName .value"
+    ).textContent = `${data.data.firstName} ${data.data.lastName}`;
+    document.querySelector("#employeePhoneNumber .value").textContent =
+      data.data.phoneNumber;
+    document.querySelector("#employeeEmail .value").textContent =
+      data.data.email;
+    document.querySelector("#employeeAddress .value").textContent =
+      data.data.address;
+
+    if (fileInput.files[0]) {
+      document.querySelector("#employeeImage img").src = URL.createObjectURL(
+        fileInput.files[0]
+      );
+    }
+    showNotification(data.desc, "OK");
+    cancelChanges();
+  } else {
+    showNotification("Update failed: " + data.desc, "Error");
+  }
+}
+
+function handleError() {
+  showNotification("Error when call API.", "Error");
 }

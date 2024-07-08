@@ -31,7 +31,7 @@ import com.ks1dotnet.jewelrystore.service.serviceImp.IMaterialService;
 
 @RestController
 @RequestMapping("${apiURL}/material")
-@CrossOrigin("*")
+@CrossOrigin(origins = "${domain}", allowCredentials = "true")
 public class MaterialController {
     @Autowired
     private IMaterialService iMaterialService;

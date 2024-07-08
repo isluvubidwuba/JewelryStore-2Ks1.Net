@@ -1,3 +1,7 @@
+import UserService from "./userService.js";
+
+const userService = new UserService();
+
 $(document).ready(function () {
   let currentUser = null; // Biến lưu thông tin người dùng hiện tại
   //Function
@@ -25,17 +29,10 @@ $(document).ready(function () {
     if (invoiceId) {
       var formData = new FormData();
       formData.append("invoice", invoiceId);
-
-      $.ajax({
-        url: `http://${apiurl}/invoice/view-invoice`,
-        method: "POST",
-        data: formData,
-        processData: false,
-        contentType: false,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        success: function (response) {
+      userService.sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/invoice/view-invoice`,
+        "POST",
+        function (response) {
           if (response.status === "OK") {
             if (currentUser === null) {
               currentUser = response.data.userInfoDTO;
@@ -53,10 +50,11 @@ $(document).ready(function () {
             showNotification("Invoice not found", "error");
           }
         },
-        error: function (error) {
+        function (error) {
           console.error("Error when getting invoice: ", error);
         },
-      });
+        formData
+      );
     } else {
       showNotification("Please enter Invoice ID", "error");
     }
@@ -141,16 +139,10 @@ $(document).ready(function () {
             quantity: quantity,
             barcode: barcode,
           };
-
-          $.ajax({
-            url: `http://${apiurl}/invoice/create-detail`,
-            method: "POST",
-            contentType: "application/json",
-            data: JSON.stringify(requestData),
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            success: function (response) {
+          userService.sendAjaxWithAuthen(
+            `http://${userService.getApiUrl()}/api/invoice/create-detail`,
+            "POST",
+            function (response) {
               if (response.status === "OK") {
                 addProductToSidebar(
                   response.data,
@@ -161,10 +153,11 @@ $(document).ready(function () {
                 showNotification("Error when creating invoice !!!", "error");
               }
             },
-            error: function (error) {
+            function (error) {
               console.error("Error when creating invoice: ", error);
             },
-          });
+            requestData
+          );
         } else {
           showNotification("Invalid quantity. Please check again !!!", "error");
         }
@@ -336,16 +329,10 @@ $(document).ready(function () {
       payment: "COD",
       note: "Ghi chú buyback",
     };
-
-    $.ajax({
-      url: `http://${apiurl}/invoice/buyback`,
-      method: "POST",
-      contentType: "application/json",
-      data: JSON.stringify(requestData),
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (response) {
+    userService.sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/invoice/buyback`,
+      "POST",
+      function (response) {
         if (response.status === "OK") {
           showNotification(response.desc, "OK");
           viewInvoice(response.data); // Thêm dòng này để gọi hàm viewInvoice
@@ -353,10 +340,11 @@ $(document).ready(function () {
           showNotification("Error when buyingback !!!", "error");
         }
       },
-      error: function (error) {
+      function (error) {
         console.error("Error when buyingback: ", error);
       },
-    });
+      requestData
+    );
 
     // Hide the confirmation modal
     $("#confirm-modal").addClass("hidden");
@@ -370,14 +358,10 @@ $(document).ready(function () {
 
   // Hàm viewInvoice để hiển thị chi tiết hóa đơn
   function viewInvoice(invoiceId) {
-    $.ajax({
-      url: `http://${apiurl}/invoice/view-invoice`,
-      method: "POST",
-      data: { invoice: invoiceId },
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (response) {
+    userService.sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/invoice/view-invoice`,
+      "POST",
+      function (response) {
         if (response.status === "OK") {
           const invoiceData = response.data;
           const invoiceDetails = $("#invoice-details");
@@ -489,11 +473,12 @@ $(document).ready(function () {
           showNotification("Unable to load invoice details", "error");
         }
       },
-      error: function (error) {
+      function (error) {
         console.error("Unable to load invoice details", error);
         showNotification("Unable to load invoice details !!!", "error");
       },
-    });
+      userService.convertToFormData({ invoice: invoiceId })
+    );
   }
 
   // Sự kiện đóng modal khi bấm nút Đóng

@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,34 +17,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import com.ks1dotnet.jewelrystore.Enum.TokenType;
 import com.ks1dotnet.jewelrystore.dto.EmployeeDTO;
 import com.ks1dotnet.jewelrystore.entity.Employee;
 import com.ks1dotnet.jewelrystore.exception.ApplicationException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
-import com.ks1dotnet.jewelrystore.service.EmployeeService;
-import com.ks1dotnet.jewelrystore.service.FirebaseStorageService;
 import com.ks1dotnet.jewelrystore.service.MailService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IEmployeeService;
-import com.ks1dotnet.jewelrystore.utils.JwtUtilsHelper;
 import io.jsonwebtoken.Claims;
 
 @RestController
 @RequestMapping("${apiURL}/employee")
-@CrossOrigin("*")
+@CrossOrigin(origins = "${domain}", allowCredentials = "true")
 public class EmployeeController {
 
     @Value("${fileUpload.userPath}")
     private String filePath;
 
-    @Autowired
-    private FirebaseStorageService firebaseStorageService;
 
     @Autowired
-    private IEmployeeService iEmployeeService = new EmployeeService();
+    private IEmployeeService iEmployeeService;
 
-    @Autowired
-    private JwtUtilsHelper jwtUtilsHelper;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -53,21 +46,20 @@ public class EmployeeController {
 
     @GetMapping("/listpage")
     @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
-    private ResponseEntity<?> getHomePageEmployee(@RequestParam int page) {
+    public ResponseEntity<?> getHomePageEmployee(@RequestParam int page) {
         ResponseData responseData = iEmployeeService.getHomePageEmployee(page);
         return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
     @GetMapping("/myProfile")
-    @PreAuthorize("hasAuthority('ACCESS_TOKEN')")
-    private ResponseEntity<?> getMyProfile() {
+    public ResponseEntity<?> getMyProfile() {
         ResponseData responseData = iEmployeeService.myProfile();
         return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
     @GetMapping("/listemployee/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    private ResponseEntity<?> findEmployee(@PathVariable String id) {
+    public ResponseEntity<?> findEmployee(@PathVariable String id) {
         ResponseData responseData = iEmployeeService.listEmployee(id);
         return new ResponseEntity<>(responseData, responseData.getStatus());
     }

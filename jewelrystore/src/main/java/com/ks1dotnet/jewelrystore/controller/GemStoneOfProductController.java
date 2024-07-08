@@ -18,7 +18,7 @@ import com.ks1dotnet.jewelrystore.service.serviceImp.IProductService;
 
 @RestController
 @RequestMapping("${apiURL}/gemStone")
-@CrossOrigin("*")
+@CrossOrigin(origins = "${domain}", allowCredentials = "true")
 public class GemStoneOfProductController {
     @Autowired
     private IGemStoneOfProductService iGemStoneOfProductService;

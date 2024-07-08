@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("${apiURL}/payment")
 @RequiredArgsConstructor
-@CrossOrigin("*")
+@CrossOrigin(origins = "${domain}", allowCredentials = "true")
 public class PaymentController {
     private final PaymentService paymentService;
 

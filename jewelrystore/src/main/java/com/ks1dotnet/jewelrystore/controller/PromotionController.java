@@ -29,7 +29,7 @@ import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionService;
 
 @RestController
 @RequestMapping("${apiURL}/promotion")
-@CrossOrigin("*")
+@CrossOrigin(origins = "${domain}", allowCredentials = "true")
 public class PromotionController {
     @Autowired
     private IPromotionRepository iPromotionRepository;

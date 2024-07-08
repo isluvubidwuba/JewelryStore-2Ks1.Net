@@ -14,7 +14,7 @@ import com.ks1dotnet.jewelrystore.service.serviceImp.IProductCategoryService;
 
 @RestController
 @RequestMapping("${apiURL}/product/category")
-@CrossOrigin("*")
+@CrossOrigin(origins = "${domain}", allowCredentials = "true")
 public class ProductCategoryController {
     @Autowired
     private IProductCategoryService iProductCategoryService;
