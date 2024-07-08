@@ -36,14 +36,10 @@ public class CustomJwtFilter extends OncePerRequestFilter {
         try {
             String tokenAT = getTokenFromHeader(request);
             String tokenRT = getRefreshTokenFromCookies(request);
+            log.info("At doFilterInternal CustomJwtFilter");
+            Claims claimsAT = getClaimsFromToken(tokenAT, "Access token");
+            Claims claimsRT = getClaimsFromToken(tokenRT, "Refresh token");
 
-            Claims claimsAT = tokenAT != null ? jwtUtilsHelper.verifyToken(tokenAT) : null;
-            Claims claimsRT = tokenRT != null ? jwtUtilsHelper.verifyToken(tokenRT) : null;
-
-            if (claimsAT == null && claimsRT == null) {
-                registerAuthorization(null, null, null, request, response, filterChain);
-                return;
-            }
 
             Map<String, Claims> mapClaims = new HashMap<>();
             List<SimpleGrantedAuthority> listAuthority = new ArrayList<>();
@@ -75,6 +71,15 @@ public class CustomJwtFilter extends OncePerRequestFilter {
                                     "Something wrong at while authorize!", null)));
         }
     }
+
+    private Claims getClaimsFromToken(String token, String tokenType) {
+        Object tokenObject = jwtUtilsHelper.verifyToken(token);
+        if (tokenObject != null && tokenObject instanceof String) {
+            log.info(tokenType + ": " + (String) tokenObject);
+        }
+        return (tokenObject instanceof Claims) ? (Claims) tokenObject : null;
+    }
+
 
     private String getTokenFromHeader(HttpServletRequest request) {
         String header = request.getHeader("Authorization");

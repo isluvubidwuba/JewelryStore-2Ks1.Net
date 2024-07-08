@@ -38,11 +38,16 @@ const handleLogin = () => {
   const pinCode = $("#pincode").val();
 
   $.ajax({
-    url: `http://${apiurl}/authentication/signup`,
+    url: `http://${apiurl}/api/authentication/signup`,
     type: "POST",
-    data: { id: id, pinCode: pinCode },
+    data: JSON.stringify({ id, pinCode }),
     xhrFields: {
       withCredentials: true, // Ensures cookies are included for all AJAX calls
+    },
+    contentType: "application/json; charset=utf-8",
+    processData: false,
+    headers: {
+      Authorization: `Bearer ${token}`,
     },
     success: ({ status, data, desc }) => {
       if (status === "OK" && data) {

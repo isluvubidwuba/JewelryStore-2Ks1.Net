@@ -74,16 +74,16 @@ public class Employee {
     Set<Invoice> listOrderInvoice;
 
     public Employee() {
-        this.id = "";
-        this.firstName = "";
-        this.lastName = "";
-        this.pinCode = "";
-        this.status = false;
-        this.phoneNumber = "";
-        this.email = "";
-        this.address = "";
-        this.role = new Role();
-        this.image = "";
+        // this.id = "";
+        // this.firstName = "";
+        // this.lastName = "";
+        // this.pinCode = "";
+        // this.status = false;
+        // this.phoneNumber = "";
+        // this.email = "";
+        // this.address = "";
+        // this.role = new Role();
+        // this.image = "";
     }
 
     public EmployeeDTO getDTO() {

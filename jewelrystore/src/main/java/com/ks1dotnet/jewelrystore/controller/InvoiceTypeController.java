@@ -2,6 +2,7 @@ package com.ks1dotnet.jewelrystore.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +21,7 @@ public class InvoiceTypeController {
     private IInvoiceTypeService invoiceTypeService;
 
     @GetMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseData> getAllInvoiceTypes() {
 
         try {
@@ -54,6 +56,7 @@ public class InvoiceTypeController {
     // }
 
     @GetMapping("/update")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseData> updateInvoiceType(@RequestParam int id,
             @RequestParam float rate) {
 

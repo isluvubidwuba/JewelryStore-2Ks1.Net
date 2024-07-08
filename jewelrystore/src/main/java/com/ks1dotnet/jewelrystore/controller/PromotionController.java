@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,10 +35,6 @@ public class PromotionController {
     private IPromotionRepository iPromotionRepository;
     @Autowired
     private IPromotionService iPromotionService;
-
-    @Value("${fileUpload.promotionPath}")
-    private String filePath;
-
     @Autowired
     private IInvoiceTypeRepository iInvoiceTypeRepository;
 
@@ -55,6 +51,7 @@ public class PromotionController {
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> create(@RequestParam(required = false) MultipartFile file,
             @RequestParam String name, @RequestParam double value, @RequestParam boolean status,
             @RequestParam String startDate, @RequestParam String endDate,
@@ -81,6 +78,7 @@ public class PromotionController {
     }
 
     @PostMapping("/update")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> update(@RequestParam(required = false) MultipartFile file,
             @RequestParam int id, @RequestParam String name, @RequestParam double value,
             @RequestParam boolean status, @RequestParam String startDate,
@@ -110,6 +108,7 @@ public class PromotionController {
     }
 
     @GetMapping("/delete/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public ResponseEntity<?> delete(@PathVariable int id) {
         try {
             ResponseData responseData = new ResponseData();

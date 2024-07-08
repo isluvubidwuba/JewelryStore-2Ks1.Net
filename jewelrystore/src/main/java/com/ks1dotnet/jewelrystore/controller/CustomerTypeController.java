@@ -2,6 +2,7 @@ package com.ks1dotnet.jewelrystore.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +21,7 @@ public class CustomerTypeController {
     private CustomerTypeService customerTypeService;
 
     @PostMapping("/updatepointcondition")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> updatePointCondition(@RequestParam Integer id,
             @RequestParam String type, @RequestParam Integer pointCondition) {
         ResponseData responseData =
@@ -28,6 +30,7 @@ public class CustomerTypeController {
     }
 
     @PostMapping("/add")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> addCustomerType(@RequestParam String type,
             @RequestParam Integer pointCondition) {
         ResponseData responseData = customerTypeService.addCustomerType(type, pointCondition);
@@ -35,6 +38,7 @@ public class CustomerTypeController {
     }
 
     @PostMapping("/delete")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> deleteCustomerType(@RequestParam Integer customerTypeId) {
         ResponseData responseData =
                 customerTypeService.deleteCustomerTypeAndUpdateRanks(customerTypeId);

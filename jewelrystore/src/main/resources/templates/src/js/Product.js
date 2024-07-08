@@ -30,6 +30,9 @@ function fetchProduct(page, size) {
   $.ajax({
     url: linkProduct,
     method: "GET",
+    xhrFields: {
+      withCredentials: true, // Ensures cookies are included for all AJAX calls
+    },
     success: function (response) {
       if (response && response.data) {
         const { content, totalElements } = response.data;

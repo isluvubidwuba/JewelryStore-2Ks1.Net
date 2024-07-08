@@ -21,7 +21,9 @@ import com.ks1dotnet.jewelrystore.dto.EmployeeDTO;
 import com.ks1dotnet.jewelrystore.entity.Employee;
 import com.ks1dotnet.jewelrystore.exception.ApplicationException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
+import com.ks1dotnet.jewelrystore.service.EmployeeService;
 import com.ks1dotnet.jewelrystore.service.FirebaseStorageService;
+import com.ks1dotnet.jewelrystore.service.MailService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IEmployeeService;
 import com.ks1dotnet.jewelrystore.utils.JwtUtilsHelper;
 import io.jsonwebtoken.Claims;
@@ -38,7 +40,7 @@ public class EmployeeController {
     private FirebaseStorageService firebaseStorageService;
 
     @Autowired
-    private IEmployeeService iEmployeeService;
+    private IEmployeeService iEmployeeService = new EmployeeService();
 
     @Autowired
     private JwtUtilsHelper jwtUtilsHelper;
@@ -46,7 +48,11 @@ public class EmployeeController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private MailService mailService;
+
     @GetMapping("/listpage")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     private ResponseEntity<?> getHomePageEmployee(@RequestParam int page) {
         ResponseData responseData = iEmployeeService.getHomePageEmployee(page);
         return new ResponseEntity<>(responseData, responseData.getStatus());
@@ -60,12 +66,14 @@ public class EmployeeController {
     }
 
     @GetMapping("/listemployee/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     private ResponseEntity<?> findEmployee(@PathVariable String id) {
         ResponseData responseData = iEmployeeService.listEmployee(id);
         return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
     @PostMapping("/insert")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> insertEmployee(@RequestParam(required = false) MultipartFile file,
             @RequestParam String firstName, @RequestParam String lastName,
             @RequestParam String phoneNumber, @RequestParam String email,
@@ -78,6 +86,7 @@ public class EmployeeController {
     }
 
     @PostMapping("/update")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseData> updateEmployee(
             @RequestParam(required = false) MultipartFile file, @RequestParam String id,
             @RequestParam String firstName, @RequestParam String lastName,
@@ -150,13 +159,8 @@ public class EmployeeController {
         return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
-    @PostMapping("/upload")
-    public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
-        ResponseData response = firebaseStorageService.uploadImage(file, filePath);
-        return new ResponseEntity<>(response, response.getStatus());
-    }
-
     @GetMapping("/delete/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseData> deleteEmployee(@PathVariable String id) {
         ResponseData responseData = iEmployeeService.deleteEmployee(id);
         return new ResponseEntity<>(responseData, responseData.getStatus());
@@ -164,6 +168,7 @@ public class EmployeeController {
     }
 
     @PostMapping("/search")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public ResponseEntity<?> searchEmployees(@RequestParam("criteria") String criteria,
             @RequestParam("query") String query, @RequestParam("page") int page) {
         ResponseData responseData = iEmployeeService.findByCriteria(criteria, query, page);
@@ -199,9 +204,26 @@ public class EmployeeController {
 
 
     @GetMapping("/getstaff")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> getStaff() {
         ResponseData responseData = iEmployeeService.getStaff();
         return new ResponseEntity<>(responseData, responseData.getStatus());
+    }
+
+    @PostMapping("/sendInfo/{idEmp}")
+    public ResponseEntity<?> sendAccount(@PathVariable String idEmp) {
+        try {
+            Employee emp = iEmployeeService.findById(idEmp);
+            ResponseData response = mailService.sendAccountForEmployee(emp.getEmail(), idEmp, idEmp,
+                    emp.getFirstName() + " " + emp.getLastName());
+            return new ResponseEntity<>(response, response.getStatus());
+        } catch (ApplicationException e) {
+            throw new ApplicationException("Error at sendAccount MailController: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
+        } catch (Exception e) {
+            throw new ApplicationException("Error at sendAccount MailController: " + e.getMessage(),
+                    "Something wrong while sending acccount to employee have id: " + idEmp + "!");
+        }
     }
 
 }

@@ -1,5 +1,6 @@
 package com.ks1dotnet.jewelrystore.controller;
 
+import java.util.HashMap;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,16 +9,23 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.ks1dotnet.jewelrystore.Enum.TokenType;
+import com.ks1dotnet.jewelrystore.dto.EmployeeDTO;
+import com.ks1dotnet.jewelrystore.entity.Employee;
 import com.ks1dotnet.jewelrystore.exception.ApplicationException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
+import com.ks1dotnet.jewelrystore.service.MailService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IAuthenticationService;
+import com.ks1dotnet.jewelrystore.utils.JwtUtilsHelper;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import jakarta.servlet.http.Cookie;
 
 @RestController
@@ -28,12 +36,16 @@ public class AuthenticationController {
     private IAuthenticationService iAuthenticationService;
     @Value("${domain}")
     private String domain;
+    @Autowired
+    private MailService mailService;
+    @Autowired
+    JwtUtilsHelper jwtUtilsHelper;
 
     @PostMapping("/signup")
-    @PreAuthorize("permitAll()")
-    public ResponseEntity<?> login(@RequestParam String id, @RequestParam String pinCode) {
+    public ResponseEntity<?> login(@RequestBody Employee e) {
         try {
-            ResponseData responseData = iAuthenticationService.login(id, pinCode);
+            System.out.println(e);
+            ResponseData responseData = iAuthenticationService.login(e.getId(), e.getPinCode());
             Map<String, String> dataMap = (Map<String, String>) responseData.getData();
 
             if (dataMap != null && dataMap.containsKey("rt")) {
@@ -97,6 +109,53 @@ public class AuthenticationController {
         if (responseData.getStatus() != HttpStatus.OK)
             return new ResponseEntity<>(responseData, responseData.getStatus());
         return new ResponseEntity<>(responseData, responseData.getStatus());
+    }
+
+    @PostMapping("/sendOtp/{idEmp}")
+    public ResponseEntity<?> sendInvoice(@PathVariable String idEmp) {
+        try {
+
+            Employee emp = iAuthenticationService.getOtp(idEmp);
+            ResponseData response = mailService.sendOtpEmail(emp.getEmail(),
+                    emp.getFirstName() + " " + emp.getLastName(), emp.getOtp());
+            return new ResponseEntity<>(response, response.getStatus());
+
+        } catch (ApplicationException e) {
+            throw new ApplicationException("Error at sendInvoice MailController: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
+        } catch (Exception e) {
+            throw new ApplicationException("Error at sendInvoice MailController: " + e.getMessage(),
+                    "Something wrong while sending otp to employee have id: " + idEmp + " !");
+        }
+    }
+
+    @GetMapping("/isAuthenticated")
+    public ResponseEntity<?> isAuthenticated(
+            @RequestHeader(value = "Authorization", required = false) String at,
+            @CookieValue(value = "rt", required = false) String rt) {
+        Map<String, String> mapValid = new HashMap<>();
+        validateAndAddToken(at, "at", mapValid);
+        validateAndAddToken(rt, "rt", mapValid);
+
+        HttpStatus status = mapValid.containsValue("Valid") ? HttpStatus.OK : HttpStatus.FORBIDDEN;
+        String message =
+                mapValid.containsValue("Valid") ? "User authenticated" : "User unauthenticated";
+
+        ResponseData response =
+                new ResponseData(status, message, mapValid.isEmpty() ? null : mapValid);
+
+        return new ResponseEntity<>(response, response.getStatus());
+    }
+
+    private void validateAndAddToken(String token, String tokenType, Map<String, String> mapValid) {
+        if (token != null) {
+            Object tokenObject = jwtUtilsHelper.verifyToken(token);
+            if (tokenObject instanceof String) {
+                mapValid.put(tokenType, (String) tokenObject);
+            } else if (tokenObject != null)
+                mapValid.put(tokenType, "Valid");
+        } else
+            mapValid.put(tokenType, null);
     }
 
 }

@@ -3,6 +3,7 @@ package com.ks1dotnet.jewelrystore.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +24,7 @@ public class GenericPromotionController {
     private IGenericPromotionService genericPromotionService;
 
     @PostMapping("/apply")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseData> applyPromotion(
             @RequestBody ApplyPromotionDTO applyPromotionDTO) {
         ResponseData responseData = genericPromotionService.applyPromotion(applyPromotionDTO);
@@ -30,6 +32,7 @@ public class GenericPromotionController {
     }
 
     @PostMapping("/remove")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseData> removePromotion(
             @RequestBody ApplyPromotionDTO applyPromotionDTO) {
         ResponseData responseData = genericPromotionService.removePromotion(applyPromotionDTO);
@@ -37,6 +40,7 @@ public class GenericPromotionController {
     }
 
     @GetMapping("/check/{entityType}/{entityId}/{promotionId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseData> checkEntityInOtherPromotions(
             @PathVariable EntityType entityType, @PathVariable int entityId,
             @PathVariable int promotionId) {
@@ -46,6 +50,7 @@ public class GenericPromotionController {
     }
 
     @GetMapping("/not-in-promotion/{entityType}/{promotionId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseData> getEntitiesNotInPromotion(
             @PathVariable EntityType entityType, @PathVariable int promotionId) {
         ResponseData responseData =

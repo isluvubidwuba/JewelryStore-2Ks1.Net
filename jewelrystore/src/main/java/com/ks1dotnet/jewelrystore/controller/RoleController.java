@@ -33,18 +33,4 @@ public class RoleController {
         return new ResponseEntity<>(ResponseData, HttpStatus.OK);
     }
 
-    @PostMapping("/insert")
-    public ResponseEntity<?> insertRole(@RequestParam String roleName) {
-        boolean isSuccess = iRoleService.insertRole(roleName);
-        ResponseData ResponseData = new ResponseData();
-
-        if (isSuccess) {
-            ResponseData.setStatus(HttpStatus.OK);
-            return new ResponseEntity<>("Role added successfully!", HttpStatus.CREATED);
-        } else {
-            ResponseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-            return new ResponseEntity<>("Error adding role.", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
 }

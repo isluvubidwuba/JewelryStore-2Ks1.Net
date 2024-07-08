@@ -25,8 +25,4 @@ public class EarnPointsController {
         return ResponseEntity.ok(responseData);
     }
 
-    @PostMapping("/addpoints")
-    public ResponseData addPoints(@RequestParam Integer customerId, @RequestParam Integer points) {
-        return iEarnPointsService.addPoints(customerId, points);
-    }
 }

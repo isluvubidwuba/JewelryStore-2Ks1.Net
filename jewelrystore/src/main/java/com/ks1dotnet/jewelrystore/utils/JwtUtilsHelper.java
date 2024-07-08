@@ -51,17 +51,24 @@ public class JwtUtilsHelper {
                 .compact();
     }
 
-    public Claims verifyToken(String token) {
+    public Object verifyToken(String token) {
         try {
+
             SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(privateKey));
-            Claims tokenClaim =
-                    Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+            Claims tokenClaim = Jwts.parserBuilder().setSigningKey(key).build()
+                    .parseClaimsJws((token != null
+                            ? ((token.startsWith("Bearer ")) ? token.substring(7) : token)
+                            : null))
+                    .getBody();
             if (!iInvalidatedTokenRepository.existsById(tokenClaim.getId())) {
                 return tokenClaim;
             } else
-                log.info("User already logout!");
-        } catch (JwtException | IllegalArgumentException e) {
-            handleJwtException(e);
+                throw new ApplicationException("User already logout!");
+        } catch (JwtException | IllegalArgumentException | ApplicationException e) {
+            String error = handleJwtException(e);
+            if (error != null) {
+                return error;
+            }
         } catch (Exception e) {
             log.info("Exception at verifyToken JwtUtilsHelper: " + e.getMessage());
         }
@@ -70,20 +77,24 @@ public class JwtUtilsHelper {
 
 
 
-    private void handleJwtException(Exception e) {
+    public static String handleJwtException(Exception e) {
+        String error = null;
         if (e instanceof ExpiredJwtException) {
-            log.info("User has expired");
+            error = "User has expired";
         } else if (e instanceof UnsupportedJwtException) {
-            log.info("User is unsupported");
+            error = "User is unsupported";
         } else if (e instanceof MalformedJwtException) {
-            log.info("User is malformed");
+            error = "User is malformed";
         } else if (e instanceof SignatureException) {
-            log.info("User signature does not match");
+            error = "User signature does not match";
+        } else if (e instanceof ApplicationException) {
+            error = e.getMessage();
         } else if (e instanceof IllegalArgumentException) {
-            log.info("User token is null or empty");
+            error = "User token is null or empty";
         } else {
-            log.info("User verification failed");
+            error = "User verification failed";
         }
+        return error;
     }
 
     public static Claims getAuthorizationByTokenType(String tokenType) {

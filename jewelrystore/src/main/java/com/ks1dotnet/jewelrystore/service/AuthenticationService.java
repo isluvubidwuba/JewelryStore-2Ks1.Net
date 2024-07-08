@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.ks1dotnet.jewelrystore.Enum.TokenType;
+import com.ks1dotnet.jewelrystore.dto.EmployeeDTO;
 import com.ks1dotnet.jewelrystore.entity.Employee;
 import com.ks1dotnet.jewelrystore.entity.InvalidatedToken;
 import com.ks1dotnet.jewelrystore.exception.ApplicationException;
@@ -18,6 +19,7 @@ import com.ks1dotnet.jewelrystore.repository.IAuthenticationRepository;
 import com.ks1dotnet.jewelrystore.repository.IInvalidatedTokenRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IAuthenticationService;
 import com.ks1dotnet.jewelrystore.utils.JwtUtilsHelper;
+import com.ks1dotnet.jewelrystore.utils.Utils;
 import io.jsonwebtoken.Claims;
 
 @Service
@@ -120,6 +122,21 @@ public class AuthenticationService implements IAuthenticationService {
         Map<String, String> responseDataMap = new HashMap<>();
         responseDataMap.put("at", at);
         return new ResponseData(HttpStatus.OK, "OK ", responseDataMap);
+    }
+
+    @Override
+    public Employee getOtp(String idEmp) {
+        if (!idEmp.startsWith("SE"))
+            throw new ApplicationException("No employee found with id: " + idEmp,
+                    HttpStatus.NOT_FOUND);
+        Employee emp = iAuthenticationRepository.findById(idEmp)
+                .orElseThrow(() -> new ApplicationException("No employee found with id: " + idEmp,
+                        HttpStatus.NOT_FOUND));
+        String otp = Utils.generateOtp();
+        emp.setOtp(otp);
+        emp.setOtpGenerDateTime(LocalDateTime.now());
+        iAuthenticationRepository.save(emp);
+        return emp;
     }
 
 }

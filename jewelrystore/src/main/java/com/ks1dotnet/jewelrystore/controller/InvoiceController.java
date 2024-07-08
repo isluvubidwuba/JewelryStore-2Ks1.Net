@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,6 +33,7 @@ import com.ks1dotnet.jewelrystore.payload.request.ImportInvoiceRequestWrapper;
 import com.ks1dotnet.jewelrystore.payload.request.InvoiceDetailRequest;
 import com.ks1dotnet.jewelrystore.payload.request.InvoiceRequest;
 import com.ks1dotnet.jewelrystore.repository.IInvoiceRepository;
+import com.ks1dotnet.jewelrystore.service.MailService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IInvoiceService;
 
 @RestController
@@ -42,6 +44,9 @@ public class InvoiceController {
     private IInvoiceService invoiceService;
     @Autowired
     private IInvoiceRepository invoiceRepository;
+
+    @Autowired
+    private MailService mailService;
 
     @PostMapping("/create-detail")
     public ResponseEntity<ResponseData> createInvoice(@RequestBody InvoiceDetailRequest request) {
@@ -119,6 +124,7 @@ public class InvoiceController {
     }
 
     @PostMapping("/create-import")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public ResponseEntity<ResponseData> createImportInvoice(
             @RequestBody ImportInvoiceRequestWrapper importInvoiceRequestWrapper) {
         try {
@@ -179,82 +185,84 @@ public class InvoiceController {
         }
     }
 
-    @GetMapping("/history")
-    public ResponseEntity<ResponseData> getAllInvoices() {
-        try {
-            List<InvoiceDTO> invoices = invoiceService.getAllInvoices();
-            ResponseData responseData = new ResponseData(HttpStatus.OK,
-                    "Retrieved all invoices successfully", invoices);
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
-        } catch (ApplicationException e) {
-            throw new ApplicationException(
-                    "Error at getAllInvoices InvoiceController: " + e.getMessage(),
-                    e.getErrorString(), e.getStatus());
-        } catch (Exception e) {
-            throw new ApplicationException(
-                    "Error at getAllInvoices InvoiceController: " + e.getMessage(),
-                    "Something wrong while get all invoice!");
-        }
-    }
+    // @GetMapping("/history")
+    // public ResponseEntity<ResponseData> getAllInvoices() {
+    // try {
+    // List<InvoiceDTO> invoices = invoiceService.getAllInvoices();
+    // ResponseData responseData = new ResponseData(HttpStatus.OK,
+    // "Retrieved all invoices successfully", invoices);
+    // return new ResponseEntity<>(responseData, HttpStatus.OK);
+    // } catch (ApplicationException e) {
+    // throw new ApplicationException(
+    // "Error at getAllInvoices InvoiceController: " + e.getMessage(),
+    // e.getErrorString(), e.getStatus());
+    // } catch (Exception e) {
+    // throw new ApplicationException(
+    // "Error at getAllInvoices InvoiceController: " + e.getMessage(),
+    // "Something wrong while get all invoice!");
+    // }
+    // }
 
-    @GetMapping("/history/employee")
-    public ResponseEntity<ResponseData> getInvoicesByEmployeeId(@RequestParam String employeeId) {
-        try {
-            List<InvoiceDTO> invoices = invoiceService.getInvoicesByEmployeeId(employeeId);
-            ResponseData responseData = new ResponseData(HttpStatus.OK,
-                    "Retrieved invoices by employee ID successfully", invoices);
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
-        } catch (ApplicationException e) {
-            throw new ApplicationException(
-                    "Error at getInvoicesByEmployeeId InvoiceController: " + e.getMessage(),
-                    e.getErrorString(), e.getStatus());
-        } catch (Exception e) {
-            throw new ApplicationException(
-                    "Error at getInvoicesByEmployeeId InvoiceController: " + e.getMessage(),
-                    "Something wrong while get invoice by employee id : " + employeeId);
-        }
-    }
+    // @GetMapping("/history/employee")
+    // public ResponseEntity<ResponseData> getInvoicesByEmployeeId(@RequestParam String employeeId)
+    // {
+    // try {
+    // List<InvoiceDTO> invoices = invoiceService.getInvoicesByEmployeeId(employeeId);
+    // ResponseData responseData = new ResponseData(HttpStatus.OK,
+    // "Retrieved invoices by employee ID successfully", invoices);
+    // return new ResponseEntity<>(responseData, HttpStatus.OK);
+    // } catch (ApplicationException e) {
+    // throw new ApplicationException(
+    // "Error at getInvoicesByEmployeeId InvoiceController: " + e.getMessage(),
+    // e.getErrorString(), e.getStatus());
+    // } catch (Exception e) {
+    // throw new ApplicationException(
+    // "Error at getInvoicesByEmployeeId InvoiceController: " + e.getMessage(),
+    // "Something wrong while get invoice by employee id : " + employeeId);
+    // }
+    // }
 
-    @GetMapping("/history/date-range")
-    public ResponseEntity<ResponseData> getInvoicesByDateRange(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date startDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate) {
-        try {
-            List<InvoiceDTO> invoices = invoiceService.getInvoicesByDateRange(startDate, endDate);
-            ResponseData responseData = new ResponseData(HttpStatus.OK,
-                    "Retrieved invoices by date range successfully", invoices);
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
-        } catch (ApplicationException e) {
-            throw new ApplicationException(
-                    "Error at getInvoicesByDateRange InvoiceController: " + e.getMessage(),
-                    e.getErrorString(), e.getStatus());
-        } catch (Exception e) {
-            throw new ApplicationException(
-                    "Error at getInvoicesByDateRange InvoiceController: " + e.getMessage(),
-                    "Something wrong while get invoice by date range from " + startDate + " to "
-                            + endDate + " !");
-        }
-    }
+    // @GetMapping("/history/date-range")
+    // public ResponseEntity<ResponseData> getInvoicesByDateRange(
+    // @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date startDate,
+    // @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate) {
+    // try {
+    // List<InvoiceDTO> invoices = invoiceService.getInvoicesByDateRange(startDate, endDate);
+    // ResponseData responseData = new ResponseData(HttpStatus.OK,
+    // "Retrieved invoices by date range successfully", invoices);
+    // return new ResponseEntity<>(responseData, HttpStatus.OK);
+    // } catch (ApplicationException e) {
+    // throw new ApplicationException(
+    // "Error at getInvoicesByDateRange InvoiceController: " + e.getMessage(),
+    // e.getErrorString(), e.getStatus());
+    // } catch (Exception e) {
+    // throw new ApplicationException(
+    // "Error at getInvoicesByDateRange InvoiceController: " + e.getMessage(),
+    // "Something wrong while get invoice by date range from " + startDate + " to "
+    // + endDate + " !");
+    // }
+    // }
 
-    @GetMapping("/history/user")
-    public ResponseEntity<ResponseData> getInvoicesByUserId(@RequestParam int userId) {
-        try {
-            List<InvoiceDTO> invoices = invoiceService.getInvoicesByUserId(userId);
-            ResponseData responseData = new ResponseData(HttpStatus.OK,
-                    "Retrieved invoices by user ID successfully", invoices);
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
-        } catch (ApplicationException e) {
-            throw new ApplicationException(
-                    "Error at getInvoicesByUserId InvoiceController: " + e.getMessage(),
-                    e.getErrorString(), e.getStatus());
-        } catch (Exception e) {
-            throw new ApplicationException(
-                    "Error at getInvoicesByUserId InvoiceController: " + e.getMessage(),
-                    "Something wrong while get invocie by user id!");
-        }
-    }
+    // @GetMapping("/history/user")
+    // public ResponseEntity<ResponseData> getInvoicesByUserId(@RequestParam int userId) {
+    // try {
+    // List<InvoiceDTO> invoices = invoiceService.getInvoicesByUserId(userId);
+    // ResponseData responseData = new ResponseData(HttpStatus.OK,
+    // "Retrieved invoices by user ID successfully", invoices);
+    // return new ResponseEntity<>(responseData, HttpStatus.OK);
+    // } catch (ApplicationException e) {
+    // throw new ApplicationException(
+    // "Error at getInvoicesByUserId InvoiceController: " + e.getMessage(),
+    // e.getErrorString(), e.getStatus());
+    // } catch (Exception e) {
+    // throw new ApplicationException(
+    // "Error at getInvoicesByUserId InvoiceController: " + e.getMessage(),
+    // "Something wrong while get invocie by user id!");
+    // }
+    // }
 
     @GetMapping("/revenue/counter")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public ResponseEntity<ResponseData> calculateRevenueByCounter(@RequestParam String period,
             @RequestParam int year, @RequestParam(required = false) Integer quarterOrMonth) {
         try {
@@ -316,6 +324,7 @@ public class InvoiceController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public ResponseEntity<?> getInvoices(@RequestParam int page, @RequestParam int size) {
 
         try {
@@ -334,7 +343,9 @@ public class InvoiceController {
         }
     }
 
+    //
     @GetMapping("/employee")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public ResponseEntity<?> getInvoicesByEmployeeId(@RequestParam String employeeId,
             @RequestParam int page, @RequestParam int size) {
 
@@ -358,6 +369,7 @@ public class InvoiceController {
         }
     }
 
+    // lấy invoice của employyee nhất định
     @GetMapping("/employee2")
     public ResponseEntity<?> getInvoicesByEmployeeId2(@RequestParam String employeeId,
             @RequestParam int page, @RequestParam int size) {
@@ -383,6 +395,7 @@ public class InvoiceController {
     }
 
     @GetMapping("/revenue/top5employees")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public ResponseEntity<ResponseData> getTop5EmployeesByRevenue(@RequestParam String period,
             @RequestParam int year, @RequestParam(required = false) Integer month) {
         try {
@@ -403,6 +416,7 @@ public class InvoiceController {
     }
 
     @GetMapping("/revenue/top5products")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public ResponseEntity<ResponseData> getTop5ProductsByRevenue(@RequestParam String period,
             @RequestParam int year, @RequestParam(required = false) Integer month) {
         try {
@@ -423,6 +437,7 @@ public class InvoiceController {
     }
 
     @GetMapping("/revenue/store")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public ResponseEntity<ResponseData> calculateRevenueByStore(@RequestParam String period,
             @RequestParam int year, @RequestParam(required = false) Integer month) {
         try {
@@ -442,6 +457,7 @@ public class InvoiceController {
     }
 
     @GetMapping("/revenue/invoice-count")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public ResponseEntity<ResponseData> getRevenueAndInvoiceCount(@RequestParam String period) {
         try {
             Map<String, Object> result = invoiceService.calculateRevenueAndInvoiceCount(period);
@@ -459,4 +475,20 @@ public class InvoiceController {
         }
     }
 
+
+    @PostMapping("/sendInvoice")
+    public ResponseEntity<?> sendInvoice(@RequestParam String email, @RequestParam String userName,
+            @RequestParam int invoiceID) {
+
+        try {
+            ResponseData response = mailService.sendInvoiceEmail(email, userName, invoiceID);
+            return new ResponseEntity<>(response, response.getStatus());
+        } catch (ApplicationException e) {
+            throw new ApplicationException("Error at sendInvoice MailController: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
+        } catch (Exception e) {
+            throw new ApplicationException("Error at sendInvoice MailController: " + e.getMessage(),
+                    "Something wrong while sending invoice to customer " + userName + "!");
+        }
+    }
 }

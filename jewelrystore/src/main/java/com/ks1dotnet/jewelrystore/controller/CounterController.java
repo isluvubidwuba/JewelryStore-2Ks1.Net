@@ -39,12 +39,14 @@ public class CounterController {
 
     // 2 phướng này xử lý add các product nằm trong quầy kho
     @GetMapping("/products/counter1")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public ResponseEntity<?> getAllProductsInCounterOne() {
         ResponseData responseData = iCounterSerivce.getAllProductsInCounterOne();
         return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
     @PostMapping("/addproductsforcounter")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public ResponseEntity<?> addProductsToCounter(@RequestParam int counterId,
             @RequestBody List<ProductDTO> products) {
         ResponseData responseData = iCounterSerivce.addProductsToCounter(counterId, products);
@@ -68,22 +70,7 @@ public class CounterController {
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
 
-    // xử lý khi user click vào sản phẩm
-    // lấy thông tin chi tiết của product
-    @GetMapping("/product/details")
-    public ResponseEntity<ResponseData> getProductDetails(@RequestParam int productId) {
-        ResponseData responseData = iCounterSerivce.getProductDetails(productId);
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
-    }
 
-    // thể hiện lên 1 list product dùng cho trường hợp chọn list product khác
-    // counter
-    // và chọn counter mong muốn sản phẩm chuyển đến
-    @GetMapping("/products/all")
-    public ResponseEntity<ResponseData> getAllProducts() {
-        ResponseData responseData = iCounterSerivce.getAllProducts();
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
-    }
 
     // load các counter lên để tạo ra các tab động
     @GetMapping("/allactivecounter")
@@ -93,18 +80,21 @@ public class CounterController {
     }
 
     @DeleteMapping("/delete/{counterId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> deleteCounter(@PathVariable int counterId) {
         ResponseData responseData = iCounterSerivce.deleteCounter(counterId);
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
 
     @GetMapping("/inactive")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public ResponseEntity<ResponseData> getInactiveCounters() {
         ResponseData responseData = iCounterSerivce.getInactiveCounters();
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
 
     @PostMapping("/update")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseData> updateCounter(@RequestParam int id,
             @RequestParam String name, @RequestParam boolean status) {
         ResponseData responseData = iCounterSerivce.updateCounter(id, name, status);
