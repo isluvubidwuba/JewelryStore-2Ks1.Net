@@ -6,6 +6,11 @@
     <title>Invoice Default</title>
     <link href="css/styles.css" rel="stylesheet" />
     <script src="js/jquery.min.js"></script>
+    <script src="js/InvoiceDefault.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@300..900&family=Playwrite+US+Trad:wght@100..400&display=swap"
+      rel="stylesheet"
+    />
     <style>
       #product-sold {
         max-height: calc(100vh - 150px);
@@ -19,8 +24,20 @@
       @media print {
         @page {
           margin: 0; /* Loại bỏ lề của trang in */
+          size: landscape;
         }
-
+        body {
+          margin: 0;
+          width: 100vw;
+          height: 100vh;
+          overflow: hidden;
+        }
+        #invoice-details {
+          width: 100%; /* Đảm bảo phần tử chiếm hết chiều ngang */
+        }
+        .bg-white {
+          width: 100%;
+        }
         header,
         footer {
           display: none; /* Ẩn các phần tử header và footer */
@@ -41,164 +58,168 @@
 
     <div class="flex flex-1 p-6">
       <!-- Product list -->
-
-      <div class="flex flex-1 p-6">
-        <!-- Product list -->
-        <div class="w-1/2 bg-white rounded-lg shadow-md p-8">
-          <div class="mb-6">
+      <div class="w-1/2 bg-white rounded-lg shadow-md p-8">
+        <div class="flex items-center mb-6">
+          <div class="relative">
             <input
               type="text"
               id="barcode-input"
-              class="border p-2"
+              class="border p-2 pr-8"
               placeholder="Enter barcode"
             />
-            <button
-              id="add-barcode-button"
-              class="bg-black hover:bg-gray-700 text-white p-2"
+            <span
+              id="clear-barcode-input"
+              class="absolute right-2 top-2 cursor-pointer text-gray-500 hidden"
+              >&times;</span
             >
-              Add
-            </button>
           </div>
-          <div id="product-sold">
-            <!-- hiện ra các sản phẩm đã chọn  -->
+          <button
+            id="add-barcode-button"
+            class="ml-4 bg-black hover:bg-gray-700 text-white p-2"
+          >
+            Add
+          </button>
+        </div>
+
+        <div id="product-sold" style="overflow: auto">
+          <!-- hiện ra các sản phẩm đã chọn  -->
+        </div>
+      </div>
+
+      <!-- Sidebar tính tiền -->
+      <div
+        class="w-1/2 bg-gray-200 rounded-lg shadow-md p-8 ml-6 flex flex-col justify-between"
+      >
+        <div class="mt-4 mb-4 flex items-center">
+          <button
+            id="insert-customer-button"
+            class="ml-2 px-4 py-2 bg-black hover:bg-gray-700 text-white rounded-md"
+          >
+            Create Customer
+          </button>
+        </div>
+
+        <div class="mt-4 mb-4 flex items-center">
+          <div class="relative ml-2">
+            <input
+              type="text"
+              id="search-contact-customer"
+              class="border border-gray-300 p-2 rounded-md pr-10"
+              placeholder="Enter Phone Or Email"
+            />
+            <span
+              id="clear-contact-button"
+              class="absolute right-2 top-2 cursor-pointer text-gray-500"
+              style="display: none"
+            >
+              &times;
+            </span>
+          </div>
+          <button
+            id="search-contact-button"
+            class="ml-2 px-4 py-2 bg-black hover:bg-gray-700 text-white rounded-md"
+          >
+            Search
+          </button>
+        </div>
+
+        <!-- Selected user info and promotions -->
+        <div
+          id="selected-user-info"
+          class="mt-4 p-4 border border-gray-200 rounded-md hidden flex"
+        >
+          <div class="w-1/2 pr-4">
+            <h3 class="text-lg font-medium text-gray-900">Selected User</h3>
+            <div id="user-details" class="mt-2">
+              <!-- User details will be displayed here -->
+            </div>
+          </div>
+          <div class="w-px bg-gray-600 px-1 mx-4" style="width: 2px"></div>
+          <div class="w-1/2 pl-4">
+            <h3 class="text-lg font-medium text-gray-900">User Promotions</h3>
+            <div id="promotion-details" class="mt-2">
+              <!-- Promotion details will be displayed here -->
+            </div>
           </div>
         </div>
 
-        <!-- Sidebar tính tiền -->
+        <hr class="border-t-2 border-black mb-4" />
+
+        <!-- Selected products and total -->
         <div
-          class="w-1/2 bg-gray-200 rounded-lg shadow-md p-8 ml-6 flex flex-col justify-between"
+          class="overflow-y-scroll mt-3 max-h-90"
+          id="selected-products-container"
         >
-          <div class="mt-4 mb-4 flex items-center">
-            <button
-              id="insert-customer-button"
-              class="ml-2 px-4 py-2 bg-black hover:bg-gray-700 text-white rounded-md"
+          <table class="min-w-full divide-y divide-gray-200 table-fixed">
+            <thead>
+              <tr>
+                <th
+                  class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Name
+                </th>
+                <th
+                  class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Product Code
+                </th>
+                <th
+                  class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Price
+                </th>
+                <th
+                  class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Quantity
+                </th>
+                <th class="px-4 py-2 bg-gray-50"></th>
+              </tr>
+            </thead>
+            <tbody
+              id="selected-products"
+              class="bg-white divide-y divide-gray-200"
             >
-              Create Customer
-            </button>
-          </div>
+              <!-- Selected products will be displayed here -->
+            </tbody>
+          </table>
+        </div>
 
-          <div class="mt-4 mb-4 flex items-center">
-            <div class="relative ml-2">
-              <input
-                type="text"
-                id="search-contact-customer"
-                class="border border-gray-300 p-2 rounded-md pr-10"
-                placeholder="Enter phone or email"
-              />
-              <span
-                id="clear-contact-button"
-                class="absolute right-2 top-2 cursor-pointer text-gray-500"
-                style="display: none"
+        <!-- Footer -->
+        <div class="mt-auto pt-4 border-t-2 border-black">
+          <div class="flex justify-between items-center">
+            <div>Total Price Raw</div>
+            <div id="totalPriceRaw"></div>
+          </div>
+          <div class="flex justify-between items-center">
+            <div>Discount Price</div>
+            <div id="discountPrice"></div>
+          </div>
+          <div class="flex justify-between items-center">
+            <div>Subtotal</div>
+            <div id="subtotal"></div>
+          </div>
+          <div class="flex justify-between mt-4">
+            <div class="mt-4 flex justify-between space-x-2">
+              <button
+                id="reset-order-button"
+                class="bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded-md"
               >
-                &times;
-              </span>
-            </div>
-            <button
-              id="search-contact-button"
-              class="ml-2 px-4 py-2 bg-black hover:bg-gray-700 text-white rounded-md"
-            >
-              Search
-            </button>
-          </div>
-
-          <!-- Selected user info and promotions -->
-          <div
-            id="selected-user-info"
-            class="mt-4 p-4 border border-gray-200 rounded-md hidden flex"
-          >
-            <div class="w-1/2 pr-4">
-              <h3 class="text-lg font-medium text-gray-900">Selected User</h3>
-              <div id="user-details" class="mt-2">
-                <!-- User details will be displayed here -->
-              </div>
-            </div>
-            <div class="w-px bg-gray-600 px-1 mx-4" style="width: 2px"></div>
-            <div class="w-1/2 pl-4">
-              <h3 class="text-lg font-medium text-gray-900">User Promotions</h3>
-              <div id="promotion-details" class="mt-2">
-                <!-- Promotion details will be displayed here -->
-              </div>
-            </div>
-          </div>
-
-          <hr class="border-t-2 border-black mb-4" />
-
-          <!-- Selected products and total -->
-          <div
-            class="overflow-y-scroll mt-3 max-h-90"
-            id="selected-products-container"
-          >
-            <table class="min-w-full divide-y divide-gray-200 table-fixed">
-              <thead>
-                <tr>
-                  <th
-                    class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Name
-                  </th>
-                  <th
-                    class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Product Code
-                  </th>
-                  <th
-                    class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Price
-                  </th>
-                  <th
-                    class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Quantity
-                  </th>
-                  <th class="px-4 py-2 bg-gray-50"></th>
-                </tr>
-              </thead>
-              <tbody
-                id="selected-products"
-                class="bg-white divide-y divide-gray-200"
+                Recreate the order
+              </button>
+              <button
+                id="create-invoice-button"
+                class="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
               >
-                <!-- Selected products will be displayed here -->
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Footer -->
-          <div class="mt-auto pt-4 border-t-2 border-black">
-            <div class="flex justify-between items-center">
-              <div>Total Price Raw</div>
-              <div id="totalPriceRaw"></div>
-            </div>
-            <div class="flex justify-between items-center">
-              <div>Discount Price</div>
-              <div id="discountPrice"></div>
-            </div>
-            <div class="flex justify-between items-center">
-              <div>Subtotal</div>
-              <div id="subtotal"></div>
-            </div>
-            <div class="flex justify-between mt-4">
-              <div class="mt-4 flex justify-between space-x-2">
-                <button
-                  id="reset-order-button"
-                  class="bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded-md"
-                >
-                  Recreate the order
-                </button>
-                <button
-                  id="create-invoice-button"
-                  class="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
-                >
-                  Create Invoice
-                </button>
-                <button
-                  type="button"
-                  class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-                  id="open-payment-modal"
-                >
-                  VNPAY Payment
-                </button>
-              </div>
+                Create Invoice
+              </button>
+              <button
+                type="button"
+                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                id="open-payment-modal"
+              >
+                VNPAY Payment
+              </button>
             </div>
           </div>
         </div>

@@ -59,6 +59,16 @@ public class InvoiceService implements IInvoiceService {
         @Autowired
         private IPromotionService promotionService;
 
+        @Value("${rateEarnPoint.rate}")
+        private int rate;
+
+        @Value("${invoiceID.Sell}")
+        private int Sell;
+        @Value("${invoiceID.Imports}")
+        private int Imports;
+        @Value("${invoiceID.BuyBack}")
+        private int BuyBack;
+
         @Autowired
         private IInvoiceTypeService invoiceTypeService;
 
@@ -119,8 +129,7 @@ public class InvoiceService implements IInvoiceService {
                                                 HttpStatus.FORBIDDEN);
                         }
                         if (!product.isStatus() && invoiceTypeId == 1) {
-                                throw new ApplicationException("Product is not sold.",
-                                                HttpStatus.NOT_ACCEPTABLE);
+                                throw new BadRequestException("Product is not sold.");
                         }
 
                         InvoiceType invoiceType = invoiceTypeService.findById(invoiceTypeId);
@@ -227,9 +236,9 @@ public class InvoiceService implements IInvoiceService {
                                 return dto;
                         }).collect(Collectors.toList()));
 
-                        if (invoiceType.getId() == 1) {
+                        if (invoiceType.getId() == Sell) {
                                 invoiceDetailDTO.setAvailableReturnQuantity(quantity);
-                        } else if (invoiceType.getId() == 3) {
+                        } else if (invoiceType.getId() == BuyBack) {
                                 invoiceDetailDTO.setAvailableReturnQuantity(0);
                         }
                         return invoiceDetailDTO;
@@ -324,7 +333,7 @@ public class InvoiceService implements IInvoiceService {
                         // service add earn point bằng tổng tiêu / 100000
                         if (invoiceTypeId == 1) {
                                 iEarnPointsService.addPoints(userId,
-                                                convertDoubleToInt(totalPrice / 100000));
+                                                convertDoubleToInt(totalPrice / rate));
                         }
                         saveInvoice(invoice, invoiceDetails);
                         return invoice.getId();
@@ -376,12 +385,12 @@ public class InvoiceService implements IInvoiceService {
 
                                 // change quantity
                                 Inventory inventory = product.getInventory();
-                                if (invoice.getInvoiceType().getId() == 1) {
+                                if (invoice.getInvoiceType().getId() == Sell) {
                                         inventory.setQuantity(inventory.getQuantity()
                                                         - detailDTO.getQuantity());
                                         inventory.setTotal_sold(inventory.getTotal_sold()
                                                         + detailDTO.getQuantity());
-                                } else if (invoice.getInvoiceType().getId() == 3) {
+                                } else if (invoice.getInvoiceType().getId() == BuyBack) {
                                         inventory.setQuantity(inventory.getQuantity()
                                                         + detailDTO.getQuantity());
                                         inventory.setTotal_sold(inventory.getTotal_sold()
@@ -439,6 +448,10 @@ public class InvoiceService implements IInvoiceService {
                         }
                         invoice.setInvoiceType(invoiceTypeService.findById(2)); // Đặt loại hóa đơn
                                                                                 // là 2 cho import
+                        invoice.setInvoiceType(invoiceTypeService.findById(Imports)); // Đặt loại
+                                                                                      // hóa đơn là
+                                                                                      // 2 cho
+                                                                                      // import
                         invoice.setDate(new Date());
                         invoice.setEmployee(iEmployeeRepository.findById(request.getEmployeeId())
                                         .orElseThrow(() -> new ApplicationException(
@@ -521,12 +534,12 @@ public class InvoiceService implements IInvoiceService {
                                 Product product = detail.getProduct();
                                 Inventory inventory = product.getInventory();
 
-                                if (invoice.getInvoiceType().getId() == 1) {
+                                if (invoice.getInvoiceType().getId() == Sell) {
                                         inventory.setQuantity(inventory.getQuantity()
                                                         + detail.getQuantity());
                                         inventory.setTotal_sold(inventory.getTotal_sold()
                                                         - detail.getQuantity());
-                                } else if (invoice.getInvoiceType().getId() == 3) {
+                                } else if (invoice.getInvoiceType().getId() == BuyBack) {
                                         inventory.setQuantity(inventory.getQuantity()
                                                         - detail.getQuantity());
                                         inventory.setTotal_sold(inventory.getTotal_sold()
@@ -623,11 +636,13 @@ public class InvoiceService implements IInvoiceService {
                         // Tính doanh thu cho từng quầy
                         Map<Integer, Double> revenueByCounter = new HashMap<>();
                         for (Invoice invoice : invoices) {
-                                if (invoice.isStatus() && invoice.getInvoiceType().getId() == 1) {
+                                if (invoice.isStatus()
+                                                && invoice.getInvoiceType().getId() == Sell) {
                                         for (InvoiceDetail detail : invoice
                                                         .getListOrderInvoiceDetail()) {
                                                 Counter counter = detail.getCounter();
-                                                if (counter.getId() != 1) { // Bỏ qua quầy có id = 0
+                                                if (counter.getId() != Sell) { // Bỏ qua quầy có id
+                                                                               // = 0
                                                         revenueByCounter.put(counter.getId(),
                                                                         revenueByCounter.getOrDefault(
                                                                                         counter.getId(),
@@ -746,7 +761,8 @@ public class InvoiceService implements IInvoiceService {
                         Map<EmployeeDTO, Double> revenueByEmployee = new HashMap<>();
 
                         for (Invoice invoice : invoices) {
-                                if (invoice.isStatus() && invoice.getInvoiceType().getId() == 1) {
+                                if (invoice.isStatus()
+                                                && invoice.getInvoiceType().getId() == Sell) {
                                         Employee employee = invoice.getEmployee();
                                         double totalPrice = invoice.getTotalPrice();
                                         revenueByEmployee.put(employee.getDTO(),
@@ -809,7 +825,8 @@ public class InvoiceService implements IInvoiceService {
 
                         Map<EmployeeDTO, Double> revenueByEmployee = new HashMap<>();
                         for (Invoice invoice : invoices) {
-                                if (invoice.isStatus() && invoice.getInvoiceType().getId() == 1) {
+                                if (invoice.isStatus()
+                                                && invoice.getInvoiceType().getId() == Sell) {
                                         Employee employee = invoice.getEmployee();
                                         double totalPrice = invoice.getTotalPrice();
                                         EmployeeDTO employeeDTO = employee.getDTO();
@@ -862,7 +879,8 @@ public class InvoiceService implements IInvoiceService {
                         Map<ProductDTO, Double> revenueByProduct = new HashMap<>();
 
                         for (Invoice invoice : invoices) {
-                                if (invoice.isStatus() && invoice.getInvoiceType().getId() == 1) {
+                                if (invoice.isStatus()
+                                                && invoice.getInvoiceType().getId() == Sell) {
                                         for (InvoiceDetail detail : invoice
                                                         .getListOrderInvoiceDetail()) {
                                                 Product product = detail.getProduct();
@@ -978,10 +996,10 @@ public class InvoiceService implements IInvoiceService {
 
                         for (Invoice invoice : invoices) {
                                 if (invoice.isStatus()) {
-                                        if (invoice.getInvoiceType().getId() == 1) { // Sell
+                                        if (invoice.getInvoiceType().getId() == Sell) { // Sell
                                                 totalRevenue += invoice.getTotalPrice();
-                                        } else if (invoice.getInvoiceType().getId() == 3) { // Buy
-                                                                                            // Back
+                                        } else if (invoice.getInvoiceType().getId() == BuyBack) { // Buy
+                                                                                                  // Back
                                                 totalRevenue -= invoice.getTotalPrice();
                                         }
                                 }
@@ -1033,12 +1051,12 @@ public class InvoiceService implements IInvoiceService {
                         invoices = invoiceRepository.findByDateBetween(startDate, now);
 
                         double totalRevenue = invoices.stream()
-                                        .filter(invoice -> invoice.getInvoiceType().getId() == 1
+                                        .filter(invoice -> invoice.getInvoiceType().getId() == Sell
                                                         && invoice.isStatus())
                                         .mapToDouble(Invoice::getTotalPrice).sum();
 
                         long invoiceCount = invoices.stream()
-                                        .filter(invoice -> invoice.getInvoiceType().getId() == 1
+                                        .filter(invoice -> invoice.getInvoiceType().getId() == Sell
                                                         && invoice.isStatus())
                                         .count();
 
@@ -1103,7 +1121,7 @@ public class InvoiceService implements IInvoiceService {
                                                                                                     // quả
                 Page<Invoice> invoices =
                                 invoiceRepository.findByEmployeeIdAndInvoiceTypeIdAndStatus(
-                                                employeeId, 1, true, pageable);
+                                                employeeId, Sell, true, pageable);
                 return invoices.map(Invoice::getDTO);
         }
 

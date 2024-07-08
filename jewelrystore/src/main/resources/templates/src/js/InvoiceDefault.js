@@ -254,7 +254,6 @@ $(document).ready(function () {
         "Vui lòng chọn người dùng trước khi tạo hóa đơn.",
         "error"
       );
-
       return;
     }
     storeValuesInSession(); // Lưu giá trị vào session trước khi hiển thị modal
@@ -320,16 +319,66 @@ $(document).ready(function () {
     }
 
     let modalContent = `
-            <p>Client: ${userName}</p>
-            <p>ID Client: ${userId}</p>
-            <p>Promotion: ${
-              userPromotion
-                ? userPromotion.name + " - " + userPromotion.value + "%"
-                : "Do not have !!!"
-            }</p>
-            <p>Employee: ${employeeID}</p>
-            <p>Total number of products: ${Object.keys(productMap).length}</p>
-        `;
+      <div class="bg-white rounded-lg shadow-lg px-8 py-10 max-w-7xl mx-auto">
+        <div class="flex items-center justify-between mb-8">
+          <div class="flex items-center">
+            <img class="h-8 w-8 mr-2" src="https://tailwindflex.com/public/images/logos/favicon-32x32.png" alt="Logo" />
+            <div class="text-gray-700 font-semibold text-lg">2KS 1NET</div>
+          </div>
+          <div class="text-gray-700 text-right">
+            <div class="font-bold text-xl mb-2">CONFIRM ORDER</div>
+          </div>
+        </div>
+        <div class="border-b-2 border-gray-300 pb-8 mb-8">
+          <h2 class="text-2xl font-bold mb-4">Customer and Employee Information</h2>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <div class="text-gray-700 mb-2"><strong>Customer: </strong> ${userName}</div>
+            </div>
+            <div>
+              <div class="text-gray-700 mb-2"><strong>STAFF: </strong> ${employeeID}</div>
+            </div>
+          </div>
+        </div>
+        <table class="w-full text-left mb-8">
+          <thead>
+            <tr>
+              <th class="text-gray-700 font-bold uppercase py-2">Barcode</th>
+              <th class="text-gray-700 font-bold uppercase py-2">Quantity</th>
+              <th class="text-gray-700 font-bold uppercase py-2">Total Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${Object.values(productMap)
+              .map(
+                (product) => `
+            <tr>
+              <td class="py-4 text-gray-700">${product.product.barCode}</td>
+              <td class="py-4 text-gray-700">${product.quantity}</td>
+              <td class="py-4 text-gray-700">${new Intl.NumberFormat("vi-VN", {
+                style: "currency",
+                currency: "VND",
+              }).format(product.totalPrice)}</td>
+            </tr>
+            `
+              )
+              .join("")}
+          </tbody>
+        </table>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="text-gray-700">Promotion: </div>
+          <div class="text-gray-700 text-right">${
+            userPromotion
+              ? userPromotion.name + " - " + userPromotion.value + "%"
+              : "Do not have !!!"
+          }</div>
+          <div class="text-gray-700">Total number of products: </div>
+          <div class="text-gray-700 text-right">${
+            Object.keys(productMap).length
+          }</div>
+        </div>
+      </div>
+    `;
 
     $("#confirm-modal-content").html(modalContent);
     $("#confirm-modal").removeClass("hidden");
@@ -375,7 +424,16 @@ $(document).ready(function () {
 
   function addProductByBarcode(barcode) {
     if (productMap[barcode]) {
-      updateProductQuantity(barcode, productMap[barcode].quantity + 1);
+      const newQuantity = productMap[barcode].quantity + 1;
+      if (newQuantity <= productMap[barcode].inventory) {
+        updateProductQuantity(barcode, newQuantity);
+      } else {
+        showNotification(
+          "Quantity exceeds inventory quantity. Available: " +
+            productMap[barcode].inventory,
+          "error"
+        );
+      }
       return;
     }
     userService.sendAjaxWithAuthen(
@@ -746,6 +804,10 @@ $(document).ready(function () {
           const userInfo = invoiceData.userInfoDTO;
           const employeeInfo = invoiceData.employeeDTO;
           const orderDetails = invoiceData.listOrderInvoiceDetail;
+          const invoiceTypename = invoiceData.invoiceTypeDTO.name.toUpperCase();
+          const invoiceDate = new Date(invoiceData.date).toLocaleDateString();
+          const warrantyEndDate = new Date(invoiceDate);
+          warrantyEndDate.setFullYear(warrantyEndDate.getFullYear() + 1);
 
           invoiceDetails.append(`
                     <div class="bg-white rounded-lg shadow-lg px-8 py-10 max-w-7xl mx-auto">
@@ -755,11 +817,9 @@ $(document).ready(function () {
                                 <div class="text-gray-700 font-semibold text-lg">2KS 1NET</div>
                             </div>
                             <div class="text-gray-700 text-right">
-                                <div class="font-bold text-xl mb-2">INVOICE</div>
-                                <div class="text-sm">Date: ${new Date(
-                                  invoiceData.createdDate
-                                ).toLocaleDateString()}</div>
-                                <div class="text-sm">Invoice #: ${
+                                <div class="font-bold text-xl mb-2">INVOICE ${invoiceTypename}</div>
+                                <div class="text-sm">Date: ${invoiceDate}</div>
+                                <div class="text-sm">Invoice: ${
                                   invoiceData.id
                                 }</div>
                             </div>
@@ -771,8 +831,8 @@ $(document).ready(function () {
                                     <div class="text-gray-700 mb-2"><strong>Customer: </strong> ${
                                       userInfo.fullName
                                     }</div>
-                                    <div class="text-gray-700 mb-2"><strong>ID: </strong> ${
-                                      userInfo.id
+                                    <div class="text-gray-700 mb-2"><strong>Phone number: </strong> ${
+                                      userInfo.phoneNumber
                                     }</div>
                                 </div>
                                 <div>
@@ -788,8 +848,8 @@ $(document).ready(function () {
                         <table class="w-full text-left mb-8">
                             <thead>
                                 <tr>
-                                    <th class="text-gray-700 font-bold uppercase py-2">Product</th>
                                     <th class="text-gray-700 font-bold uppercase py-2">Product Code</th>
+                                    <th class="text-gray-700 font-bold uppercase py-2">Product</th>
                                     <th class="text-gray-700 font-bold uppercase py-2">Quantity</th>
                                     <th class="text-gray-700 font-bold uppercase py-2">Total Price</th>
                                 </tr>
@@ -800,10 +860,10 @@ $(document).ready(function () {
                                     (order) => `
                                 <tr>
                                     <td class="py-4 text-gray-700">${
-                                      order.productDTO.name
+                                      order.productDTO.productCode
                                     }</td>
                                     <td class="py-4 text-gray-700">${
-                                      order.productDTO.productCode
+                                      order.productDTO.name
                                     }</td>
                                     <td class="py-4 text-gray-700">${
                                       order.quantity
@@ -835,9 +895,19 @@ $(document).ready(function () {
                               { style: "currency", currency: "VND" }
                             ).format(invoiceData.totalPrice)}</div>
                         </div>
-                        
+                        <div class="mt-8 flex justify-center">
+                          <div class="flex items-center justify-center font-playwrite text-2xl text-center border-r-2 border-black pr-5">
+                            THANK YOU
+                          </div>
+                          <div class="text-gray-700 text-left ml-4">
+                            <h1 class="font-bold text-red-500">Warranty</h1>
+                            <p class="font-semibold">For any warranty issues, please contact our customer service</p>
+                            <p class="font-semibold">Expiration date from ${invoiceDate} to ${warrantyEndDate.toLocaleDateString()}</p>
+                            <p class="font-semibold">Phone: 0399189976 | Email: 2ks1net@gmail.com</p>
+                          </div>
+                        </div>
                     </div>
-                    `);
+                `);
 
           $("#view-invoice-modal").removeClass("hidden");
         } else {

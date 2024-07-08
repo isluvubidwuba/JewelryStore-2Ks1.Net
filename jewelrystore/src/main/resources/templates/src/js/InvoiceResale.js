@@ -24,6 +24,11 @@ $(document).ready(function () {
     });
   }
 
+  function clearInputInvoiceID() {
+    $("#invoiceid-input").val("");
+    $("#clear-input").addClass("hidden");
+  }
+
   $("#add-invoiceid-button").click(function () {
     var invoiceId = $("#invoiceid-input").val();
     if (invoiceId) {
@@ -38,6 +43,7 @@ $(document).ready(function () {
               currentUser = response.data.userInfoDTO;
               updateUserInfo(currentUser);
               updateInvoiceDetails(response.data, invoiceId);
+              showNotification(response.desc, "OK");
             } else if (currentUser.id === response.data.userInfoDTO.id) {
               updateInvoiceDetails(response.data, invoiceId);
             } else {
@@ -46,12 +52,15 @@ $(document).ready(function () {
                 "error"
               );
             }
-          } else {
-            showNotification("Invoice not found", "error");
           }
         },
         function (error) {
           console.error("Error when getting invoice: ", error);
+          var errorMessage =
+            error.responseJSON && error.responseJSON.desc
+              ? error.responseJSON.desc
+              : "Unknown error occurred";
+          showNotification(errorMessage, "error");
         },
         formData
       );
@@ -297,13 +306,50 @@ $(document).ready(function () {
     // Populate modal content with relevant information
     var confirmModalContent = $("#confirm-modal-content");
     confirmModalContent.empty();
-    selectedProducts.each(function () {
-      var productName = $(this).find("td:nth-child(2)").text();
-      var productQuantity = $(this).find(".product-quantity-input").val();
-      confirmModalContent.append(`
-        <p><strong>Product:</strong> ${productName}, <strong>Quantity:</strong> ${productQuantity}</p>
-      `);
-    });
+
+    confirmModalContent.append(`
+        <div class="bg-white rounded-lg shadow-lg px-8 py-10 max-w-7xl mx-auto w-full">
+            <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center">
+                    <img class="h-8 w-8 mr-2" src="https://tailwindflex.com/public/images/logos/favicon-32x32.png" alt="Logo" />
+                    <div class="text-gray-700 font-semibold text-lg">2KS 1NET</div>
+                </div>
+                <div class="text-gray-700 text-right">
+                    <div class="font-bold text-xl mb-2">CONFIRMATION</div>
+                </div>
+            </div>
+            <div class="border-b-2 border-gray-300 pb-8 mb-8">
+                <h2 class="text-2xl font-bold mb-4">Selected Products</h2>
+                <table class="w-full text-left mb-8">
+                    <thead>
+                        <tr>
+                            <th class="text-gray-700 font-bold uppercase py-2">Product</th>
+                            <th class="text-gray-700 font-bold uppercase py-2">Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    ${selectedProducts
+                      .map((index, product) => {
+                        var productName = $(product)
+                          .find("td:nth-child(2)")
+                          .text();
+                        var productQuantity = $(product)
+                          .find(".product-quantity-input")
+                          .val();
+                        return `
+                        <tr>
+                            <td class="py-4 text-gray-700">${productName}</td>
+                            <td class="py-4 text-gray-700">${productQuantity}</td>
+                        </tr>`;
+                      })
+                      .get()
+                      .join("")}
+                    </tbody>
+                </table>
+            </div>
+           
+        </div>
+    `);
 
     // Show the confirmation modal
     $("#confirm-modal").removeClass("hidden");
@@ -490,7 +536,7 @@ $(document).ready(function () {
     $("#product-table-body").empty();
     $("#user-details").empty();
     $("#total-price").text(formatCurrency(0));
-    initializeClearButton();
+    clearInputInvoiceID();
     currentUser = null;
   });
 
@@ -501,7 +547,7 @@ $(document).ready(function () {
     $("#user-details").empty();
     $("#total-price").text(formatCurrency(0));
     currentUser = null;
-
+    clearInputInvoiceID();
     showNotification("All information has been cleared", "OK");
   });
 });

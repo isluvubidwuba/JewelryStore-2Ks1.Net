@@ -17,14 +17,38 @@ $(document).ready(function () {
 
   $("#searchSupplier").on("click", function () {
     const supplierIdInput = $("#supplierInput").val();
-    if (supplierIdInput) {
+
+    if (!supplierIdInput) {
+      showNotification("Please enter phone number or email", "error");
+      return;
+    }
+
+    if (isValidPhoneNumber(supplierIdInput) || isValidEmail(supplierIdInput)) {
       searchSupplier(supplierIdInput);
+    } else {
+      showNotification("Invalid phone number or email", "error");
     }
   });
 
   $("#createInvoice").on("click", function () {
     createInvoice();
   });
+
+  $("#clear-all-information").on("click", function () {
+    clearAllInformation();
+    // Thông báo
+    showNotification("Clear all information successful", "OK");
+  });
+
+  function isValidPhoneNumber(phoneNumber) {
+    const phoneRegex = /^[0-9]{10,11}$/; // Số điện thoại chỉ chứa 10-11 chữ số
+    return phoneRegex.test(phoneNumber);
+  }
+
+  function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Kiểm tra định dạng email
+    return emailRegex.test(email);
+  }
 
   function formatCurrency(value) {
     return new Intl.NumberFormat("vi-VN", {
@@ -121,7 +145,7 @@ $(document).ready(function () {
       function (response) {
         if (response) {
           supplierId = response.id;
-          displaySupplierInfo(response);
+          displaySupplierInfo(response.data);
           $("#supplierInput").val("");
         } else {
           showNotification("No supplier found with this code !!!", "error");
@@ -171,6 +195,12 @@ $(document).ready(function () {
       barcodePriceMap[barcode] = parseFloat(price);
     });
 
+    // Kiểm tra xem có sản phẩm nào được chọn không
+    if (Object.keys(barcodeQuantityMap).length === 0) {
+      showNotification("No products selected", "error");
+      return;
+    }
+
     const invoiceRequest = {
       invoiceTypeId: 2,
       userId: supplierId,
@@ -192,6 +222,7 @@ $(document).ready(function () {
           showNotification("Invoice created successfully !!!", "OK");
           // Xóa các sản phẩm khỏi bảng và đặt lại tổng giá tiền
           selectedProductsTable.empty();
+          clearAllInformation();
           updateTotalPrice();
         } else {
           showNotification(
@@ -208,5 +239,23 @@ $(document).ready(function () {
       },
       JSON.stringify(importInvoiceRequestWrapper)
     );
+  }
+
+  function clearAllInformation() {
+    // Xóa tất cả sản phẩm khỏi bảng
+    $("#selectedProductsTable").empty();
+
+    // Đặt lại tổng giá tiền
+    totalPrice = 0;
+    $("#totalPrice").text(formatCurrency(totalPrice));
+
+    // Ẩn thông tin nhà cung cấp
+    $("#supplierInfo").addClass("hidden");
+
+    // Xóa nội dung các input
+    $("#barcodeInput").val("");
+    $("#supplierInput").val("");
+    $("#notes").val("");
+    $("#paymentMethod").val("");
   }
 });

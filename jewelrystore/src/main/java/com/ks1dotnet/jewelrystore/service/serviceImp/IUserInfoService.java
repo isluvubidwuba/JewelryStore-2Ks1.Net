@@ -40,4 +40,8 @@ public interface IUserInfoService {
         public ResponseData findByPhoneNumber(String phone);
 
         public ResponseData findByEmail(String mail);
+
+        public ResponseData findByPhoneSupplier(String phone);
+
+        public ResponseData findByEmailSupplier(String mail);
 }

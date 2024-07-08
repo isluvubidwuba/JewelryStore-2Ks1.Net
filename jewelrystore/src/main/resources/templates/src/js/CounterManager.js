@@ -47,11 +47,10 @@ function generateTabs(counters) {
 
     const tabLink = $("<a>", {
       href: "#",
-      class: `inline-block py-3 px-4 rounded-lg ${
-        index === 0
-          ? "text-white bg-black active"
-          : "text-gray-300 bg-black hover:bg-gray-700"
-      }`,
+      class: `inline-block py-3 px-4 rounded-lg ${index === 0
+        ? "text-white bg-black active"
+        : "text-gray-300 bg-black hover:bg-gray-700"
+        }`,
       text: counter.name,
       "data-tab": `tab-${counter.id}`,
     });
@@ -416,7 +415,7 @@ function setupAddProductModal() {
     fetchProductsForCounter();
   });
 
-  $("#closeCombinedModal, #cancelAddProduct, #cancelSelectCounter").on(
+  $("#closeCombinedModal, #cancelSelectCounter").on(
     "click",
     function () {
       $("#combinedModal").addClass("hidden");
@@ -424,15 +423,43 @@ function setupAddProductModal() {
   );
 
   $("#submitAddProductToCounter").on("click", function () {
+
     const counterId = $("#counterSelect").val();
     const selectedProducts = [];
     $("#productTableBody input:checked").each(function () {
       selectedProducts.push({ id: $(this).val() });
     });
-    userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/counter/addproductsforcounter?counterId=${counterId}`,
-      "POST",
-      function (response) {
+
+    // Debugging logs
+    console.log("Selected Counter ID:", counterId);
+    console.log("Selected Products:", selectedProducts);
+
+    if (!counterId) {
+      console.log("Condition check: No counter selected (counterId is falsy)"); // Added log
+      showNotification("Please select a counter", "Error");
+      return;
+    } else {
+      console.log("Condition check: Counter selected: " + counterId); // Added log
+    }
+
+    if (selectedProducts.length === 0) {
+      console.log("Condition check: No products selected (selectedProducts is empty)"); // Added log
+      showNotification("Please select at least one product", "Error");
+      return;
+    } else {
+      console.log("Condition check: Products selected: " + selectedProducts.length); // Added log
+    }
+
+
+    $.ajax({
+      url: `http://${apiurl}/counter/addproductsforcounter?counterId=${counterId}`,
+      method: "POST",
+      contentType: "application/json",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      data: JSON.stringify(selectedProducts),
+      success: function (response) {
         if (response.status === "OK") {
           showNotification("Products added to counter successfully", "OK");
 
