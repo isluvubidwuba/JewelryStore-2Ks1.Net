@@ -427,26 +427,25 @@ function setupSearch() {
 }
 
 function searchProducts(query) {
-  $.ajax({
-    url: `http://${userService.getApiUrl()}/api/product/search`,
-    type: "POST",
-    data: $.param({
-      search: query,
-      id_material: $("#Material").val(),
-      id_product_category: $("#Category").val(),
-      id_counter: $("#Counter").val(),
-    }),
-    contentType: "application/x-www-form-urlencoded",
-    success: function (response) {
+  userService.sendAjaxWithAuthen(
+    `http://${userService.getApiUrl()}/api/product/search`,
+    "POST",
+    function (response) {
       if (response && response.data) {
         searchSuggestion(response.data.content);
       }
     },
-    error: function (xhr, status, error) {
+    function (xhr, status, error) {
       showNotification("An error occurred while submitting the form.", "error");
       console.log(xhr.responseText);
     },
-  });
+    $.param({
+      search: query,
+      id_material: $("#Material").val(),
+      id_product_category: $("#Category").val(),
+      id_counter: $("#Counter").val(),
+    })
+  );
 }
 
 function searchSuggestion(listProduct) {

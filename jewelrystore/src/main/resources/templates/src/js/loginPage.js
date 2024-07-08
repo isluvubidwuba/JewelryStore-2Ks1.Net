@@ -129,56 +129,51 @@ const countDownResend = () => {
 };
 
 const sendOtp = (idEmploy) => {
-  $.ajax({
-    url: `http://${apiurl}/mail/sendOtp/${idEmploy}`,
-    type: "POST",
-    contentType: "application/json",
-    success: ({ status, desc }) => {
+  userService.sendAjax(
+    `http://${userService.getApiUrl()}/mail/sendOtp/${idEmploy}`,
+    "POST",
+    ({ status, desc }) => {
       if (status !== "OK") {
         showNotification(desc, "error");
       }
     },
-    error: (error) => {
+    (error) => {
       if (error.responseJSON) {
         showNotification(error.responseJSON.desc, "error");
       } else {
         showNotification("Error while send OTP to employee email!", "error");
       }
     },
-  });
+    { id, pinCode }
+  );
 };
 const validateOtp = (idEmploy, otp) => {
-  $.ajax({
-    url: `http://${apiurl}/employee/validateOtp`,
-    type: "POST",
-    data: { otp: otp, idEmployee: idEmploy },
-    success: ({ status, desc, data }) => {
+  userService.sendAjax(
+    `http://${userService.getApiUrl()}/employee/validateOtp`,
+    "POST",
+    ({ status, desc, data }) => {
       token = data;
       toggleForms("#otpForm", "#changePassForm");
       if (status !== "OK") {
         showNotification(desc, "error");
       }
     },
-    error: (error) => {
+    (error) => {
       if (error.responseJSON) {
         showNotification(error.responseJSON.desc, "error");
       } else {
         showNotification("Error validate OTP!", "error");
       }
     },
-  });
+    { otp: otp, idEmployee: idEmploy }
+  );
 };
 
 const changePasss = (password) => {
-  $.ajax({
-    url: `http://${apiurl}/employee/changePass`,
-    type: "POST",
-    data: {
-      pwd: password,
-      token: token,
-      idEmploy: $("#resendButton").attr("data-idEm"),
-    },
-    success: ({ status, desc, data }) => {
+  userService.sendAjax(
+    `http://${userService.getApiUrl()}/employee/changePass`,
+    "POST",
+    ({ status, desc, data }) => {
       token = null;
       $("#resendButton").attr("data-idEm", "");
       if (status == "OK") {
@@ -189,27 +184,33 @@ const changePasss = (password) => {
         showNotification(desc, "Error");
       }
     },
-    error: (error) => {
+    (error) => {
       if (error.responseJSON) {
         showNotification(error.responseJSON.desc);
       } else {
         showNotification("Error while change password!");
       }
     },
-  });
+    {
+      pwd: password,
+      token: token,
+      idEmploy: $("#resendButton").attr("data-idEm"),
+    }
+  );
 };
 
 const validPromotion = () => {
-  $.ajax({
-    url: `http://${apiurl}/promotion/valid`,
-    type: "GET",
-    contentType: "application/json",
-    error: (error) => {
+  userService.sendAjax(
+    `http://${userService.getApiUrl()}/promotion/valid`,
+    "GET",
+    null,
+    (error) => {
       if (error.responseJSON) {
         showNotification(error.responseJSON.desc);
       } else {
         showNotification("Error valid promo");
       }
     },
-  });
+    null
+  );
 };

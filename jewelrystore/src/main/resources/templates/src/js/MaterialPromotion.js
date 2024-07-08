@@ -1,6 +1,3 @@
-import UserService from "./userService.js";
-
-const userService = new UserService();
 $(document).ready(function () {
   $(document).on("click", "#modalToggle_Material_Apply", function () {
     const promotionId = $("#modalToggle_Material_Apply").attr(
@@ -104,13 +101,11 @@ function fetchMaterialsByPromotion(promotionId) {
 function fetchMaterialsNotInPromotion(promotionId) {
   var materialTableBody = $("#material-not-apply-promotion");
   materialTableBody.empty();
-  $.ajax({
-    url: `http://${userService.getApiUrl()}/api/promotion-generic/not-in-promotion/MATERIAL/${promotionId}`,
-    type: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+
+  userService.sendAjaxWithAuthen(
+    `http://${userService.getApiUrl()}/api/promotion-generic/not-in-promotion/MATERIAL/${promotionId}`,
+    "GET",
+    function (response) {
       var materials = response.data;
       if (materials.length > 0) {
         $("#notiBlankMaterialNotInPromotion").text("");
@@ -134,10 +129,11 @@ function fetchMaterialsNotInPromotion(promotionId) {
         );
       }
     },
-    error: function (error) {
+    function (error) {
       console.error("Error fetching materials not in promotion:", error);
     },
-  });
+    null
+  );
 }
 
 function applyPromotionToSelectedMaterials(promotionId) {
@@ -149,26 +145,22 @@ function applyPromotionToSelectedMaterials(promotionId) {
   );
 
   if (selectedMaterialIds.length > 0) {
-    $.ajax({
-      url: `http://${userService.getApiUrl()}/api/promotion-generic/apply`,
-      type: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      contentType: "application/json",
-      data: JSON.stringify({
-        promotionId: promotionId,
-        entityIds: selectedMaterialIds,
-        entityType: "MATERIAL",
-      }),
-      success: function (response) {
+    userService.sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/promotion-generic/apply`,
+      "POST",
+      function (response) {
         fetchMaterialsByPromotion(promotionId);
         $("#add-materials-modal").addClass("hidden");
       },
-      error: function (error) {
+      function (error) {
         console.error("Error applying selected materials:", error);
       },
-    });
+      JSON.stringify({
+        promotionId: promotionId,
+        entityIds: selectedMaterialIds,
+        entityType: "MATERIAL",
+      })
+    );
   } else {
     showNotification(
       "Please select at least one material type to add.",
@@ -184,28 +176,24 @@ function removePromotionFromSelectedMaterials(promotionId) {
   });
 
   if (selectedMaterialIds.length > 0) {
-    $.ajax({
-      url: `http://${userService.getApiUrl()}/api/promotion-generic/remove`,
-      type: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      contentType: "application/json",
-      data: JSON.stringify({
-        promotionId: promotionId,
-        entityIds: selectedMaterialIds,
-        entityType: "MATERIAL",
-      }),
-      success: function (response) {
+    userService.sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/promotion-generic/remove`,
+      "POST",
+      function (response) {
         if (response.status === "OK") {
           fetchMaterialsByPromotion(promotionId);
           showNotification(response.desc, "Error");
         }
       },
-      error: function (error) {
+      function (error) {
         console.error("Error removing selected materials:", error);
       },
-    });
+      JSON.stringify({
+        promotionId: promotionId,
+        entityIds: selectedMaterialIds,
+        entityType: "MATERIAL",
+      })
+    );
   } else {
     showNotification(
       "Please select at least one material type to delete.",
@@ -221,28 +209,24 @@ function activateSelectedMaterials(promotionId) {
   });
 
   if (selectedMaterialIds.length > 0) {
-    $.ajax({
-      url: `http://${userService.getApiUrl()}/api/promotion-generic/apply`,
-      type: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      contentType: "application/json",
-      data: JSON.stringify({
-        promotionId: promotionId,
-        entityIds: selectedMaterialIds,
-        entityType: "MATERIAL",
-      }),
-      success: function (response) {
+    userService.sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/promotion-generic/apply`,
+      "POST",
+      function (response) {
         if (response.status === "OK") {
           fetchMaterialsByPromotion(promotionId);
           showNotification("Activate successful.", "Error");
         }
       },
-      error: function (error) {
+      function (error) {
         console.error("Error activating selected materials:", error);
       },
-    });
+      JSON.stringify({
+        promotionId: promotionId,
+        entityIds: selectedMaterialIds,
+        entityType: "MATERIAL",
+      })
+    );
   } else {
     showNotification(
       "Please select at least one material type to activate.",
@@ -252,19 +236,17 @@ function activateSelectedMaterials(promotionId) {
 }
 
 function checkMaterialInOtherPromotions(materialId, promotionId, checkbox) {
-  $.ajax({
-    url: `http://${userService.getApiUrl()}/api/promotion-generic/check/MATERIAL/${materialId}/${promotionId}`,
-    type: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService.sendAjaxWithAuthen(
+    `http://${userService.getApiUrl()}/api/promotion-generic/check/MATERIAL/${materialId}/${promotionId}`,
+    "GET",
+    function (response) {
       if (response.status === "CONFLICT") {
         displayConflictModal(response.data, response.desc, checkbox);
       }
     },
-    error: function (error) {
+    function (error) {
       console.error("Error checking material type in other promotions:", error);
     },
-  });
+    null
+  );
 }

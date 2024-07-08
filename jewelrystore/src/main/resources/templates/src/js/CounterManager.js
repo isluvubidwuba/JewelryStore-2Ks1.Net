@@ -1,3 +1,6 @@
+import UserService from "./userService.js";
+
+const userService = new UserService();
 $(document).ready(function () {
   fetchCounters();
   createCounterModal();
@@ -7,13 +10,10 @@ $(document).ready(function () {
 });
 
 function fetchCounters() {
-  $.ajax({
-    url: `http://${apiurl}/counter/allactivecounter`,
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService.sendAjaxWithAuthen(
+    `http://${userService.getApiUrl()}/counter/allactivecounter`,
+    "GET",
+    function (response) {
       if (response.status === "OK") {
         const counters = response.data;
         generateTabs(counters);
@@ -27,10 +27,11 @@ function fetchCounters() {
         }
       }
     },
-    error: function (error) {
+    function (error) {
       console.error("Error fetching counters:", error);
     },
-  });
+    null
+  );
 }
 
 function generateTabs(counters) {
@@ -209,15 +210,12 @@ function generateTabContents(counters) {
 }
 
 function fetchProductsByCounter(counterId, page = 1) {
-  $.ajax({
-    url: `http://${apiurl}/counter/listproductsbycounter?counterId=${counterId}&page=${
+  userService.sendAjaxWithAuthen(
+    `http://${userService.getApiUrl()}/counter/listproductsbycounter?counterId=${counterId}&page=${
       page - 1
     }`,
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+    "GET",
+    function (response) {
       const products = response.products;
       const tableBody = $(`#table-body-${counterId}`);
       tableBody.empty();
@@ -280,10 +278,11 @@ function fetchProductsByCounter(counterId, page = 1) {
           .removeClass("opacity-50 cursor-not-allowed");
       }
     },
-    error: function (error) {
+    function (error) {
       console.error("Error fetching products:", error);
     },
-  });
+    null
+  );
 }
 
 function createCounterModal() {
@@ -300,14 +299,10 @@ function createCounterModal() {
 
     const counterName = $("#counterName").val();
 
-    $.ajax({
-      url: `http://${apiurl}/counter/insert`,
-      method: "POST",
-      data: { name: counterName },
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (response) {
+    userService.sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/counter/insert`,
+      "POST",
+      function (response) {
         if (response.status === "OK") {
           showNotification("Counter created successfully.", "OK");
 
@@ -316,24 +311,22 @@ function createCounterModal() {
           showNotification("Error creating counter.", "error");
         }
       },
-      error: function (error) {
+      function (error) {
         console.error("Error:", error);
         showNotification("Error creating counter.", "error");
       },
-    });
+      { name: counterName }
+    );
 
     $("#createCounterModal").addClass("hidden");
   });
 }
 
 function fetchProductsForCounter() {
-  $.ajax({
-    url: `http://${apiurl}/counter/products/counter1`,
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService.sendAjaxWithAuthen(
+    `http://${userService.getApiUrl()}/counter/products/counter1`,
+    "GET",
+    function (response) {
       const productTableBody = $("#productTableBody");
       productTableBody.empty();
 
@@ -407,10 +400,11 @@ function fetchProductsForCounter() {
         productTableBody.append(row);
       });
     },
-    error: function (error) {
+    function (error) {
       console.error("Error fetching products:", error);
     },
-  });
+    { name: counterName }
+  );
 }
 
 function setupAddProductModal() {
@@ -435,16 +429,10 @@ function setupAddProductModal() {
     $("#productTableBody input:checked").each(function () {
       selectedProducts.push({ id: $(this).val() });
     });
-
-    $.ajax({
-      url: `http://${apiurl}/counter/addproductsforcounter?counterId=${counterId}`,
-      method: "POST",
-      contentType: "application/json",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      data: JSON.stringify(selectedProducts),
-      success: function (response) {
+    userService.sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/counter/addproductsforcounter?counterId=${counterId}`,
+      "POST",
+      function (response) {
         if (response.status === "OK") {
           showNotification("Products added to counter successfully", "OK");
 
@@ -454,32 +442,32 @@ function setupAddProductModal() {
           showNotification("Error adding products to counter", "Error");
         }
       },
-      error: function (error) {
+      function (error) {
         console.error("Error:", error);
         showNotification("Error adding products to counter", "Error");
       },
-    });
+      JSON.stringify(selectedProducts)
+    );
+
     $("#combinedModal").addClass("hidden");
   });
 }
 
 function fetchCountersForSelect() {
-  $.ajax({
-    url: `http://${apiurl}/counter/allactivecounter`,
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService.sendAjaxWithAuthen(
+    `http://${userService.getApiUrl()}/counter/allactivecounter`,
+    "GET",
+    function (response) {
       if (response.status === "OK") {
         const counters = response.data;
         populateCounterSelect(counters);
       }
     },
-    error: function (error) {
+    function (error) {
       console.error("Error fetching counters:", error);
     },
-  });
+    null
+  );
 }
 
 function populateCounterSelect(counters) {
@@ -567,13 +555,10 @@ function switchToTab(counterId) {
 }
 
 function deleteCounter(counterId) {
-  $.ajax({
-    url: `http://${apiurl}/counter/delete/${counterId}`,
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService.sendAjaxWithAuthen(
+    `http://${userService.getApiUrl()}/counter/delete/${counterId}`,
+    "DELETE",
+    function (response) {
       if (response.status === "OK") {
         showNotification("Counter deleted successfully", "OK");
 
@@ -588,30 +573,29 @@ function deleteCounter(counterId) {
         showNotification("Error deleting counter", "Error");
       }
     },
-    error: function (error) {
+    function (error) {
       console.error("Error:", error);
       showNotification("Error deleting counter", "Error");
     },
-  });
+    null
+  );
 }
 
 function fetchInactiveCounters() {
-  $.ajax({
-    url: `http://${apiurl}/counter/inactive`,
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService.sendAjaxWithAuthen(
+    `http://${userService.getApiUrl()}/counter/inactive`,
+    "GET",
+    function (response) {
       if (response.status === "OK") {
         const counters = response.data;
         populateInactiveCounterTable(counters);
       }
     },
-    error: function (error) {
+    function (error) {
       console.error("Error fetching inactive counters:", error);
     },
-  });
+    null
+  );
 }
 
 function populateInactiveCounterTable(counters) {
@@ -657,22 +641,19 @@ function handleUpdateCounter() {
   const newStatus =
     $(`.status-select[data-id="${counterId}"]`).val() === "true"; // Added to retrieve the counter status
 
-  $.ajax({
-    url: `http://${apiurl}/counter/update`,
-    method: "POST",
-    data: { id: counterId, name: newName, status: newStatus }, // Added to include the counter ID in the request
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function () {
+  userService.sendAjaxWithAuthen(
+    `http://${userService.getApiUrl()}/counter/update`,
+    "POST",
+    function () {
       showNotification("Counter updated successfully", "OK");
       fetchInactiveCounters();
       fetchCounters();
     },
-    error: function () {
+    function () {
       showNotification("Failed to update counter", "Error");
     },
-  });
+    { id: counterId, name: newName, status: newStatus }
+  );
 }
 
 function showMaintenanceModal() {

@@ -1,9 +1,13 @@
+import UserService from "./userService.js";
+
+const userService = new UserService();
+
 document.addEventListener("DOMContentLoaded", fetchGoldPrices);
 
 function fetchGoldPrices() {
   const token = localStorage.getItem("token");
 
-  fetch(`http://${apiurl}/proxy`, {
+  fetch(`http://${userService.getApiUrl()}/proxy`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,

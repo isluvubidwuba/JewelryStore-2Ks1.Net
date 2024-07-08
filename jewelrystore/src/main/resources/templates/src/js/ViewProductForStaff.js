@@ -1,3 +1,7 @@
+import UserService from "./userService.js";
+
+const userService = new UserService();
+
 $(document).ready(function () {
   const token = localStorage.getItem("token");
   var selectedInvoiceType = "";
@@ -31,27 +35,23 @@ $(document).ready(function () {
     var barcode = $("#barcode").val();
     console.log("Check invoice type passed back : " + selectedInvoiceType);
     if (barcode.trim() !== "" || selectedInvoiceType !== "") {
-      $.ajax({
-        url: `http://${apiurl}/invoice/create-detail`,
-        method: "POST",
-        contentType: "application/json",
-        data: JSON.stringify({
-          barcode: barcode,
-          quantity: 1,
-          invoiceTypeId: selectedInvoiceType,
-        }),
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        success: function (response) {
+      userService.sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/invoice/create-detail`,
+        "POST",
+        function (response) {
           console.log("Success:", response);
           displayProductDetails(response.data);
         },
-        error: function (xhr, status, error) {
+        function (xhr, status, error) {
           console.error("Error:", error);
           alert("Failed to send data: " + error);
         },
-      });
+        JSON.stringify({
+          barcode: barcode,
+          quantity: 1,
+          invoiceTypeId: selectedInvoiceType,
+        })
+      );
     } else {
       alert(
         "Please select an invoice type or enter a product barcode before searching."

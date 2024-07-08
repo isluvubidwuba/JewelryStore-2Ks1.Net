@@ -12,14 +12,10 @@ $(document).ready(function () {
 
 // Hàm để mở modal và load dữ liệu
 function openInvoiceTypeModal() {
-  // Gửi yêu cầu AJAX để lấy dữ liệu từ API
-  $.ajax({
-    url: "http://localhost:8080/invoice-type",
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService.sendAjaxWithAuthen(
+    `http://${userService.getApiUrl()}/api/invoice-type`,
+    "GET",
+    function (response) {
       if (response.status === "OK") {
         var data = response.data;
         var tableBody = $("#rateTable");
@@ -81,18 +77,10 @@ function openInvoiceTypeModal() {
           $(".update-btn").click(function () {
             var newRate = rateInput.val();
             rateInput.removeClass("border");
-            $.ajax({
-              url: "http://localhost:8080/invoice-type/update",
-              method: "GET",
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-              },
-              data: {
-                id: id,
-                rate: newRate,
-              },
-              success: function (response) {
+            userService.sendAjaxWithAuthen(
+              `http://${userService.getApiUrl()}/api/invoice-type/update`,
+              "GET",
+              function (response) {
                 if (response.status === "OK") {
                   rateInput.val(newRate).attr("readonly", true);
                   editCell.html("");
@@ -101,18 +89,23 @@ function openInvoiceTypeModal() {
                   showNotification("Update fail", "Error");
                 }
               },
-              error: function () {
+              function () {
                 showNotification("Update fail", "Error");
               },
-            });
+              {
+                id: id,
+                rate: newRate,
+              }
+            );
           });
         });
       }
     },
-    error: function () {
+    function () {
       showNotification("Load fail", "Error");
     },
-  });
+    null
+  );
 
   // Hiển thị modal
   $("#invoiceTypeModal").removeClass("hidden");

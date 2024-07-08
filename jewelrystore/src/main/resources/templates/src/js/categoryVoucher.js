@@ -75,28 +75,24 @@ function activeSelectedCategories(promotionId) {
   });
 
   if (selectedCategoryIds.length > 0) {
-    $.ajax({
-      url: `http://${apiurl}/promotion-generic/apply`,
-      type: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      contentType: "application/json",
-      data: JSON.stringify({
-        promotionId: promotionId,
-        entityIds: selectedCategoryIds,
-        entityType: "CATEGORY",
-      }),
-      success: function (response) {
+    userService.sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/promotion-generic/apply`,
+      "POST",
+      function (response) {
         if (response.status === "OK") {
           fetchCategoriesByPromotion(promotionId);
           showNotification("Active successful", "OK");
         }
       },
-      error: function (error) {
+      function (error) {
         console.error("Error activating selected categories:", error);
       },
-    });
+      JSON.stringify({
+        promotionId: promotionId,
+        entityIds: selectedCategoryIds,
+        entityType: "CATEGORY",
+      })
+    );
   } else {
     showNotification(
       "Please select at least one category to activate.",
@@ -108,13 +104,10 @@ function activeSelectedCategories(promotionId) {
 function fetchCategoriesByPromotion(promotionId) {
   var categoryTableBody = $("#category-apply-promotion");
   categoryTableBody.empty(); // Clear existing rows
-  $.ajax({
-    url: `http://${apiurl}/promotion-generic/in-promotion/CATEGORY/${promotionId}`,
-    type: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService.sendAjaxWithAuthen(
+    `http://${userService.getApiUrl()}/promotion-generic/in-promotion/CATEGORY/${promotionId}`,
+    "GET",
+    function (response) {
       var categories = response.data;
       if (categories.length > 0 && response.status === "OK") {
         $("#notiBlankCategory").text("");
@@ -141,10 +134,11 @@ function fetchCategoriesByPromotion(promotionId) {
         $("#notiBlankCategory").text("No categories found for this promotion.");
       }
     },
-    error: function (error) {
+    function (error) {
       console.error("Error fetching categories by promotion:", error);
     },
-  });
+    null
+  );
 }
 
 function removePromotionFromSelectedCategories(promotionId) {
@@ -154,28 +148,24 @@ function removePromotionFromSelectedCategories(promotionId) {
   });
 
   if (selectedCategoryIds.length > 0) {
-    $.ajax({
-      url: `http://${apiurl}/promotion-generic/remove`,
-      type: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      contentType: "application/json",
-      data: JSON.stringify({
-        promotionId: promotionId,
-        entityIds: selectedCategoryIds,
-        entityType: "CATEGORY",
-      }),
-      success: function (response) {
+    userService.sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/promotion-generic/remove`,
+      "POST",
+      function (response) {
         if (response.status === "OK") {
           fetchCategoriesByPromotion(promotionId);
           showNotification("Remove successful.", "OK");
         }
       },
-      error: function (error) {
+      function (error) {
         console.error("Error removing selected categories:", error);
       },
-    });
+      JSON.stringify({
+        promotionId: promotionId,
+        entityIds: selectedCategoryIds,
+        entityType: "CATEGORY",
+      })
+    );
   } else {
     showNotification("Please select at least one category to delete.", "error");
   }
@@ -184,13 +174,11 @@ function removePromotionFromSelectedCategories(promotionId) {
 function fetchCategoriesNotInPromotion(promotionId) {
   var categoryTableBody = $("#category-not-apply-promotion");
   categoryTableBody.empty(); // Clear existing rows
-  $.ajax({
-    url: `http://${apiurl}/promotion-generic/not-in-promotion/CATEGORY/${promotionId}`,
-    type: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+
+  userService.sendAjaxWithAuthen(
+    `http://${userService.getApiUrl()}/promotion-generic/not-in-promotion/CATEGORY/${promotionId}`,
+    "GET",
+    function (response) {
       var categories = response.data;
       if (categories.length > 0) {
         $("#notiBlankCategoryNotInPromotion").text("");
@@ -212,10 +200,15 @@ function fetchCategoriesNotInPromotion(promotionId) {
         );
       }
     },
-    error: function (error) {
+    function (error) {
       console.error("Error fetching categories not in promotion:", error);
     },
-  });
+    JSON.stringify({
+      promotionId: promotionId,
+      entityIds: selectedCategoryIds,
+      entityType: "CATEGORY",
+    })
+  );
 }
 
 function applyPromotionToSelectedCategories(promotionId) {
@@ -227,46 +220,40 @@ function applyPromotionToSelectedCategories(promotionId) {
   );
 
   if (selectedCategoryIds.length > 0) {
-    $.ajax({
-      url: `http://${apiurl}/promotion-generic/apply`,
-      type: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      contentType: "application/json",
-      data: JSON.stringify({
-        promotionId: promotionId,
-        entityIds: selectedCategoryIds,
-        entityType: "CATEGORY",
-      }),
-      success: function (response) {
+    userService.sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/promotion-generic/apply`,
+      "POST",
+      function (response) {
         fetchCategoriesByPromotion(promotionId);
         showNotification(response.desc, "OK");
         $("#add-categories-modal").addClass("hidden");
       },
-      error: function (error) {
+      function (error) {
         console.error("Error applying selected categories:", error);
       },
-    });
+      JSON.stringify({
+        promotionId: promotionId,
+        entityIds: selectedCategoryIds,
+        entityType: "CATEGORY",
+      })
+    );
   } else {
     showNotification("Please select at least one category to add.", "error");
   }
 }
 
 function checkCategoryInOtherPromotions(categoryId, promotionId, checkbox) {
-  $.ajax({
-    url: `http://${apiurl}/promotion-generic/check/CATEGORY/${categoryId}/${promotionId}`,
-    type: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService.sendAjaxWithAuthen(
+    `http://${userService.getApiUrl()}/promotion-generic/check/CATEGORY/${categoryId}/${promotionId}`,
+    "GET",
+    function (response) {
       if (response.status === "CONFLICT") {
         displayConflictModal(response.data, response.desc, checkbox);
       }
     },
-    error: function (error) {
+    function (error) {
       console.error("Error checking category in other promotions:", error);
     },
-  });
+    null
+  );
 }

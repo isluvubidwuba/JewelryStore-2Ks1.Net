@@ -1,3 +1,7 @@
+import UserService from "./userService.js";
+
+const userService = new UserService();
+
 var keybuffer = [];
 
 $(document).ready(function () {
@@ -120,31 +124,25 @@ $(document).ready(function () {
       for (var pair of formData.entries()) {
         console.log(pair[0] + ": " + pair[1]);
       }
-
-      $.ajax({
-        url: `http://${apiurl}/userinfo/insert`,
-        method: "POST",
-        processData: false,
-        contentType: false,
-        data: formData,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        success: function (response) {
+      userService.sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/userinfo/insert`,
+        "POST",
+        function (response) {
           showNotification(response.desc || "User inserted successfully", "OK");
           $("#insertUserModal").addClass("hidden");
           clearInsertForm(); // Clear form fields
           console.log(response.data.id);
           getUserById(response.data.id);
         },
-        error: function (jqXHR, textStatus, errorThrown) {
+        function (jqXHR, textStatus, errorThrown) {
           var response = jqXHR.responseJSON;
           showNotification(
             response.desc || "Error inserting user: " + errorThrown,
             "error"
           );
         },
-      });
+        formData
+      );
     });
 
     // Show modal
@@ -217,20 +215,17 @@ $(document).ready(function () {
 
     var phone = input;
 
-    $.ajax({
-      url: `http://${apiurl}/userinfo/phonenumberandmailcustomer?phone=${phone}`,
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (response) {
+    userService.sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/userinfo/phonenumberandmailcustomer?phone=${phone}`,
+      "GET",
+      function (response) {
         if (response.status === "OK" && response.data) {
           getUserById(response.data.id);
         } else {
           showNotification(response.desc, "error");
         }
       },
-      error: function (xhr, status, error) {
+      function (xhr, status, error) {
         if (xhr.responseJSON && xhr.responseJSON.desc) {
           showNotification(xhr.responseJSON.desc, "error");
         } else {
@@ -241,7 +236,8 @@ $(document).ready(function () {
           );
         }
       },
-    });
+      null
+    );
   });
 
   // Phần này thực hiện phần tính toán tạo hoá đơn của vnpay ===================================================================
@@ -382,20 +378,10 @@ $(document).ready(function () {
       updateProductQuantity(barcode, productMap[barcode].quantity + 1);
       return;
     }
-
-    $.ajax({
-      url: `http://${apiurl}/invoice/create-detail`,
-      method: "POST",
-      data: JSON.stringify({
-        barcode: barcode,
-        quantity: 1,
-        invoiceTypeId: 1,
-      }),
-      contentType: "application/json",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (response) {
+    userService.sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/invoice/create-detail`,
+      "POST",
+      function (response) {
         if (response.status === "OK") {
           const productData = response.data;
 
@@ -419,13 +405,18 @@ $(document).ready(function () {
           );
         }
       },
-      error: function (error) {
+      function (error) {
         const response = error.responseJSON;
         console.log("Error fetching product data:", error);
         // Hiển thị thông báo lỗi nếu yêu cầu AJAX gặp lỗi
         showNotification(response.desc || "Product Out Of Stock", "error");
       },
-    });
+      JSON.stringify({
+        barcode: barcode,
+        quantity: 1,
+        invoiceTypeId: 1,
+      })
+    );
   }
 
   function renderProductCard(barcode) {
@@ -592,13 +583,10 @@ $(document).ready(function () {
 
   //========================== Phần này khi lấy được thông tin của user id có thể được tạo hoặc được tìm ===============================
   function getUserById(userId) {
-    $.ajax({
-      url: `http://${apiurl}/userinfo/getcustomer/${userId}`,
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (data) {
+    userService.sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/userinfo/getcustomer/${userId}`,
+      "GET",
+      function (data) {
         const user = data; // Không cần data.data nếu data đã là đối tượng người dùng
         if (user) {
           $("#selected-user-info").removeClass("hidden");
@@ -617,23 +605,20 @@ $(document).ready(function () {
           showNotification("Unable to load user data !!!", "error");
         }
       },
-      error: function (error) {
+      function (error) {
         console.error("Error loading user data !!!", error); // Log lỗi nếu có
         showNotification("Error loading user data !!!", "error");
       },
-    });
+      null
+    );
   }
 
   //=====================================Khi lấy được user id thì đi tìm promotion cho user đó =========================================
   function fetchUserPromotions(userId) {
-    $.ajax({
-      url: `http://${apiurl}/promotion/by-user`,
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      data: { userId: userId }, // Truyền ID người dùng vào đây
-      success: function (response) {
+    userService.sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/promotion/by-user`,
+      "GET",
+      function (response) {
         if (response.status === "OK") {
           userPromotion = response.data;
           const promotionDetails = $("#promotion-details");
@@ -656,11 +641,12 @@ $(document).ready(function () {
           showNotification("Can Not Load Information User", "error");
         }
       },
-      error: function (error) {
+      function (error) {
         console.error("Error While Loading Information User:", error);
         showNotification("Error While Loading Information User!", "error");
       },
-    });
+      { userId: userId }
+    );
   }
 
   //===============Phần này quan trọng nhất về việc lấy các biến đã lưu của sản phẩm employee và user để gửi về tạo hoá đơn ==========================
@@ -697,16 +683,10 @@ $(document).ready(function () {
     }
 
     console.log("Sending invoice details:", invoiceDetails);
-
-    $.ajax({
-      url: `http://${apiurl}/invoice/create-invoice`,
-      method: "POST",
-      contentType: "application/json",
-      data: JSON.stringify(invoiceDetails),
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (response) {
+    userService.sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/invoice/create-invoice`,
+      "POST",
+      function (response) {
         if (response.status === "OK") {
           showNotification(
             "The invoice has been created successfully !!!",
@@ -722,11 +702,12 @@ $(document).ready(function () {
           );
         }
       },
-      error: function (error) {
+      function (error) {
         console.error("Error when creating invoice: ", error);
         showNotification("Error when creating invoice !!!", "error");
       },
-    });
+      JSON.stringify(invoiceDetails)
+    );
   }
 
   function clearAllData() {
@@ -753,14 +734,10 @@ $(document).ready(function () {
 
   // ================================Sau khi tạo hoá đơn thành công thì sẽ hiện ra hoá đơn cho khách hàng ============================================
   function viewInvoice(invoiceId) {
-    $.ajax({
-      url: `http://${apiurl}/invoice/view-invoice`,
-      method: "POST",
-      data: { invoice: invoiceId },
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (response) {
+    userService.sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/invoice/view-invoice`,
+      "POST",
+      function (response) {
         if (response.status === "OK") {
           const invoiceData = response.data;
           const invoiceDetails = $("#invoice-details");
@@ -867,11 +844,12 @@ $(document).ready(function () {
           showNotification("Unable to load invoice details", "error");
         }
       },
-      error: function (error) {
+      function (error) {
         console.error("Unable to load invoice details", error);
         showNotification("Unable to load invoice details !!!", "error");
       },
-    });
+      { invoice: invoiceId }
+    );
   }
 
   function closeViewInvoiceModal() {
@@ -904,17 +882,10 @@ $(document).ready(function () {
     );
     const cancelNote = $("#cancel-note").val();
 
-    $.ajax({
-      url: `http://${apiurl}/invoice/cancel`,
-      method: "POST",
-      data: {
-        invoiceId: invoiceId,
-        note: cancelNote,
-      },
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (response) {
+    userService.sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/invoice/cancel`,
+      "POST",
+      function (response) {
         if (response.status === "OK") {
           showNotification("Invoice cancelled successfully", "OK");
 
@@ -924,11 +895,15 @@ $(document).ready(function () {
           showNotification("Unable to cancel invoice", "Error");
         }
       },
-      error: function (error) {
+      function (error) {
         console.error("Unable to cancel invoice", error);
         showNotification("Unable to cancel invoice", "Error");
       },
-    });
+      {
+        invoiceId: invoiceId,
+        note: cancelNote,
+      }
+    );
   });
 
   //============================= Phần này xử lý việc chuyển sang trang vnpay để thanh toán hoá đơn=================================
@@ -954,14 +929,10 @@ $(document).ready(function () {
     console.log("Initiating payment with:");
     console.log("amount:", amount);
     console.log("bankCode:", bankCode);
-
-    $.ajax({
-      url: `http://${apiurl}/payment/vn-pay?amount=${amount}&bankCode=${bankCode}`,
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (response) {
+    userService.sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/payment/vn-pay?amount=${amount}&bankCode=${bankCode}`,
+      "GET",
+      function (response) {
         if (
           response.code === 200 &&
           response.data &&
@@ -975,11 +946,12 @@ $(document).ready(function () {
           );
         }
       },
-      error: function (error) {
+      function (error) {
         console.error("Error initiating payment:", error);
         showNotification("Error initiating payment.", "error");
       },
-    });
+      formData
+    );
   }
 
   //============================Phần này quan trọng !! khi thanh toán từ vnpay thành công thì vnpay sẽ trả về trang này cùng url có  paymentSuccess

@@ -1,3 +1,7 @@
+import UserService from "./userService.js";
+
+const userService = new UserService();
+
 $(document).ready(function () {
   const selectedProductsTable = $("#selectedProductsTable");
   let totalPrice = 0;
@@ -91,13 +95,10 @@ $(document).ready(function () {
   }
 
   function searchProductByBarcode(barcode) {
-    $.ajax({
-      url: `http://${apiurl}/product/${barcode}`,
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (response) {
+    userService.sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/product/${barcode}`,
+      "GET",
+      function (response) {
         if (response.status === "OK" && response.data) {
           const product = response.data;
           addProductToTable(product);
@@ -106,20 +107,18 @@ $(document).ready(function () {
           showNotification("No products found with this barcode !!!", "error");
         }
       },
-      error: function () {
+      function () {
         showNotification("No products found with this barcode !!!", "error");
       },
-    });
+      null
+    );
   }
 
   function searchSupplier(supplierIdInput) {
-    $.ajax({
-      url: `http://${apiurl}/userinfo/findsupplier/${supplierIdInput}`,
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (response) {
+    userService.sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/userinfo/findsupplier/${supplierIdInput}`,
+      "GET",
+      function (response) {
         if (response) {
           supplierId = response.id;
           displaySupplierInfo(response);
@@ -128,10 +127,11 @@ $(document).ready(function () {
           showNotification("No supplier found with this code !!!", "error");
         }
       },
-      error: function () {
+      function () {
         showNotification("No supplier found with this code !!!", "error");
       },
-    });
+      null
+    );
   }
 
   function displaySupplierInfo(supplier) {
@@ -184,16 +184,10 @@ $(document).ready(function () {
       request: invoiceRequest,
       barcodePriceMap: barcodePriceMap,
     };
-
-    $.ajax({
-      url: `http://${apiurl}/invoice/create-import`,
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      contentType: "application/json",
-      data: JSON.stringify(importInvoiceRequestWrapper),
-      success: function (response) {
+    userService.sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/invoice/create-import`,
+      "POST",
+      function (response) {
         if (response.status === "OK") {
           showNotification("Invoice created successfully !!!", "OK");
           // Xóa các sản phẩm khỏi bảng và đặt lại tổng giá tiền
@@ -206,12 +200,13 @@ $(document).ready(function () {
           );
         }
       },
-      error: function () {
+      function () {
         showNotification(
           "Can error occurred while creating the invoice !!!",
           "error"
         );
       },
-    });
+      JSON.stringify(importInvoiceRequestWrapper)
+    );
   }
 });

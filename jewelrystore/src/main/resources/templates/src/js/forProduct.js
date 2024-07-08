@@ -85,21 +85,19 @@ $(document).ready(function () {
   });
 });
 function checkProductInOtherActivePromotions(productId, promotionId, checkbox) {
-  $.ajax({
-    url: `http://${apiurl}/promotion-generic/check/PRODUCT/${productId}/${promotionId}`,
-    type: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService.sendAjaxWithAuthen(
+    `http://${userService.getApiUrl()}/promotion-generic/check/PRODUCT/${productId}/${promotionId}`,
+    "GET",
+    function (response) {
       if (response.status === "CONFLICT") {
         displayConflictModal(response.data, response.desc, checkbox);
       }
     },
-    error: function (error) {
+    function (error) {
       console.error("Error checking product in other promotions:", error);
     },
-  });
+    null
+  );
 }
 
 function displayConflictModal(conflictPromotions, desc, checkbox) {
@@ -141,19 +139,10 @@ function activeSelectedProducts(promotionId) {
   });
   var entity = "PRODUCT";
   if (selectedProductIds.length > 0) {
-    $.ajax({
-      url: `http://${apiurl}/promotion-generic/apply`, // URL mới cho chức năng inactive
-      type: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      contentType: "application/json",
-      data: JSON.stringify({
-        promotionId: promotionId,
-        entityIds: selectedProductIds,
-        entityType: entity,
-      }),
-      success: function (response) {
+    userService.sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/promotion-generic/apply`,
+      "POST",
+      function (response) {
         // Sau khi thực hiện thành công, tải lại danh sách sản phẩm
         fetchProductsByPromotion(
           promotionId,
@@ -161,10 +150,15 @@ function activeSelectedProducts(promotionId) {
         );
         showNotification("Active successful", "OK");
       },
-      error: function (error) {
+      function (error) {
         console.error("Error inactivating selected products:", error);
       },
-    });
+      JSON.stringify({
+        promotionId: promotionId,
+        entityIds: selectedProductIds,
+        entityType: entity,
+      })
+    );
   } else {
     showNotification(
       "Please select at least one product to inactive.",
@@ -266,13 +260,10 @@ function filterItems() {
 function fetchProductsByPromotion(promotionId, promotionName) {
   var productTableBody = $("#product-apply-promotion");
   productTableBody.empty(); // Clear existing rows
-  $.ajax({
-    url: `http://${apiurl}/promotion-generic/in-promotion/PRODUCT/${promotionId}`,
-    type: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService.sendAjaxWithAuthen(
+    `http://${userService.getApiUrl()}/promotion-generic/in-promotion/PRODUCT/${promotionId}`,
+    "GET",
+    function (response) {
       var products = response.data;
       $("#promotion-name-listapply").text(promotionName);
       if (products.length > 0 && response.status === "OK") {
@@ -309,10 +300,11 @@ function fetchProductsByPromotion(promotionId, promotionName) {
         );
       }
     },
-    error: function (error) {
+    function (error) {
       console.error("Lỗi khi tải sản phẩm từ promotion:", error);
     },
-  });
+    null
+  );
 }
 
 // Xóa các sản phẩm đã chọn khỏi promotion
@@ -322,19 +314,10 @@ function deleteSelectedProducts(promotionId) {
     selectedProductIds.push($(this).val());
   });
   if (selectedProductIds.length > 0) {
-    $.ajax({
-      url: `http://${apiurl}/promotion-generic/remove`,
-      type: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      contentType: "application/json",
-      data: JSON.stringify({
-        promotionId: promotionId,
-        entityIds: selectedProductIds,
-        entityType: "PRODUCT",
-      }),
-      success: function (response) {
+    userService.sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/promotion-generic/remove`,
+      "POST",
+      function (response) {
         // Sau khi xóa thành công, tải lại danh sách sản phẩm
         if (response.status === "OK") {
           fetchProductsByPromotion(
@@ -344,11 +327,16 @@ function deleteSelectedProducts(promotionId) {
           showNotification(response.desc, "OK");
         }
       },
-      error: function (error) {
+      function (error) {
         showNotification(response.desc, "error");
         console.error("Error deleting selected products:", error);
       },
-    });
+      JSON.stringify({
+        promotionId: promotionId,
+        entityIds: selectedProductIds,
+        entityType: "PRODUCT",
+      })
+    );
   } else {
     showNotification("Please select at least one product to delete.", "Error");
   }
@@ -358,13 +346,10 @@ function deleteSelectedProducts(promotionId) {
 function fetchProductsNotInPromotion(promotionId) {
   var itemTableBody = $("#itemTableBody");
   itemTableBody.empty(); // Clear existing rows
-  $.ajax({
-    url: `http://${apiurl}/promotion-generic/not-in-promotion/PRODUCT/${promotionId}`,
-    type: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService.sendAjaxWithAuthen(
+    `http://${userService.getApiUrl()}/promotion-generic/not-in-promotion/PRODUCT/${promotionId}`,
+    "GET",
+    function (response) {
       var products = response.data;
       if (products.length > 0) {
         products.forEach(function (product) {
@@ -393,10 +378,11 @@ function fetchProductsNotInPromotion(promotionId) {
         $("#notiBlankItems").text("No products found not in this promotion.");
       }
     },
-    error: function (error) {
+    function (error) {
       console.error("Error fetching products not in promotion:", error);
     },
-  });
+    null
+  );
 }
 
 // Thêm các sản phẩm đã chọn vào promotion
@@ -407,19 +393,10 @@ function addSelectedProductsToPromotion(promotionId) {
   });
   var entity = "PRODUCT";
   if (selectedProductIds.length > 0) {
-    $.ajax({
-      url: `http://${apiurl}/promotion-generic/apply`,
-      type: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      contentType: "application/json",
-      data: JSON.stringify({
-        promotionId: promotionId,
-        entityIds: selectedProductIds,
-        entityType: entity,
-      }),
-      success: function (response) {
+    userService.sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/promotion-generic/apply`,
+      "POST",
+      function (response) {
         showNotification(response.desc, "OK");
 
         // Sau khi thêm thành công, tải lại danh sách sản phẩm
@@ -429,10 +406,15 @@ function addSelectedProductsToPromotion(promotionId) {
         );
         $("#combinedModal").addClass("hidden");
       },
-      error: function (error) {
+      function (error) {
         console.error("Error adding selected products:", error);
       },
-    });
+      JSON.stringify({
+        promotionId: promotionId,
+        entityIds: selectedProductIds,
+        entityType: entity,
+      })
+    );
   } else {
     showNotification(response.desc, "Error");
   }
