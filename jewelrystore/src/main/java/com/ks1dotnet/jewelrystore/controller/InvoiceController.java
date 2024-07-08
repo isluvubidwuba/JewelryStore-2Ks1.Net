@@ -176,20 +176,23 @@ public class InvoiceController {
     @PostMapping("/view-invoice-resale")
     public ResponseEntity<ResponseData> viewInvoiceResale(@RequestParam int invoice) {
         try {
-            Invoice Invoice = invoiceRepository.findById(invoice)
-                    .orElseThrow(() -> new BadRequestException("Not found invoice with id: " + invoice));
+            Invoice Invoice = invoiceRepository.findById(invoice).orElseThrow(
+                    () -> new ApplicationException("Not found invoice with id: " + invoice,
+                            HttpStatus.NOT_FOUND));
             if (Invoice.getInvoiceType().getId() != Sell) {
-                return new ResponseEntity<>(
-                        new ResponseData(HttpStatus.NOT_FOUND, "This invoice cannot buy back", null),
-                        HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(new ResponseData(HttpStatus.NOT_FOUND,
+                        "This invoice cannot buy back", null), HttpStatus.NOT_FOUND);
             }
-            return new ResponseEntity<>(new ResponseData(HttpStatus.OK, "Get invoice successfull", Invoice.getDTO()),
+            return new ResponseEntity<>(
+                    new ResponseData(HttpStatus.OK, "Get invoice successfull", Invoice.getDTO()),
                     HttpStatus.OK);
-        } catch (BadRequestException e) {
-            ResponseData responseData = new ResponseData(HttpStatus.BAD_REQUEST, e.getMessage(), null);
+        } catch (ApplicationException e) {
+            ResponseData responseData =
+                    new ResponseData(HttpStatus.BAD_REQUEST, e.getMessage(), null);
             return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            ResponseData responseData = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
+            ResponseData responseData =
+                    new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
             return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

@@ -47,10 +47,11 @@ function generateTabs(counters) {
 
     const tabLink = $("<a>", {
       href: "#",
-      class: `inline-block py-3 px-4 rounded-lg ${index === 0
-        ? "text-white bg-black active"
-        : "text-gray-300 bg-black hover:bg-gray-700"
-        }`,
+      class: `inline-block py-3 px-4 rounded-lg ${
+        index === 0
+          ? "text-white bg-black active"
+          : "text-gray-300 bg-black hover:bg-gray-700"
+      }`,
       text: counter.name,
       "data-tab": `tab-${counter.id}`,
     });
@@ -415,15 +416,11 @@ function setupAddProductModal() {
     fetchProductsForCounter();
   });
 
-  $("#closeCombinedModal, #cancelSelectCounter").on(
-    "click",
-    function () {
-      $("#combinedModal").addClass("hidden");
-    }
-  );
+  $("#closeCombinedModal, #cancelSelectCounter").on("click", function () {
+    $("#combinedModal").addClass("hidden");
+  });
 
   $("#submitAddProductToCounter").on("click", function () {
-
     const counterId = $("#counterSelect").val();
     const selectedProducts = [];
     $("#productTableBody input:checked").each(function () {
@@ -443,13 +440,16 @@ function setupAddProductModal() {
     }
 
     if (selectedProducts.length === 0) {
-      console.log("Condition check: No products selected (selectedProducts is empty)"); // Added log
+      console.log(
+        "Condition check: No products selected (selectedProducts is empty)"
+      ); // Added log
       showNotification("Please select at least one product", "Error");
       return;
     } else {
-      console.log("Condition check: Products selected: " + selectedProducts.length); // Added log
+      console.log(
+        "Condition check: Products selected: " + selectedProducts.length
+      ); // Added log
     }
-
 
     $.ajax({
       url: `http://${apiurl}/counter/addproductsforcounter?counterId=${counterId}`,
@@ -469,12 +469,11 @@ function setupAddProductModal() {
           showNotification("Error adding products to counter", "Error");
         }
       },
-      function (error) {
+      function(error) {
         console.error("Error:", error);
         showNotification("Error adding products to counter", "Error");
       },
-      JSON.stringify(selectedProducts)
-    );
+    });
 
     $("#combinedModal").addClass("hidden");
   });

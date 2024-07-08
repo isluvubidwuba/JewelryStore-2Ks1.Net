@@ -440,7 +440,8 @@ public class UserInfoService implements IUserInfoService {
     @Override
     public ResponseData findByPhoneSupplier(String phone) {
         try {
-            Optional<UserInfo> optionalUserInfo = iUserInfoRepository.findSupplierByPhoneNumber(phone);
+            Optional<UserInfo> optionalUserInfo =
+                    iUserInfoRepository.findSupplierByPhoneNumber(phone);
             if (optionalUserInfo.isPresent()) {
                 UserInfo userInfo = optionalUserInfo.get();
                 ResponseData responseData = new ResponseData();
@@ -455,7 +456,9 @@ public class UserInfoService implements IUserInfoService {
                 return responseData;
             }
         } catch (Exception e) {
-            throw new RunTimeExceptionV1("An error occurred while finding the customer", e.getMessage());
+            throw new ApplicationException(
+                    "Error at findByPhoneSupplier UserInfoService: " + e.getMessage(),
+                    "An error occurred while finding the customer");
         }
     }
 
@@ -477,7 +480,9 @@ public class UserInfoService implements IUserInfoService {
                 return responseData;
             }
         } catch (Exception e) {
-            throw new RunTimeExceptionV1("An error occurred while finding the customer", e.getMessage());
+            throw new ApplicationException(
+                    "Error at findByEmailSupplier UserInfoService: " + e.getMessage(),
+                    "An error occurred while finding the customer");
         }
     }
 

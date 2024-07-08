@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import com.google.api.Http;
 import com.ks1dotnet.jewelrystore.dto.CounterDTO;
 import com.ks1dotnet.jewelrystore.dto.EmployeeDTO;
 import com.ks1dotnet.jewelrystore.dto.EmployeeRevenueDTO;
@@ -129,7 +130,8 @@ public class InvoiceService implements IInvoiceService {
                                                 HttpStatus.FORBIDDEN);
                         }
                         if (!product.isStatus() && invoiceTypeId == 1) {
-                                throw new BadRequestException("Product is not sold.");
+                                throw new ApplicationException("Product is not sold.",
+                                                HttpStatus.BAD_REQUEST);
                         }
 
                         InvoiceType invoiceType = invoiceTypeService.findById(invoiceTypeId);
