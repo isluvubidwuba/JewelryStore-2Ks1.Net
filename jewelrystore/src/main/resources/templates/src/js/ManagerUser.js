@@ -1,3 +1,7 @@
+import UserService from "./userService.js";
+
+const userService = new UserService();
+
 $(document).ready(function () {
   fetchRoles();
   fetchUniqueRankData();
@@ -8,13 +12,10 @@ $(document).ready(function () {
 });
 
 function fetchRoles() {
-  $.ajax({
-    url: `http://${apiurl}/role/list`,
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService.sendAjaxWithAuthen(
+    `http://${userService.getApiUrl()}/api/role/list`,
+    "GET",
+    function (response) {
       if (response.status === "OK") {
         const roles = response.data.filter(
           (role) => !["STAFF", "ADMIN", "MANAGER"].includes(role.name)
@@ -27,10 +28,11 @@ function fetchRoles() {
         showNotification("Fail to load Role.", "error");
       }
     },
-    error: function (error) {
+    function (error) {
       console.error("Error fetching roles:", error);
     },
-  });
+    null
+  );
 }
 
 function initTabs(roles) {
@@ -73,7 +75,7 @@ function setupModalToggle() {
   $("#add-role-form").on("submit", function (e) {
     e.preventDefault();
     $.ajax({
-      url: `http://${apiurl}/role/insert`,
+      url: `http://${userService.getApiUrl()}/api/role/insert`,
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -206,7 +208,7 @@ function fetchImage(elementId, imageUrl) {
 
 function fetchCustomers(page) {
   $.ajax({
-    url: `http://${apiurl}/userinfo/listcustomer?page=${page}`,
+    url: `http://${userService.getApiUrl()}/api/userinfo/listcustomer?page=${page}`,
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -228,7 +230,7 @@ function fetchCustomers(page) {
 
 function fetchCustomerRanks(callback) {
   $.ajax({
-    url: `http://${apiurl}/earnpoints/rank`,
+    url: `http://${userService.getApiUrl()}/api/earnpoints/rank`,
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -252,7 +254,7 @@ function fetchCustomerRanks(callback) {
 
 function fetchSuppliers(page) {
   $.ajax({
-    url: `http://${apiurl}/userinfo/listsupplier?page=${page}`,
+    url: `http://${userService.getApiUrl()}/api/userinfo/listsupplier?page=${page}`,
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -380,7 +382,7 @@ function setupEditButtons() {
 
 function fetchUserInfo(id) {
   $.ajax({
-    url: `http://${apiurl}/userinfo/findcustomer/${id}`,
+    url: `http://${userService.getApiUrl()}/api/userinfo/findcustomer/${id}`,
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -406,7 +408,7 @@ function fetchUserInfo(id) {
 function updateUser() {
   var formData = new FormData($("#update-user-form")[0]);
   $.ajax({
-    url: `http://${apiurl}/userinfo/update`,
+    url: `http://${userService.getApiUrl()}/api/userinfo/update`,
     method: "POST",
     processData: false,
     contentType: false,
@@ -503,8 +505,8 @@ function setupSearch(role) {
 function searchByRole(role, criteria, query, page) {
   const searchUrl =
     role === "CUSTOMER"
-      ? `http://${apiurl}/userinfo/searchcustomer`
-      : `http://${apiurl}/userinfo/searchsupplier`;
+      ? `http://${userService.getApiUrl()}/api/userinfo/searchcustomer`
+      : `http://${userService.getApiUrl()}/api/userinfo/searchsupplier`;
 
   $.ajax({
     url: searchUrl,
@@ -588,7 +590,7 @@ function setupInsertModalToggle() {
         formData.append("file", fileInput);
       }
       $.ajax({
-        url: `http://${apiurl}/userinfo/insert`,
+        url: `http://${userService.getApiUrl()}/api/userinfo/insert`,
         method: "POST",
         processData: false,
         contentType: false,
@@ -642,7 +644,7 @@ function setupInsertRoleModalToggle() {
       e.preventDefault();
       var formData = new FormData($("#add-role-form")[0]);
       $.ajax({
-        url: `http://${apiurl}/role/insert`,
+        url: `http://${userService.getApiUrl()}/api/role/insert`,
         method: "POST",
         processData: false,
         contentType: false,
@@ -712,7 +714,7 @@ function isValidPhoneNumber(phoneNumber) {
 // Fetch rank data and populate the table
 function fetchUniqueRankData() {
   $.ajax({
-    url: `http://${apiurl}/customertype/findall`,
+    url: `http://${userService.getApiUrl()}/api/customertype/findall`,
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -793,7 +795,7 @@ function updateUniqueCustomerType() {
     var pointCondition = $("#updateUniquePointCondition").val();
 
     $.ajax({
-      url: `http://${apiurl}/customertype/updatepointcondition`,
+      url: `http://${userService.getApiUrl()}/api/customertype/updatepointcondition`,
       method: "POST",
       data: {
         id: id,
@@ -872,7 +874,7 @@ function addUniqueCustomerType() {
     var pointCondition = $("#addPointCondition").val();
 
     $.ajax({
-      url: `http://${apiurl}/customertype/add`,
+      url: `http://${userService.getApiUrl()}/api/customertype/add`,
       method: "POST",
       data: {
         type: type,
@@ -914,7 +916,7 @@ function deleteUniqueCustomerType() {
 
     if (isConfirmed) {
       $.ajax({
-        url: `http://${apiurl}/customertype/delete`,
+        url: `http://${userService.getApiUrl()}/api/customertype/delete`,
         method: "POST",
         data: {
           customerTypeId: id,
