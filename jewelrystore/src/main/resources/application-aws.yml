@@ -5,4 +5,4 @@ spring:
     url: jdbc:sqlserver://store-manager.ch2a2i4kg4ty.us-east-1.rds.amazonaws.com:1433;databaseName=StoreManager;encrypt=true;trustServerCertificate=true
     username: admin
     password: Strongbow22
-domain: 2ks1dotnet.id.vn
+domain: http://2ks1dotnet.id.vn.s3-website-us-east-1.amazonaws.com/
