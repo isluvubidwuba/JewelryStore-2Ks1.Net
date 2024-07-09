@@ -1,12 +1,12 @@
 import UserService from "./userService.js";
 
 const userService = new UserService();
+let employeeID = userService.getUserId(); // ID của nhân viên từ token
 
 $(document).ready(function () {
   const selectedProductsTable = $("#selectedProductsTable");
   let totalPrice = 0;
   let supplierId = null;
-  let token = localStorage.getItem("token");
 
   $("#searchProductByBarcode").on("click", function () {
     const barcode = $("#barcodeInput").val();
@@ -120,7 +120,7 @@ $(document).ready(function () {
 
   function searchProductByBarcode(barcode) {
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/product/${barcode}`,
+      `http://${userService.getApiUrl()}/api/product/${barcode}`,
       "GET",
       function (response) {
         if (response.status === "OK" && response.data) {
@@ -140,11 +140,11 @@ $(document).ready(function () {
 
   function searchSupplier(supplierIdInput) {
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/userinfo/findsupplier/${supplierIdInput}`,
+      `http://${userService.getApiUrl()}/api/userinfo/phonenumberandmailsupplier?citeria=${supplierIdInput}`,
       "GET",
       function (response) {
         if (response) {
-          supplierId = response.id;
+          supplierId = response.data.id;
           displaySupplierInfo(response.data);
           $("#supplierInput").val("");
         } else {
@@ -174,8 +174,8 @@ $(document).ready(function () {
       showNotification("Payment method has not been selected !!!", "error");
       return;
     }
-    let employeeID = localStorage.getItem("userId"); // ID của nhân viên từ token
     if (!employeeID || !supplierId) {
+      console.log("employeeID: " + employeeID + "supplierId" + supplierId);
       showNotification(
         "Please select a provider and make sure the employee is logged in !!!",
         "error"
@@ -215,7 +215,7 @@ $(document).ready(function () {
       barcodePriceMap: barcodePriceMap,
     };
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/invoice/create-import`,
+      `http://${userService.getApiUrl()}/api/invoice/create-import`,
       "POST",
       function (response) {
         if (response.status === "OK") {
@@ -237,7 +237,7 @@ $(document).ready(function () {
           "error"
         );
       },
-      JSON.stringify(importInvoiceRequestWrapper)
+      importInvoiceRequestWrapper
     );
   }
 

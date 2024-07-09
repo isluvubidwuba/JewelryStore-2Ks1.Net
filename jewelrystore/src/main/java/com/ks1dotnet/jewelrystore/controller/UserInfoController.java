@@ -96,20 +96,21 @@ public class UserInfoController {
     }
 
     @GetMapping("/findsupplier/{id}")
-    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','STAFF')")
     public ResponseEntity<?> getSupplierById(@PathVariable int id) {
         ResponseData responseData = iUserInfoService.getSupplierInfo(id);
         return new ResponseEntity<>(responseData.getData(), responseData.getStatus());
     }
 
     @GetMapping("/getcustomer/{id}")
-    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','STAFF')")
     public ResponseEntity<?> getCustomerById(@PathVariable int id) {
         ResponseData responseData = iUserInfoService.getCustomerInfo(id);
         return new ResponseEntity<>(responseData.getData(), responseData.getStatus());
     }
 
     @GetMapping("/phonenumberandmailcustomer")
+
     public ResponseEntity<?> getPhoneNumberCustomer(@RequestParam String phone) {
         if (phone.contains("@")) {
             ResponseData responseData = iUserInfoService.findByEmail(phone);
@@ -122,7 +123,9 @@ public class UserInfoController {
     }
 
     @GetMapping("/phonenumberandmailsupplier")
+
     public ResponseEntity<?> getPhoneNumberSupplier(@RequestParam String citeria) {
+        System.out.println("citeria: " + citeria);
         if (citeria.contains("@")) {
             ResponseData responseData = iUserInfoService.findByEmailSupplier(citeria);
             return new ResponseEntity<>(responseData, responseData.getStatus());

@@ -9,7 +9,7 @@ $(document).ready(function () {
   $("#loadMoreInvoiceEmplBtn").on("click", function () {
     loadInvoices(currentPage2, pageSize2);
   });
-  if (userId) {
+  if (userService.getUserId()) {
     viewEmployee2();
   } else {
     alert("Không có thông tin người dùng, vui lòng đăng nhập lại!");
@@ -89,7 +89,7 @@ function handlePeriodChangeModal() {
 function handleMonthChangeModal() {
   const month = $("#monthSelectModal").val();
   const year = new Date().getFullYear();
-  Update(userId, "month", year, month);
+  Update(userService.getUserId(), "month", year, month);
 }
 
 function handleYearChangeModal() {
@@ -98,7 +98,7 @@ function handleYearChangeModal() {
     yearOption === "currentYear"
       ? new Date().getFullYear()
       : new Date().getFullYear() - 1;
-  Update(userId, "year", year);
+  Update(userService.getUserId(), "year", year);
 }
 
 // Hàm hiển thị thông tin nhân viên
@@ -160,11 +160,11 @@ function viewEmployee2(
     "GET",
     handleSuccessViewEmployee2,
     handleErrorViewEmployee2,
-    userService.convertToFormData({
+    $.param({
       period: period,
       year: year,
       month: period === "month" ? month : null,
-      employeeId: userId,
+      employeeId: userService.getUserId(),
     })
   );
 }
@@ -191,7 +191,7 @@ function Update(
     "GET",
     handleSuccessUdate,
     handleErrorUpdate,
-    userService.convertToFormData({
+    $.param({
       period: period,
       year: year,
       month: period === "month" ? month : null,
@@ -216,8 +216,8 @@ function loadInvoices(page, size) {
     "GET",
     handleSuccessloadInvoices,
     handleErrorloadInvoices,
-    userService.convertToFormData({
-      employeeId: userId,
+    $.param({
+      employeeId: userService.getUserId(),
       page: page,
       size: size,
     })

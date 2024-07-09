@@ -35,7 +35,7 @@ $(document).ready(function () {
       var formData = new FormData();
       formData.append("invoice", invoiceId);
       userService.sendAjaxWithAuthen(
-        `http://${userService.getApiUrl()}/api/invoice/view-invoice`,
+        `http://${userService.getApiUrl()}/api/invoice/view-invoice-resale`,
         "POST",
         function (response) {
           if (response.status === "OK") {
@@ -371,7 +371,7 @@ $(document).ready(function () {
       barcodeQuantityMap: barcodeQuantityMap,
       invoiceTypeId: 3,
       userId: currentUser.id,
-      employeeId: employeeId,
+      employeeId: userService.getUserId(),
       payment: "COD",
       note: "Ghi chú buyback",
     };
@@ -549,5 +549,21 @@ $(document).ready(function () {
     currentUser = null;
     clearInputInvoiceID();
     showNotification("All information has been cleared", "OK");
+  });
+
+  // Hàm in hóa đơn
+  function printInvoice() {
+    var printContents = document.getElementById("invoice-details").innerHTML;
+    document.body.innerHTML = printContents;
+    window.print();
+
+    setTimeout(function () {
+      location.reload();
+    }, 100);
+  }
+
+  // Gắn sự kiện click cho nút in hóa đơn
+  $("#print-invoice-btn").click(function () {
+    printInvoice();
   });
 });
