@@ -410,7 +410,7 @@ function fetchPromotionDetails(promotionId) {
     function (error) {
       console.error("Error fetching promotion:", error);
     },
-    userService.convertToFormData({ id: promotionId })
+    $.param({ id: promotionId })
   );
 }
 

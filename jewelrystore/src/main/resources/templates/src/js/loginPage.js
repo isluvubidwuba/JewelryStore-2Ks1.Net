@@ -130,7 +130,7 @@ const countDownResend = () => {
 
 const sendOtp = (idEmploy) => {
   userService.sendAjax(
-    `http://${userService.getApiUrl()}/mail/sendOtp/${idEmploy}`,
+    `http://${userService.getApiUrl()}/api/mail/sendOtp/${idEmploy}`,
     "POST",
     ({ status, desc }) => {
       if (status !== "OK") {
@@ -143,13 +143,12 @@ const sendOtp = (idEmploy) => {
       } else {
         showNotification("Error while send OTP to employee email!", "error");
       }
-    },
-    { id, pinCode }
+    }
   );
 };
 const validateOtp = (idEmploy, otp) => {
   userService.sendAjax(
-    `http://${userService.getApiUrl()}/employee/validateOtp`,
+    `http://${userService.getApiUrl()}/api/employee/validateOtp`,
     "POST",
     ({ status, desc, data }) => {
       token = data;
@@ -171,7 +170,7 @@ const validateOtp = (idEmploy, otp) => {
 
 const changePasss = (password) => {
   userService.sendAjax(
-    `http://${userService.getApiUrl()}/employee/changePass`,
+    `http://${userService.getApiUrl()}/api/employee/changePass`,
     "POST",
     ({ status, desc, data }) => {
       token = null;
@@ -201,7 +200,7 @@ const changePasss = (password) => {
 
 const validPromotion = () => {
   userService.sendAjax(
-    `http://${userService.getApiUrl()}/promotion/valid`,
+    `http://${userService.getApiUrl()}/api/promotion/valid`,
     "GET",
     null,
     (error) => {
