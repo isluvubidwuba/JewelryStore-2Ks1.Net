@@ -1,3 +1,6 @@
+import UserService from "./userService.js";
+
+const userService = new UserService();
 $(document).ready(function () {
   // Sự kiện click cho nút mở modal
   $("#openManagerInvoiceType").click(function () {
@@ -92,10 +95,10 @@ function openInvoiceTypeModal() {
               function () {
                 showNotification("Update fail", "Error");
               },
-              {
+              $.param({
                 id: id,
                 rate: newRate,
-              }
+              })
             );
           });
         });

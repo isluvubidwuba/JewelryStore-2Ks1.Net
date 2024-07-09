@@ -19,7 +19,7 @@ function getInvoiceData(invoice) {
     "POST",
     handleSuccessGetInvoiceData,
     handleErrorGetInvoiceData,
-    { invoice: invoice }
+    $.param({ invoice: invoice })
   );
 }
 function handleErrorGetInvoiceData(xhr) {

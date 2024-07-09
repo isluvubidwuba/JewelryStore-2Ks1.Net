@@ -70,8 +70,6 @@ public class CounterController {
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
 
-
-
     // load các counter lên để tạo ra các tab động
     @GetMapping("/allactivecounter")
     public ResponseEntity<ResponseData> getAllCounters() {

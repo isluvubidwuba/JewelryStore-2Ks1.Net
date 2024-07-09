@@ -169,7 +169,6 @@ public class EmployeeService implements IEmployeeService {
          // Mã hóa pinCode
          String encodedPinCode = passwordEncoder.encode(employee.getId());
          employee.setPinCode(encodedPinCode);
-
          employee.setPhoneNumber(phoneNumber);
          employee.setEmail(email);
          employee.setAddress(address);

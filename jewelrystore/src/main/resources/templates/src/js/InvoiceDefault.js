@@ -46,6 +46,7 @@ $(document).ready(function () {
       keybuffer.push(number);
     }
   }
+  
   $("#add-barcode-button").click(function () {
     const barcode = $("#barcode-input").val().trim();
     if (barcode) {
@@ -125,7 +126,7 @@ $(document).ready(function () {
         console.log(pair[0] + ": " + pair[1]);
       }
       userService.sendAjaxWithAuthen(
-        `http://${userService.getApiUrl()}/userinfo/insert`,
+        `http://${userService.getApiUrl()}/api/userinfo/insert`,
         "POST",
         function (response) {
           showNotification(response.desc || "User inserted successfully", "OK");
@@ -216,7 +217,7 @@ $(document).ready(function () {
     var phone = input;
 
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/userinfo/phonenumberandmailcustomer?phone=${phone}`,
+      `http://${userService.getApiUrl()}/api/userinfo/phonenumberandmailcustomer?phone=${phone}`,
       "GET",
       function (response) {
         if (response.status === "OK" && response.data) {
@@ -350,32 +351,30 @@ $(document).ready(function () {
           </thead>
           <tbody>
             ${Object.values(productMap)
-              .map(
-                (product) => `
+        .map(
+          (product) => `
             <tr>
               <td class="py-4 text-gray-700">${product.product.barCode}</td>
               <td class="py-4 text-gray-700">${product.quantity}</td>
               <td class="py-4 text-gray-700">${new Intl.NumberFormat("vi-VN", {
-                style: "currency",
-                currency: "VND",
-              }).format(product.totalPrice)}</td>
+            style: "currency",
+            currency: "VND",
+          }).format(product.totalPrice)}</td>
             </tr>
             `
-              )
-              .join("")}
+        )
+        .join("")}
           </tbody>
         </table>
         <div class="grid grid-cols-2 gap-4">
           <div class="text-gray-700">Promotion: </div>
-          <div class="text-gray-700 text-right">${
-            userPromotion
-              ? userPromotion.name + " - " + userPromotion.value + "%"
-              : "Do not have !!!"
-          }</div>
+          <div class="text-gray-700 text-right">${userPromotion
+        ? userPromotion.name + " - " + userPromotion.value + "%"
+        : "Do not have !!!"
+      }</div>
           <div class="text-gray-700">Total number of products: </div>
-          <div class="text-gray-700 text-right">${
-            Object.keys(productMap).length
-          }</div>
+          <div class="text-gray-700 text-right">${Object.keys(productMap).length
+      }</div>
         </div>
       </div>
     `;
@@ -430,14 +429,14 @@ $(document).ready(function () {
       } else {
         showNotification(
           "Quantity exceeds inventory quantity. Available: " +
-            productMap[barcode].inventory,
+          productMap[barcode].inventory,
           "error"
         );
       }
       return;
     }
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/invoice/create-detail`,
+      `http://${userService.getApiUrl()}/api/invoice/create-detail`,
       "POST",
       function (response) {
         if (response.status === "OK") {
@@ -459,21 +458,22 @@ $(document).ready(function () {
           // Hiển thị thông báo lỗi từ phản hồi của API
           showNotification(
             response.desc || "An error occurred, please try again !!!",
-            "error"
-          );
+            "error");
+            console.log("Notification trong else function success:", message);
         }
       },
       function (error) {
         const response = error.responseJSON;
         console.log("Error fetching product data:", error);
         // Hiển thị thông báo lỗi nếu yêu cầu AJAX gặp lỗi
-        showNotification(response.desc || "Product Out Of Stock", "error");
+        showNotification(response.desc, "error");
+        console.log("Notification trong else function error:", response.desc);
       },
-      JSON.stringify({
+      {
         barcode: barcode,
         quantity: 1,
         invoiceTypeId: 1,
-      })
+      }
     );
   }
 
@@ -482,33 +482,26 @@ $(document).ready(function () {
     const productCard = $(`
         <div id="product-${barcode}" class="product-card border p-4 mb-4 rounded-md shadow-md grid grid-cols-12 gap-4">
             <div class="col-span-4">
-                <img src="${productData.product.imgPath}" alt="${
-      productData.product.name
-    }" class="w-full h-auto rounded-md">
+                <img src="${productData.product.imgPath}" alt="${productData.product.name
+      }" class="w-full h-auto rounded-md">
             </div>
             <div class="col-span-8">
-                <h3 class="text-xl font-semibold mb-2">${
-                  productData.product.name
-                }</h3>
-                <p class="text-sm text-gray-600 mb-1"><strong>Product code: </strong> ${
-                  productData.product.productCode
-                }</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Material: </strong> ${
-                  productData.product.materialDTO.name
-                }</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Category: </strong> ${
-                  productData.product.productCategoryDTO.name
-                }</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Barcode: </strong> ${
-                  productData.product.barCode
-                }</p>
+                <h3 class="text-xl font-semibold mb-2">${productData.product.name
+      }</h3>
+                <p class="text-sm text-gray-600 mb-1"><strong>Product code: </strong> ${productData.product.productCode
+      }</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Material: </strong> ${productData.product.materialDTO.name
+      }</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Category: </strong> ${productData.product.productCategoryDTO.name
+      }</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Barcode: </strong> ${productData.product.barCode
+      }</p>
                 <p class="text-sm text-gray-600 mb-1"><strong>Toltal price: </strong> ${new Intl.NumberFormat(
-                  "vi-VN",
-                  { style: "currency", currency: "VND" }
-                ).format(productData.totalPrice)}</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Quantity: </strong> <span id="quantity-${barcode}">${
-      productData.quantity
-    }</span></p>
+        "vi-VN",
+        { style: "currency", currency: "VND" }
+      ).format(productData.totalPrice)}</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Quantity: </strong> <span id="quantity-${barcode}">${productData.quantity
+      }</span></p>
             </div>
         </div>
     `);
@@ -522,13 +515,12 @@ $(document).ready(function () {
                 <td class="px-4 py-2">${productData.product.name}</td>
                 <td class="px-4 py-2">${productData.product.productCode}</td>
                 <td class="px-4 py-2 total-price">${new Intl.NumberFormat(
-                  "vi-VN",
-                  { style: "currency", currency: "VND" }
-                ).format(productData.totalPrice)}</td>
+      "vi-VN",
+      { style: "currency", currency: "VND" }
+    ).format(productData.totalPrice)}</td>
                 <td class="px-4 py-2">
-                    <input type="number" id="sidebar-quantity-${barcode}" class="quantity-input border p-1" value="${
-      productData.quantity
-    }" min="1" max="${productData.inventory}">
+                    <input type="number" id="sidebar-quantity-${barcode}" class="quantity-input border p-1" value="${productData.quantity
+      }" min="1" max="${productData.inventory}">
                 </td>
                 <td class="px-4 py-2">
                     <button class="remove-product-btn bg-red-500 text-white p-1" data-barcode="${barcode}">Delete</button>
@@ -544,7 +536,7 @@ $(document).ready(function () {
       } else {
         showNotification(
           "Quantity exceeds inventory quantity. Avaiable: " +
-            productData.inventory,
+          productData.inventory,
           "error"
         );
         $(this).val(productData.quantity);
@@ -642,7 +634,7 @@ $(document).ready(function () {
   //========================== Phần này khi lấy được thông tin của user id có thể được tạo hoặc được tìm ===============================
   function getUserById(userId) {
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/userinfo/getcustomer/${userId}`,
+      `http://${userService.getApiUrl()}/api/userinfo/getcustomer/${userId}`,
       "GET",
       function (data) {
         const user = data; // Không cần data.data nếu data đã là đối tượng người dùng
@@ -674,7 +666,7 @@ $(document).ready(function () {
   //=====================================Khi lấy được user id thì đi tìm promotion cho user đó =========================================
   function fetchUserPromotions(userId) {
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/promotion/by-user`,
+      `http://${userService.getApiUrl()}/api/promotion/by-user`,
       "GET",
       function (response) {
         if (response.status === "OK") {
@@ -703,7 +695,7 @@ $(document).ready(function () {
         console.error("Error While Loading Information User:", error);
         showNotification("Error While Loading Information User!", "error");
       },
-      { userId: userId }
+      $.param({ userId: userId })
     );
   }
 
@@ -742,7 +734,7 @@ $(document).ready(function () {
 
     console.log("Sending invoice details:", invoiceDetails);
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/invoice/create-invoice`,
+      `http://${userService.getApiUrl()}/api/invoice/create-invoice`,
       "POST",
       function (response) {
         if (response.status === "OK") {
@@ -764,7 +756,7 @@ $(document).ready(function () {
         console.error("Error when creating invoice: ", error);
         showNotification("Error when creating invoice !!!", "error");
       },
-      JSON.stringify(invoiceDetails)
+      invoiceDetails
     );
   }
 
@@ -793,7 +785,7 @@ $(document).ready(function () {
   // ================================Sau khi tạo hoá đơn thành công thì sẽ hiện ra hoá đơn cho khách hàng ============================================
   function viewInvoice(invoiceId) {
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/invoice/view-invoice`,
+      `http://${userService.getApiUrl()}/api/invoice/view-invoice`,
       "POST",
       function (response) {
         if (response.status === "OK") {
@@ -819,29 +811,24 @@ $(document).ready(function () {
                             <div class="text-gray-700 text-right">
                                 <div class="font-bold text-xl mb-2">INVOICE ${invoiceTypename}</div>
                                 <div class="text-sm">Date: ${invoiceDate}</div>
-                                <div class="text-sm">Invoice: ${
-                                  invoiceData.id
-                                }</div>
+                                <div class="text-sm">Invoice: ${invoiceData.id
+            }</div>
                             </div>
                         </div>
                         <div class="border-b-2 border-gray-300 pb-8 mb-8">
                             <h2 class="text-2xl font-bold mb-4">Customer and Employee Information</h2>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <div class="text-gray-700 mb-2"><strong>Customer: </strong> ${
-                                      userInfo.fullName
-                                    }</div>
-                                    <div class="text-gray-700 mb-2"><strong>Phone number: </strong> ${
-                                      userInfo.phoneNumber
-                                    }</div>
+                                    <div class="text-gray-700 mb-2"><strong>Customer: </strong> ${userInfo.fullName
+            }</div>
+                                    <div class="text-gray-700 mb-2"><strong>Phone number: </strong> ${userInfo.phoneNumber
+            }</div>
                                 </div>
                                 <div>
-                                    <div class="text-gray-700 mb-2"><strong>STAFF: </strong> ${
-                                      employeeInfo.firstName
-                                    } ${employeeInfo.lastName}</div>
-                                    <div class="text-gray-700 mb-2"><strong>ID: </strong> ${
-                                      employeeInfo.id
-                                    }</div>
+                                    <div class="text-gray-700 mb-2"><strong>STAFF: </strong> ${employeeInfo.firstName
+            } ${employeeInfo.lastName}</div>
+                                    <div class="text-gray-700 mb-2"><strong>ID: </strong> ${employeeInfo.id
+            }</div>
                                 </div>
                             </div>
                         </div>
@@ -856,44 +843,41 @@ $(document).ready(function () {
                             </thead>
                             <tbody>
                                 ${orderDetails
-                                  .map(
-                                    (order) => `
+              .map(
+                (order) => `
                                 <tr>
-                                    <td class="py-4 text-gray-700">${
-                                      order.productDTO.productCode
-                                    }</td>
-                                    <td class="py-4 text-gray-700">${
-                                      order.productDTO.name
-                                    }</td>
-                                    <td class="py-4 text-gray-700">${
-                                      order.quantity
-                                    }</td>
+                                    <td class="py-4 text-gray-700">${order.productDTO.productCode
+                  }</td>
+                                    <td class="py-4 text-gray-700">${order.productDTO.name
+                  }</td>
+                                    <td class="py-4 text-gray-700">${order.quantity
+                  }</td>
                                     <td class="py-4 text-gray-700">${new Intl.NumberFormat(
-                                      "vi-VN",
-                                      { style: "currency", currency: "VND" }
-                                    ).format(order.totalPrice)}</td>
+                    "vi-VN",
+                    { style: "currency", currency: "VND" }
+                  ).format(order.totalPrice)}</td>
                                 </tr>
                                 `
-                                  )
-                                  .join("")}
+              )
+              .join("")}
                             </tbody>
                         </table>
                         <div class="grid grid-cols-2 gap-4">
                             <div class="text-gray-700">Total original price: </div>
                             <div class="text-gray-700 text-right">${new Intl.NumberFormat(
-                              "vi-VN",
-                              { style: "currency", currency: "VND" }
-                            ).format(invoiceData.totalPriceRaw)}</div>
+                "vi-VN",
+                { style: "currency", currency: "VND" }
+              ).format(invoiceData.totalPriceRaw)}</div>
                             <div class="text-gray-700">Reduced price: </div>
                             <div class="text-gray-700 text-right">${new Intl.NumberFormat(
-                              "vi-VN",
-                              { style: "currency", currency: "VND" }
-                            ).format(invoiceData.discountPrice)}</div>
+                "vi-VN",
+                { style: "currency", currency: "VND" }
+              ).format(invoiceData.discountPrice)}</div>
                             <div class="text-gray-700 font-bold text-xl">Total price: </div>
                             <div class="text-gray-700 font-bold text-xl text-right">${new Intl.NumberFormat(
-                              "vi-VN",
-                              { style: "currency", currency: "VND" }
-                            ).format(invoiceData.totalPrice)}</div>
+                "vi-VN",
+                { style: "currency", currency: "VND" }
+              ).format(invoiceData.totalPrice)}</div>
                         </div>
                         <div class="mt-8 flex justify-center">
                           <div class="flex items-center justify-center font-playwrite text-2xl text-center border-r-2 border-black pr-5">
@@ -918,7 +902,7 @@ $(document).ready(function () {
         console.error("Unable to load invoice details", error);
         showNotification("Unable to load invoice details !!!", "error");
       },
-      { invoice: invoiceId }
+      $.param({ invoice: invoiceId })
     );
   }
 
@@ -953,7 +937,7 @@ $(document).ready(function () {
     const cancelNote = $("#cancel-note").val();
 
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/invoice/cancel`,
+      `http://${userService.getApiUrl()}/api/invoice/cancel`,
       "POST",
       function (response) {
         if (response.status === "OK") {
@@ -1000,7 +984,7 @@ $(document).ready(function () {
     console.log("amount:", amount);
     console.log("bankCode:", bankCode);
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/payment/vn-pay?amount=${amount}&bankCode=${bankCode}`,
+      `http://${userService.getApiUrl()}/api/payment/vn-pay?amount=${amount}&bankCode=${bankCode}`,
       "GET",
       function (response) {
         if (
@@ -1020,7 +1004,7 @@ $(document).ready(function () {
         console.error("Error initiating payment:", error);
         showNotification("Error initiating payment.", "error");
       },
-      formData
+      null
     );
   }
 
@@ -1031,12 +1015,10 @@ $(document).ready(function () {
     console.log("Checking vnpResponseCode: " + vnpResponseCode);
 
     if (vnpResponseCode !== null) {
-      fetch(
-        "http://localhost:8080/payment/vn-pay-callback?vnp_ResponseCode=" +
-          vnpResponseCode
-      )
-        .then((response) => response.json())
-        .then((data) => {
+      userService.sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/payment/vn-pay-callback?vnp_ResponseCode=${vnpResponseCode}`,
+        "GET",
+        function (data) {
           const message = data.desc;
           const status = data.status;
 
@@ -1067,8 +1049,12 @@ $(document).ready(function () {
           url.search = ""; // Xóa tất cả các tham số
           window.history.replaceState({}, document.title, url);
           console.log("URL parameters cleared");
-        })
-        .catch((error) => console.error("Error:", error));
+        },
+        function (error) {
+          console.error("Error:", error); D
+        },
+        null
+      );
     }
   }
 

@@ -74,15 +74,30 @@ public class CustomerTypeService implements ICustomerTypeService {
     @Override
     @Transactional
     public ResponseData deleteCustomerTypeAndUpdateRanks(Integer customerTypeId) {
-        Optional<CustomerType> customerTypeOptional =
-                iCustomerTypeRepository.findById(customerTypeId);
+        Optional<CustomerType> customerTypeOptional = iCustomerTypeRepository.findById(customerTypeId);
         if (customerTypeOptional.isPresent()) {
+            // Ngắt liên kết giữa EarnPoints và CustomerType trước khi xóa
+            unlinkEarnPointsFromCustomerType(customerTypeId);
+
+            // Xóa CustomerType
             iCustomerTypeRepository.deleteById(customerTypeId);
+
+            // Cập nhật lại EarnPoints sau khi xóa CustomerType
             List<EarnPointsDTO> updatedEarnPoints = updateAllEarnPoints();
-            return new ResponseData(HttpStatus.OK,
-                    "CustomerType deleted and EarnPoints updated successfully", updatedEarnPoints);
+
+            return new ResponseData(HttpStatus.OK, "CustomerType deleted and EarnPoints updated successfully",
+                    updatedEarnPoints);
         } else {
             return new ResponseData(HttpStatus.NOT_FOUND, "CustomerType not found", null);
+        }
+    }
+
+    @Transactional
+    public void unlinkEarnPointsFromCustomerType(Integer customerTypeId) {
+        List<EarnPoints> earnPointsList = iEarnPointsRepository.findByCustomerTypeId(customerTypeId);
+        for (EarnPoints earnPoints : earnPointsList) {
+            earnPoints.setCustomerType(null); // Ngắt liên kết với CustomerType
+            iEarnPointsRepository.save(earnPoints);
         }
     }
 
@@ -90,28 +105,28 @@ public class CustomerTypeService implements ICustomerTypeService {
     public List<EarnPointsDTO> updateAllEarnPoints() {
         try {
             List<EarnPoints> earnPointsList = iEarnPointsRepository.findAll();
-            List<CustomerTypeDTO> customerTypeDTOList =
-                    iCustomerTypeRepository
-                            .findAll().stream().map(ct -> new CustomerTypeDTO(ct.getId(),
-                                    ct.getType(), ct.getPointCondition()))
-                            .collect(Collectors.toList());
+            List<CustomerTypeDTO> customerTypeDTOList = iCustomerTypeRepository.findAll().stream()
+                    .map(ct -> new CustomerTypeDTO(ct.getId(), ct.getType(), ct.getPointCondition()))
+                    .collect(Collectors.toList());
 
             List<EarnPointsDTO> updatedEarnPointsDTOList = new ArrayList<>();
 
             for (EarnPoints earnPoints : earnPointsList) {
                 UserInfo userInfo = earnPoints.getUserInfo();
-                if (userInfo.getRole().getName().equals("CUSTOMER")) {
-
+                if (userInfo.getRole().getName().equals("CUSTOMER")) { // Đảm bảo tên role là "CUSTOMER"
                     Integer totalPoints = earnPoints.getPoint();
-
 
                     CustomerTypeDTO newCustomerTypeDTO = customerTypeDTOList.stream()
                             .filter(ct -> totalPoints >= ct.getPointCondition())
-                            .max((ct1, ct2) -> Integer.compare(ct1.getPointCondition(),
-                                    ct2.getPointCondition()))
+                            .max((ct1, ct2) -> Integer.compare(ct1.getPointCondition(), ct2.getPointCondition()))
                             .orElse(null);
-                    if (newCustomerTypeDTO != null && !newCustomerTypeDTO.getId()
-                            .equals(earnPoints.getCustomerType().getId())) {
+
+                    
+
+                    // Cập nhật CustomerType nếu khác null và khác với CustomerType hiện tại
+                    if (newCustomerTypeDTO != null
+                            && (earnPoints.getCustomerType() == null
+                                    || !newCustomerTypeDTO.getId().equals(earnPoints.getCustomerType().getId()))) {
                         // Chuyển đổi DTO thành entity để lưu vào cơ sở dữ liệu
                         CustomerType newCustomerType = new CustomerType();
                         newCustomerType.setId(newCustomerTypeDTO.getId());
@@ -119,26 +134,25 @@ public class CustomerTypeService implements ICustomerTypeService {
                         newCustomerType.setPointCondition(newCustomerTypeDTO.getPointCondition());
 
                         earnPoints.setCustomerType(newCustomerType);
-                        EarnPoints savedEarnPoints = iEarnPointsRepository.save(earnPoints); // Lưu
-                                                                                             // và
-                                                                                             // lấy
-                                                                                             // kết
-                                                                                             // quả
-                                                                                             // trả
+                        EarnPoints savedEarnPoints = iEarnPointsRepository.save(earnPoints); // Lưu và lấy kết quả trả
                                                                                              // về
 
                         // Chuyển đổi từ entity sang DTO để trả về
-                        EarnPointsDTO earnPointsDTO = new EarnPointsDTO(savedEarnPoints.getId(),
+                        EarnPointsDTO earnPointsDTO = new EarnPointsDTO(
+                                savedEarnPoints.getId(),
                                 savedEarnPoints.getPoint(),
-                                new UserInfoDTO(savedEarnPoints.getUserInfo().getId(),
+                                new UserInfoDTO(
+                                        savedEarnPoints.getUserInfo().getId(),
                                         savedEarnPoints.getUserInfo().getFullName(),
                                         savedEarnPoints.getUserInfo().getPhoneNumber(),
                                         savedEarnPoints.getUserInfo().getEmail(),
                                         savedEarnPoints.getUserInfo().getAddress(),
-                                        new RoleDTO(savedEarnPoints.getUserInfo().getRole().getId(),
+                                        new RoleDTO(
+                                                savedEarnPoints.getUserInfo().getRole().getId(),
                                                 savedEarnPoints.getUserInfo().getRole().getName()),
                                         savedEarnPoints.getUserInfo().getImage()),
-                                new CustomerTypeDTO(savedEarnPoints.getCustomerType().getId(),
+                                new CustomerTypeDTO(
+                                        savedEarnPoints.getCustomerType().getId(),
                                         savedEarnPoints.getCustomerType().getType(),
                                         savedEarnPoints.getCustomerType().getPointCondition()));
 
@@ -149,8 +163,9 @@ public class CustomerTypeService implements ICustomerTypeService {
 
             return updatedEarnPointsDTOList;
         } catch (Exception e) {
-            throw new ApplicationException("Error at updating all earn points: " + e.getMessage(),
-                    "Update all earm point failed!!");
+            // In ra thông tin lỗi không mong muốn trong quá trình cập nhật EarnPoints
+            e.printStackTrace();
+            return new ArrayList<>(); // Trả về danh sách rỗng nếu có lỗi xảy ra
         }
     }
 

@@ -1,3 +1,6 @@
+import UserService from "./userService.js";
+
+const userService = new UserService();
 $(document).ready(function () {
   // Sự kiện click cho nút Active select
   $(document).on("click", "#active-selected-products", function () {
@@ -86,7 +89,7 @@ $(document).ready(function () {
 });
 function checkProductInOtherActivePromotions(productId, promotionId, checkbox) {
   userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/promotion-generic/check/PRODUCT/${productId}/${promotionId}`,
+    `http://${userService.getApiUrl()}/api/promotion-generic/check/PRODUCT/${productId}/${promotionId}`,
     "GET",
     function (response) {
       if (response.status === "CONFLICT") {
@@ -100,7 +103,7 @@ function checkProductInOtherActivePromotions(productId, promotionId, checkbox) {
   );
 }
 
-function displayConflictModal(conflictPromotions, desc, checkbox) {
+export function displayConflictModal(conflictPromotions, desc, checkbox) {
   $("#conflictPromotions").empty();
   const descInfo = `<p class="mb-4">${desc}</p>`;
   $("#conflictPromotions").append(descInfo);
@@ -140,7 +143,7 @@ function activeSelectedProducts(promotionId) {
   var entity = "PRODUCT";
   if (selectedProductIds.length > 0) {
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/promotion-generic/apply`,
+      `http://${userService.getApiUrl()}/api/promotion-generic/apply`,
       "POST",
       function (response) {
         // Sau khi thực hiện thành công, tải lại danh sách sản phẩm
@@ -153,11 +156,11 @@ function activeSelectedProducts(promotionId) {
       function (error) {
         console.error("Error inactivating selected products:", error);
       },
-      JSON.stringify({
+      {
         promotionId: promotionId,
         entityIds: selectedProductIds,
         entityType: entity,
-      })
+      }
     );
   } else {
     showNotification(
@@ -261,7 +264,7 @@ function fetchProductsByPromotion(promotionId, promotionName) {
   var productTableBody = $("#product-apply-promotion");
   productTableBody.empty(); // Clear existing rows
   userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/promotion-generic/in-promotion/PRODUCT/${promotionId}`,
+    `http://${userService.getApiUrl()}/api/promotion-generic/in-promotion/PRODUCT/${promotionId}`,
     "GET",
     function (response) {
       var products = response.data;
@@ -315,7 +318,7 @@ function deleteSelectedProducts(promotionId) {
   });
   if (selectedProductIds.length > 0) {
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/promotion-generic/remove`,
+      `http://${userService.getApiUrl()}/api/promotion-generic/remove`,
       "POST",
       function (response) {
         // Sau khi xóa thành công, tải lại danh sách sản phẩm
@@ -331,11 +334,11 @@ function deleteSelectedProducts(promotionId) {
         showNotification(response.desc, "error");
         console.error("Error deleting selected products:", error);
       },
-      JSON.stringify({
+      {
         promotionId: promotionId,
         entityIds: selectedProductIds,
         entityType: "PRODUCT",
-      })
+      }
     );
   } else {
     showNotification("Please select at least one product to delete.", "Error");
@@ -347,7 +350,7 @@ function fetchProductsNotInPromotion(promotionId) {
   var itemTableBody = $("#itemTableBody");
   itemTableBody.empty(); // Clear existing rows
   userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/promotion-generic/not-in-promotion/PRODUCT/${promotionId}`,
+    `http://${userService.getApiUrl()}/api/promotion-generic/not-in-promotion/PRODUCT/${promotionId}`,
     "GET",
     function (response) {
       var products = response.data;
@@ -394,7 +397,7 @@ function addSelectedProductsToPromotion(promotionId) {
   var entity = "PRODUCT";
   if (selectedProductIds.length > 0) {
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/promotion-generic/apply`,
+      `http://${userService.getApiUrl()}/api/promotion-generic/apply`,
       "POST",
       function (response) {
         showNotification(response.desc, "OK");
@@ -409,11 +412,11 @@ function addSelectedProductsToPromotion(promotionId) {
       function (error) {
         console.error("Error adding selected products:", error);
       },
-      JSON.stringify({
+      {
         promotionId: promotionId,
         entityIds: selectedProductIds,
         entityType: entity,
-      })
+      }
     );
   } else {
     showNotification(response.desc, "Error");

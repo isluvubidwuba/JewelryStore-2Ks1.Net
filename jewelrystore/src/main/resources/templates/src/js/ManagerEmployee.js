@@ -1,5 +1,5 @@
 import UserService from "./userService.js";
-
+import { viewEmployee2 } from "./revenueEmployee.js";
 const userService = new UserService();
 
 $(document).ready(function () {
@@ -7,6 +7,8 @@ $(document).ready(function () {
   initializePagination();
   initializeSearchForm();
   fetchEmployees(0);
+
+
 });
 
 let currentPage = 0;
@@ -67,28 +69,42 @@ function renderEmployees(employees) {
               <td class="px-6 py-4" id="employee-image-${employee.id}">
                   Loading...
               </td>
-              <td class="px-6 py-3">${employee.firstName} ${
-      employee.lastName
-    }</td>
+              <td class="px-6 py-3">${employee.firstName} ${employee.lastName
+      }</td>
               <td class="px-6 py-3">${employee.role.name}</td>
               <td class="px-6 py-3">${statusLabel}</td>
               <td class="px-6 py-3">${formatCurrency(
-                employee.totalRevenue
-              )}</td>
+        employee.totalRevenue
+      )}</td>
               <td class="px-6 py-3">
-                  <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" onclick="viewEmployee('${
-                    employee.id
-                  }')">View</button>
-                  <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" onclick="viewEmployee2('${
-                    employee.id
-                  }')">Revenue</button>
-                  
+                <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" data-view-employee="${employee.id}">View</button>
+                <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" data-view-employee2="${employee.id}">Revenue</button>
               </td>
           </tr>
       `;
     employeeTableBody.append(employeeRow);
 
     fetchEmployeeImage(employee.id, employee.image);
+  });
+  // Attach event listeners after rendering rows
+  $("#employeeTableBody").on("click", "[data-view-employee]", function () {
+    const employeeId = $(this).data("viewEmployee");
+    console.log("Check ID Employee from view button: " + employeeId);
+    if (employeeId) {
+      viewEmployee(employeeId);
+    } else {
+      showNotification("Error: Employee ID is undefined", "error");
+    }
+  });
+
+  $("#employeeTableBody").on("click", "[data-view-employee2]", function () {
+    const employeeId = $(this).data("viewEmployee2");
+    console.log("Check ID Employee from view button: " + employeeId);
+    if (employeeId) {
+      viewEmployee2(employeeId);
+    } else {
+      showNotification("Error: Employee ID is undefined", "error");
+    }
   });
 }
 
@@ -172,12 +188,12 @@ function viewEmployee(id) {
         $("#viewRole").val(employee.role.id);
         $("#viewStatus").val(employee.status ? "true" : "false");
 
-        // Kiểm tra trạng thái và ẩn/hiện nút "Delete"
-        if (!employee.status) {
-          $("#deleteEmployeeBtn").removeClass("hidden");
-        } else {
-          $("#deleteEmployeeBtn").addClass("hidden");
-        }
+        // // Kiểm tra trạng thái và ẩn/hiện nút "Delete"
+        // if (!employee.status) {
+        //   $("#deleteEmployeeBtn").removeClass("hidden");
+        // } else {
+        //   $("#deleteEmployeeBtn").addClass("hidden");
+        // }
         openModal();
       } else {
         showNotification(
@@ -411,7 +427,7 @@ function initializeSearchForm() {
 }
 
 function searchEmployees(criteria, query, page) {
-  // Transform criteria values
+  // Chuyển đổi giá trị tiêu chí
   if (criteria === "role") {
     query = query.toUpperCase();
   }
@@ -420,8 +436,14 @@ function searchEmployees(criteria, query, page) {
     query = query.toLowerCase();
   }
 
+  const apiUrl = `http://${userService.getApiUrl()}/api/employee/search?criteria=${criteria}&query=${encodeURIComponent(query)}&page=${page}`;
+
+  console.log("Check Search Employee : " + criteria);
+  console.log("Check Search Employee : " + query);
+  console.log("Check Search Employee : " + page);
+
   userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/employee/search`,
+    apiUrl,
     "POST",
     function (response) {
       if (response.status === "OK") {
@@ -435,9 +457,11 @@ function searchEmployees(criteria, query, page) {
     function () {
       showNotification("Error while searching employee data.", "Error");
     },
-    formData
+    null, // Không cần gửi dữ liệu trong phần body
+    { "Content-Type": "application/x-www-form-urlencoded" } // Đặt loại nội dung là URL-encoded
   );
 }
+
 
 function deleteEmployee() {
   const employeeId = $("#viewEmployeeId").val();

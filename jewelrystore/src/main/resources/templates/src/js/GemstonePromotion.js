@@ -1,3 +1,7 @@
+import UserService from "./userService.js";
+import { displayConflictModal } from "./forProduct.js";
+
+const userService = new UserService();
 $(document).ready(function () {
   $(document).on("click", "#modalToggle_Gemstone_Apply", function () {
     const promotionId = $("#modalToggle_Gemstone_Apply").attr(
@@ -62,7 +66,7 @@ function fetchGemstonesByPromotion(promotionId) {
   var gemstoneTableBody = $("#gemstone-apply-promotion");
   gemstoneTableBody.empty();
   userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/promotion-generic/in-promotion/GEMSTONE/${promotionId}`,
+    `http://${userService.getApiUrl()}/api/promotion-generic/in-promotion/GEMSTONE/${promotionId}`,
     "GET",
     function (response) {
       var gemstones = response.data;
@@ -103,7 +107,7 @@ function fetchGemstonesNotInPromotion(promotionId) {
   gemstoneTableBody.empty();
 
   userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/promotion-generic/not-in-promotion/GEMSTONE/${promotionId}`,
+    `http://${userService.getApiUrl()}/api/promotion-generic/not-in-promotion/GEMSTONE/${promotionId}`,
     "GET",
     function (response) {
       var gemstones = response.data;
@@ -144,7 +148,7 @@ function applyPromotionToSelectedGemstones(promotionId) {
 
   if (selectedGemstoneIds.length > 0) {
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/promotion-generic/apply`,
+      `http://${userService.getApiUrl()}/api/promotion-generic/apply`,
       "POST",
       function (response) {
         fetchGemstonesByPromotion(promotionId);
@@ -153,11 +157,11 @@ function applyPromotionToSelectedGemstones(promotionId) {
       function (error) {
         console.error("Error applying selected gemstones:", error);
       },
-      JSON.stringify({
+      {
         promotionId: promotionId,
         entityIds: selectedGemstoneIds,
         entityType: "GEMSTONE",
-      })
+      }
     );
   } else {
     showNotification(
@@ -175,7 +179,7 @@ function removePromotionFromSelectedGemstones(promotionId) {
 
   if (selectedGemstoneIds.length > 0) {
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/promotion-generic/remove`,
+      `http://${userService.getApiUrl()}/api/promotion-generic/remove`,
       "POST",
       function (response) {
         if (response.status === "OK") {
@@ -186,11 +190,11 @@ function removePromotionFromSelectedGemstones(promotionId) {
       function (error) {
         console.error("Error removing selected gemstones:", error);
       },
-      JSON.stringify({
+      {
         promotionId: promotionId,
         entityIds: selectedGemstoneIds,
         entityType: "GEMSTONE",
-      })
+      }
     );
   } else {
     showNotification(
@@ -208,7 +212,7 @@ function activateSelectedGemstones(promotionId) {
 
   if (selectedGemstoneIds.length > 0) {
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/promotion-generic/apply`,
+      `http://${userService.getApiUrl()}/api/promotion-generic/apply`,
       "POST",
       function (response) {
         if (response.status === "OK") {
@@ -219,11 +223,11 @@ function activateSelectedGemstones(promotionId) {
       function (error) {
         console.error("Error activating selected gemstones:", error);
       },
-      JSON.stringify({
+      {
         promotionId: promotionId,
         entityIds: selectedGemstoneIds,
         entityType: "GEMSTONE",
-      })
+      }
     );
   } else {
     showNotification(
@@ -235,7 +239,7 @@ function activateSelectedGemstones(promotionId) {
 
 function checkGemstoneInOtherPromotions(gemStoneTypeId, promotionId, checkbox) {
   userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/promotion-generic/check/GEMSTONE/${gemStoneTypeId}/${promotionId}`,
+    `http://${userService.getApiUrl()}/api/promotion-generic/check/GEMSTONE/${gemStoneTypeId}/${promotionId}`,
     "GET",
     function (response) {
       if (response.status === "CONFLICT") {

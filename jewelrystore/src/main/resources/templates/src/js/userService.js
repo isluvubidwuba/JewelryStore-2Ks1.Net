@@ -88,7 +88,6 @@ class UserService {
           },
           error: (error) => {
             if (errorCallback) errorCallback(error);
-            reject(error);
           },
         });
       });

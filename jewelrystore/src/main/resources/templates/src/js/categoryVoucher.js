@@ -1,3 +1,6 @@
+import UserService from "./userService.js";
+import { displayConflictModal } from "./forProduct.js";
+const userService = new UserService();
 $(document).ready(function () {
   $(document).on("click", "#modalToggle_Category_Apply", function () {
     const promotionId = $("#modalToggle_Category_Apply").attr(
@@ -76,7 +79,7 @@ function activeSelectedCategories(promotionId) {
 
   if (selectedCategoryIds.length > 0) {
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/promotion-generic/apply`,
+      `http://${userService.getApiUrl()}/api/promotion-generic/apply`,
       "POST",
       function (response) {
         if (response.status === "OK") {
@@ -87,11 +90,11 @@ function activeSelectedCategories(promotionId) {
       function (error) {
         console.error("Error activating selected categories:", error);
       },
-      JSON.stringify({
+      {
         promotionId: promotionId,
         entityIds: selectedCategoryIds,
         entityType: "CATEGORY",
-      })
+      }
     );
   } else {
     showNotification(
@@ -105,7 +108,7 @@ function fetchCategoriesByPromotion(promotionId) {
   var categoryTableBody = $("#category-apply-promotion");
   categoryTableBody.empty(); // Clear existing rows
   userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/promotion-generic/in-promotion/CATEGORY/${promotionId}`,
+    `http://${userService.getApiUrl()}/api/promotion-generic/in-promotion/CATEGORY/${promotionId}`,
     "GET",
     function (response) {
       var categories = response.data;
@@ -149,7 +152,7 @@ function removePromotionFromSelectedCategories(promotionId) {
 
   if (selectedCategoryIds.length > 0) {
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/promotion-generic/remove`,
+      `http://${userService.getApiUrl()}/api/promotion-generic/remove`,
       "POST",
       function (response) {
         if (response.status === "OK") {
@@ -160,11 +163,11 @@ function removePromotionFromSelectedCategories(promotionId) {
       function (error) {
         console.error("Error removing selected categories:", error);
       },
-      JSON.stringify({
+      {
         promotionId: promotionId,
         entityIds: selectedCategoryIds,
         entityType: "CATEGORY",
-      })
+      }
     );
   } else {
     showNotification("Please select at least one category to delete.", "error");
@@ -176,7 +179,7 @@ function fetchCategoriesNotInPromotion(promotionId) {
   categoryTableBody.empty(); // Clear existing rows
 
   userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/promotion-generic/not-in-promotion/CATEGORY/${promotionId}`,
+    `http://${userService.getApiUrl()}/api/promotion-generic/not-in-promotion/CATEGORY/${promotionId}`,
     "GET",
     function (response) {
       var categories = response.data;
@@ -202,12 +205,7 @@ function fetchCategoriesNotInPromotion(promotionId) {
     },
     function (error) {
       console.error("Error fetching categories not in promotion:", error);
-    },
-    JSON.stringify({
-      promotionId: promotionId,
-      entityIds: selectedCategoryIds,
-      entityType: "CATEGORY",
-    })
+    }
   );
 }
 
@@ -221,7 +219,7 @@ function applyPromotionToSelectedCategories(promotionId) {
 
   if (selectedCategoryIds.length > 0) {
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/promotion-generic/apply`,
+      `http://${userService.getApiUrl()}/api/promotion-generic/apply`,
       "POST",
       function (response) {
         fetchCategoriesByPromotion(promotionId);
@@ -231,11 +229,11 @@ function applyPromotionToSelectedCategories(promotionId) {
       function (error) {
         console.error("Error applying selected categories:", error);
       },
-      JSON.stringify({
+      {
         promotionId: promotionId,
         entityIds: selectedCategoryIds,
         entityType: "CATEGORY",
-      })
+      }
     );
   } else {
     showNotification("Please select at least one category to add.", "error");
@@ -244,7 +242,7 @@ function applyPromotionToSelectedCategories(promotionId) {
 
 function checkCategoryInOtherPromotions(categoryId, promotionId, checkbox) {
   userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/promotion-generic/check/CATEGORY/${categoryId}/${promotionId}`,
+    `http://${userService.getApiUrl()}/api/promotion-generic/check/CATEGORY/${categoryId}/${promotionId}`,
     "GET",
     function (response) {
       if (response.status === "CONFLICT") {

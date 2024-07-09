@@ -1,6 +1,7 @@
 import UserService from "./userService.js";
-
+let fileInput = document.getElementById("employeeImageInput"); // Khai báo biến fileInput ở phạm vi toàn cục
 const userService = new UserService();
+
 $(document).ready(function () {
   // Xử lý sự kiện khi click vào vùng hình ảnh
   document
@@ -37,7 +38,6 @@ function editField(fieldId) {
 }
 
 function saveChanges() {
-  const token = localStorage.getItem("token"); // Thay thế bằng token thực tế
   const fileInput = document.getElementById("employeeImageInput");
   const formData = new FormData();
 
@@ -116,3 +116,7 @@ function handleSuccess(data) {
 function handleError() {
   showNotification("Error when call API.", "Error");
 }
+// Gán hàm vào đối tượng window để có thể truy cập từ HTML
+window.editField = editField;
+window.saveChanges = saveChanges;
+window.cancelChanges = cancelChanges;

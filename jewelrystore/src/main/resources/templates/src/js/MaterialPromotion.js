@@ -1,3 +1,7 @@
+import UserService from "./userService.js";
+import { displayConflictModal } from "./forProduct.js";
+
+const userService = new UserService();
 $(document).ready(function () {
   $(document).on("click", "#modalToggle_Material_Apply", function () {
     const promotionId = $("#modalToggle_Material_Apply").attr(
@@ -155,11 +159,11 @@ function applyPromotionToSelectedMaterials(promotionId) {
       function (error) {
         console.error("Error applying selected materials:", error);
       },
-      JSON.stringify({
+      {
         promotionId: promotionId,
         entityIds: selectedMaterialIds,
         entityType: "MATERIAL",
-      })
+      }
     );
   } else {
     showNotification(
@@ -188,11 +192,11 @@ function removePromotionFromSelectedMaterials(promotionId) {
       function (error) {
         console.error("Error removing selected materials:", error);
       },
-      JSON.stringify({
+      {
         promotionId: promotionId,
         entityIds: selectedMaterialIds,
         entityType: "MATERIAL",
-      })
+      }
     );
   } else {
     showNotification(
@@ -221,11 +225,11 @@ function activateSelectedMaterials(promotionId) {
       function (error) {
         console.error("Error activating selected materials:", error);
       },
-      JSON.stringify({
+      {
         promotionId: promotionId,
         entityIds: selectedMaterialIds,
         entityType: "MATERIAL",
-      })
+      }
     );
   } else {
     showNotification(

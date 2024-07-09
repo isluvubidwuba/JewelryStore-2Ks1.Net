@@ -1,3 +1,7 @@
+import UserService from "./userService.js";
+import { displayConflictModal } from "./forProduct.js";
+
+const userService = new UserService();
 $(document).ready(function () {
   $(document).on("click", "#modalToggle_Customer_Apply", function () {
     const promotionId = $("#modalToggle_Customer_Apply").attr(
@@ -62,7 +66,7 @@ function fetchCustomersByPromotion(promotionId) {
   var customerTableBody = $("#customer-apply-promotion");
   customerTableBody.empty();
   userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/promotion-generic/in-promotion/CUSTOMER/${promotionId}`,
+    `http://${userService.getApiUrl()}/api/promotion-generic/in-promotion/CUSTOMER/${promotionId}`,
     "GET",
     function (response) {
       var customers = response.data;
@@ -105,7 +109,7 @@ function fetchCustomersNotInPromotion(promotionId) {
   var customerTableBody = $("#customer-not-apply-voucher");
   customerTableBody.empty();
   userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/promotion-generic/not-in-promotion/CUSTOMER/${promotionId}`,
+    `http://${userService.getApiUrl()}/api/promotion-generic/not-in-promotion/CUSTOMER/${promotionId}`,
     "GET",
     function (response) {
       var customers = response.data;
@@ -147,7 +151,7 @@ function applyPromotionToSelectedCustomers(promotionId) {
 
   if (selectedCustomerIds.length > 0) {
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/promotion-generic/apply`,
+      `http://${userService.getApiUrl()}/api/promotion-generic/apply`,
       "POST",
       function (response) {
         fetchCustomersByPromotion(promotionId);
@@ -156,11 +160,11 @@ function applyPromotionToSelectedCustomers(promotionId) {
       function (error) {
         console.error("Error applying selected customers:", error);
       },
-      JSON.stringify({
+      {
         promotionId: promotionId,
-        entityIds: selectedCategoryIds,
+        entityIds: selectedCustomerIds,
         entityType: "CUSTOMER",
-      })
+      }
     );
   } else {
     showNotification(
@@ -178,7 +182,7 @@ function removePromotionFromSelectedCustomers(promotionId) {
 
   if (selectedCustomerIds.length > 0) {
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/promotion-generic/remove`,
+      `http://${userService.getApiUrl()}/api/promotion-generic/remove`,
       "POST",
       function (response) {
         if (response.status === "OK") {
@@ -189,11 +193,11 @@ function removePromotionFromSelectedCustomers(promotionId) {
       function (error) {
         console.error("Error removing selected customers:", error);
       },
-      JSON.stringify({
+      {
         promotionId: promotionId,
-        entityIds: selectedCategoryIds,
+        entityIds: selectedCustomerIds,
         entityType: "CUSTOMER",
-      })
+      }
     );
   } else {
     showNotification(
@@ -211,7 +215,7 @@ function activateSelectedCustomers(promotionId) {
 
   if (selectedCustomerIds.length > 0) {
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/promotion-generic/apply`,
+      `http://${userService.getApiUrl()}/api/promotion-generic/apply`,
       "POST",
       function (response) {
         if (response.status === "OK") {
@@ -222,11 +226,11 @@ function activateSelectedCustomers(promotionId) {
       function (error) {
         console.error("Error activating selected customers:", error);
       },
-      JSON.stringify({
+      {
         promotionId: promotionId,
-        entityIds: selectedCategoryIds,
+        entityIds: selectedCustomerIds,
         entityType: "CUSTOMER",
-      })
+      }
     );
   } else {
     showNotification(
@@ -238,7 +242,7 @@ function activateSelectedCustomers(promotionId) {
 
 function checkCustomerInOtherPromotions(customerTypeId, promotionId, checkbox) {
   userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/promotion-generic/check/CUSTOMER/${customerTypeId}/${promotionId}`,
+    `http://${userService.getApiUrl()}/api/promotion-generic/check/CUSTOMER/${customerTypeId}/${promotionId}`,
     "GET",
     function (response) {
       if (response.status === "CONFLICT") {

@@ -114,7 +114,27 @@ function renderPromotions(page, policies) {
 
   attachModalHandlers();
 }
-
+function changePage(page) {
+  currentPage = page;
+  const keyword = $("#keyword").val().toLowerCase();
+  const promotionsToRender = keyword
+    ? promotions.filter((promotion) => {
+        const invoiceTypeName = promotion.invoiceTypeDTO
+          ? promotion.invoiceTypeDTO.name
+          : "";
+        return (
+          promotion.name.toLowerCase().includes(keyword) ||
+          promotion.startDate.toLowerCase().includes(keyword) ||
+          promotion.endDate.toLowerCase().includes(keyword) ||
+          promotion.promotionType.toLowerCase().includes(keyword) ||
+          invoiceTypeName.toLowerCase().includes(keyword)
+        );
+      })
+    : promotions;
+  renderPromotions(page, promotionsToRender);
+  updatePagination(promotionsToRender);
+}
+window.changePage = changePage;
 function updatePagination(promotionsToRender) {
   let pagination = $(".pagination");
   pagination.empty();
@@ -188,27 +208,6 @@ function updatePagination(promotionsToRender) {
       </li>
     `);
   }
-}
-
-function changePage(page) {
-  currentPage = page;
-  const keyword = $("#keyword").val().toLowerCase();
-  const promotionsToRender = keyword
-    ? promotions.filter((promotion) => {
-        const invoiceTypeName = promotion.invoiceTypeDTO
-          ? promotion.invoiceTypeDTO.name
-          : "";
-        return (
-          promotion.name.toLowerCase().includes(keyword) ||
-          promotion.startDate.toLowerCase().includes(keyword) ||
-          promotion.endDate.toLowerCase().includes(keyword) ||
-          promotion.promotionType.toLowerCase().includes(keyword) ||
-          invoiceTypeName.toLowerCase().includes(keyword)
-        );
-      })
-    : promotions;
-  renderPromotions(page, promotionsToRender);
-  updatePagination(promotionsToRender);
 }
 
 function attachModalHandlers() {
