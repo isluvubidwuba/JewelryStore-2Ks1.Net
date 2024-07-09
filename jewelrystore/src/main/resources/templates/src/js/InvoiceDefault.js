@@ -46,6 +46,7 @@ $(document).ready(function () {
       keybuffer.push(number);
     }
   }
+  
   $("#add-barcode-button").click(function () {
     const barcode = $("#barcode-input").val().trim();
     if (barcode) {
@@ -457,8 +458,8 @@ $(document).ready(function () {
           // Hiển thị thông báo lỗi từ phản hồi của API
           showNotification(
             response.desc || "An error occurred, please try again !!!",
-            "error"
-          );
+            "error");
+            console.log("Notification trong else function success:", message);
         }
       },
       function (error) {
@@ -466,6 +467,7 @@ $(document).ready(function () {
         console.log("Error fetching product data:", error);
         // Hiển thị thông báo lỗi nếu yêu cầu AJAX gặp lỗi
         showNotification(response.desc, "error");
+        console.log("Notification trong else function error:", response.desc);
       },
       {
         barcode: barcode,

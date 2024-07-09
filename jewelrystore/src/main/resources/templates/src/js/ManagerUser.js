@@ -707,7 +707,8 @@ function updateUniqueCustomerType() {
         showNotification(response.desc, "OK");
         $("#updateCustomerTypeModal").addClass("hidden");
         fetchUniqueRankData(); // Làm mới dữ liệu trong modal chính
-        location.reload();
+        fetchCustomers(0);
+        fetchSuppliers(0);
       },
       function (error) {
         console.error("There was an error updating the rank data: ", error);
@@ -788,7 +789,8 @@ function addUniqueCustomerType() {
 
         $("#addCustomerTypeModal").addClass("hidden");
         fetchUniqueRankData(); // Làm mới dữ liệu trong modal chính
-        location.reload();
+        fetchCustomers(0);
+        fetchSuppliers(0);
       },
       function (error) {
         console.error("There was an error adding the customer type: ", error);
@@ -830,7 +832,8 @@ function deleteUniqueCustomerType() {
           showNotification("Delete successful!", "OK");
           $("#updateCustomerTypeModal").addClass("hidden");
           fetchUniqueRankData(); // Làm mới dữ liệu trong modal chính
-          location.reload();
+          fetchCustomers(0);
+          fetchSuppliers(0);
         },
         function (error) {
           console.error(

@@ -121,11 +121,7 @@ public class CustomerTypeService implements ICustomerTypeService {
                             .max((ct1, ct2) -> Integer.compare(ct1.getPointCondition(), ct2.getPointCondition()))
                             .orElse(null);
 
-                    // In ra loại khách hàng mới được tìm thấy
-                    if (newCustomerTypeDTO != null) {
-                        System.out.println("New CustomerType for user " + userInfo.getFullName() + ": "
-                                + newCustomerTypeDTO.getType());
-                    }
+                    
 
                     // Cập nhật CustomerType nếu khác null và khác với CustomerType hiện tại
                     if (newCustomerTypeDTO != null
@@ -168,7 +164,6 @@ public class CustomerTypeService implements ICustomerTypeService {
             return updatedEarnPointsDTOList;
         } catch (Exception e) {
             // In ra thông tin lỗi không mong muốn trong quá trình cập nhật EarnPoints
-            System.out.println("Error during updating earn points: " + e.getMessage());
             e.printStackTrace();
             return new ArrayList<>(); // Trả về danh sách rỗng nếu có lỗi xảy ra
         }

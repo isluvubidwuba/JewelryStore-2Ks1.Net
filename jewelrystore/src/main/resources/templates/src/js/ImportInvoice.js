@@ -2,11 +2,36 @@ import UserService from "./userService.js";
 
 const userService = new UserService();
 let employeeID = userService.getUserId(); // ID của nhân viên từ token
+var keybuffer = [];
 
 $(document).ready(function () {
   const selectedProductsTable = $("#selectedProductsTable");
   let totalPrice = 0;
   let supplierId = null;
+
+
+  $(document).on("keypress", press);
+
+  function press(event) {
+    if (event.which === 13) {
+      searchProductByBarcode(keybuffer.join(""));
+      keybuffer.length = 0;
+      return;
+    }
+
+    var number = null;
+    if (event.which >= 48 && event.which <= 57) {
+      // Handle numbers on the main keyboard (0-9)
+      number = event.which - 48;
+    } else if (event.which >= 96 && event.which <= 105) {
+      // Handle numbers on the numpad (0-9)
+      number = event.which - 96;
+    }
+
+    if (number !== null) {
+      keybuffer.push(number);
+    }
+  }
 
   $("#searchProductByBarcode").on("click", function () {
     const barcode = $("#barcodeInput").val();
