@@ -35,7 +35,7 @@ $(document).ready(function () {
       var formData = new FormData();
       formData.append("invoice", invoiceId);
       userService.sendAjaxWithAuthen(
-        `http://${userService.getApiUrl()}/api/invoice/view-invoice`,
+        `http://${userService.getApiUrl()}/api/invoice/view-invoice-resale`,
         "POST",
         function (response) {
           if (response.status === "OK") {
