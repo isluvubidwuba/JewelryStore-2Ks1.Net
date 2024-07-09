@@ -217,9 +217,12 @@ async function setupModalToggles() {
   await fetchDropdownData("#idMaterialC", fetchMaterial);
   await fetchDropdownData("#idCategoryC", fetchProductCategory);
 
-  fetchDropdownData("#Material", fetchMaterial);
-  fetchDropdownData("#Category", fetchProductCategory);
-  fetchDropdownData("#Counter", fetchCounter);
+  await fetchDropdownData("#idCategoryGemC", fetchGemStoneCategory);
+  await fetchDropdownData("#idTypeC", fetchGemStoneType);
+
+  await fetchDropdownData("#Material", fetchMaterial);
+  await fetchDropdownData("#Category", fetchProductCategory);
+  await fetchDropdownData("#Counter", fetchCounter);
 }
 async function fetchCounter() {
   return fetchData2(
@@ -251,6 +254,21 @@ function setUpFormUpdateModal() {
       "#buttonSubmitUpdate"
     );
     setUpClickUpdateModal(detail, detail, "#cancel-update");
+    setUpClickUpdateModal("#cancel-update", null, "#productImgUpdateBTn");
+    setUpClickUpdateModal("#buttonSubmitUpdate", null, "#productImgUpdateBTn");
+    setUpClickUpdateModal(
+      "#buttonSubmitUpdate",
+      "#cancel-update",
+      null,
+      "#buttonSubmitUpdate"
+    );
+    setUpClickUpdateModal("#imgDetail", null, "#cancel-update", null);
+    setUpClickUpdateModal("#cancel-update", "#cancel-update", null, null);
+
+    $("#cancel-update").on("click", function () {
+      $("#updateImagePlaceHolder").empty();
+      $("#productImgUpdate").val(null);
+    });
   });
   setUpClickUpdateModal("#buttonSubmitUpdate", "#cancel-update");
 }
@@ -297,7 +315,33 @@ async function detailModal(productId) {
   await buildTableGemStone(productId);
 }
 
+async function buildTableGemStone(productId) {
+  $("#GemStone_detail_table").empty();
+  $("#notiBlank").empty();
+  const gemList = await fetchGemStoneOfProduct(productId);
+  if (!gemList || gemList.length === 0) {
+    $("#notiBlank").text(`There are no gem stones in this product`);
+    return;
+  }
+  listGemsDetail = countCategoriesByType(gemList); // Update global variable
+  Object.entries(listGemsDetail).forEach(([type, categories]) => {
+    Object.entries(categories).forEach(([category, { quantity, gems }]) => {
+      const countRow = createGemStoneRow(type, category, quantity);
+      $("#GemStone_detail_table").append(countRow);
+    });
+  });
+
+  $("button[name='list_gem_detail']").on("click", function () {
+    const type = $(this).data("type");
+    const category = $(this).data("category");
+    const gems = listGemsDetail[type][category].gems;
+    displayGemDetails(gems);
+  });
+}
+
 function populateModalFields(product) {
+  $('button[name="addGemStone"]').attr("data-product-id", product.id);
+
   $("#productCode_detail").text(product.productCode);
   $("#productCode_detailInput").val(product.productCode);
 
@@ -332,29 +376,6 @@ function extractFilename(url) {
   const parsedUrl = new URL(url);
   const pathSegments = parsedUrl.pathname.split("/");
   return pathSegments.pop();
-}
-async function buildTableGemStone(productId) {
-  $("#GemStone_detail_table").empty();
-  $("#notiBlank").empty();
-  const gemList = await fetchGemStoneOfProduct(productId);
-  if (!gemList || gemList.length === 0) {
-    $("#notiBlank").text(`There are no gem stones in this product`);
-    return;
-  }
-  listGemsDetail = countCategoriesByType(gemList); // Update global variable
-  Object.entries(listGemsDetail).forEach(([type, categories]) => {
-    Object.entries(categories).forEach(([category, { quantity, gems }]) => {
-      const countRow = createGemStoneRow(type, category, quantity);
-      $("#GemStone_detail_table").append(countRow);
-    });
-  });
-
-  $("button[name='list_gem_detail']").on("click", function () {
-    const type = $(this).data("type");
-    const category = $(this).data("category");
-    const gems = listGemsDetail[type][category].gems;
-    displayGemDetails(gems);
-  });
 }
 
 function createGemStoneRow(type, category, quantity) {
@@ -466,6 +487,16 @@ async function fetchProductCategory() {
 async function fetchMaterial() {
   return await fetchData(`http://${userService.getApiUrl()}/api/material/all`);
 }
+async function fetchGemStoneCategory() {
+  return await fetchData(
+    `http://${userService.getApiUrl()}/api/gemStone/category/all`
+  );
+}
+async function fetchGemStoneType() {
+  return await fetchData(
+    `http://${userService.getApiUrl()}/api/gemStone/type/all`
+  );
+}
 
 async function fetchGemStoneOfProduct(productId) {
   return await fetchData(
@@ -531,6 +562,18 @@ function setupFormSubmissions() {
     handleFormUpdateResponse,
     updateFormToProduct
   );
+  setupFormSubmission(
+    "#submit-insert-gemStone",
+    "#form-insert-gemStone",
+    `http://${userService.getApiUrl()}/api/gemStone/product`,
+    handleFormUpdateGemResponse,
+    updateFormToGemStone
+  );
+}
+async function handleFormUpdateGemResponse(response) {
+  $("#modalClose_CreateGem").click();
+  const product = response.data.product.id;
+  await detailModal(product);
 }
 
 function setupFormSubmission(
@@ -557,7 +600,7 @@ function setupFormSubmission(
 
           console.log(xhr.responseText);
         },
-        JSON.stringify(formData)
+        formData
       );
     } else {
       showNotification("You must fill all fields.", "Error");
@@ -579,11 +622,28 @@ function validateFormFields(formSelector) {
 }
 
 function handleFormInsertResponse(response) {
+  const product = response.data;
+  const productId = product.id;
+  const index = state.querySet.findIndex((item) => item.id == productId);
+  if (index !== -1) {
+    state.querySet[index] = productFromResponse;
+  } else {
+    state.querySet.push(productFromResponse);
+  }
   showNotification("Form submitted successfully.", "OK");
 }
 
 function handleFormUpdateResponse(response) {
   const product = response.data;
+  const productId = product.id;
+  const index = state.querySet.findIndex((item) => item.id == productId);
+  if (index !== -1) {
+    // Replace the existing product with the new product
+    state.querySet[index] = product;
+  } else {
+    // If the product does not exist, you might want to add it to the array
+    state.querySet.push(product);
+  }
   //alert(response.desc);
   showNotification(response.desc, "OK");
 
@@ -603,7 +663,29 @@ function handleFormUpdateResponse(response) {
 function handleFormUpload(response) {
   return response.data;
 }
+
+function updateFormToGemStone() {
+  let gem = {
+    color: $("#colorC").val(),
+    clarity: $("#gemstone-clarity").val(),
+    carat: $("#caratC").val(),
+    price: $("#priceGemC").val(),
+    gemstoneType: {
+      id: $("#idTypeC").val(),
+    },
+    gemstoneCategory: {
+      id: $("#idCategoryGemC").val(),
+    },
+    product: {
+      id: $('button[name="addGemStone"]').attr("data-product-id"),
+    },
+    quantity: $("#quantityC").val(),
+  };
+  return gem;
+}
+
 async function updateFormToProduct() {
+  var imgPathUp = await uploadImage($("#productImgUpdate").prop("files")[0]);
   let product = {
     id: $("#submit-update").attr("data-product-id"),
     name: $("#update-name").val(),
@@ -620,6 +702,7 @@ async function updateFormToProduct() {
     barcode: $("#productBarcode").val(),
     weight: $("#update-weight").val(),
     status: $("#update-status").val(),
+    imgPath: imgPathUp === "none" ? null : imgPathUp,
   };
   console.log(product);
   return product;
@@ -673,21 +756,32 @@ async function uploadImage(file) {
 
 function setUpOnChange() {
   $("#productImgC").change(function () {
-    previewImage(this.id, $(this).prop("files")[0]);
+    previewImage(
+      "#ImgcLabel",
+      $(this).prop("files")[0],
+      "#ImgcLabelPlaceHolder"
+    );
+  });
+  $("#productImgUpdate").change(function () {
+    previewImage(
+      "#updateImagePlaceHolder",
+      $(this).prop("files")[0],
+      "#imgDetail"
+    );
   });
 }
 
-function previewImage(id, file) {
-  $("#Imgc").empty();
+function previewImage(idDisplay, file, placeholder) {
   if (file) {
+    $(idDisplay).empty();
     const reader = new FileReader();
     reader.onload = function (e) {
       const img = document.createElement("img");
       img.src = e.target.result;
       img.className =
         "flex flex-col items-center justify-center w-full h-3/6 border-2";
-      $("#ImgcLabel").append(img);
-      $("#ImgcLabelPlaceHolder").addClass("hidden").removeClass("flex");
+      $(idDisplay).append(img);
+      $(placeholder).addClass("hidden").removeClass("flex");
     };
     reader.readAsDataURL(file);
   }

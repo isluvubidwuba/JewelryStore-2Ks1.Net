@@ -27,7 +27,7 @@ public class CustomSecurityFilter {
                         "/api/test/**", "/authenticate"};
         @Value("${apiURL}")
         private String apiURL;
-        private String[] PUBLIC_API = {apiURL + "/authentication/**"};
+        private String[] PUBLIC_API;
         @Autowired
         CustomJwtFilter customJwtFilter;
 
@@ -36,7 +36,8 @@ public class CustomSecurityFilter {
 
         @PostConstruct
         public void init() {
-                PUBLIC_API = new String[] {apiURL + "/authentication/**", apiURL + "/mail/**"};
+                PUBLIC_API = new String[] {apiURL + "/authentication/**", apiURL + "/mail/**",
+                                apiURL + "/material/goldPriceFromSJC"};
         }
 
         @Bean

@@ -45,7 +45,7 @@ const handleLogin = () => {
     "POST",
     handleLoginSuccess,
     handleLoginError,
-    { id, pinCode }
+    { id: id, pinCode: pinCode }
   );
 };
 function handleLoginError(xhr) {

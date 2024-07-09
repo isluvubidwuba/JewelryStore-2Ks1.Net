@@ -26,7 +26,7 @@ function handleErrorLogout(xhr) {
 }
 
 function authenticate() {
-  if ($("#loginForm").length === 0 && userService.authenticate.authenticated) {
+  if ($("#loginForm").length === 0 && !userService.authenticate.authenticated) {
     window.location.href = "Login.html";
   }
 }

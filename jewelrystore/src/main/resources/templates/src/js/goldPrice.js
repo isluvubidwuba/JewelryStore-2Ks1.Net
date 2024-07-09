@@ -7,12 +7,8 @@ document.addEventListener("DOMContentLoaded", fetchGoldPrices);
 function fetchGoldPrices() {
   const token = localStorage.getItem("token");
 
-  fetch(`http://${userService.getApiUrl()}/proxy`, {
+  fetch(`http://${userService.getApiUrl()}/api/material/goldPriceFromSJC`, {
     method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
   })
     .then((response) => {
       if (!response.ok) {
