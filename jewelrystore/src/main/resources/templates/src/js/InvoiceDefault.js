@@ -1098,7 +1098,7 @@ $(document).ready(function () {
         },
         function (error) {
           console.error("Error:", error);
-          D;
+          showNotification(error.responseJSON.desc);
         },
         null
       );
