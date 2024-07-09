@@ -248,6 +248,7 @@ function getPriceProduct(barcode, idInvocie, idPromo, idPrice) {
     },
     function (xhr, status, error) {
       console.error("Error:", error);
+      $(idPrice).text("Not available!");
       showNotification("Failed to send data: " + error, "error");
     },
     {
@@ -313,7 +314,7 @@ async function buildTableGemStone(productId) {
 }
 
 async function fetchGemStoneOfProduct(productId) {
-  return fetchData(
+  return await fetchData(
     `http://${userService.getApiUrl()}/api/gemStone/product?id=${productId}`
   );
 }
@@ -467,14 +468,16 @@ async function fetchDropdownData(elementId, fetchDataFunc) {
 }
 
 async function fetchProductCategory() {
-  return fetchData(`http://${userService.getApiUrl()}/product/category/all`);
+  return await fetchData(
+    `http://${userService.getApiUrl()}/api/product/category/all`
+  );
 }
 
 async function fetchMaterial() {
-  return fetchData(`http://${userService.getApiUrl()}/material/all`);
+  return await fetchData(`http://${userService.getApiUrl()}/api/material/all`);
 }
 async function fetchCounter() {
-  return fetchData2(
-    `http://${userService.getApiUrl()}/counter/allactivecounter`
+  return await fetchData2(
+    `http://${userService.getApiUrl()}/api/counter/allactivecounter`
   );
 }

@@ -131,7 +131,6 @@ public class InvoiceController {
     }
 
     @PostMapping("/create-import")
-    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public ResponseEntity<ResponseData> createImportInvoice(
             @RequestBody ImportInvoiceRequestWrapper importInvoiceRequestWrapper) {
         try {
@@ -187,12 +186,10 @@ public class InvoiceController {
                     new ResponseData(HttpStatus.OK, "Get invoice successfull", Invoice.getDTO()),
                     HttpStatus.OK);
         } catch (ApplicationException e) {
-            ResponseData responseData =
-                    new ResponseData(HttpStatus.BAD_REQUEST, e.getMessage(), null);
+            ResponseData responseData = new ResponseData(HttpStatus.BAD_REQUEST, e.getMessage(), null);
             return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            ResponseData responseData =
-                    new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
+            ResponseData responseData = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
             return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -202,8 +199,7 @@ public class InvoiceController {
             @RequestParam String note) {
         try {
             invoiceService.cancelInvoice(invoiceId, note);
-            ResponseData responseData =
-                    new ResponseData(HttpStatus.OK, "Invoice canceled successfully", null);
+            ResponseData responseData = new ResponseData(HttpStatus.OK, "Invoice canceled successfully", null);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
         } catch (ApplicationException e) {
             throw new ApplicationException(
@@ -235,10 +231,12 @@ public class InvoiceController {
     // }
 
     // @GetMapping("/history/employee")
-    // public ResponseEntity<ResponseData> getInvoicesByEmployeeId(@RequestParam String employeeId)
+    // public ResponseEntity<ResponseData> getInvoicesByEmployeeId(@RequestParam
+    // String employeeId)
     // {
     // try {
-    // List<InvoiceDTO> invoices = invoiceService.getInvoicesByEmployeeId(employeeId);
+    // List<InvoiceDTO> invoices =
+    // invoiceService.getInvoicesByEmployeeId(employeeId);
     // ResponseData responseData = new ResponseData(HttpStatus.OK,
     // "Retrieved invoices by employee ID successfully", invoices);
     // return new ResponseEntity<>(responseData, HttpStatus.OK);
@@ -258,7 +256,8 @@ public class InvoiceController {
     // @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date startDate,
     // @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate) {
     // try {
-    // List<InvoiceDTO> invoices = invoiceService.getInvoicesByDateRange(startDate, endDate);
+    // List<InvoiceDTO> invoices = invoiceService.getInvoicesByDateRange(startDate,
+    // endDate);
     // ResponseData responseData = new ResponseData(HttpStatus.OK,
     // "Retrieved invoices by date range successfully", invoices);
     // return new ResponseEntity<>(responseData, HttpStatus.OK);
@@ -275,7 +274,8 @@ public class InvoiceController {
     // }
 
     // @GetMapping("/history/user")
-    // public ResponseEntity<ResponseData> getInvoicesByUserId(@RequestParam int userId) {
+    // public ResponseEntity<ResponseData> getInvoicesByUserId(@RequestParam int
+    // userId) {
     // try {
     // List<InvoiceDTO> invoices = invoiceService.getInvoicesByUserId(userId);
     // ResponseData responseData = new ResponseData(HttpStatus.OK,
@@ -297,8 +297,8 @@ public class InvoiceController {
     public ResponseEntity<ResponseData> calculateRevenueByCounter(@RequestParam String period,
             @RequestParam int year, @RequestParam(required = false) Integer quarterOrMonth) {
         try {
-            List<RevenueDTO<CounterDTO>> revenueByCounter =
-                    invoiceService.calculateRevenueByCounter(period, year, quarterOrMonth);
+            List<RevenueDTO<CounterDTO>> revenueByCounter = invoiceService.calculateRevenueByCounter(period, year,
+                    quarterOrMonth);
             ResponseData responseData = new ResponseData(HttpStatus.OK,
                     "Retrieved revenue by counter successfully", revenueByCounter);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
@@ -317,8 +317,8 @@ public class InvoiceController {
     public ResponseEntity<ResponseData> calculateRevenueByEmployee(@RequestParam String period,
             @RequestParam int year, @RequestParam(required = false) Integer month) {
         try {
-            List<RevenueDTO<EmployeeDTO>> revenueByEmployee =
-                    invoiceService.calculateRevenueByEmployee(period, year, month);
+            List<RevenueDTO<EmployeeDTO>> revenueByEmployee = invoiceService.calculateRevenueByEmployee(period, year,
+                    month);
             ResponseData responseData = new ResponseData(HttpStatus.OK,
                     "Retrieved revenue by employee successfully", revenueByEmployee);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
@@ -338,8 +338,8 @@ public class InvoiceController {
             @RequestParam int year, @RequestParam(required = false) Integer month,
             @RequestParam String employeeId) {
         try {
-            EmployeeRevenueDTO revenueDTO =
-                    invoiceService.calculateRevenueByEmployeeID(period, year, month, employeeId);
+            EmployeeRevenueDTO revenueDTO = invoiceService.calculateRevenueByEmployeeID(period, year, month,
+                    employeeId);
             ResponseData responseData = new ResponseData(HttpStatus.OK,
                     "Retrieved revenue by employee successfully", revenueDTO);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
@@ -381,13 +381,11 @@ public class InvoiceController {
             @RequestParam int page, @RequestParam int size) {
 
         try {
-            Page<InvoiceDTO> invoices =
-                    invoiceService.getInvoicesByEmployeeId(employeeId, page, size);
-            ResponseData responseData =
-                    new ResponseData(
-                            HttpStatus.OK, "Get top invoices for employee ID: " + employeeId
-                                    + " Page: " + page + " Size: " + size + " successfully",
-                            invoices);
+            Page<InvoiceDTO> invoices = invoiceService.getInvoicesByEmployeeId(employeeId, page, size);
+            ResponseData responseData = new ResponseData(
+                    HttpStatus.OK, "Get top invoices for employee ID: " + employeeId
+                            + " Page: " + page + " Size: " + size + " successfully",
+                    invoices);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
         } catch (ApplicationException e) {
             throw new ApplicationException(
@@ -406,13 +404,11 @@ public class InvoiceController {
             @RequestParam int page, @RequestParam int size) {
 
         try {
-            Page<InvoiceDTO> invoices =
-                    invoiceService.getInvoicesByEmployeeId2(employeeId, page, size);
-            ResponseData responseData =
-                    new ResponseData(
-                            HttpStatus.OK, "Get top invoices for employee ID: " + employeeId
-                                    + " Page: " + page + " Size: " + size + " successfully",
-                            invoices);
+            Page<InvoiceDTO> invoices = invoiceService.getInvoicesByEmployeeId2(employeeId, page, size);
+            ResponseData responseData = new ResponseData(
+                    HttpStatus.OK, "Get top invoices for employee ID: " + employeeId
+                            + " Page: " + page + " Size: " + size + " successfully",
+                    invoices);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
         } catch (ApplicationException e) {
             throw new ApplicationException(
@@ -430,8 +426,7 @@ public class InvoiceController {
     public ResponseEntity<ResponseData> getTop5EmployeesByRevenue(@RequestParam String period,
             @RequestParam int year, @RequestParam(required = false) Integer month) {
         try {
-            List<RevenueDTO<EmployeeDTO>> top5Employees =
-                    invoiceService.getTop5EmployeesByRevenue(period, year, month);
+            List<RevenueDTO<EmployeeDTO>> top5Employees = invoiceService.getTop5EmployeesByRevenue(period, year, month);
             ResponseData responseData = new ResponseData(HttpStatus.OK,
                     "Retrieved top 5 employees by revenue successfully", top5Employees);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
@@ -451,8 +446,7 @@ public class InvoiceController {
     public ResponseEntity<ResponseData> getTop5ProductsByRevenue(@RequestParam String period,
             @RequestParam int year, @RequestParam(required = false) Integer month) {
         try {
-            List<RevenueDTO<ProductDTO>> top5Products =
-                    invoiceService.getTop5ProductsByRevenue(period, year, month);
+            List<RevenueDTO<ProductDTO>> top5Products = invoiceService.getTop5ProductsByRevenue(period, year, month);
             ResponseData responseData = new ResponseData(HttpStatus.OK,
                     "Retrieved top 5 products by revenue successfully", top5Products);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
@@ -505,7 +499,6 @@ public class InvoiceController {
                     "Something wrong while get revenue and invoice!");
         }
     }
-
 
     @PostMapping("/sendInvoice")
     public ResponseEntity<?> sendInvoice(@RequestParam String email, @RequestParam String userName,

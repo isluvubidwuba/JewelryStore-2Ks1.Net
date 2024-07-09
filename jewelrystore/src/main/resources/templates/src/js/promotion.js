@@ -14,6 +14,7 @@ $(document).ready(function () {
     const keyword = $(this).val().toLowerCase();
     fetchPromotions(keyword); // Gọi lại hàm fetchPromotions với từ khóa tìm kiếm
   });
+  Window.changePage = changePage;
 });
 
 let currentPage = 0;
@@ -209,6 +210,29 @@ function renderPromotions(page, promotionsToRender) {
   $("#entries-info").text(entriesInfo);
 }
 
+function changePage(page) {
+  currentPage = page;
+  const keyword = $("#keyword").val().toLowerCase();
+  const promotionsToRender = keyword
+    ? promotions.filter((promotion) => {
+        const invoiceTypeName = promotion.invoiceTypeDTO
+          ? promotion.invoiceTypeDTO.name
+          : "";
+        return (
+          promotion.name.toLowerCase().includes(keyword) ||
+          promotion.startDate.toLowerCase().includes(keyword) ||
+          promotion.endDate.toLowerCase().includes(keyword) ||
+          promotion.promotionType.toLowerCase().includes(keyword) ||
+          invoiceTypeName.toLowerCase().includes(keyword)
+        );
+      })
+    : promotions;
+  renderPromotions(page, promotionsToRender);
+  updatePagination(promotionsToRender);
+}
+// Gán hàm vào đối tượng window
+window.changePage = changePage;
+
 function updatePagination(promotionsToRender) {
   let pagination = $(".pagination");
   pagination.empty();
@@ -282,27 +306,6 @@ function updatePagination(promotionsToRender) {
       </li>
     `);
   }
-}
-
-function changePage(page) {
-  currentPage = page;
-  const keyword = $("#keyword").val().toLowerCase();
-  const promotionsToRender = keyword
-    ? promotions.filter((promotion) => {
-        const invoiceTypeName = promotion.invoiceTypeDTO
-          ? promotion.invoiceTypeDTO.name
-          : "";
-        return (
-          promotion.name.toLowerCase().includes(keyword) ||
-          promotion.startDate.toLowerCase().includes(keyword) ||
-          promotion.endDate.toLowerCase().includes(keyword) ||
-          promotion.promotionType.toLowerCase().includes(keyword) ||
-          invoiceTypeName.toLowerCase().includes(keyword)
-        );
-      })
-    : promotions;
-  renderPromotions(page, promotionsToRender);
-  updatePagination(promotionsToRender);
 }
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();

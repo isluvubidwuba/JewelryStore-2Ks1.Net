@@ -125,7 +125,7 @@ $(document).ready(function () {
         console.log(pair[0] + ": " + pair[1]);
       }
       userService.sendAjaxWithAuthen(
-        `http://${userService.getApiUrl()}/userinfo/insert`,
+        `http://${userService.getApiUrl()}/api/userinfo/insert`,
         "POST",
         function (response) {
           showNotification(response.desc || "User inserted successfully", "OK");
@@ -216,7 +216,7 @@ $(document).ready(function () {
     var phone = input;
 
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/userinfo/phonenumberandmailcustomer?phone=${phone}`,
+      `http://${userService.getApiUrl()}/api/userinfo/phonenumberandmailcustomer?phone=${phone}`,
       "GET",
       function (response) {
         if (response.status === "OK" && response.data) {
@@ -437,7 +437,7 @@ $(document).ready(function () {
       return;
     }
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/invoice/create-detail`,
+      `http://${userService.getApiUrl()}/api/invoice/create-detail`,
       "POST",
       function (response) {
         if (response.status === "OK") {
@@ -467,13 +467,13 @@ $(document).ready(function () {
         const response = error.responseJSON;
         console.log("Error fetching product data:", error);
         // Hiển thị thông báo lỗi nếu yêu cầu AJAX gặp lỗi
-        showNotification(response.desc || "Product Out Of Stock", "error");
+        showNotification(response.desc, "error");
       },
-      JSON.stringify({
+      {
         barcode: barcode,
         quantity: 1,
         invoiceTypeId: 1,
-      })
+      }
     );
   }
 
@@ -642,7 +642,7 @@ $(document).ready(function () {
   //========================== Phần này khi lấy được thông tin của user id có thể được tạo hoặc được tìm ===============================
   function getUserById(userId) {
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/userinfo/getcustomer/${userId}`,
+      `http://${userService.getApiUrl()}/api/userinfo/getcustomer/${userId}`,
       "GET",
       function (data) {
         const user = data; // Không cần data.data nếu data đã là đối tượng người dùng
@@ -674,7 +674,7 @@ $(document).ready(function () {
   //=====================================Khi lấy được user id thì đi tìm promotion cho user đó =========================================
   function fetchUserPromotions(userId) {
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/promotion/by-user`,
+      `http://${userService.getApiUrl()}/api/promotion/by-user`,
       "GET",
       function (response) {
         if (response.status === "OK") {
@@ -703,7 +703,7 @@ $(document).ready(function () {
         console.error("Error While Loading Information User:", error);
         showNotification("Error While Loading Information User!", "error");
       },
-      { userId: userId }
+      $.param({ userId: userId })
     );
   }
 
@@ -742,7 +742,7 @@ $(document).ready(function () {
 
     console.log("Sending invoice details:", invoiceDetails);
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/invoice/create-invoice`,
+      `http://${userService.getApiUrl()}/api/invoice/create-invoice`,
       "POST",
       function (response) {
         if (response.status === "OK") {
@@ -764,7 +764,7 @@ $(document).ready(function () {
         console.error("Error when creating invoice: ", error);
         showNotification("Error when creating invoice !!!", "error");
       },
-      JSON.stringify(invoiceDetails)
+      invoiceDetails
     );
   }
 
@@ -793,7 +793,7 @@ $(document).ready(function () {
   // ================================Sau khi tạo hoá đơn thành công thì sẽ hiện ra hoá đơn cho khách hàng ============================================
   function viewInvoice(invoiceId) {
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/invoice/view-invoice`,
+      `http://${userService.getApiUrl()}/api/invoice/view-invoice`,
       "POST",
       function (response) {
         if (response.status === "OK") {
@@ -918,7 +918,7 @@ $(document).ready(function () {
         console.error("Unable to load invoice details", error);
         showNotification("Unable to load invoice details !!!", "error");
       },
-      { invoice: invoiceId }
+      $.param({ invoice: invoiceId })
     );
   }
 
@@ -953,7 +953,7 @@ $(document).ready(function () {
     const cancelNote = $("#cancel-note").val();
 
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/invoice/cancel`,
+      `http://${userService.getApiUrl()}/api/invoice/cancel`,
       "POST",
       function (response) {
         if (response.status === "OK") {
@@ -1000,7 +1000,7 @@ $(document).ready(function () {
     console.log("amount:", amount);
     console.log("bankCode:", bankCode);
     userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/payment/vn-pay?amount=${amount}&bankCode=${bankCode}`,
+      `http://${userService.getApiUrl()}/api/payment/vn-pay?amount=${amount}&bankCode=${bankCode}`,
       "GET",
       function (response) {
         if (
@@ -1032,7 +1032,7 @@ $(document).ready(function () {
 
     if (vnpResponseCode !== null) {
       fetch(
-        "http://localhost:8080/payment/vn-pay-callback?vnp_ResponseCode=" +
+        "http://localhost:8080/api/payment/vn-pay-callback?vnp_ResponseCode=" +
           vnpResponseCode
       )
         .then((response) => response.json())
