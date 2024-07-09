@@ -6,9 +6,7 @@ $(document).ready(function () {
   fetchRoles();
   fetchUniqueRankData();
   initializeUnique();
-  setupModalToggle();
   setupInsertModalToggle();
-  setupInsertRoleModalToggle();
 });
 
 function fetchRoles() {
@@ -41,10 +39,7 @@ function initTabs(roles) {
     $("#tab-contents").append(createTabContent(role));
   });
 
-  // Append the insert role button
-  $("#role-tabs").append(
-    '<li class="ml-2"><button id="insert-role-button" class="tab-button bg-black text-white font-semibold py-2 px-4 rounded hover:bg-gray-700 transition duration-300">+</button></li>'
-  );
+
   // Append the insert user button
   $("#role-tabs").append(
     '<li class="ml-auto"><button id="insert-button" class="tab-button bg-black text-white font-semibold py-2 px-4 rounded hover:bg-gray-700 transition duration-300">Insert User</button></li>'
@@ -53,7 +48,6 @@ function initTabs(roles) {
   bindTabClickEvents();
   const firstRole = roles[0].name;
   switchTabByRole(firstRole); // Ensure first tab is activated
-  setupInsertRoleModalToggle(); // Setup insert role modal toggle for the new insert button
 }
 
 function populateRoleSelect(roles, selector) {
@@ -67,44 +61,7 @@ function populateRoleSelect(roles, selector) {
   });
 }
 
-function setupModalToggle() {
-  $("#close-modal").on("click", function () {
-    $("#addRoleModal").addClass("hidden");
-  });
 
-  $("#add-role-form").on("submit", function (e) {
-    e.preventDefault();
-
-    userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/api/role/insert`,
-      "POST",
-      function (response) {
-        showNotification(response, "OK");
-        $("#addRoleModal").addClass("hidden");
-        fetchRoles();
-      },
-      function (error) {
-        console.error("Error adding role:", error);
-        showNotification("Error adding role!", "OK");
-      },
-      $(this).serialize()
-    );
-  });
-
-  $("#close-update-modal").on("click", function () {
-    $("#updateUserModal").addClass("hidden");
-  });
-
-  $("#update-user-form")
-    .off("submit")
-    .on("submit", function (e) {
-      e.preventDefault();
-      const form = $(this);
-
-      if (!validateForm(form)) return;
-      updateUser();
-    });
-}
 
 function createTab(role) {
   return `<li class="mr-1">
@@ -119,23 +76,23 @@ function createTabContent(role) {
       <div class="flex justify-between items-center mb-4">
           <h2 class="text-2xl">${role.name} List</h2>
           <div class="flex items-center">
-              <div class="relative">
-                  <button id="${role.name.toLowerCase()}-criteria-button" class="bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded inline-flex items-center">
-                      <span id="${role.name.toLowerCase()}-selected-criteria">Search By</span>
-                      <svg class="fill-current h-4 w-4 ml-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                          <path d="M0 0h20v20H0z" fill="none"/>
-                          <path d="M5.293 7.293l4.707 4.707 4.707-4.707-1.414-1.414L10 8.586 6.707 5.293z"/>
-                      </svg>
-                  </button>
-                  <ul id="${role.name.toLowerCase()}-criteria-menu" class="absolute hidden text-gray-700 pt-1">
-                      <li class=""><a class="rounded-t bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap" href="#" data-criteria="id">ID</a></li>
-                      <li class=""><a class="bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap" href="#" data-criteria="name">Name</a></li>
-                      <li class=""><a class="bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap" href="#" data-criteria="numberphone">Phone Number</a></li>
-                      <li class=""><a class="rounded-b bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap" href="#" data-criteria="email">Email</a></li>
-                  </ul>
-              </div>
-              <input type="text" id="${role.name.toLowerCase()}-search-input" class="border rounded px-4 py-2 ml-2" placeholder="Search...">
-              <button id="${role.name.toLowerCase()}-search-button" class="bg-gray-800 hover:bg-black text-white font-bold py-2 px-4 rounded ml-2">Search</button>
+            <div class="relative">
+              <button id="${role.name.toLowerCase()}-criteria-button" class="bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded inline-flex items-center">
+                <span id="${role.name.toLowerCase()}-selected-criteria">Search By</span>
+                <svg class="fill-current h-4 w-4 ml-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M0 0h20v20H0z" fill="none"/>
+                  <path d="M5.293 7.293l4.707 4.707 4.707-4.707-1.414-1.414L10 8.586 6.707 5.293z"/>
+                </svg>
+              </button>
+              <ul id="${role.name.toLowerCase()}-criteria-menu" class="absolute hidden text-gray-700 pt-1">
+                <li class=""><a class="rounded-t bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap" href="#" data-criteria="id">ID</a></li>
+                <li class=""><a class="bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap" href="#" data-criteria="name">Name</a></li>
+                <li class=""><a class="bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap" href="#" data-criteria="numberphone">Phone Number</a></li>
+                <li class=""><a class="rounded-b bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap" href="#" data-criteria="email">Email</a></li>
+              </ul>
+            </div>
+            <input type="text" id="${role.name.toLowerCase()}-search-input" class="border rounded px-4 py-2 ml-2" placeholder="Search...">
+            <button id="${role.name.toLowerCase()}-search-button" class="bg-gray-800 hover:bg-black text-white font-bold py-2 px-4 rounded ml-2">Search</button>
           </div>
       </div>
       <table id="${role.name.toLowerCase()}-table" class="min-w-full bg-white">
@@ -283,9 +240,8 @@ function populateTable(data, ranks, currentPage, role) {
     }
     const row = `<tr class="text-center">
                   <td class="py-2 px-4 border-b">${count++}</td>
-                  <td class="py-2 px-4 border-b" id="${role.toLowerCase()}-image-${
-      item.id
-    }">
+                  <td class="py-2 px-4 border-b" id="${role.toLowerCase()}-image-${item.id
+      }">
                     Loading...
                   </td>
                   <td class="py-2 px-4 border-b">${item.fullName}</td>
@@ -293,9 +249,8 @@ function populateTable(data, ranks, currentPage, role) {
                   <td class="py-2 px-4 border-b">${item.email}</td>
                   <td class="py-2 px-4 border-b">${item.address}</td>
                   ${rankInfo}
-                  <td class="py-2 px-4 border-b"><button class="edit-btn" data-id="${
-                    item.id
-                  }"><i class="fas fa-edit"></i></button></td>
+                  <td class="py-2 px-4 border-b"><button class="edit-btn" data-id="${item.id
+      }"><i class="fas fa-edit"></i></button></td>
                 </tr>`;
     tableBody.append(row);
 
@@ -465,9 +420,7 @@ function setupSearch(role) {
     .off("click")
     .on("click", function (e) {
       e.preventDefault();
-      const criteria = $(`#${role.toLowerCase()}-search-input`).data(
-        "criteria"
-      );
+      const criteria = $(`#${role.toLowerCase()}-search-input`).data("criteria");
       const query = $(`#${role.toLowerCase()}-search-input`).val();
 
       // Validate input based on criteria
@@ -488,10 +441,21 @@ function setupSearch(role) {
 }
 
 function searchByRole(role, criteria, query, page) {
+  console.log("Check para search by role : " + role);
+  console.log("Check para search by role : " + criteria);
+  console.log("Check para search by role : " + query);
+  console.log("Check para search by role : " + page);
   const searchUrl =
     role === "CUSTOMER"
       ? `http://${userService.getApiUrl()}/api/userinfo/searchcustomer`
       : `http://${userService.getApiUrl()}/api/userinfo/searchsupplier`;
+
+  // Tạo đối tượng dữ liệu để gửi
+  const searchParams = new URLSearchParams({
+    criteria: criteria,
+    query: query,
+    page: page
+  });
 
   userService.sendAjaxWithAuthen(
     searchUrl,
@@ -509,16 +473,16 @@ function searchByRole(role, criteria, query, page) {
           populateTable(data, [], currentPage, "Supplier");
           updatePagination(currentPage, totalPages, "supplier");
         }
+      } else {
+        showNotification("Failed to search employee data.", "error");
       }
     },
     function (error) {
+      showNotification("Error while searching employee data.", "error");
       console.error(`Error searching ${role.toLowerCase()}s:`, error);
     },
-    {
-      criteria: criteria,
-      query: query,
-      page: page,
-    }
+    searchParams.toString(), // Chuyển đổi đối tượng URLSearchParams thành chuỗi
+    { "Content-Type": "application/x-www-form-urlencoded" } // Đặt loại nội dung là URL-encoded
   );
 }
 
@@ -591,7 +555,7 @@ function setupInsertModalToggle() {
           console.error("Error while insert user:", error);
           showNotification(
             "Error while insert user: " +
-              (error.responseJSON ? error.responseJSON.desc : "System Error"),
+            (error.responseJSON ? error.responseJSON.desc : "System Error"),
             "error",
             "error"
           );
@@ -606,41 +570,6 @@ function clearInsertForm() {
   $("#insertEmployeeImagePreview").attr("src", "#").hide(); // Xóa hình ảnh xem trước
 }
 
-function setupInsertRoleModalToggle() {
-  $("#insert-role-button").on("click", function () {
-    $("#addRoleModal").removeClass("hidden");
-  });
-
-  $("#close-role-modal").on("click", function () {
-    $("#addRoleModal").addClass("hidden");
-  });
-
-  $("#add-role-form")
-    .off("submit")
-    .on("submit", function (e) {
-      e.preventDefault();
-      var formData = new FormData($("#add-role-form")[0]);
-      userService.sendAjaxWithAuthen(
-        `http://${userService.getApiUrl()}/api/role/insert`,
-        "POST",
-        function (response) {
-          if (response.status === "OK") {
-            showNotification("Role inserted successfully!", "OK");
-
-            $("#addRoleModal").addClass("hidden");
-            fetchRoles(); // Refresh the roles
-          } else {
-            showNotification("Error inserting role: " + response.desc, "error");
-          }
-        },
-        function (error) {
-          console.error("Error inserting role:", error);
-          showNotification("Error inserting role!", "error");
-        },
-        formData
-      );
-    });
-}
 
 function switchTabByRole(role) {
   switchTab(role); // Switch the tab first
@@ -763,22 +692,32 @@ function updateUniqueCustomerType() {
     var id = $("#updateUniqueId").val();
     var type = $("#updateUniqueType").val();
     var pointCondition = $("#updateUniquePointCondition").val();
+
+    // Tạo đối tượng dữ liệu để gửi
+    const formData = new URLSearchParams({
+      id: id,
+      type: type,
+      pointCondition: pointCondition
+    });
+
     userService.sendAjaxWithAuthen(
       `http://${userService.getApiUrl()}/api/customertype/updatepointcondition`,
       "POST",
       function (response) {
         showNotification(response.desc, "OK");
         $("#updateCustomerTypeModal").addClass("hidden");
-        fetchUniqueRankData(); // Refresh the data in the main modal
+        fetchUniqueRankData(); // Làm mới dữ liệu trong modal chính
         location.reload();
       },
       function (error) {
         console.error("There was an error updating the rank data: ", error);
       },
-      null
+      formData.toString(), // Chuyển đổi đối tượng URLSearchParams thành chuỗi
+      { "Content-Type": "application/x-www-form-urlencoded" } // Đặt loại nội dung là URL-encoded
     );
   });
 }
+
 
 // Open customer type modal
 function openUniqueCustomerTypeModal() {
@@ -835,6 +774,12 @@ function addUniqueCustomerType() {
     var type = $("#addType").val();
     var pointCondition = $("#addPointCondition").val();
 
+    // Tạo đối tượng dữ liệu để gửi
+    const formData = new URLSearchParams({
+      type: type,
+      pointCondition: pointCondition
+    });
+
     userService.sendAjaxWithAuthen(
       `http://${userService.getApiUrl()}/api/customertype/add`,
       "POST",
@@ -842,16 +787,18 @@ function addUniqueCustomerType() {
         showNotification("Customer Type added successfully!", "OK");
 
         $("#addCustomerTypeModal").addClass("hidden");
-        fetchUniqueRankData(); // Refresh the data in the main modal
+        fetchUniqueRankData(); // Làm mới dữ liệu trong modal chính
         location.reload();
       },
       function (error) {
         console.error("There was an error adding the customer type: ", error);
       },
-      null
+      formData.toString(), // Chuyển đổi đối tượng URLSearchParams thành chuỗi
+      { "Content-Type": "application/x-www-form-urlencoded" } // Đặt loại nội dung là URL-encoded
     );
   });
 }
+
 
 // Close add customer type modal
 function closeAddCustomerTypeModal() {
@@ -871,13 +818,18 @@ function deleteUniqueCustomerType() {
     );
 
     if (isConfirmed) {
+      // Tạo đối tượng dữ liệu để gửi
+      const formData = new URLSearchParams({
+        customerTypeId: id
+      });
+
       userService.sendAjaxWithAuthen(
         `http://${userService.getApiUrl()}/api/customertype/delete`,
         "POST",
         function (response) {
           showNotification("Delete successful!", "OK");
           $("#updateCustomerTypeModal").addClass("hidden");
-          fetchUniqueRankData(); // Refresh the data in the main modal
+          fetchUniqueRankData(); // Làm mới dữ liệu trong modal chính
           location.reload();
         },
         function (error) {
@@ -886,8 +838,10 @@ function deleteUniqueCustomerType() {
             error
           );
         },
-        null
+        formData.toString(), // Chuyển đổi đối tượng URLSearchParams thành chuỗi
+        { "Content-Type": "application/x-www-form-urlencoded" } // Đặt loại nội dung là URL-encoded
       );
     }
   });
 }
+
