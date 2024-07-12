@@ -34,10 +34,8 @@ public class EmployeeController {
     @Value("${fileUpload.userPath}")
     private String filePath;
 
-
     @Autowired
     private IEmployeeService iEmployeeService;
-
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -49,8 +47,7 @@ public class EmployeeController {
     @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public ResponseEntity<?> getHomePageEmployee(@RequestParam int page) {
         Claims ATTokenClaims = JwtUtilsHelper.getAuthorizationByTokenType("at");
-        ResponseData responseData =
-                iEmployeeService.getHomePageEmployee(page, ATTokenClaims.getSubject());
+        ResponseData responseData = iEmployeeService.getHomePageEmployee(page, ATTokenClaims.getSubject());
         return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
@@ -91,8 +88,7 @@ public class EmployeeController {
             @RequestParam String phoneNumber, @RequestParam(required = false) String email,
             @RequestParam String address) {
         ResponseData responseData;
-        String idEmployeeFromToken =
-                SecurityContextHolder.getContext().getAuthentication().getName();
+        String idEmployeeFromToken = SecurityContextHolder.getContext().getAuthentication().getName();
         EmployeeDTO employeeDTO = iEmployeeService.findById(idEmployeeFromToken).getDTO();
         String pincodeCheck = pinCode != null ? pinCode : employeeDTO.getPinCode();
         String mailCheck = email != null ? email : employeeDTO.getEmail();
@@ -122,25 +118,20 @@ public class EmployeeController {
             @RequestParam(required = false) String email,
             @RequestParam(required = false) String address) {
         ResponseData responseData;
-        String idEmployeeFromToken =
-                SecurityContextHolder.getContext().getAuthentication().getName();
-        EmployeeDTO employeeDTO = iEmployeeService.findById(idEmployeeFromToken).getDTO();
-
+        String idEmployeeFromToken = SecurityContextHolder.getContext().getAuthentication().getName();
+        Employee employeeDTO = iEmployeeService.findById(idEmployeeFromToken);
         // Sử dụng dữ liệu cũ nếu dữ liệu mới không có hoặc rỗng
-        String firstNameToUpdate =
-                firstName != null ? (firstName.isEmpty() ? employeeDTO.getFirstName() : firstName)
-                        : employeeDTO.getFirstName();
-        String lastNameToUpdate =
-                lastName != null ? (lastName.isEmpty() ? employeeDTO.getLastName() : lastName)
-                        : employeeDTO.getLastName();
+        String firstNameToUpdate = firstName != null ? (firstName.isEmpty() ? employeeDTO.getFirstName() : firstName)
+                : employeeDTO.getFirstName();
+        String lastNameToUpdate = lastName != null ? (lastName.isEmpty() ? employeeDTO.getLastName() : lastName)
+                : employeeDTO.getLastName();
         String phoneNumberToUpdate = phoneNumber != null
                 ? (phoneNumber.isEmpty() ? employeeDTO.getPhoneNumber() : phoneNumber)
                 : employeeDTO.getPhoneNumber();
         String emailToUpdate = email != null ? (email.isEmpty() ? employeeDTO.getEmail() : email)
                 : employeeDTO.getEmail();
-        String addressToUpdate =
-                address != null ? (address.isEmpty() ? employeeDTO.getAddress() : address)
-                        : employeeDTO.getAddress();
+        String addressToUpdate = address != null ? (address.isEmpty() ? employeeDTO.getAddress() : address)
+                : employeeDTO.getAddress();
 
         if (employeeDTO.getId().equals(id)) {
             responseData = iEmployeeService.updateEmployee(file, idEmployeeFromToken,
@@ -194,8 +185,6 @@ public class EmployeeController {
                     "Change password failed");
         }
     }
-
-
 
     @GetMapping("/getstaff")
     @PreAuthorize("hasAuthority('ADMIN')")
