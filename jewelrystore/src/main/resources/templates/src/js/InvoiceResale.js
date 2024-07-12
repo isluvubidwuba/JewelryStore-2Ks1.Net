@@ -313,8 +313,7 @@ $(document).ready(function () {
         <div class="bg-white rounded-lg shadow-lg px-8 py-10 max-w-7xl mx-auto w-full">
             <div class="flex items-center justify-between mb-8">
                 <div class="flex items-center">
-                    <img class="h-8 w-8 mr-2" src="https://tailwindflex.com/public/images/logos/favicon-32x32.png" alt="Logo" />
-                    <div class="text-gray-700 font-semibold text-lg">2KS 1NET</div>
+                    <img class="w-32 h-auto  mr-2" src="https://storage.googleapis.com/jewelrystore-2ks1dotnet.appspot.com/User/c3b3e699-1466-48cf-b1ae-1db13264e44e_2024-07-12" alt="Logo" />
                 </div>
                 <div class="text-gray-700 text-right">
                     <div class="font-bold text-xl mb-2">CONFIRMATION</div>
@@ -427,8 +426,7 @@ $(document).ready(function () {
                       <div class="bg-white rounded-lg shadow-lg px-8 py-10 max-w-7xl mx-auto">
                           <div class="flex items-center justify-between mb-8">
                               <div class="flex items-center">
-                                  <img class="h-8 w-8 mr-2" src="https://tailwindflex.com/public/images/logos/favicon-32x32.png" alt="Logo" />
-                                  <div class="text-gray-700 font-semibold text-lg">2KS 1NET</div>
+                                <img class="w-32 h-auto  mr-2" src="https://storage.googleapis.com/jewelrystore-2ks1dotnet.appspot.com/User/c3b3e699-1466-48cf-b1ae-1db13264e44e_2024-07-12" alt="Logo" />
                               </div>
                               <div class="text-gray-700 text-right">
                                   <div class="font-bold text-xl mb-2">INVOICE</div>

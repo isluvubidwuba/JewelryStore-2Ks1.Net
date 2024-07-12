@@ -44,17 +44,17 @@ function getInvoiceData(invoice) {
 }
 function populateInvoice(data) {
   var content = `
-    <div class="text-center mb-8">
-        <div class="flex justify-between items-center">
-            <div class="text-left">
-                <img src="https://storage.googleapis.com/jewelrystore-2ks1dotnet.appspot.com/User/411b0a45-6851-4765-876d-cfdb19b82b00_2024-07-06" alt="Logo" class="inline-block w-24 h-auto">
+    <div class="text-center mb-8 py-10">
+        <div class="flex justify-between items-center ">
+            <div class="text-left ">
+                                <img class="w-32 h-auto mx-10" src="https://storage.googleapis.com/jewelrystore-2ks1dotnet.appspot.com/User/c3b3e699-1466-48cf-b1ae-1db13264e44e_2024-07-12" alt="Logo" />
             </div>   
-            <h1 class="text-2xl font-bold">COMPANY 2KS1NET</h1>
+            <h1 class="text-2xl font-bold mx-10">2KS1.NET® Jewelry</h1>
         </div>
     </div>
 
     <div class="flex justify-between mb-4">
-        <div class="border border-zinc-300 p-4">
+        <div class="p-4">
             <p class="text-sm"><strong>Customer Name:</strong> ${
               data.userInfoDTO.fullName
             }</p>
@@ -65,10 +65,12 @@ function populateInvoice(data) {
               data.userInfoDTO.address
             }</p>
         </div>
-        <h2 class="text-xl font-bold self-end">INVOICE ${data.invoiceTypeDTO.name.toUpperCase()}</h2>
+
+        
+        <h2 class="text-xl font-bold self-end mx-10">INVOICE ${data.invoiceTypeDTO.name.toUpperCase()}</h2>
     </div>
 
-    <table class="w-full mb-8 border border-zinc-300 mt-1">
+    <table class="w-full mb-8 mt-1">
         <thead>
             <tr class="bg-gray-900 text-white">
                 <th class="p-2">PRODUCT</th>
@@ -104,14 +106,14 @@ function populateInvoice(data) {
     </table>
 
     <div class="flex justify-between mb-8">
-        <div class="border border-zinc-300 p-4">
+        <div class="p-4">
             <p><strong>Biller:</strong> ${data.employeeDTO.firstName} ${
     data.employeeDTO.lastName
   }</p>
             <p><strong>Invoice Date:</strong> ${data.date}</p>
             <p><strong>Payment Method:</strong> ${data.payment.trim()}</p>
         </div>
-        <div class="text-right">
+        <div class="text-right mx-10">
             <p class="font-bold text-xl">Total: ${new Intl.NumberFormat(
               "vi-VN",
               { style: "currency", currency: "VND" }
