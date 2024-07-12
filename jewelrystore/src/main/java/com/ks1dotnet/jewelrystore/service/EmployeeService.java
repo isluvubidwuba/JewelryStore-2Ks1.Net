@@ -221,6 +221,20 @@ public class EmployeeService implements IEmployeeService {
          if (file != null && !file.isEmpty()) {
             fileName = firebaseStorageService.uploadImage(file, filePath).getData().toString();
          }
+
+         // Check if email, phone number, or ID already exists
+         if (iEmployeeRepository.existsByEmailExceptId(email, id)) {
+            responseData.setStatus(HttpStatus.CONFLICT);
+            responseData.setDesc("Email already exists");
+            return responseData;
+         }
+
+         if (iEmployeeRepository.existsByPhoneNumberExceptId(phoneNumber, id)) {
+            responseData.setStatus(HttpStatus.CONFLICT);
+            responseData.setDesc("Phone number already exists");
+            return responseData;
+         }
+
          // Cập nhật thông tin nhân viên
          Optional<Employee> employeeOpt = iEmployeeRepository.findById(id);
          if (employeeOpt.isPresent()) {
@@ -308,7 +322,6 @@ public class EmployeeService implements IEmployeeService {
                throw new ApplicationException("Invalid search criteria: " + criteria,
                      "Invalid criteria!");
          }
-
          if (employeePage.isEmpty()) {
             responseData.setStatus(HttpStatus.NOT_FOUND);
             responseData.setDesc("Employee not exist in system");
