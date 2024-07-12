@@ -234,8 +234,7 @@ public class UserInfoService implements IUserInfoService {
 
             switch (criteria.toLowerCase()) {
                 case "id":
-                    Optional<UserInfo> userInfoOpt =
-                            iUserInfoRepository.findById(Integer.parseInt(query));
+                    Optional<UserInfo> userInfoOpt = iUserInfoRepository.findById(Integer.parseInt(query));
                     if (userInfoOpt.isPresent() && userInfoOpt.get().getRole().getId() == 4) {
                         List<UserInfo> userInfoList = new ArrayList<>();
                         userInfoList.add(userInfoOpt.get());
@@ -246,34 +245,35 @@ public class UserInfoService implements IUserInfoService {
                     break;
 
                 case "name":
-                    userInfoPage = iUserInfoRepository
-                            .findCustomersByNameContainingIgnoreCase(query, pageRequest);
+                    userInfoPage = iUserInfoRepository.findCustomersByNameContainingIgnoreCase(query, pageRequest);
                     break;
 
                 case "numberphone":
-                    userInfoPage = iUserInfoRepository.findCustomersByPhoneNumberContaining(query,
-                            pageRequest);
+                    userInfoPage = iUserInfoRepository.findCustomersByPhoneNumberContaining(query, pageRequest);
                     break;
 
                 case "email":
-                    userInfoPage = iUserInfoRepository
-                            .findCustomersByEmailContainingIgnoreCase(query, pageRequest);
+                    userInfoPage = iUserInfoRepository.findCustomersByEmailContainingIgnoreCase(query, pageRequest);
                     break;
 
                 default:
-                    throw new IllegalArgumentException(
-                            "Tiêu chí tìm kiếm không hợp lệ: " + criteria);
+                    throw new IllegalArgumentException("Tiêu chí tìm kiếm không hợp lệ: " + criteria);
             }
 
-            Page<UserInfoDTO> userInfoDTOPage = convertToDTOPage(userInfoPage);
+            if (userInfoPage.isEmpty()) {
+                responseData.setStatus(HttpStatus.NOT_FOUND);
+                responseData.setDesc("User not found in system");
+            } else {
+                Page<UserInfoDTO> userInfoDTOPage = convertToDTOPage(userInfoPage);
 
-            response.put("customers", userInfoDTOPage.getContent());
-            response.put("totalPages", userInfoDTOPage.getTotalPages());
-            response.put("currentPage", page);
+                response.put("customers", userInfoDTOPage.getContent());
+                response.put("totalPages", userInfoDTOPage.getTotalPages());
+                response.put("currentPage", page);
 
-            responseData.setStatus(HttpStatus.OK);
-            responseData.setData(response);
-            responseData.setDesc("Fetch successful");
+                responseData.setStatus(HttpStatus.OK);
+                responseData.setData(response);
+                responseData.setDesc("Fetch successful");
+            }
         } catch (Exception e) {
             responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             responseData.setDesc("Fetch failed. Internal Server Error: " + e.getMessage());
@@ -291,8 +291,7 @@ public class UserInfoService implements IUserInfoService {
 
             switch (criteria.toLowerCase()) {
                 case "id":
-                    Optional<UserInfo> userInfoOpt =
-                            iUserInfoRepository.findById(Integer.parseInt(query));
+                    Optional<UserInfo> userInfoOpt = iUserInfoRepository.findById(Integer.parseInt(query));
                     if (userInfoOpt.isPresent() && userInfoOpt.get().getRole().getId() == 5) {
                         List<UserInfo> userInfoList = new ArrayList<>();
                         userInfoList.add(userInfoOpt.get());
@@ -303,34 +302,35 @@ public class UserInfoService implements IUserInfoService {
                     break;
 
                 case "name":
-                    userInfoPage = iUserInfoRepository
-                            .findSuppliersByNameContainingIgnoreCase(query, pageRequest);
+                    userInfoPage = iUserInfoRepository.findSuppliersByNameContainingIgnoreCase(query, pageRequest);
                     break;
 
                 case "numberphone":
-                    userInfoPage = iUserInfoRepository.findSuppliersByPhoneNumberContaining(query,
-                            pageRequest);
+                    userInfoPage = iUserInfoRepository.findSuppliersByPhoneNumberContaining(query, pageRequest);
                     break;
 
                 case "email":
-                    userInfoPage = iUserInfoRepository
-                            .findSuppliersByEmailContainingIgnoreCase(query, pageRequest);
+                    userInfoPage = iUserInfoRepository.findSuppliersByEmailContainingIgnoreCase(query, pageRequest);
                     break;
 
                 default:
-                    throw new IllegalArgumentException(
-                            "Tiêu chí tìm kiếm không hợp lệ: " + criteria);
+                    throw new IllegalArgumentException("Invalid search criteria: " + criteria);
             }
 
-            Page<UserInfoDTO> userInfoDTOPage = convertToDTOPage(userInfoPage);
+            if (userInfoPage.isEmpty()) {
+                responseData.setStatus(HttpStatus.NOT_FOUND);
+                responseData.setDesc("User not found in system");
+            } else {
+                Page<UserInfoDTO> userInfoDTOPage = convertToDTOPage(userInfoPage);
 
-            response.put("suppliers", userInfoDTOPage.getContent());
-            response.put("totalPages", userInfoDTOPage.getTotalPages());
-            response.put("currentPage", page);
+                response.put("suppliers", userInfoDTOPage.getContent());
+                response.put("totalPages", userInfoDTOPage.getTotalPages());
+                response.put("currentPage", page);
 
-            responseData.setStatus(HttpStatus.OK);
-            responseData.setData(response);
-            responseData.setDesc("Fetch successful");
+                responseData.setStatus(HttpStatus.OK);
+                responseData.setData(response);
+                responseData.setDesc("Fetch successful");
+            }
         } catch (Exception e) {
             responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             responseData.setDesc("Fetch failed. Internal Server Error: " + e.getMessage());
@@ -440,8 +440,7 @@ public class UserInfoService implements IUserInfoService {
     @Override
     public ResponseData findByPhoneSupplier(String phone) {
         try {
-            Optional<UserInfo> optionalUserInfo =
-                    iUserInfoRepository.findSupplierByPhoneNumber(phone);
+            Optional<UserInfo> optionalUserInfo = iUserInfoRepository.findSupplierByPhoneNumber(phone);
             if (optionalUserInfo.isPresent()) {
                 UserInfo userInfo = optionalUserInfo.get();
                 ResponseData responseData = new ResponseData();

@@ -241,9 +241,8 @@ function populateTable(data, ranks, currentPage, role) {
     }
     const row = `<tr class="text-center">
                   <td class="py-2 px-4 border-b">${count++}</td>
-                  <td class="py-2 px-4 border-b" id="${role.toLowerCase()}-image-${
-      item.id
-    }">
+                  <td class="py-2 px-4 border-b" id="${role.toLowerCase()}-image-${item.id
+      }">
                     Loading...
                   </td>
                   <td class="py-2 px-4 border-b">${item.fullName}</td>
@@ -251,9 +250,8 @@ function populateTable(data, ranks, currentPage, role) {
                   <td class="py-2 px-4 border-b">${item.email}</td>
                   <td class="py-2 px-4 border-b">${item.address}</td>
                   ${rankInfo}
-                  <td class="py-2 px-4 border-b"><button class="edit-btn" data-id="${
-                    item.id
-                  }"><i class="fas fa-edit"></i></button></td>
+                  <td class="py-2 px-4 border-b"><button class="edit-btn" data-id="${item.id
+      }"><i class="fas fa-edit"></i></button></td>
                 </tr>`;
     tableBody.append(row);
 
@@ -356,6 +354,21 @@ function fetchUserInfo(id) {
 function updateUser() {
   var formData = new FormData($("#update-user-form")[0]);
 
+  var phoneNumber = $("#update-phone").val();
+  var email = $("#update-email").val();
+
+  // Validate phone number
+  if (!isValidPhoneNumber(phoneNumber)) {
+    showNotification("Phone number must be 10 digits!", "Error");
+    return;
+  }
+
+  // Validate email
+  if (!isValidEmail(email)) {
+    showNotification("Invalid email format!", "Error");
+    return;
+  }
+
   userService
     .sendAjaxWithAuthen(
       `http://${userService.getApiUrl()}/api/userinfo/update`,
@@ -432,13 +445,18 @@ function setupSearch(role) {
 
       // Validate input based on criteria
       if (criteria === "numberphone") {
-        if (!/^\d{10}$/.test(query)) {
+        if (!isValidPhoneNumber(query)) {
           showNotification("Phone number must be exactly 10 digits.", "error");
           return;
         }
       } else if (criteria === "email") {
-        if (!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(query)) {
+        if (!isValidEmail(query)) {
           showNotification("Invalid email format.", "error");
+          return;
+        }
+      } else if (criteria === "id") { // Added validation for ID
+        if (!/^\d+$/.test(query)) {
+          showNotification("ID must be a number.", "error");
           return;
         }
       }
@@ -448,16 +466,16 @@ function setupSearch(role) {
 }
 
 function searchByRole(role, criteria, query, page) {
-  console.log("Check para search by role : " + role);
-  console.log("Check para search by role : " + criteria);
-  console.log("Check para search by role : " + query);
-  console.log("Check para search by role : " + page);
+  console.log("Check para search by role: " + role);
+  console.log("Check para search by role: " + criteria);
+  console.log("Check para search by role: " + query);
+  console.log("Check para search by role: " + page);
+
   const searchUrl =
     role === "CUSTOMER"
       ? `http://${userService.getApiUrl()}/api/userinfo/searchcustomer`
       : `http://${userService.getApiUrl()}/api/userinfo/searchsupplier`;
 
-  // Tạo đối tượng dữ liệu để gửi
   const searchParams = new URLSearchParams({
     criteria: criteria,
     query: query,
@@ -465,15 +483,19 @@ function searchByRole(role, criteria, query, page) {
   });
 
   userService
-    .sendAjaxWithAuthen(
-      searchUrl,
-      "POST",
-      searchParams.toString() // Chuyển đổi đối tượng URLSearchParams thành chuỗi
-    )
+    .sendAjaxWithAuthen(searchUrl, "POST", searchParams.toString())
     .then((response) => {
+      console.log("Response received:", response); // Log the response
+
       if (response.status === "OK") {
         const { customers, suppliers, totalPages, currentPage } = response.data;
         const data = role === "CUSTOMER" ? customers : suppliers;
+
+        if (data.length === 0) {
+          showNotification("User not found in system.", "error");
+          return;
+        }
+
         if (role === "CUSTOMER") {
           fetchCustomerRanks(function (ranks) {
             populateTable(data, ranks, currentPage, "Customer");
@@ -484,12 +506,18 @@ function searchByRole(role, criteria, query, page) {
           updatePagination(currentPage, totalPages, "supplier");
         }
       } else {
-        showNotification("Failed to search employee data.", "error");
+        showNotification("Failed to search user data. " + response.desc, "error");
       }
     })
     .catch((error) => {
-      showNotification("Error while searching employee data.", "error");
-      console.error(`Error searching ${role.toLowerCase()}s:`, error);
+      console.error("Error details:", error); // Log detailed error information
+      if (error.responseJSON) {
+        showNotification(error.responseJSON.desc, "error");
+      } else if (error.statusText) {
+        showNotification("Error while searching user data: " + error.statusText, "error");
+      } else {
+        showNotification("Error while searching user data.", "error");
+      }
     });
 }
 
@@ -565,7 +593,7 @@ function setupInsertModalToggle() {
           console.error("Error while insert user:", error);
           showNotification(
             "Error while insert user: " +
-              (error.responseJSON ? error.responseJSON.desc : "System Error"),
+            (error.responseJSON ? error.responseJSON.desc : "System Error"),
             "error",
             "error"
           );
@@ -599,7 +627,7 @@ function validateForm(form) {
 
   if (!isValidPhoneNumber(phoneNumber)) {
     showNotification(
-      "Invalid phone number. It should contain only digits and be between 10 to 12 digits long.",
+      "Invalid phone number. It must contain only digits and be 10 numbers long",
       "error"
     );
 
@@ -610,12 +638,12 @@ function validateForm(form) {
 }
 
 function isValidEmail(email) {
-  const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const emailPattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
   return emailPattern.test(email);
 }
 
 function isValidPhoneNumber(phoneNumber) {
-  const phonePattern = /^\d{10,12}$/;
+  const phonePattern = /^\d{10}$/;
   return phonePattern.test(phoneNumber);
 }
 
