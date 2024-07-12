@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import com.ks1dotnet.jewelrystore.entity.AssignShiftForStaff;
 
 @Repository
-public interface IAssignShiftForStaffRepository extends JpaRepository<AssignShiftForStaff, Integer> {
+public interface IAssignShiftForStaffRepository
+        extends JpaRepository<AssignShiftForStaff, Integer> {
 
 }

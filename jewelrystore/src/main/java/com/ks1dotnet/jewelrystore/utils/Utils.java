@@ -1,12 +1,10 @@
 package com.ks1dotnet.jewelrystore.utils;
 
 import java.util.Random;
-
 import org.springframework.stereotype.Component;
 
 @Component
-public class MailUtils {
-
+public class Utils {
     public String generateOtp() {
         Random random = new Random();
         int randomNumber = random.nextInt(999999);
@@ -15,4 +13,5 @@ public class MailUtils {
             output = "0" + output;
         return output;
     }
+
 }

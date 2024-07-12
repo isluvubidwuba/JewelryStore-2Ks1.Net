@@ -7,10 +7,10 @@
   <title>Invoice Import</title>
   <link href="css/styles.css" rel="stylesheet" />
   <script src="js/jquery.min.js"></script>
-  <script src="js/ImportInvoice.js"></script>
   <div id="notification-placeholder">
     @@include('components/notification.html')
   </div>
+  <script type="module" src="js/ImportInvoice.js"></script>
 </head>
 
 <body class="bg-gray-100 h-screen flex">
@@ -119,19 +119,13 @@
             Create Invoice
           </button>
           <button id="clear-all-information"
-            class="w-1/2 mt-4 px-3 py-2 text-white rounded-md bg-black hover:bg-gray-700">Recreate invoice</button>
+            class="w-1/2 mt-4 px-3 py-2 text-white rounded-md bg-black hover:bg-gray-700">
+            Recreate invoice
+          </button>
         </div>
-
-
       </div>
     </div>
   </div>
-
-
-  
-
-
-
 </body>
 
 </html>

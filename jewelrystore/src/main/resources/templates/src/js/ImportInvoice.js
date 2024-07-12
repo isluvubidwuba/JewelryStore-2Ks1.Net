@@ -1,9 +1,36 @@
-const apiurl = process.env.API_URL;
+import UserService from "./userService.js";
+
+const userService = new UserService();
+let employeeID = userService.getUserId(); // ID của nhân viên từ token
+var keybuffer = [];
+
 $(document).ready(function () {
   const selectedProductsTable = $("#selectedProductsTable");
   let totalPrice = 0;
   let supplierId = null;
-  let token = localStorage.getItem("token");
+
+  $(document).on("keypress", press);
+
+  function press(event) {
+    if (event.which === 13) {
+      searchProductByBarcode(keybuffer.join(""));
+      keybuffer.length = 0;
+      return;
+    }
+
+    var number = null;
+    if (event.which >= 48 && event.which <= 57) {
+      // Handle numbers on the main keyboard (0-9)
+      number = event.which - 48;
+    } else if (event.which >= 96 && event.which <= 105) {
+      // Handle numbers on the numpad (0-9)
+      number = event.which - 96;
+    }
+
+    if (number !== null) {
+      keybuffer.push(number);
+    }
+  }
 
   $("#searchProductByBarcode").on("click", function () {
     const barcode = $("#barcodeInput").val();
@@ -36,8 +63,6 @@ $(document).ready(function () {
     // Thông báo
     showNotification("Clear all information successful", "OK");
   });
-
-
 
   function isValidPhoneNumber(phoneNumber) {
     const phoneRegex = /^[0-9]{10,11}$/; // Số điện thoại chỉ chứa 10-11 chữ số
@@ -118,13 +143,13 @@ $(document).ready(function () {
   }
 
   function searchProductByBarcode(barcode) {
-    $.ajax({
-      url: `http://${apiurl}/product/${barcode}`,
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/product/${barcode}`,
+        "GET",
+        null
+      )
+      .then((response) => {
         if (response.status === "OK" && response.data) {
           const product = response.data;
           addProductToTable(product);
@@ -132,34 +157,31 @@ $(document).ready(function () {
         } else {
           showNotification("No products found with this barcode !!!", "error");
         }
-      },
-      error: function () {
+      })
+      .catch(() => {
         showNotification("No products found with this barcode !!!", "error");
-      },
-    });
+      });
   }
 
   function searchSupplier(supplierIdInput) {
-    $.ajax({
-      url: `http://${apiurl}/userinfo/phonenumberandmailsupplier`,
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      data: { citeria: supplierIdInput }, // Sử dụng tham số 'citeria' thay vì ID trong URL
-      success: function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/userinfo/phonenumberandmailsupplier?citeria=${supplierIdInput}`,
+        "GET",
+        null
+      )
+      .then((response) => {
         if (response) {
-          supplierId = response.id;
+          supplierId = response.data.id;
           displaySupplierInfo(response.data);
           $("#supplierInput").val("");
         } else {
           showNotification("No supplier found with this code !!!", "error");
         }
-      },
-      error: function () {
+      })
+      .catch(() => {
         showNotification("No supplier found with this code !!!", "error");
-      },
-    });
+      });
   }
 
   function displaySupplierInfo(supplier) {
@@ -178,8 +200,8 @@ $(document).ready(function () {
       showNotification("Payment method has not been selected !!!", "error");
       return;
     }
-    let employeeID = localStorage.getItem("userId"); // ID của nhân viên từ token
     if (!employeeID || !supplierId) {
+      console.log("employeeID: " + employeeID + "supplierId" + supplierId);
       showNotification(
         "Please select a provider and make sure the employee is logged in !!!",
         "error"
@@ -218,16 +240,13 @@ $(document).ready(function () {
       request: invoiceRequest,
       barcodePriceMap: barcodePriceMap,
     };
-
-    $.ajax({
-      url: `http://${apiurl}/invoice/create-import`,
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      contentType: "application/json",
-      data: JSON.stringify(importInvoiceRequestWrapper),
-      success: function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/invoice/create-import`,
+        "POST",
+        importInvoiceRequestWrapper
+      )
+      .then((response) => {
         if (response.status === "OK") {
           showNotification("Invoice created successfully !!!", "OK");
           // Xóa các sản phẩm khỏi bảng và đặt lại tổng giá tiền
@@ -240,16 +259,14 @@ $(document).ready(function () {
             "error"
           );
         }
-      },
-      error: function () {
+      })
+      .catch(() => {
         showNotification(
           "Can error occurred while creating the invoice !!!",
           "error"
         );
-      },
-    });
+      });
   }
-
 
   function clearAllInformation() {
     // Xóa tất cả sản phẩm khỏi bảng
@@ -268,6 +285,4 @@ $(document).ready(function () {
     $("#notes").val("");
     $("#paymentMethod").val("");
   }
-
-
 });

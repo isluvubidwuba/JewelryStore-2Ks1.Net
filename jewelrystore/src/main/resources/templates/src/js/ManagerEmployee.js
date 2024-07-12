@@ -1,11 +1,13 @@
-const apiurl = process.env.API_URL;
+import UserService from "./userService.js";
+import { viewEmployee2 } from "./revenueEmployee.js";
+const userService = new UserService();
+
 $(document).ready(function () {
   initializeInsertEmployee();
   initializePagination();
   initializeSearchForm();
   fetchEmployees(0);
 });
-const token = localStorage.getItem("token");
 
 let currentPage = 0;
 
@@ -31,14 +33,13 @@ function fetchEmployeeImage(employeeId, imageUrl) {
 }
 
 function fetchEmployees(page) {
-  $.ajax({
-    url: `http://${apiurl}/employee/listpage`,
-    type: "GET",
-    data: { page: page },
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/employee/listpage?page=${page}`,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         renderEmployees(response.data.employees);
         updatePagination(response.data.currentPage, response.data.totalPages);
@@ -46,11 +47,10 @@ function fetchEmployees(page) {
       } else {
         showNotification("Failed to load employee data.", "error");
       }
-    },
-    error: function () {
+    })
+    .catch(() => {
       showNotification("Error while fetching employee data.", "error");
-    },
-  });
+    });
 }
 
 function renderEmployees(employees) {
@@ -68,25 +68,47 @@ function renderEmployees(employees) {
               <td class="px-6 py-4" id="employee-image-${employee.id}">
                   Loading...
               </td>
-              <td class="px-6 py-3">${employee.firstName} ${employee.lastName
-      }</td>
+              <td class="px-6 py-3">${employee.firstName} ${
+      employee.lastName
+    }</td>
               <td class="px-6 py-3">${employee.role.name}</td>
               <td class="px-6 py-3">${statusLabel}</td>
               <td class="px-6 py-3">${formatCurrency(
-        employee.totalRevenue
-      )}</td>
+                employee.totalRevenue
+              )}</td>
               <td class="px-6 py-3">
-                  <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" onclick="viewEmployee('${employee.id
-      }')">View</button>
-                  <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" onclick="viewEmployee2('${employee.id
-      }')">Revenue</button>
-                  
+                <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" data-view-employee="${
+                  employee.id
+                }">View</button>
+                <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" data-view-employee2="${
+                  employee.id
+                }">Revenue</button>
               </td>
           </tr>
       `;
     employeeTableBody.append(employeeRow);
 
     fetchEmployeeImage(employee.id, employee.image);
+  });
+  // Attach event listeners after rendering rows
+  $("#employeeTableBody").on("click", "[data-view-employee]", function () {
+    const employeeId = $(this).data("viewEmployee");
+    console.log("Check ID Employee from view button: " + employeeId);
+    if (employeeId) {
+      viewEmployee(employeeId);
+    } else {
+      showNotification("Error: Employee ID is undefined", "error");
+    }
+  });
+
+  $("#employeeTableBody").on("click", "[data-view-employee2]", function () {
+    const employeeId = $(this).data("viewEmployee2");
+    console.log("Check ID Employee from view button: " + employeeId);
+    if (employeeId) {
+      viewEmployee2(employeeId);
+    } else {
+      showNotification("Error: Employee ID is undefined", "error");
+    }
   });
 }
 
@@ -114,13 +136,13 @@ function updatePagination(currentPage, totalPages) {
 }
 
 function fetchRoles(selectElementId) {
-  $.ajax({
-    url: `http://${apiurl}/role/list`,
-    type: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/role/list`,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         const roles = response.data;
         const roleSelect = $(`#${selectElementId}`);
@@ -135,8 +157,8 @@ function fetchRoles(selectElementId) {
       } else {
         showNotification("Failed to load roles: " + response.desc, "error");
       }
-    },
-    error: function (error) {
+    })
+    .catch((error) => {
       if (error.responseJSON) {
         showNotification(
           "Error while load roles: " + error.responseJSON.desc,
@@ -146,19 +168,19 @@ function fetchRoles(selectElementId) {
         console.error("Error while load roles: ", error);
         showNotification("Error load roles!", "error");
       }
-    },
-  });
+    });
 }
 
 function viewEmployee(id) {
   fetchRoles("viewRole"); // Fetch roles before opening the modal
-  $.ajax({
-    url: `http://${apiurl}/employee/listemployee/${id}`,
-    type: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/employee/listemployee/${id}`,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         const employee = response.data;
         // Sử dụng URL hình ảnh từ phản hồi API
@@ -166,7 +188,6 @@ function viewEmployee(id) {
 
         $("#viewEmployeeImage").attr("src", imageUrl);
         $("#viewEmployeeId").val(employee.id);
-        $("#viewPinCode").val(employee.pinCode);
         $("#viewFirstName").val(employee.firstName);
         $("#viewLastName").val(employee.lastName);
         $("#viewPhoneNumber").val(employee.phoneNumber);
@@ -175,12 +196,12 @@ function viewEmployee(id) {
         $("#viewRole").val(employee.role.id);
         $("#viewStatus").val(employee.status ? "true" : "false");
 
-        // Kiểm tra trạng thái và ẩn/hiện nút "Delete"
-        if (!employee.status) {
-          $("#deleteEmployeeBtn").removeClass("hidden");
-        } else {
-          $("#deleteEmployeeBtn").addClass("hidden");
-        }
+        // // Kiểm tra trạng thái và ẩn/hiện nút "Delete"
+        // if (!employee.status) {
+        //   $("#deleteEmployeeBtn").removeClass("hidden");
+        // } else {
+        //   $("#deleteEmployeeBtn").addClass("hidden");
+        // }
         openModal();
       } else {
         showNotification(
@@ -188,8 +209,8 @@ function viewEmployee(id) {
           "error"
         );
       }
-    },
-    error: function (error) {
+    })
+    .catch((error) => {
       showNotification("Error while fetching employee details", "error");
       if (error.responseJSON) {
         showNotification(
@@ -200,8 +221,7 @@ function viewEmployee(id) {
         console.error("Error while fetching employee details : ", error);
         showNotification("Error fetching employee details :!", "error");
       }
-    },
-  });
+    });
 }
 
 function openModal() {
@@ -226,16 +246,13 @@ function updateEmployee() {
     console.log(pair[0] + ": " + pair[1]);
   }
 
-  $.ajax({
-    url: `http://${apiurl}/employee/update`,
-    type: "POST",
-    data: formData,
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    processData: false,
-    contentType: false,
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/employee/update`,
+      "POST",
+      formData
+    )
+    .then((response) => {
       if (response.status === "OK") {
         showNotification(response.desc, "OK");
         clearUpdateForm();
@@ -247,8 +264,8 @@ function updateEmployee() {
           "error"
         );
       }
-    },
-    error: function (error) {
+    })
+    .catch((error) => {
       showNotification("Error update employee!", "error");
       if (error.responseJSON) {
         showNotification(
@@ -259,8 +276,7 @@ function updateEmployee() {
         console.error("Error while update employee: ", error);
         showNotification("Error update employee!", "error");
       }
-    },
-  });
+    });
 }
 
 function clearUpdateForm() {
@@ -307,17 +323,13 @@ function closeInsertModal() {
 function handleInsertEmployee(event) {
   event.preventDefault();
   var formData = new FormData($("#insertEmployeeForm")[0]);
-
-  $.ajax({
-    url: `http://${apiurl}/employee/insert`,
-    type: "POST",
-    data: formData,
-    processData: false,
-    contentType: false,
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/employee/insert`,
+      "POST",
+      formData
+    )
+    .then((response) => {
       if (response.status === "OK") {
         showNotification(response.desc, "OK");
         handleSendMailEmployee(response.data);
@@ -329,8 +341,8 @@ function handleInsertEmployee(event) {
           "Error"
         );
       }
-    },
-    error: function (error) {
+    })
+    .catch((error) => {
       showNotification("Error inserting user!", "Error");
       if (error.responseJSON) {
         showNotification(
@@ -341,25 +353,24 @@ function handleInsertEmployee(event) {
         console.error("Error while inserting employee: ", error);
         showNotification("Error inserting user!", "Error");
       }
-    },
-  });
+    });
 }
 
 function handleSendMailEmployee(idEmploy) {
-  $.ajax({
-    url: `http://${apiurl}/mail/sendInfo/${idEmploy}`,
-    type: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/employee/sendInfo/${idEmploy}`,
+      "POST",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         showNotification(response.desc, "OK");
       } else {
         showNotification(response.desc, "Error");
       }
-    },
-    error: function (error) {
+    })
+    .catch((error) => {
       showNotification("Error send mail user!", "Error");
       if (error.responseJSON) {
         showNotification(
@@ -370,8 +381,7 @@ function handleSendMailEmployee(idEmploy) {
         console.error("Error while send mail employee: ", error);
         showNotification("Error send mail user!", "Error");
       }
-    },
-  });
+    });
 }
 
 function initializeSearchForm() {
@@ -392,17 +402,32 @@ function initializeSearchForm() {
 
     // Validation
     if (criteria === "id" && !/^SE\d{8}$/.test(query)) {
-      showNotification("Invalid ID format. ID should start with 'SE' followed by 8 digits.", "Error");
+      showNotification(
+        "Invalid ID format. ID should start with 'SE' followed by 8 digits.",
+        "Error"
+      );
       return;
     }
 
-    if (criteria === "role" && !["ADMIN", "MANAGER", "STAFF"].includes(query.toUpperCase())) {
-      showNotification("Invalid role. Valid roles are ADMIN, MANAGER, STAFF.", "Error");
+    if (
+      criteria === "role" &&
+      !["ADMIN", "MANAGER", "STAFF"].includes(query.toUpperCase())
+    ) {
+      showNotification(
+        "Invalid role. Valid roles are ADMIN, MANAGER, STAFF.",
+        "Error"
+      );
       return;
     }
 
-    if (criteria === "status" && !["active", "inactive"].includes(query.toLowerCase())) {
-      showNotification("Invalid status. Valid statuses are active or inactive.", "Error");
+    if (
+      criteria === "status" &&
+      !["active", "inactive"].includes(query.toLowerCase())
+    ) {
+      showNotification(
+        "Invalid status. Valid statuses are active or inactive.",
+        "Error"
+      );
       return;
     }
 
@@ -411,7 +436,7 @@ function initializeSearchForm() {
 }
 
 function searchEmployees(criteria, query, page) {
-  // Transform criteria values
+  // Chuyển đổi giá trị tiêu chí
   if (criteria === "role") {
     query = query.toUpperCase();
   }
@@ -420,14 +445,17 @@ function searchEmployees(criteria, query, page) {
     query = query.toLowerCase();
   }
 
-  $.ajax({
-    url: `http://${apiurl}/employee/search`,
-    type: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    data: { criteria: criteria, query: query, page: page },
-    success: function (response) {
+  const apiUrl = `http://${userService.getApiUrl()}/api/employee/search?criteria=${criteria}&query=${encodeURIComponent(
+    query
+  )}&page=${page}`;
+
+  console.log("Check Search Employee : " + criteria);
+  console.log("Check Search Employee : " + query);
+  console.log("Check Search Employee : " + page);
+
+  userService
+    .sendAjaxWithAuthen(apiUrl, "POST", null)
+    .then((response) => {
       if (response.status === "OK") {
         renderEmployees(response.data.employees);
         updatePagination(response.data.currentPage, response.data.totalPages);
@@ -435,24 +463,23 @@ function searchEmployees(criteria, query, page) {
       } else {
         showNotification("Failed to search employee data.", "Error");
       }
-    },
-    error: function () {
+    })
+    .catch(() => {
       showNotification("Error while searching employee data.", "Error");
-    },
-  });
+    });
 }
 
 function deleteEmployee() {
   const employeeId = $("#viewEmployeeId").val();
 
   if (confirm("Are you sure you want to delete this employee?")) {
-    $.ajax({
-      url: `http://${apiurl}/employee/delete/${employeeId}`,
-      type: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/employee/delete/${employeeId}`,
+        "GET",
+        null
+      )
+      .then((response) => {
         console.log("Delete response:", response); // Ghi log phản hồi
         if (response.status === "OK") {
           showNotification(response.desc, "Error");
@@ -464,8 +491,8 @@ function deleteEmployee() {
             "Error"
           );
         }
-      },
-      error: function (error) {
+      })
+      .catch((error) => {
         showNotification("Error deleting employee!", "Error");
         console.error("Error while deleting employee:", error); // Ghi log lỗi
         if (error.responseJSON) {
@@ -476,7 +503,6 @@ function deleteEmployee() {
         } else {
           showNotification("Error deleting employee!", "Error");
         }
-      },
-    });
+      });
   }
 }

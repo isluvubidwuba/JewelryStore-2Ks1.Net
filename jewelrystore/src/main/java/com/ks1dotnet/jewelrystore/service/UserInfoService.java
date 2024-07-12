@@ -20,9 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ks1dotnet.jewelrystore.dto.UserInfoDTO;
 import com.ks1dotnet.jewelrystore.entity.EarnPoints;
 import com.ks1dotnet.jewelrystore.entity.UserInfo;
-import com.ks1dotnet.jewelrystore.exception.BadRequestException;
-import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
-import com.ks1dotnet.jewelrystore.exception.RunTimeExceptionV1;
+import com.ks1dotnet.jewelrystore.exception.ApplicationException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.ICustomerTypeRepository;
 import com.ks1dotnet.jewelrystore.repository.IEarnPointsRepository;
@@ -65,14 +63,14 @@ public class UserInfoService implements IUserInfoService {
 
     @Override
     public UserInfo findById(int id) {
-        return iUserInfoRepository.findById(id).orElseThrow(() -> new BadRequestException(
-                "NOT FOUND USER WITH THIS ID:" + id));
+        return iUserInfoRepository.findById(id)
+                .orElseThrow(() -> new ApplicationException("NOT FOUND USER WITH THIS ID:" + id,
+                        HttpStatus.NOT_FOUND));
     }
 
     @Override
-    public ResponseData insertUserInfo(MultipartFile file, String fullName, String phoneNumber, String email,
-            int roleId,
-            String address) {
+    public ResponseData insertUserInfo(MultipartFile file, String fullName, String phoneNumber,
+            String email, int roleId, String address) {
         ResponseData responseData = new ResponseData();
         phoneNumber = phoneNumber.trim();
         email = email.trim();
@@ -113,7 +111,8 @@ public class UserInfoService implements IUserInfoService {
             EarnPoints earnPoints = new EarnPoints();
             earnPoints.setPoint(0);
             earnPoints.setCustomerType(iCustomerTypeRepository.findById(1)
-                    .orElseThrow(() -> new ResourceNotFoundException("Not Found Customer Type ID :")));
+                    .orElseThrow(() -> new ApplicationException("Not Found Customer Type ID 1",
+                            HttpStatus.NOT_FOUND)));
             earnPoints.setUserInfo(userInfo);
 
             iEarnPointsRepository.save(earnPoints);
@@ -128,8 +127,8 @@ public class UserInfoService implements IUserInfoService {
     }
 
     @Override
-    public ResponseData updateUserInfo(MultipartFile file, int id, String fullName, String phoneNumber, String email,
-            int roleId, String address) {
+    public ResponseData updateUserInfo(MultipartFile file, int id, String fullName,
+            String phoneNumber, String email, int roleId, String address) {
         ResponseData responseData = new ResponseData();
 
         String fileName = null;
@@ -154,7 +153,8 @@ public class UserInfoService implements IUserInfoService {
         }
 
         // Check if phone number has changed and already exists for other users
-        if (!userInfo.getPhoneNumber().equals(phoneNumber) && iUserInfoRepository.existsByPhoneNumber(phoneNumber)) {
+        if (!userInfo.getPhoneNumber().equals(phoneNumber)
+                && iUserInfoRepository.existsByPhoneNumber(phoneNumber)) {
             responseData.setStatus(HttpStatus.CONFLICT);
             responseData.setDesc("Phone number already exists");
             return responseData;
@@ -165,7 +165,8 @@ public class UserInfoService implements IUserInfoService {
         userInfo.setEmail(email);
         userInfo.setAddress(address);
         userInfo.setRole(iRoleService.findById(roleId));
-        userInfo.setImage(fileName == null ? userInfo.getImage() : fileName); // Set the image name, default or uploaded
+        userInfo.setImage(fileName == null ? userInfo.getImage() : fileName); // Set the image name,
+                                                                              // default or uploaded
         iUserInfoRepository.save(userInfo);
         responseData.setStatus(HttpStatus.OK);
         responseData.setDesc("Update successful");
@@ -259,15 +260,20 @@ public class UserInfoService implements IUserInfoService {
                     throw new IllegalArgumentException("Tiêu chí tìm kiếm không hợp lệ: " + criteria);
             }
 
-            Page<UserInfoDTO> userInfoDTOPage = convertToDTOPage(userInfoPage);
+            if (userInfoPage.isEmpty()) {
+                responseData.setStatus(HttpStatus.NOT_FOUND);
+                responseData.setDesc("User not found in system");
+            } else {
+                Page<UserInfoDTO> userInfoDTOPage = convertToDTOPage(userInfoPage);
 
-            response.put("customers", userInfoDTOPage.getContent());
-            response.put("totalPages", userInfoDTOPage.getTotalPages());
-            response.put("currentPage", page);
+                response.put("customers", userInfoDTOPage.getContent());
+                response.put("totalPages", userInfoDTOPage.getTotalPages());
+                response.put("currentPage", page);
 
-            responseData.setStatus(HttpStatus.OK);
-            responseData.setData(response);
-            responseData.setDesc("Fetch successful");
+                responseData.setStatus(HttpStatus.OK);
+                responseData.setData(response);
+                responseData.setDesc("Fetch successful");
+            }
         } catch (Exception e) {
             responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             responseData.setDesc("Fetch failed. Internal Server Error: " + e.getMessage());
@@ -308,18 +314,23 @@ public class UserInfoService implements IUserInfoService {
                     break;
 
                 default:
-                    throw new IllegalArgumentException("Tiêu chí tìm kiếm không hợp lệ: " + criteria);
+                    throw new IllegalArgumentException("Invalid search criteria: " + criteria);
             }
 
-            Page<UserInfoDTO> userInfoDTOPage = convertToDTOPage(userInfoPage);
+            if (userInfoPage.isEmpty()) {
+                responseData.setStatus(HttpStatus.NOT_FOUND);
+                responseData.setDesc("User not found in system");
+            } else {
+                Page<UserInfoDTO> userInfoDTOPage = convertToDTOPage(userInfoPage);
 
-            response.put("suppliers", userInfoDTOPage.getContent());
-            response.put("totalPages", userInfoDTOPage.getTotalPages());
-            response.put("currentPage", page);
+                response.put("suppliers", userInfoDTOPage.getContent());
+                response.put("totalPages", userInfoDTOPage.getTotalPages());
+                response.put("currentPage", page);
 
-            responseData.setStatus(HttpStatus.OK);
-            responseData.setData(response);
-            responseData.setDesc("Fetch successful");
+                responseData.setStatus(HttpStatus.OK);
+                responseData.setData(response);
+                responseData.setDesc("Fetch successful");
+            }
         } catch (Exception e) {
             responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             responseData.setDesc("Fetch failed. Internal Server Error: " + e.getMessage());
@@ -356,7 +367,9 @@ public class UserInfoService implements IUserInfoService {
             responseData.setStatus(HttpStatus.OK);
             return responseData;
         } catch (Exception e) {
-            throw new RunTimeExceptionV1("Find supplier error", e.getMessage());
+            throw new ApplicationException(
+                    "Error at getSupplierInfo UserInfoService: " + e.getMessage(),
+                    "Find supplier error");
         }
 
     }
@@ -370,7 +383,9 @@ public class UserInfoService implements IUserInfoService {
             responseData.setStatus(HttpStatus.OK);
             return responseData;
         } catch (Exception e) {
-            throw new RunTimeExceptionV1("Find Customer error", e.getMessage());
+            throw new ApplicationException(
+                    "Error at getCustomerInfo UserInfoService: " + e.getMessage(),
+                    "Find Customer error");
         }
     }
 
@@ -392,7 +407,9 @@ public class UserInfoService implements IUserInfoService {
                 return responseData;
             }
         } catch (Exception e) {
-            throw new RunTimeExceptionV1("An error occurred while finding the customer", e.getMessage());
+            throw new ApplicationException(
+                    "Error at findByPhoneNumber UserInfoService: " + e.getMessage(),
+                    "An error occurred while finding the customer");
         }
     }
 
@@ -414,7 +431,9 @@ public class UserInfoService implements IUserInfoService {
                 return responseData;
             }
         } catch (Exception e) {
-            throw new RunTimeExceptionV1("An error occurred while finding the customer", e.getMessage());
+            throw new ApplicationException(
+                    "Error at findByEmail UserInfoService: " + e.getMessage(),
+                    "An error occurred while finding the customer");
         }
     }
 
@@ -436,7 +455,9 @@ public class UserInfoService implements IUserInfoService {
                 return responseData;
             }
         } catch (Exception e) {
-            throw new RunTimeExceptionV1("An error occurred while finding the customer", e.getMessage());
+            throw new ApplicationException(
+                    "Error at findByPhoneSupplier UserInfoService: " + e.getMessage(),
+                    "An error occurred while finding the customer");
         }
     }
 
@@ -458,7 +479,9 @@ public class UserInfoService implements IUserInfoService {
                 return responseData;
             }
         } catch (Exception e) {
-            throw new RunTimeExceptionV1("An error occurred while finding the customer", e.getMessage());
+            throw new ApplicationException(
+                    "Error at findByEmailSupplier UserInfoService: " + e.getMessage(),
+                    "An error occurred while finding the customer");
         }
     }
 

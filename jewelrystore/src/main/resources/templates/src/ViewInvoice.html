@@ -1,48 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>View Invoice</title>
     <link href="css/styles.css" rel="stylesheet" />
     <script src="js/jquery.min.js"></script>
-    <script src="js/ViewInvoice.js"></script>
     <div id="notification-placeholder">
-        @@include('components/notification.html')
+      @@include('components/notification.html')
     </div>
 
- 
-</head>
+    <script type="module" src="js/ViewInvoice.js"></script>
+  </head>
 
-<body class="bg-gray-100 h-screen flex">
+  <body class="bg-gray-100 h-screen flex">
     <!-- Sidebar -->
     <div id="sidebarContainer" class="h-screen text-white">
-        @@include('components/sidebarForStaff.html')
+      @@include('components/sidebarForStaff.html')
     </div>
 
     <div class="w-full overflow-auto overflow-y-auto overflow-x-auto">
-
-        <div class="p-4">
-            <!-- Input Form -->
-            <div class="mb-8">
-                <label for="invoiceInput" class="block text-gray-700 text-sm font-bold mb-2">Enter Invoice ID: </label>
-                <input type="text" id="invoiceInput" name="invoiceInput"
-                    class="shadow appearance-none border rounded w-1/4 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                <button id="submitInvoice"
-                    class="mt-2 bg-black hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Send</button>
-            </div>
-            <!-- Invoice Content -->
-            <div id="invoiceContent" class="bg-white rounded hidden"
-                style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
-                <!-- Invoice content will be populated here -->
-            </div>
-
+      <div class="p-4">
+        <!-- Input Form -->
+        <div class="mb-8">
+          <label
+            for="invoiceInput"
+            class="block text-gray-700 text-sm font-bold mb-2"
+            >Enter Invoice ID:
+          </label>
+          <input
+            type="text"
+            id="invoiceInput"
+            name="invoiceInput"
+            class="shadow appearance-none border rounded w-1/4 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          />
+          <button
+            id="submitInvoice"
+            class="mt-2 bg-black hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          >
+            Send
+          </button>
         </div>
-
-
+        <!-- Invoice Content -->
+        <div
+          id="invoiceContent"
+          class="bg-white rounded hidden"
+          style="
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2),
+              0 6px 20px 0 rgba(0, 0, 0, 0.19);
+          "
+        >
+          <!-- Invoice content will be populated here -->
+        </div>
+      </div>
     </div>
-
-</body>
-
+  </body>
 </html>

@@ -1,22 +1,22 @@
-const apiurl = process.env.API_URL;
+import UserService from "./userService.js";
+
+const userService = new UserService();
+
 $(document).ready(function () {
   fetchRoles();
   fetchUniqueRankData();
   initializeUnique();
-  setupModalToggle();
   setupInsertModalToggle();
-  setupInsertRoleModalToggle();
 });
-const token = localStorage.getItem("token");
 
 function fetchRoles() {
-  $.ajax({
-    url: `http://${apiurl}/role/list`,
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/role/list`,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         const roles = response.data.filter(
           (role) => !["STAFF", "ADMIN", "MANAGER"].includes(role.name)
@@ -28,11 +28,10 @@ function fetchRoles() {
       } else {
         showNotification("Fail to load Role.", "error");
       }
-    },
-    error: function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching roles:", error);
-    },
-  });
+    });
 }
 
 function initTabs(roles) {
@@ -41,10 +40,6 @@ function initTabs(roles) {
     $("#tab-contents").append(createTabContent(role));
   });
 
-  // Append the insert role button
-  $("#role-tabs").append(
-    '<li class="ml-2"><button id="insert-role-button" class="tab-button bg-black text-white font-semibold py-2 px-4 rounded hover:bg-gray-700 transition duration-300">+</button></li>'
-  );
   // Append the insert user button
   $("#role-tabs").append(
     '<li class="ml-auto"><button id="insert-button" class="tab-button bg-black text-white font-semibold py-2 px-4 rounded hover:bg-gray-700 transition duration-300">Insert User</button></li>'
@@ -53,7 +48,6 @@ function initTabs(roles) {
   bindTabClickEvents();
   const firstRole = roles[0].name;
   switchTabByRole(firstRole); // Ensure first tab is activated
-  setupInsertRoleModalToggle(); // Setup insert role modal toggle for the new insert button
 }
 
 function populateRoleSelect(roles, selector) {
@@ -65,48 +59,6 @@ function populateRoleSelect(roles, selector) {
   roles.forEach((role) => {
     roleSelect.append(`<option value="${role.id}">${role.name}</option>`);
   });
-}
-
-function setupModalToggle() {
-  $("#close-modal").on("click", function () {
-    $("#addRoleModal").addClass("hidden");
-  });
-
-  $("#add-role-form").on("submit", function (e) {
-    e.preventDefault();
-    $.ajax({
-      url: `http://${apiurl}/role/insert`,
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      contentType: "application/x-www-form-urlencoded",
-      data: $(this).serialize(),
-      success: function (response) {
-        showNotification(response, "OK");
-        $("#addRoleModal").addClass("hidden");
-        fetchRoles();
-      },
-      error: function (error) {
-        console.error("Error adding role:", error);
-        showNotification("Error adding role!", "OK");
-      },
-    });
-  });
-
-  $("#close-update-modal").on("click", function () {
-    $("#updateUserModal").addClass("hidden");
-  });
-
-  $("#update-user-form")
-    .off("submit")
-    .on("submit", function (e) {
-      e.preventDefault();
-      const form = $(this);
-
-      if (!validateForm(form)) return;
-      updateUser();
-    });
 }
 
 function createTab(role) {
@@ -122,23 +74,23 @@ function createTabContent(role) {
       <div class="flex justify-between items-center mb-4">
           <h2 class="text-2xl">${role.name} List</h2>
           <div class="flex items-center">
-              <div class="relative">
-                  <button id="${role.name.toLowerCase()}-criteria-button" class="bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded inline-flex items-center">
-                      <span id="${role.name.toLowerCase()}-selected-criteria">Search By</span>
-                      <svg class="fill-current h-4 w-4 ml-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                          <path d="M0 0h20v20H0z" fill="none"/>
-                          <path d="M5.293 7.293l4.707 4.707 4.707-4.707-1.414-1.414L10 8.586 6.707 5.293z"/>
-                      </svg>
-                  </button>
-                  <ul id="${role.name.toLowerCase()}-criteria-menu" class="absolute hidden text-gray-700 pt-1">
-                      <li class=""><a class="rounded-t bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap" href="#" data-criteria="id">ID</a></li>
-                      <li class=""><a class="bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap" href="#" data-criteria="name">Name</a></li>
-                      <li class=""><a class="bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap" href="#" data-criteria="numberphone">Phone Number</a></li>
-                      <li class=""><a class="rounded-b bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap" href="#" data-criteria="email">Email</a></li>
-                  </ul>
-              </div>
-              <input type="text" id="${role.name.toLowerCase()}-search-input" class="border rounded px-4 py-2 ml-2" placeholder="Search...">
-              <button id="${role.name.toLowerCase()}-search-button" class="bg-gray-800 hover:bg-black text-white font-bold py-2 px-4 rounded ml-2">Search</button>
+            <div class="relative">
+              <button id="${role.name.toLowerCase()}-criteria-button" class="bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded inline-flex items-center">
+                <span id="${role.name.toLowerCase()}-selected-criteria">Search By</span>
+                <svg class="fill-current h-4 w-4 ml-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M0 0h20v20H0z" fill="none"/>
+                  <path d="M5.293 7.293l4.707 4.707 4.707-4.707-1.414-1.414L10 8.586 6.707 5.293z"/>
+                </svg>
+              </button>
+              <ul id="${role.name.toLowerCase()}-criteria-menu" class="absolute hidden text-gray-700 pt-1">
+                <li class=""><a class="rounded-t bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap" href="#" data-criteria="id">ID</a></li>
+                <li class=""><a class="bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap" href="#" data-criteria="name">Name</a></li>
+                <li class=""><a class="bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap" href="#" data-criteria="numberphone">Phone Number</a></li>
+                <li class=""><a class="rounded-b bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap" href="#" data-criteria="email">Email</a></li>
+              </ul>
+            </div>
+            <input type="text" id="${role.name.toLowerCase()}-search-input" class="border rounded px-4 py-2 ml-2" placeholder="Search...">
+            <button id="${role.name.toLowerCase()}-search-button" class="bg-gray-800 hover:bg-black text-white font-bold py-2 px-4 rounded ml-2">Search</button>
           </div>
       </div>
       <table id="${role.name.toLowerCase()}-table" class="min-w-full bg-white">
@@ -207,13 +159,13 @@ function fetchImage(elementId, imageUrl) {
 }
 
 function fetchCustomers(page) {
-  $.ajax({
-    url: `http://${apiurl}/userinfo/listcustomer?page=${page}`,
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/userinfo/listcustomer?page=${page}`,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         const { customers, totalPages, currentPage } = response.data;
         fetchCustomerRanks(function (ranks) {
@@ -221,21 +173,20 @@ function fetchCustomers(page) {
           updatePagination(currentPage, totalPages, "customer");
         });
       }
-    },
-    error: function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching customers:", error);
-    },
-  });
+    });
 }
 
 function fetchCustomerRanks(callback) {
-  $.ajax({
-    url: `http://${apiurl}/earnpoints/rank`,
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/earnpoints/rank`,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         const ranks = response.data.map((rank) => ({
           customerId: rank.userInfoDTO.id,
@@ -244,32 +195,30 @@ function fetchCustomerRanks(callback) {
         }));
         callback(ranks);
       }
-    },
-    error: function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching customer ranks:", error);
       callback([]);
-    },
-  });
+    });
 }
 
 function fetchSuppliers(page) {
-  $.ajax({
-    url: `http://${apiurl}/userinfo/listsupplier?page=${page}`,
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/userinfo/listsupplier?page=${page}`,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         const { suppliers, totalPages, currentPage } = response.data;
         populateTable(suppliers, [], currentPage, "Supplier");
         updatePagination(currentPage, totalPages, "supplier");
       }
-    },
-    error: function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching suppliers:", error);
-    },
-  });
+    });
 }
 
 function populateTable(data, ranks, currentPage, role) {
@@ -379,13 +328,13 @@ function setupEditButtons() {
 }
 
 function fetchUserInfo(id) {
-  $.ajax({
-    url: `http://${apiurl}/userinfo/findcustomer/${id}`,
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/userinfo/findcustomer/${id}`,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         const user = response.data;
         $("#update-id").val(user.id);
@@ -396,25 +345,37 @@ function fetchUserInfo(id) {
         $("#update-role").val(user.role.id);
         $("#updateEmployeeImagePreview").attr("src", user.image);
       }
-    },
-    error: function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching user info:", error);
-    },
-  });
+    });
 }
 
 function updateUser() {
   var formData = new FormData($("#update-user-form")[0]);
-  $.ajax({
-    url: `http://${apiurl}/userinfo/update`,
-    method: "POST",
-    processData: false,
-    contentType: false,
-    data: formData,
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+
+  var phoneNumber = $("#update-phone").val();
+  var email = $("#update-email").val();
+
+  // Validate phone number
+  if (!isValidPhoneNumber(phoneNumber)) {
+    showNotification("Phone number must be 10 digits!", "Error");
+    return;
+  }
+
+  // Validate email
+  if (!isValidEmail(email)) {
+    showNotification("Invalid email format!", "Error");
+    return;
+  }
+
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/userinfo/update`,
+      "POST",
+      formData
+    )
+    .then((response) => {
       if (response.status === "OK") {
         showNotification("User updated successfully!", "OK");
 
@@ -431,8 +392,8 @@ function updateUser() {
       } else {
         showNotification("Error updating user: " + response.desc, "OK");
       }
-    },
-    error: function (error) {
+    })
+    .catch((error) => {
       if (error.responseJSON) {
         showNotification(
           "Error updating user: " + error.responseJSON.desc,
@@ -442,8 +403,7 @@ function updateUser() {
         console.error("Error updating user:", error);
         showNotification("Error updating user!", "OK");
       }
-    },
-  });
+    });
 }
 
 function clearImagePreview() {
@@ -483,57 +443,59 @@ function setupSearch(role) {
       );
       const query = $(`#${role.toLowerCase()}-search-input`).val();
 
-
       // Validate input based on criteria
       if (criteria === "numberphone") {
-        if (!/^\d{10}$/.test(query)) {
-          showNotification(
-            "Phone number must be exactly 10 digits.",
-            "error"
-          );
+        if (!isValidPhoneNumber(query)) {
+          showNotification("Phone number must be exactly 10 digits.", "error");
           return;
         }
       } else if (criteria === "email") {
-        if (
-          !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(query)
-        ) {
-          showNotification(
-            "Invalid email format.",
-            "error"
-          );
+        if (!isValidEmail(query)) {
+          showNotification("Invalid email format.", "error");
+          return;
+        }
+      } else if (criteria === "id") { // Added validation for ID
+        if (!/^\d+$/.test(query)) {
+          showNotification("ID must be a number.", "error");
           return;
         }
       }
-
-
-
-
 
       searchByRole(role, criteria, query, 0);
     });
 }
 
 function searchByRole(role, criteria, query, page) {
+  console.log("Check para search by role: " + role);
+  console.log("Check para search by role: " + criteria);
+  console.log("Check para search by role: " + query);
+  console.log("Check para search by role: " + page);
+
   const searchUrl =
     role === "CUSTOMER"
-      ? `http://${apiurl}/userinfo/searchcustomer`
-      : `http://${apiurl}/userinfo/searchsupplier`;
+      ? `http://${userService.getApiUrl()}/api/userinfo/searchcustomer`
+      : `http://${userService.getApiUrl()}/api/userinfo/searchsupplier`;
 
-  $.ajax({
-    url: searchUrl,
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    data: {
-      criteria: criteria,
-      query: query,
-      page: page,
-    },
-    success: function (response) {
+  const searchParams = new URLSearchParams({
+    criteria: criteria,
+    query: query,
+    page: page,
+  });
+
+  userService
+    .sendAjaxWithAuthen(searchUrl, "POST", searchParams.toString())
+    .then((response) => {
+      console.log("Response received:", response); // Log the response
+
       if (response.status === "OK") {
         const { customers, suppliers, totalPages, currentPage } = response.data;
         const data = role === "CUSTOMER" ? customers : suppliers;
+
+        if (data.length === 0) {
+          showNotification("User not found in system.", "error");
+          return;
+        }
+
         if (role === "CUSTOMER") {
           fetchCustomerRanks(function (ranks) {
             populateTable(data, ranks, currentPage, "Customer");
@@ -543,12 +505,20 @@ function searchByRole(role, criteria, query, page) {
           populateTable(data, [], currentPage, "Supplier");
           updatePagination(currentPage, totalPages, "supplier");
         }
+      } else {
+        showNotification("Failed to search user data. " + response.desc, "error");
       }
-    },
-    error: function (error) {
-      console.error(`Error searching ${role.toLowerCase()}s:`, error);
-    },
-  });
+    })
+    .catch((error) => {
+      console.error("Error details:", error); // Log detailed error information
+      if (error.responseJSON) {
+        showNotification(error.responseJSON.desc, "error");
+      } else if (error.statusText) {
+        showNotification("Error while searching user data: " + error.statusText, "error");
+      } else {
+        showNotification("Error while searching user data.", "error");
+      }
+    });
 }
 
 function setupInsertModalToggle() {
@@ -600,16 +570,13 @@ function setupInsertModalToggle() {
       if (fileInput) {
         formData.append("file", fileInput);
       }
-      $.ajax({
-        url: `http://${apiurl}/userinfo/insert`,
-        method: "POST",
-        processData: false,
-        contentType: false,
-        data: formData,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        success: function (response) {
+      userService
+        .sendAjaxWithAuthen(
+          `http://${userService.getApiUrl()}/api/userinfo/insert`,
+          "POST",
+          formData
+        )
+        .then((response) => {
           if (response.status === "OK") {
             showNotification("Insert Successful!", "OK");
             $("#insertUserModal").addClass("hidden");
@@ -621,8 +588,8 @@ function setupInsertModalToggle() {
               "error"
             );
           }
-        },
-        error: function (error) {
+        })
+        .catch((error) => {
           console.error("Error while insert user:", error);
           showNotification(
             "Error while insert user: " +
@@ -630,55 +597,13 @@ function setupInsertModalToggle() {
             "error",
             "error"
           );
-        },
-      });
+        });
     });
 }
 
 function clearInsertForm() {
   $("#insert-user-form")[0].reset(); // Đặt lại form
   $("#insertEmployeeImagePreview").attr("src", "#").hide(); // Xóa hình ảnh xem trước
-}
-
-function setupInsertRoleModalToggle() {
-  $("#insert-role-button").on("click", function () {
-    $("#addRoleModal").removeClass("hidden");
-  });
-
-  $("#close-role-modal").on("click", function () {
-    $("#addRoleModal").addClass("hidden");
-  });
-
-  $("#add-role-form")
-    .off("submit")
-    .on("submit", function (e) {
-      e.preventDefault();
-      var formData = new FormData($("#add-role-form")[0]);
-      $.ajax({
-        url: `http://${apiurl}/role/insert`,
-        method: "POST",
-        processData: false,
-        contentType: false,
-        data: formData,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        success: function (response) {
-          if (response.status === "OK") {
-            showNotification("Role inserted successfully!", "OK");
-
-            $("#addRoleModal").addClass("hidden");
-            fetchRoles(); // Refresh the roles
-          } else {
-            showNotification("Error inserting role: " + response.desc, "error");
-          }
-        },
-        error: function (error) {
-          console.error("Error inserting role:", error);
-          showNotification("Error inserting role!", "error");
-        },
-      });
-    });
 }
 
 function switchTabByRole(role) {
@@ -702,7 +627,7 @@ function validateForm(form) {
 
   if (!isValidPhoneNumber(phoneNumber)) {
     showNotification(
-      "Invalid phone number. It should contain only digits and be between 10 to 12 digits long.",
+      "Invalid phone number. It must contain only digits and be 10 numbers long",
       "error"
     );
 
@@ -713,24 +638,24 @@ function validateForm(form) {
 }
 
 function isValidEmail(email) {
-  const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const emailPattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
   return emailPattern.test(email);
 }
 
 function isValidPhoneNumber(phoneNumber) {
-  const phonePattern = /^\d{10,12}$/;
+  const phonePattern = /^\d{10}$/;
   return phonePattern.test(phoneNumber);
 }
 
 // Fetch rank data and populate the table
 function fetchUniqueRankData() {
-  $.ajax({
-    url: `http://${apiurl}/customertype/findall`,
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/customertype/findall`,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         var tableBody = $("#rankTableBody");
         tableBody.empty(); // Xóa dữ liệu cũ
@@ -772,11 +697,10 @@ function fetchUniqueRankData() {
       } else {
         console.error("Error loading customer types:", response.desc);
       }
-    },
-    error: function (error) {
+    })
+    .catch((error) => {
       console.error("There was an error fetching the rank data: ", error);
-    },
-  });
+    });
 }
 
 // Gắn sự kiện click vào các nút chỉnh sửa
@@ -805,27 +729,29 @@ function updateUniqueCustomerType() {
     var type = $("#updateUniqueType").val();
     var pointCondition = $("#updateUniquePointCondition").val();
 
-    $.ajax({
-      url: `http://${apiurl}/customertype/updatepointcondition`,
-      method: "POST",
-      data: {
-        id: id,
-        type: type,
-        pointCondition: pointCondition,
-      },
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (response) {
+    // Tạo đối tượng dữ liệu để gửi
+    const formData = new URLSearchParams({
+      id: id,
+      type: type,
+      pointCondition: pointCondition,
+    });
+
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/customertype/updatepointcondition`,
+        "POST",
+        formData.toString() // Chuyển đổi đối tượng URLSearchParams thành chuỗi
+      )
+      .then((response) => {
         showNotification(response.desc, "OK");
         $("#updateCustomerTypeModal").addClass("hidden");
-        fetchUniqueRankData(); // Refresh the data in the main modal
-        location.reload();
-      },
-      error: function (error) {
+        fetchUniqueRankData(); // Làm mới dữ liệu trong modal chính
+        fetchCustomers(0);
+        fetchSuppliers(0);
+      })
+      .catch((error) => {
         console.error("There was an error updating the rank data: ", error);
-      },
-    });
+      });
   });
 }
 
@@ -884,27 +810,29 @@ function addUniqueCustomerType() {
     var type = $("#addType").val();
     var pointCondition = $("#addPointCondition").val();
 
-    $.ajax({
-      url: `http://${apiurl}/customertype/add`,
-      method: "POST",
-      data: {
-        type: type,
-        pointCondition: pointCondition,
-      },
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (response) {
+    // Tạo đối tượng dữ liệu để gửi
+    const formData = new URLSearchParams({
+      type: type,
+      pointCondition: pointCondition,
+    });
+
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/customertype/add`,
+        "POST",
+        formData.toString() // Chuyển đổi đối tượng URLSearchParams thành chuỗi
+      )
+      .then((response) => {
         showNotification("Customer Type added successfully!", "OK");
 
         $("#addCustomerTypeModal").addClass("hidden");
-        fetchUniqueRankData(); // Refresh the data in the main modal
-        location.reload();
-      },
-      error: function (error) {
+        fetchUniqueRankData(); // Làm mới dữ liệu trong modal chính
+        fetchCustomers(0);
+        fetchSuppliers(0);
+      })
+      .catch((error) => {
         console.error("There was an error adding the customer type: ", error);
-      },
-    });
+      });
   });
 }
 
@@ -926,28 +854,31 @@ function deleteUniqueCustomerType() {
     );
 
     if (isConfirmed) {
-      $.ajax({
-        url: `http://${apiurl}/customertype/delete`,
-        method: "POST",
-        data: {
-          customerTypeId: id,
-        },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        success: function (response) {
+      // Tạo đối tượng dữ liệu để gửi
+      const formData = new URLSearchParams({
+        customerTypeId: id,
+      });
+
+      userService
+        .sendAjaxWithAuthen(
+          `http://${userService.getApiUrl()}/api/customertype/delete`,
+          "POST",
+          formData.toString(), // Chuyển đổi đối tượng URLSearchParams thành chuỗi
+          { "Content-Type": "application/x-www-form-urlencoded" } // Đặt loại nội dung là URL-encoded
+        )
+        .then((response) => {
           showNotification("Delete successful!", "OK");
           $("#updateCustomerTypeModal").addClass("hidden");
-          fetchUniqueRankData(); // Refresh the data in the main modal
-          location.reload();
-        },
-        error: function (error) {
+          fetchUniqueRankData(); // Làm mới dữ liệu trong modal chính
+          fetchCustomers(0);
+          fetchSuppliers(0);
+        })
+        .catch((error) => {
           console.error(
             "There was an error deleting the customer type: ",
             error
           );
-        },
-      });
+        });
     }
   });
 }

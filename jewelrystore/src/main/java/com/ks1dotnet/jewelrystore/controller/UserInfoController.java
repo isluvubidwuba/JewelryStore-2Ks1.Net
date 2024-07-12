@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,8 +19,8 @@ import com.ks1dotnet.jewelrystore.service.FirebaseStorageService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IUserInfoService;
 
 @RestController
-@RequestMapping("/userinfo")
-@CrossOrigin("*")
+@RequestMapping("${apiURL}/userinfo")
+@CrossOrigin(origins = "${domain}", allowCredentials = "true")
 public class UserInfoController {
 
     @Autowired
@@ -32,56 +33,51 @@ public class UserInfoController {
     private FirebaseStorageService firebaseStorageService;
 
     @PostMapping("/insert")
-    public ResponseEntity<?> insertUserInfo(
-            @RequestParam(required = false) MultipartFile file,
-            @RequestParam String fullName,
-            @RequestParam String phoneNumber,
-            @RequestParam String email,
-            @RequestParam int roleId,
-            @RequestParam String address) {
+    public ResponseEntity<?> insertUserInfo(@RequestParam(required = false) MultipartFile file,
+            @RequestParam String fullName, @RequestParam String phoneNumber,
+            @RequestParam String email, @RequestParam int roleId, @RequestParam String address) {
 
-        ResponseData responseData = iUserInfoService.insertUserInfo(file, fullName, phoneNumber, email, roleId,
-                address);
+        ResponseData responseData = iUserInfoService.insertUserInfo(file, fullName, phoneNumber,
+                email, roleId, address);
         return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
     @PostMapping("/update")
-    public ResponseEntity<?> updateUser(
-            @RequestParam(required = false) MultipartFile file,
-            @RequestParam int id,
-            @RequestParam String fullName,
-            @RequestParam String phoneNumber,
-            @RequestParam String email,
-            @RequestParam int roleId,
-            @RequestParam String address) {
-        ResponseData responseData = iUserInfoService.updateUserInfo(file, id, fullName, phoneNumber, email, roleId,
-                address);
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
+    public ResponseEntity<?> updateUser(@RequestParam(required = false) MultipartFile file,
+            @RequestParam int id, @RequestParam String fullName, @RequestParam String phoneNumber,
+            @RequestParam String email, @RequestParam int roleId, @RequestParam String address) {
+        ResponseData responseData = iUserInfoService.updateUserInfo(file, id, fullName, phoneNumber,
+                email, roleId, address);
         return new ResponseEntity<>(responseData, responseData.getStatus());
 
     }
 
     @GetMapping("/listcustomer")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public ResponseEntity<?> listCustomer(@RequestParam int page) {
         ResponseData responseData = iUserInfoService.listCustomer(page);
         return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
     @GetMapping("/listsupplier")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public ResponseEntity<?> Listsupplier(@RequestParam int page) {
         ResponseData responseData = iUserInfoService.listSupplier(page);
         return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
     @PostMapping("/searchcustomer")
-    public ResponseEntity<?> findByCriteriaCustomer(@RequestParam String criteria, @RequestParam String query,
-            @RequestParam int page) {
+    public ResponseEntity<?> findByCriteriaCustomer(@RequestParam String criteria,
+            @RequestParam String query, @RequestParam int page) {
         ResponseData responseData = iUserInfoService.findByCriteriaCustomer(criteria, query, page);
         return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
     @PostMapping("/searchsupplier")
-    public ResponseEntity<?> findByCriteriaSupplier(@RequestParam String criteria, @RequestParam String query,
-            @RequestParam int page) {
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
+    public ResponseEntity<?> findByCriteriaSupplier(@RequestParam String criteria,
+            @RequestParam String query, @RequestParam int page) {
         ResponseData responseData = iUserInfoService.findByCriteriaSupplier(criteria, query, page);
         return new ResponseEntity<>(responseData, responseData.getStatus());
     }
@@ -100,18 +96,21 @@ public class UserInfoController {
     }
 
     @GetMapping("/findsupplier/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','STAFF')")
     public ResponseEntity<?> getSupplierById(@PathVariable int id) {
         ResponseData responseData = iUserInfoService.getSupplierInfo(id);
         return new ResponseEntity<>(responseData.getData(), responseData.getStatus());
     }
 
     @GetMapping("/getcustomer/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','STAFF')")
     public ResponseEntity<?> getCustomerById(@PathVariable int id) {
         ResponseData responseData = iUserInfoService.getCustomerInfo(id);
         return new ResponseEntity<>(responseData.getData(), responseData.getStatus());
     }
 
     @GetMapping("/phonenumberandmailcustomer")
+
     public ResponseEntity<?> getPhoneNumberCustomer(@RequestParam String phone) {
         if (phone.contains("@")) {
             ResponseData responseData = iUserInfoService.findByEmail(phone);
@@ -124,7 +123,9 @@ public class UserInfoController {
     }
 
     @GetMapping("/phonenumberandmailsupplier")
+
     public ResponseEntity<?> getPhoneNumberSupplier(@RequestParam String citeria) {
+        System.out.println("citeria: " + citeria);
         if (citeria.contains("@")) {
             ResponseData responseData = iUserInfoService.findByEmailSupplier(citeria);
             return new ResponseEntity<>(responseData, responseData.getStatus());

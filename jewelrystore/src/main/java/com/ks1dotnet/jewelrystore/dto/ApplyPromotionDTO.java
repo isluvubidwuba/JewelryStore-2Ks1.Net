@@ -5,8 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-
-import com.ks1dotnet.jewelrystore.dto.Enum.EntityType;
+import com.ks1dotnet.jewelrystore.Enum.EntityType;
 
 @Data
 @AllArgsConstructor

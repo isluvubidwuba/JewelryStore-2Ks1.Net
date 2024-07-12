@@ -1,4 +1,7 @@
-const apiurl = process.env.API_URL;
+import UserService from "./userService.js";
+
+const userService = new UserService();
+
 $(document).ready(function () {
   setupEventListeners();
   fetchPromotions();
@@ -11,25 +14,20 @@ $(document).ready(function () {
     const keyword = $(this).val().toLowerCase();
     fetchPromotions(keyword); // Gọi lại hàm fetchPromotions với từ khóa tìm kiếm
   });
+  Window.changePage = changePage;
 });
 
-const token = localStorage.getItem("token");
 let currentPage = 0;
 const itemsPerPage = 2; // Số lượng mục trên mỗi trang
 let promotions = []; // Lưu trữ danh sách promotions đã tải về
 
 // fetch all promotions
 function fetchPromotions(keyword = "") {
-  const linkPromotion = `http://${apiurl}/promotion`;
+  const linkPromotion = `http://${userService.getApiUrl()}/api/promotion`;
   const deferred = $.Deferred();
-
-  $.ajax({
-    url: linkPromotion,
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(linkPromotion, "GET", null)
+    .then((response) => {
       if (response && response.data) {
         promotions = response.data;
         if (keyword) {
@@ -55,14 +53,13 @@ function fetchPromotions(keyword = "") {
       } else {
         deferred.reject("No data found");
       }
-    },
-    error: function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching promotions:", error);
       showNotification("Error fetching promotions.", "Error");
 
       deferred.reject(error);
-    },
-  });
+    });
 
   return deferred.promise();
 }
@@ -210,6 +207,29 @@ function renderPromotions(page, promotionsToRender) {
   $("#entries-info").text(entriesInfo);
 }
 
+function changePage(page) {
+  currentPage = page;
+  const keyword = $("#keyword").val().toLowerCase();
+  const promotionsToRender = keyword
+    ? promotions.filter((promotion) => {
+        const invoiceTypeName = promotion.invoiceTypeDTO
+          ? promotion.invoiceTypeDTO.name
+          : "";
+        return (
+          promotion.name.toLowerCase().includes(keyword) ||
+          promotion.startDate.toLowerCase().includes(keyword) ||
+          promotion.endDate.toLowerCase().includes(keyword) ||
+          promotion.promotionType.toLowerCase().includes(keyword) ||
+          invoiceTypeName.toLowerCase().includes(keyword)
+        );
+      })
+    : promotions;
+  renderPromotions(page, promotionsToRender);
+  updatePagination(promotionsToRender);
+}
+// Gán hàm vào đối tượng window
+window.changePage = changePage;
+
 function updatePagination(promotionsToRender) {
   let pagination = $(".pagination");
   pagination.empty();
@@ -284,41 +304,18 @@ function updatePagination(promotionsToRender) {
     `);
   }
 }
-
-function changePage(page) {
-  currentPage = page;
-  const keyword = $("#keyword").val().toLowerCase();
-  const promotionsToRender = keyword
-    ? promotions.filter((promotion) => {
-        const invoiceTypeName = promotion.invoiceTypeDTO
-          ? promotion.invoiceTypeDTO.name
-          : "";
-        return (
-          promotion.name.toLowerCase().includes(keyword) ||
-          promotion.startDate.toLowerCase().includes(keyword) ||
-          promotion.endDate.toLowerCase().includes(keyword) ||
-          promotion.promotionType.toLowerCase().includes(keyword) ||
-          invoiceTypeName.toLowerCase().includes(keyword)
-        );
-      })
-    : promotions;
-  renderPromotions(page, promotionsToRender);
-  updatePagination(promotionsToRender);
-}
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 }
 // Các hàm khác không thay đổi
 function fetchPromotionDetails(promotionId) {
-  $.ajax({
-    url: `http://${apiurl}/promotion/getById`,
-    type: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    contentType: "application/x-www-form-urlencoded",
-    data: { id: promotionId },
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/promotion/getById`,
+      "POST",
+      $.param({ id: promotionId })
+    )
+    .then((response) => {
       var promotion = response.data;
 
       $("#update-id").val(promotion.id);
@@ -338,82 +335,81 @@ function fetchPromotionDetails(promotionId) {
       let buttonHtml = "";
       if (promotion.promotionType === "product") {
         buttonHtml = `
-          <button
-            type="button"
-            id="modalToggle_Detail_Apply"
-            class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-            data-promotion-id="${promotion.id}"
-            data-promotion-name = "${promotion.name}"
-            style="width: 100%"
-          >
-            View products applied
-          </button>
-        `;
+      <button
+        type="button"
+        id="modalToggle_Detail_Apply"
+        class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+        data-promotion-id="${promotion.id}"
+        data-promotion-name = "${promotion.name}"
+        style="width: 100%"
+      >
+        View products applied
+      </button>
+    `;
       } else if (promotion.promotionType === "category") {
         buttonHtml = `
-          <button
-            type="button"
-            id="modalToggle_Category_Apply"
-            class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
-            data-promotion-id="${promotion.id}"
-            data-promotion-name = "${promotion.name}"
-            style="width: 100%"
-          >
-            View categories applied
-          </button>
-        `;
+      <button
+        type="button"
+        id="modalToggle_Category_Apply"
+        class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
+        data-promotion-id="${promotion.id}"
+        data-promotion-name = "${promotion.name}"
+        style="width: 100%"
+      >
+        View categories applied
+      </button>
+    `;
       } else if (promotion.promotionType === "customer") {
         buttonHtml = `
-          <button
-            type="button"
-            id="modalToggle_Customer_Apply"
-            class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
-            data-promotion-id="${promotion.id}"
-            data-promotion-name = "${promotion.name}"
+      <button
+        type="button"
+        id="modalToggle_Customer_Apply"
+        class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
+        data-promotion-id="${promotion.id}"
+        data-promotion-name = "${promotion.name}"
 
-            style="width: 100%"
-          >
-             View type customers applied
-          </button>
-        `;
+        style="width: 100%"
+      >
+         View type customers applied
+      </button>
+    `;
       } else if (promotion.promotionType === "gemstone") {
         buttonHtml = `
-          <button
-            type="button"
-            id="modalToggle_Gemstone_Apply"
-            class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
-            data-promotion-id="${promotion.id}"
-            data-promotion-name = "${promotion.name}"
+      <button
+        type="button"
+        id="modalToggle_Gemstone_Apply"
+        class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
+        data-promotion-id="${promotion.id}"
+        data-promotion-name = "${promotion.name}"
 
-            style="width: 100%"
-          >
-             View type gemstone applied
-          </button>
-        `;
+        style="width: 100%"
+      >
+         View type gemstone applied
+      </button>
+    `;
       } else if (promotion.promotionType === "material") {
         buttonHtml = `
-          <button
-            type="button"
-            id="modalToggle_Material_Apply"
-            class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
-            data-promotion-id="${promotion.id}"
-            data-promotion-name = "${promotion.name}"
+      <button
+        type="button"
+        id="modalToggle_Material_Apply"
+        class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
+        data-promotion-id="${promotion.id}"
+        data-promotion-name = "${promotion.name}"
 
-            style="width: 100%"
-          >
-             View type material applied
-          </button>
-        `;
+        style="width: 100%"
+      >
+         View type material applied
+      </button>
+    `;
       }
 
       $("#button-container").html(buttonHtml);
 
       $("#crud-update-modal").removeClass("hidden").addClass("flex");
-    },
-    error: function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching promotion:", error);
-    },
-  });
+    });
 }
 
 // Các hàm khác giữ nguyên như trước
@@ -465,26 +461,25 @@ function setupEventListeners() {
 }
 
 function deletePromotion(promotionId) {
-  $.ajax({
-    url: `http://${apiurl}/promotion/delete/${promotionId}`,
-    type: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/promotion/delete/${promotionId}`,
+      "GET",
+      null
+    )
+    .then((response) => {
       showNotification(response.desc, "OK");
       $("#deleteModal").addClass("hidden");
 
       fetchPromotions(0); // Tải lại danh sách promotion
-    },
-    error: function (error) {
+    })
+    .catch(() => {
       $("#deleteModal").addClass("hidden");
       showNotification(
         "An error occurred while deleting the promotion.",
         "Error"
       );
-    },
-  });
+    });
 }
 
 // update promotion
@@ -499,32 +494,26 @@ function submitUpdateForm() {
 
     if (allFieldsFilled && numberFieldValid && datesValid) {
       var formData = new FormData($("#form-update")[0]);
-
-      $.ajax({
-        url: `http://${apiurl}/promotion/update`,
-        type: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        data: formData,
-
-        processData: false,
-        contentType: false,
-        success: function (response) {
+      userService
+        .sendAjaxWithAuthen(
+          `http://${userService.getApiUrl()}/api/promotion/update`,
+          "POST",
+          formData
+        )
+        .then((response) => {
           clearForm("#form-update");
           $("#crud-update-modal").addClass("hidden");
           showNotification(response.desc, "OK");
           fetchPromotions(0); // Tải lại danh sách promotion
-        },
-        error: function (xhr, status, error) {
+        })
+        .catch((xhr, status, error) => {
           showNotification(
             "An error occurred while submitting the form.",
             "ERROR"
           );
 
           console.log(xhr.responseText);
-        },
-      });
+        });
     } else {
       if (!allFieldsFilled) {
         showNotification("You must fill all fields.", "Error");
@@ -617,16 +606,13 @@ function submitInsertForm() {
     if (allFieldsFilled && numberFieldValid && datesValid) {
       var formData = new FormData($("#form-insert")[0]);
 
-      $.ajax({
-        url: `http://${apiurl}/promotion/create`,
-        type: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        data: formData,
-        processData: false,
-        contentType: false,
-        success: function (response) {
+      userService
+        .sendAjaxWithAuthen(
+          `http://${userService.getApiUrl()}/api/promotion/create`,
+          "POST",
+          formData
+        )
+        .then((response) => {
           clearForm("#form-insert");
           $("#crud-modal").addClass("hidden");
           showNotification(response.desc, "OK");
@@ -637,15 +623,14 @@ function submitInsertForm() {
             renderPromotions(currentPage, promotions); // Render promotions cho trang cuối cùng
             updatePagination(promotions); // Cập nhật phân trang
           });
-        },
-        error: function (xhr, status, error) {
+        })
+        .catch((xhr, status, error) => {
           showNotification(
             "An error occurred while submitting the form.",
             "Error"
           );
           console.log(xhr.responseText);
-        },
-      });
+        });
     } else {
       if (!allFieldsFilled) {
         showNotification("You must fill all fields.", "Error");
@@ -674,13 +659,13 @@ function clearForm(formId) {
 }
 
 function fetchInvoiceType() {
-  $.ajax({
-    url: `http://${apiurl}/invoice-type`,
-    type: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/invoice-type`,
+      "GET",
+      null
+    )
+    .then((response) => {
       let invoiceTypeSelect = $("#invoiceType");
       invoiceTypeSelect.empty();
       invoiceTypeSelect.append(
@@ -695,13 +680,12 @@ function fetchInvoiceType() {
       } else {
         showNotification("Failed to fetch invoice types.", "Error");
       }
-    },
-    error: function (xhr, status, error) {
+    })
+    .catch((xhr, status, error) => {
       showNotification(
         "An error occurred while loading invoice types.",
         "Error"
       );
       console.log(xhr.responseText);
-    },
-  });
+    });
 }

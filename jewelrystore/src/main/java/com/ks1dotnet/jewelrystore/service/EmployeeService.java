@@ -1,7 +1,5 @@
 package com.ks1dotnet.jewelrystore.service;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -19,16 +16,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import com.ks1dotnet.jewelrystore.dto.EmployeeDTO;
 import com.ks1dotnet.jewelrystore.entity.Employee;
-import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
-import com.ks1dotnet.jewelrystore.exception.RunTimeExceptionV1;
+import com.ks1dotnet.jewelrystore.exception.ApplicationException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IEmployeeRepository;
 import com.ks1dotnet.jewelrystore.repository.IInvoiceRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IEmployeeService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IRoleService;
+import com.ks1dotnet.jewelrystore.utils.JwtUtilsHelper;
 
 @Service
 public class EmployeeService implements IEmployeeService {
@@ -51,13 +47,41 @@ public class EmployeeService implements IEmployeeService {
    @Autowired
    private FirebaseStorageService firebaseStorageService;
 
+   @Autowired
+   private JwtUtilsHelper jwtUtilsHelper;
+
+   @Override
+   // @PostAuthorize("returnObject.data.email == authentication.name")
+   public ResponseData myProfile() {
+      ResponseData response = new ResponseData();
+      try {
+         String id = jwtUtilsHelper.getAuthorizationByTokenType("at").getSubject();
+         Employee employee = iEmployeeRepository.findById(id).orElseThrow(
+               () -> new ApplicationException("User not exist!", HttpStatus.NOT_FOUND));
+         EmployeeDTO emp = employee.getDTO();
+         emp.setImage(url.trim() + filePath.trim() + emp.getImage());
+         response.setData(emp);
+         response.setDesc("My profile");
+         response.setStatus(HttpStatus.OK);
+      } catch (ApplicationException e) {
+         throw new ApplicationException("Error at myProfile EmployeeService: " + e.getMessage(),
+               e.getErrorString(), e.getStatus());
+      } catch (Exception e) {
+         throw new ApplicationException("Error at myProfile EmployeeService: " + e.getMessage(),
+               "Erro while get profile");
+      }
+      return response;
+   }
+
+
    @Override
    public List<Employee> findAll() {
       try {
          List<Employee> list = iEmployeeRepository.findAll();
          return list;
-      } catch (RunTimeExceptionV1 e) {
-         throw new RunTimeExceptionV1("Load list Employee Error", e.getMessage());
+      } catch (Exception e) {
+         throw new ApplicationException("Error at findAll EmployeeService: " + e.getMessage(),
+               "Load list employee failed!");
       }
    }
 
@@ -66,25 +90,30 @@ public class EmployeeService implements IEmployeeService {
       try {
          Employee emp = iEmployeeRepository.save(employee);
          return emp;
-      } catch (RuntimeException e) {
-         throw new RunTimeExceptionV1("Can not save employee", e.getMessage());
+      } catch (Exception e) {
+         throw new ApplicationException("Error at save EmployeeService: " + e.getMessage(),
+               "Can not save employee!");
       }
    }
 
    @Override
    public Employee findById(String id) {
-      return iEmployeeRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Not Found Employee ID :" + id));
+      return iEmployeeRepository.findById(id).orElseThrow(
+            () -> new ApplicationException("Not Found Employee ID :" + id, HttpStatus.NOT_FOUND));
    }
 
    @Override
-   public ResponseData getHomePageEmployee(int page) {
+   public ResponseData getHomePageEmployee(int page, String id) {
       ResponseData responseData = new ResponseData();
       try {
          Map<String, Object> response = new HashMap<>();
          PageRequest pageRequest = PageRequest.of(page, 5);
          List<EmployeeDTO> employeeDTOs = new ArrayList<>();
-         Page<Employee> listData = iEmployeeRepository.findAll(pageRequest);
+         Page<Employee> listData;
+         if ("admin".equals(id)) {
+            listData = iEmployeeRepository.findAll(pageRequest);
+         } else
+            listData = iEmployeeRepository.findAllExceptRole(1, pageRequest);
          employeeDTOs = convertToDTOPage(listData).getContent();
          response.put("employees", employeeDTOs);
          response.put("totalPages", listData.getTotalPages());
@@ -93,8 +122,9 @@ public class EmployeeService implements IEmployeeService {
          responseData.setStatus(HttpStatus.OK);
          responseData.setData(response);
       } catch (Exception e) {
-         responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-         responseData.setDesc("Can Not Loaded Page Employee: " + e.getMessage());
+         throw new ApplicationException(
+               "Error at getHomePageEmployee EmployeeService: " + e.getMessage(),
+               "Can not load page employee!");
       }
       return responseData;
 
@@ -102,8 +132,7 @@ public class EmployeeService implements IEmployeeService {
 
    @Override
    public ResponseData insertEmployee(MultipartFile file, String firstName, String lastName,
-         String pinCode, String phoneNumber, String email, String address, int roleId,
-         boolean status) {
+         String phoneNumber, String email, String address, int roleId) {
       ResponseData responseData = new ResponseData();
       try {
          String fileName = null;
@@ -144,21 +173,21 @@ public class EmployeeService implements IEmployeeService {
          // Mã hóa pinCode
          String encodedPinCode = passwordEncoder.encode(employee.getId());
          employee.setPinCode(encodedPinCode);
-
          employee.setPhoneNumber(phoneNumber);
          employee.setEmail(email);
          employee.setAddress(address);
-         employee.setStatus(status);
+         employee.setStatus(true);
          employee.setRole(iRoleService.findById(roleId));
          employee.setImage(fileName);
          iEmployeeRepository.save(employee);
-
          responseData.setStatus(HttpStatus.OK);
          responseData.setDesc("Insert successful");
          responseData.setData(employee.getId());
          return responseData;
       } catch (Exception e) {
-         throw new RunTimeExceptionV1("Insert Employee Fail", e.getMessage());
+         throw new ApplicationException(
+               "Error at insertEmployee EmployeeService: " + e.getMessage(),
+               "Insert employee failed!!");
       }
 
    }
@@ -220,15 +249,17 @@ public class EmployeeService implements IEmployeeService {
 
          return responseData;
       } catch (Exception e) {
-         throw new RunTimeExceptionV1("Fail To Update Employee", e.getMessage());
+         throw new ApplicationException(
+               "Error at updateEmployee EmployeeService : " + e.getMessage(),
+               "Fail to update employee!!");
       }
 
    }
 
    @Override
    public ResponseData listEmployee(String id) {
-      Employee employee = iEmployeeRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Not Found Employee ID :" + id));
+      Employee employee = iEmployeeRepository.findById(id).orElseThrow(
+            () -> new ApplicationException("Not Found Employee ID :" + id, HttpStatus.NOT_FOUND));
 
       employee.setImage(url.trim() + filePath.trim() + employee.getImage());
 
@@ -265,7 +296,8 @@ public class EmployeeService implements IEmployeeService {
                break;
 
             case "role":
-               employeePage = iEmployeeRepository.findByRoleNameContainingIgnoreCase(query, pageRequest);
+               employeePage =
+                     iEmployeeRepository.findByRoleNameContainingIgnoreCase(query, pageRequest);
                break;
 
             case "status":
@@ -274,7 +306,8 @@ public class EmployeeService implements IEmployeeService {
                break;
 
             default:
-               throw new IllegalArgumentException("Invalid search criteria: " + criteria);
+               throw new ApplicationException("Invalid search criteria: " + criteria,
+                     "Invalid criteria!");
          }
 
          Page<EmployeeDTO> employeeDTOPage = convertToDTOPage(employeePage);
@@ -284,9 +317,13 @@ public class EmployeeService implements IEmployeeService {
 
          responseData.setStatus(HttpStatus.OK);
          responseData.setData(response);
+      } catch (ApplicationException e) {
+         throw new ApplicationException(
+               "Error at findbyCriteria EmployeeService: " + e.getMessage(), e.getErrorString(),
+               e.getStatus());
       } catch (Exception e) {
-         responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-         responseData.setDesc("Error during search: " + e.getMessage());
+         throw new ApplicationException(
+               "Error at findByCriteria EmployeeService: " + e.getMessage(), "invalid criterial!");
       }
       return responseData;
    }
@@ -303,8 +340,9 @@ public class EmployeeService implements IEmployeeService {
          responseData.setStatus(HttpStatus.OK);
          responseData.setData(employeeDTOs);
          return responseData;
-      } catch (RunTimeExceptionV1 e) {
-         throw new RunTimeExceptionV1("Find all staff error", e.getMessage());
+      } catch (Exception e) {
+         throw new ApplicationException("Error at getStaff EmployeeService: " + e.getMessage(),
+               "Load list staff failed!");
       }
    }
 
@@ -320,8 +358,9 @@ public class EmployeeService implements IEmployeeService {
          responseData.setDesc("Delete successful");
          responseData.setData(updatedEmployee);
       } catch (Exception e) {
-         responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-         responseData.setDesc("Delete failed. Internal Server Error");
+         throw new ApplicationException(
+               "Error at deleteEmployee EmployeeService: " + e.getMessage(),
+               "Delete employee failed!");
       }
       return responseData;
 
@@ -338,19 +377,6 @@ public class EmployeeService implements IEmployeeService {
       return new PageImpl<>(dtolist, empPage.getPageable(), empPage.getTotalElements());
    }
 
-   @Override
-   public ResponseData validateOtp(String otp, String idEmployee) {
-      Employee em = iEmployeeRepository.findById(idEmployee).orElse(null);
-      if (em == null)
-         return new ResponseData(HttpStatus.NOT_FOUND, "Not found employee with id " + idEmployee,
-               null);
-      if (em.getOtp().equals(otp) && Duration.between(em.getOtpGenerDateTime(), LocalDateTime.now())
-            .getSeconds() > (10 * 60)) {
-         return new ResponseData(HttpStatus.REQUEST_TIMEOUT, "OTP code is timeout ", null);
-      }
-      if (!em.getOtp().equals(otp))
-         return new ResponseData(HttpStatus.BAD_REQUEST, "OTP code is not correct ", null);
-      return new ResponseData(HttpStatus.OK, "OK ", null);
-   }
+
 
 }

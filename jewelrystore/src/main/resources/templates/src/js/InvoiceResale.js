@@ -1,12 +1,11 @@
-const apiurl = process.env.API_URL;
+import UserService from "./userService.js";
+
+const userService = new UserService();
+
 $(document).ready(function () {
-  const token = localStorage.getItem("token");
   let currentUser = null; // Biến lưu thông tin người dùng hiện tại
-  let employeeId = localStorage.getItem("userId"); // ID của nhân viên từ localStorage
-  //Function 
+  //Function
   initializeClearButton();
-
-
 
   // Function to initialize the clear button functionality for specified input and clear button
   function initializeClearButton() {
@@ -30,24 +29,18 @@ $(document).ready(function () {
     $("#clear-input").addClass("hidden");
   }
 
-
-
   $("#add-invoiceid-button").click(function () {
     var invoiceId = $("#invoiceid-input").val();
     if (invoiceId) {
       var formData = new FormData();
       formData.append("invoice", invoiceId);
-
-      $.ajax({
-        url: `http://${apiurl}/invoice/view-invoice-resale`,
-        method: "POST",
-        data: formData,
-        processData: false,
-        contentType: false,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        success: function (response) {
+      userService
+        .sendAjaxWithAuthen(
+          `http://${userService.getApiUrl()}/api/invoice/view-invoice-resale`,
+          "POST",
+          formData
+        )
+        .then((response) => {
           if (response.status === "OK") {
             if (currentUser === null) {
               currentUser = response.data.userInfoDTO;
@@ -57,16 +50,21 @@ $(document).ready(function () {
             } else if (currentUser.id === response.data.userInfoDTO.id) {
               updateInvoiceDetails(response.data, invoiceId);
             } else {
-              showNotification("Different users. Please check again !!!", "error");
+              showNotification(
+                "Different users. Please check again !!!",
+                "error"
+              );
             }
           }
-        },
-        error: function (error) {
+        })
+        .catch((error) => {
           console.error("Error when getting invoice: ", error);
-          var errorMessage = error.responseJSON && error.responseJSON.desc ? error.responseJSON.desc : "Unknown error occurred";
+          var errorMessage =
+            error.responseJSON && error.responseJSON.desc
+              ? error.responseJSON.desc
+              : "Unknown error occurred";
           showNotification(errorMessage, "error");
-        },
-      });
+        });
     } else {
       showNotification("Please enter Invoice ID", "error");
     }
@@ -151,16 +149,13 @@ $(document).ready(function () {
             quantity: quantity,
             barcode: barcode,
           };
-
-          $.ajax({
-            url: `http://${apiurl}/invoice/create-detail`,
-            method: "POST",
-            contentType: "application/json",
-            data: JSON.stringify(requestData),
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            success: function (response) {
+          userService
+            .sendAjaxWithAuthen(
+              `http://${userService.getApiUrl()}/api/invoice/create-detail`,
+              "POST",
+              requestData
+            )
+            .then((response) => {
               if (response.status === "OK") {
                 addProductToSidebar(
                   response.data,
@@ -170,11 +165,10 @@ $(document).ready(function () {
               } else {
                 showNotification("Error when creating invoice !!!", "error");
               }
-            },
-            error: function (error) {
+            })
+            .catch((error) => {
               console.error("Error when creating invoice: ", error);
-            },
-          });
+            });
         } else {
           showNotification("Invalid quantity. Please check again !!!", "error");
         }
@@ -190,8 +184,8 @@ $(document).ready(function () {
     );
     userInfoDiv.append(
       "<p><strong>Phone Number:</strong> " +
-      userInfo.phoneNumber.trim() +
-      "</p>"
+        userInfo.phoneNumber.trim() +
+        "</p>"
     );
     userInfoDiv.append("<p><strong>Email:</strong> " + userInfo.email + "</p>");
     $("#selected-user-info").removeClass("hidden");
@@ -336,15 +330,22 @@ $(document).ready(function () {
                         </tr>
                     </thead>
                     <tbody>
-                    ${selectedProducts.map((index, product) => {
-      var productName = $(product).find("td:nth-child(2)").text();
-      var productQuantity = $(product).find(".product-quantity-input").val();
-      return `
+                    ${selectedProducts
+                      .map((index, product) => {
+                        var productName = $(product)
+                          .find("td:nth-child(2)")
+                          .text();
+                        var productQuantity = $(product)
+                          .find(".product-quantity-input")
+                          .val();
+                        return `
                         <tr>
                             <td class="py-4 text-gray-700">${productName}</td>
                             <td class="py-4 text-gray-700">${productQuantity}</td>
                         </tr>`;
-    }).get().join("")}
+                      })
+                      .get()
+                      .join("")}
                     </tbody>
                 </table>
             </div>
@@ -355,7 +356,6 @@ $(document).ready(function () {
     // Show the confirmation modal
     $("#confirm-modal").removeClass("hidden");
   });
-
 
   // Handle confirmation button click
   $("#confirm-modal-yes").click(function () {
@@ -373,31 +373,27 @@ $(document).ready(function () {
       barcodeQuantityMap: barcodeQuantityMap,
       invoiceTypeId: 3,
       userId: currentUser.id,
-      employeeId: employeeId,
+      employeeId: userService.getUserId(),
       payment: "COD",
       note: "Ghi chú buyback",
     };
-
-    $.ajax({
-      url: `http://${apiurl}/invoice/buyback`,
-      method: "POST",
-      contentType: "application/json",
-      data: JSON.stringify(requestData),
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/invoice/buyback`,
+        "POST",
+        requestData
+      )
+      .then((response) => {
         if (response.status === "OK") {
           showNotification(response.desc, "OK");
           viewInvoice(response.data); // Thêm dòng này để gọi hàm viewInvoice
         } else {
           showNotification("Error when buyingback !!!", "error");
         }
-      },
-      error: function (error) {
+      })
+      .catch((error) => {
         console.error("Error when buyingback: ", error);
-      },
-    });
+      });
 
     // Hide the confirmation modal
     $("#confirm-modal").addClass("hidden");
@@ -411,14 +407,13 @@ $(document).ready(function () {
 
   // Hàm viewInvoice để hiển thị chi tiết hóa đơn
   function viewInvoice(invoiceId) {
-    $.ajax({
-      url: `http://${apiurl}/invoice/view-invoice`,
-      method: "POST",
-      data: { invoice: invoiceId },
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/invoice/view-invoice`,
+        "POST",
+        $.param({ invoice: invoiceId })
+      )
+      .then((response) => {
         if (response.status === "OK") {
           const invoiceData = response.data;
           const invoiceDetails = $("#invoice-details");
@@ -429,86 +424,97 @@ $(document).ready(function () {
           const orderDetails = invoiceData.listOrderInvoiceDetail;
 
           invoiceDetails.append(`
-                        <div class="bg-white rounded-lg shadow-lg px-8 py-10 max-w-7xl mx-auto">
-                            <div class="flex items-center justify-between mb-8">
-                                <div class="flex items-center">
-                                    <img class="h-8 w-8 mr-2" src="https://tailwindflex.com/public/images/logos/favicon-32x32.png" alt="Logo" />
-                                    <div class="text-gray-700 font-semibold text-lg">2KS 1NET</div>
-                                </div>
-                                <div class="text-gray-700 text-right">
-                                    <div class="font-bold text-xl mb-2">INVOICE</div>
-                                    <div class="text-sm">Date: ${new Date(
-            invoiceData.createdDate
-          ).toLocaleDateString()}</div>
-                                    <div class="text-sm">Invoice #: ${invoiceData.id
-            }</div>
-                                </div>
-                            </div>
-                            <div class="border-b-2 border-gray-300 pb-8 mb-8">
-                                <h2 class="text-2xl font-bold mb-4">Customer and Employee Information</h2>
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <div class="text-gray-700 mb-2"><strong>Customer: </strong> ${userInfo.fullName
-            }</div>
-                                        <div class="text-gray-700 mb-2"><strong>ID: </strong> ${userInfo.id
-            }</div>
-                                    </div>
-                                    <div>
-                                        <div class="text-gray-700 mb-2"><strong>STAFF: </strong> ${employeeInfo.firstName
-            } ${employeeInfo.lastName}</div>
-                                        <div class="text-gray-700 mb-2"><strong>ID: </strong> ${employeeInfo.id
-            }</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <table class="w-full text-left mb-8">
-                                <thead>
-                                    <tr>
-                                        <th class="text-gray-700 font-bold uppercase py-2">Product</th>
-                                        <th class="text-gray-700 font-bold uppercase py-2">Product code</th>
-                                        <th class="text-gray-700 font-bold uppercase py-2">Quantity</th>
-                                        <th class="text-gray-700 font-bold uppercase py-2">Total price</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${orderDetails
-              .map(
-                (order) => `
-                                    <tr>
-                                        <td class="py-4 text-gray-700">${order.productDTO.name
-                  }</td>
-                                        <td class="py-4 text-gray-700">${order.productDTO.productCode
-                  }</td>
-                                        <td class="py-4 text-gray-700">${order.quantity
-                  }</td>
-                                        <td class="py-4 text-gray-700">${new Intl.NumberFormat(
-                    "vi-VN",
-                    { style: "currency", currency: "VND" }
-                  ).format(order.totalPrice)}</td>
-                                    </tr>`
-              )
-              .join("")}
-                                </tbody>
-                            </table>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="text-gray-700">Total original price: </div>
-                                <div class="text-gray-700 text-right">${new Intl.NumberFormat(
-                "vi-VN",
-                { style: "currency", currency: "VND" }
-              ).format(invoiceData.totalPriceRaw)}</div>
-                                <div class="text-gray-700">Reduced price: </div>
-                                <div class="text-gray-700 text-right">${new Intl.NumberFormat(
-                "vi-VN",
-                { style: "currency", currency: "VND" }
-              ).format(invoiceData.discountPrice)}</div>
-                                <div class="text-gray-700 font-bold text-xl">Total price:</div>
-                                <div class="text-gray-700 font-bold text-xl text-right">${new Intl.NumberFormat(
-                "vi-VN",
-                { style: "currency", currency: "VND" }
-              ).format(invoiceData.totalPrice)}</div>
-                            </div>
-                        </div>
-                    `);
+                      <div class="bg-white rounded-lg shadow-lg px-8 py-10 max-w-7xl mx-auto">
+                          <div class="flex items-center justify-between mb-8">
+                              <div class="flex items-center">
+                                  <img class="h-8 w-8 mr-2" src="https://tailwindflex.com/public/images/logos/favicon-32x32.png" alt="Logo" />
+                                  <div class="text-gray-700 font-semibold text-lg">2KS 1NET</div>
+                              </div>
+                              <div class="text-gray-700 text-right">
+                                  <div class="font-bold text-xl mb-2">INVOICE</div>
+                                  <div class="text-sm">Date: ${new Date(
+                                    invoiceData.date
+                                  ).toLocaleDateString()}</div>
+                                  <div class="text-sm">Invoice #: ${
+                                    invoiceData.id
+                                  }</div>
+                              </div>
+                          </div>
+                          <div class="border-b-2 border-gray-300 pb-8 mb-8">
+                              <h2 class="text-2xl font-bold mb-4">Customer and Employee Information</h2>
+                              <div class="grid grid-cols-2 gap-4">
+                                  <div>
+                                      <div class="text-gray-700 mb-2"><strong>Customer: </strong> ${
+                                        userInfo.fullName
+                                      }</div>
+                                      <div class="text-gray-700 mb-2"><strong>ID: </strong> ${
+                                        userInfo.id
+                                      }</div>
+                                  </div>
+                                  <div>
+                                      <div class="text-gray-700 mb-2"><strong>STAFF: </strong> ${
+                                        employeeInfo.firstName
+                                      } ${employeeInfo.lastName}</div>
+                                      <div class="text-gray-700 mb-2"><strong>ID: </strong> ${
+                                        employeeInfo.id
+                                      }</div>
+                                  </div>
+                              </div>
+                          </div>
+                          <table class="w-full text-left mb-8">
+                              <thead>
+                                  <tr>
+                                      <th class="text-gray-700 font-bold uppercase py-2">Product code</th>
+                                      <th class="text-gray-700 font-bold uppercase py-2">Product name</th>
+                                      <th class="text-gray-700 font-bold uppercase py-2">Quantity</th>
+                                      <th class="text-gray-700 font-bold uppercase py-2">Total price</th>
+                                  </tr>
+                              </thead>
+                              <tbody>
+                                  ${orderDetails
+                                    .map(
+                                      (order) => `
+                                  <tr>
+                                      <td class="py-4 text-gray-700">${
+                                        order.productDTO.productCode
+                                      }</td>
+                                      <td class="py-4 text-gray-700">${
+                                        order.productDTO.name
+                                      }</td>
+                                      <td class="py-4 text-gray-700">${
+                                        order.quantity
+                                      }</td>
+                                      <td class="py-4 text-gray-700">${new Intl.NumberFormat(
+                                        "vi-VN",
+                                        { style: "currency", currency: "VND" }
+                                      ).format(order.totalPrice)}</td>
+                                  </tr>`
+                                    )
+                                    .join("")}
+                              </tbody>
+                          </table>
+                          <div class="grid grid-cols-2 gap-4">
+                              <div class="text-gray-700">Total original price: </div>
+                              <div class="text-gray-700 text-right">${new Intl.NumberFormat(
+                                "vi-VN",
+                                { style: "currency", currency: "VND" }
+                              ).format(invoiceData.totalPriceRaw)}</div>
+                              <div class="text-gray-700">Reduced price: </div>
+                              <div class="text-gray-700 text-right">${new Intl.NumberFormat(
+                                "vi-VN",
+                                { style: "currency", currency: "VND" }
+                              ).format(invoiceData.discountPrice)}</div>
+                              <div class="text-gray-700 font-bold text-xl">Total price:</div>
+                              <div class="text-gray-700 font-bold text-xl text-right">${new Intl.NumberFormat(
+                                "vi-VN",
+                                { style: "currency", currency: "VND" }
+                              ).format(invoiceData.totalPrice)}</div>
+                          </div>
+                          <div class="flex items-center justify-center font-playwrite text-2xl text-center">
+                          THANK YOU
+                         </div>
+                      </div>
+                  `);
 
           $("#view-invoice-modal").removeClass("hidden");
 
@@ -521,12 +527,11 @@ $(document).ready(function () {
         } else {
           showNotification("Unable to load invoice details", "error");
         }
-      },
-      error: function (error) {
+      })
+      .catch((error) => {
         console.error("Unable to load invoice details", error);
         showNotification("Unable to load invoice details !!!", "error");
-      },
-    });
+      });
   }
 
   // Sự kiện đóng modal khi bấm nút Đóng
@@ -542,7 +547,6 @@ $(document).ready(function () {
     currentUser = null;
   });
 
-
   $("#clear-infomation-button").click(function () {
     // Clear all information for a new transaction
     $("#selected-products").empty();
@@ -554,4 +558,19 @@ $(document).ready(function () {
     showNotification("All information has been cleared", "OK");
   });
 
+  // Hàm in hóa đơn
+  function printInvoice() {
+    var printContents = document.getElementById("invoice-details").innerHTML;
+    document.body.innerHTML = printContents;
+    window.print();
+
+    setTimeout(function () {
+      location.reload();
+    }, 100);
+  }
+
+  // Gắn sự kiện click cho nút in hóa đơn
+  $("#print-invoice-btn").click(function () {
+    printInvoice();
+  });
 });

@@ -1,4 +1,7 @@
-const apiurl = process.env.API_URL;
+import UserService from "./userService.js";
+
+const userService = new UserService();
+
 $(document).ready(function () {
   $("#submitInvoice").click(function () {
     var invoiceInput = $("#invoiceInput").val();
@@ -11,17 +14,13 @@ $(document).ready(function () {
 });
 
 function getInvoiceData(invoice) {
-  const token = localStorage.getItem("token");
-
-  $.ajax({
-    url: `http://${apiurl}/invoice/view-invoice`,
-    type: "POST",
-    data: { invoice: invoice },
-    dataType: "json",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/invoice/view-invoice`,
+      "POST",
+      $.param({ invoice: invoice })
+    )
+    .then((response) => {
       if (response.status === "OK") {
         populateInvoice(response.data);
         $("#invoiceContent").removeClass("hidden"); // Hiển thị div sau khi có dữ liệu
@@ -30,20 +29,19 @@ function getInvoiceData(invoice) {
       } else {
         showNotification("Unable to get invoice data !!!", "error");
       }
-    },
-    error: function (xhr) {
+    })
+    .catch((xhr) => {
       if (xhr.status === 400) {
         var response = JSON.parse(xhr.responseText);
         showNotification(response.desc, "error");
       } else {
-        showNotification("An error occurred while calling the API !!!", "error");
+        showNotification(
+          "An error occurred while calling the API !!!",
+          "error"
+        );
       }
-    },
-  });
+    });
 }
-
-
-
 function populateInvoice(data) {
   var content = `
     <div class="text-center mb-8">
@@ -57,9 +55,15 @@ function populateInvoice(data) {
 
     <div class="flex justify-between mb-4">
         <div class="border border-zinc-300 p-4">
-            <p class="text-sm"><strong>Customer Name:</strong> ${data.userInfoDTO.fullName}</p>
-            <p class="text-sm"><strong>Customer Phone:</strong> ${data.userInfoDTO.phoneNumber}</p>
-            <p class="text-sm"><strong>Customer Address:</strong> ${data.userInfoDTO.address}</p>
+            <p class="text-sm"><strong>Customer Name:</strong> ${
+              data.userInfoDTO.fullName
+            }</p>
+            <p class="text-sm"><strong>Customer Phone:</strong> ${
+              data.userInfoDTO.phoneNumber
+            }</p>
+            <p class="text-sm"><strong>Customer Address:</strong> ${
+              data.userInfoDTO.address
+            }</p>
         </div>
         <h2 class="text-xl font-bold self-end">INVOICE ${data.invoiceTypeDTO.name.toUpperCase()}</h2>
     </div>
@@ -74,25 +78,44 @@ function populateInvoice(data) {
             </tr>
         </thead>
         <tbody>
-            ${data.listOrderInvoiceDetail.map(item => `
-                <tr class="text-center product" data-product-id="${item.productDTO.id}" data-barcode="${item.productDTO.barCode}">
-                    <td class="p-2 border border-zinc-300">${item.productDTO.name}</td>
+            ${data.listOrderInvoiceDetail
+              .map(
+                (item) => `
+                <tr class="text-center product" data-product-id="${
+                  item.productDTO.id
+                }" data-barcode="${item.productDTO.barCode}">
+                    <td class="p-2 border border-zinc-300">${
+                      item.productDTO.name
+                    }</td>
                     <td class="p-2 border border-zinc-300">${item.quantity}</td>
-                    <td class="p-2 border border-zinc-300">${new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item.price)}</td>
-                    <td class="p-2 border border-zinc-300">${new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item.totalPrice)}</td>
+                    <td class="p-2 border border-zinc-300">${new Intl.NumberFormat(
+                      "vi-VN",
+                      { style: "currency", currency: "VND" }
+                    ).format(item.price)}</td>
+                    <td class="p-2 border border-zinc-300">${new Intl.NumberFormat(
+                      "vi-VN",
+                      { style: "currency", currency: "VND" }
+                    ).format(item.totalPrice)}</td>
                 </tr>
-            `).join("")}
+            `
+              )
+              .join("")}
         </tbody>
     </table>
 
     <div class="flex justify-between mb-8">
         <div class="border border-zinc-300 p-4">
-            <p><strong>Biller:</strong> ${data.employeeDTO.firstName} ${data.employeeDTO.lastName}</p>
+            <p><strong>Biller:</strong> ${data.employeeDTO.firstName} ${
+    data.employeeDTO.lastName
+  }</p>
             <p><strong>Invoice Date:</strong> ${data.date}</p>
             <p><strong>Payment Method:</strong> ${data.payment.trim()}</p>
         </div>
         <div class="text-right">
-            <p class="font-bold text-xl">Total: ${new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(data.totalPrice)}</p>
+            <p class="font-bold text-xl">Total: ${new Intl.NumberFormat(
+              "vi-VN",
+              { style: "currency", currency: "VND" }
+            ).format(data.totalPrice)}</p>
         </div>
     </div>
 

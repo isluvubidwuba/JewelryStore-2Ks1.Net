@@ -6,10 +6,10 @@
     <title>BUYBACK POLICY</title>
     <link href="css/styles.css" rel="stylesheet" />
     <script src="js/jquery.min.js"></script>
-    <script src="js/policy.js"></script>
     <div id="notification-placeholder">
       @@include('components/notification.html')
     </div>
+    <script type="module" src="js/policy.js"></script>
   </head>
 
   <body>
@@ -173,7 +173,7 @@
     <!-- Modal -->
     <div
       id="detail-modal_CategoryApply"
-      class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden"
+      class="fixed inset-0 z-40 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden"
     >
       <div class="bg-white rounded-lg shadow w-8/12">
         <div

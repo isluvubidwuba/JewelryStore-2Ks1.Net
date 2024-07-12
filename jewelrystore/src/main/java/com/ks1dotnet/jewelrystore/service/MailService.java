@@ -14,7 +14,7 @@ import com.ks1dotnet.jewelrystore.entity.Invoice;
 import com.ks1dotnet.jewelrystore.entity.InvoiceDetail;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IInvoiceRepository;
-import com.ks1dotnet.jewelrystore.utils.MailUtils;
+import com.ks1dotnet.jewelrystore.utils.Utils;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
@@ -25,7 +25,7 @@ public class MailService {
         @Value("${spring.mail.username}")
         private String fromMail;
         @Autowired
-        private MailUtils mailUtils;
+        private Utils mailUtils;
         @Autowired
         private IInvoiceRepository invoiceRepository;
 
@@ -73,9 +73,8 @@ public class MailService {
                                 null);
         }
 
-        public ResponseData sendOtpEmail(String email, String username) {
+        public ResponseData sendOtpEmail(String email, String username, String otp) {
                 MimeMessage mimeMessage = mailSender.createMimeMessage();
-                String otp = mailUtils.generateOtp();
                 try {
                         MimeMessageHelper helper =
                                         new MimeMessageHelper(mimeMessage, true, "UTF-8");
@@ -97,7 +96,7 @@ public class MailService {
                         message.append("<p>Kính gửi ").append(username).append(",</p>");
                         message.append("<p>Để xác nhận đổi mật khẩu, vui lòng sử dụng mã OTP sau:</p>");
                         message.append("<p><strong>").append(otp).append("</strong></p>");
-                        message.append("<p>Mã này sẽ hết hạn sau 1 phút.</p>");
+                        message.append("<p>Mã này sẽ hết hạn sau 5 phút.</p>");
                         message.append("<p>Trân trọng,</p>");
                         message.append("<p>Đội ngũ hỗ trợ kỹ thuật</p>");
                         message.append("</div>");
@@ -114,7 +113,7 @@ public class MailService {
                         helper.setText(message.toString(), true);
                         mailSender.send(mimeMessage);
                         return new ResponseData(HttpStatus.OK,
-                                        "OTP sent to " + username + " successfully", otp);
+                                        "OTP sent to " + username + " successfully", null);
                 } catch (MessagingException e) {
                         e.printStackTrace();
                         return new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR,

@@ -15,8 +15,7 @@ import com.ks1dotnet.jewelrystore.entity.ForCustomer;
 import com.ks1dotnet.jewelrystore.entity.InvoiceType;
 import com.ks1dotnet.jewelrystore.entity.Product;
 import com.ks1dotnet.jewelrystore.entity.Promotion;
-import com.ks1dotnet.jewelrystore.exception.BadRequestException;
-import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
+import com.ks1dotnet.jewelrystore.exception.ApplicationException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IForCustomerRepository;
 import com.ks1dotnet.jewelrystore.repository.IInvoiceTypeRepository;
@@ -44,20 +43,20 @@ public class PromotionService implements IPromotionService {
 
     @Override
     public ResponseData getAllPromotionDTO() {
-        List<PromotionDTO> promotionDTOs = iPromotionRepository.findAll().stream()
-                .map(promotion -> {
+        List<PromotionDTO> promotionDTOs =
+                iPromotionRepository.findAll().stream().map(promotion -> {
                     PromotionDTO dto = promotion.getDTO();
                     dto.setImage(url.trim() + filePath.trim() + dto.getImage());
                     return dto;
-                })
-                .collect(Collectors.toList());
+                }).collect(Collectors.toList());
         return new ResponseData(HttpStatus.OK, "Fetched all exchange rate policies", promotionDTOs);
     }
 
     @Override
-    public ResponseData insertPromotion(MultipartFile file, String name, double value, boolean status,
-            LocalDate startDate, LocalDate endDate, String promotionType, int invoiceTypeId) { // Thêm invoiceTypeId vào
-                                                                                               // đây
+    public ResponseData insertPromotion(MultipartFile file, String name, double value,
+            boolean status, LocalDate startDate, LocalDate endDate, String promotionType,
+            int invoiceTypeId) { // Thêm invoiceTypeId vào
+                                 // đây
         ResponseData responseData = new ResponseData();
         try {
             Promotion promotion = new Promotion();
@@ -71,7 +70,9 @@ public class PromotionService implements IPromotionService {
 
             // Lấy InvoiceType từ cơ sở dữ liệu và thiết lập vào promotion
             InvoiceType invoiceTypeC = iInvoiceTypeRepository.findById(invoiceTypeId)
-                    .orElseThrow(() -> new BadRequestException("Not found invoice type! Invalid invoice type ID. "));
+                    .orElseThrow(() -> new ApplicationException(
+                            "Not found invoice type! Invalid invoice type ID. ",
+                            HttpStatus.NOT_FOUND));
             promotion.setInvoiceType(invoiceTypeC);
 
             String fileName;
@@ -85,8 +86,14 @@ public class PromotionService implements IPromotionService {
             responseData.setData(promotionDTO);
             responseData.setStatus(HttpStatus.OK);
             responseData.setDesc("Insert successful");
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at insertPromotion PromotionService: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            throw new BadRequestException("Failed to insert promotion", e.getMessage());
+            throw new ApplicationException(
+                    "Error at insertPromotion PromotionService: " + e.getMessage(),
+                    "Failed to insert promotion");
         }
 
         return responseData;
@@ -94,11 +101,12 @@ public class PromotionService implements IPromotionService {
 
     @Override
 
-    public PromotionDTO updatePromotion(MultipartFile file, int id, String name, double value, boolean status,
-            LocalDate startDate, LocalDate endDate) {
+    public PromotionDTO updatePromotion(MultipartFile file, int id, String name, double value,
+            boolean status, LocalDate startDate, LocalDate endDate) {
         try {
-            Promotion promotion = iPromotionRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Promotion not found with id: " + id));
+            Promotion promotion = iPromotionRepository.findById(id).orElseThrow(
+                    () -> new ApplicationException("Promotion not found with id: " + id,
+                            HttpStatus.NOT_FOUND));
 
             promotion.setName(name);
             promotion.setValue(value);
@@ -122,15 +130,23 @@ public class PromotionService implements IPromotionService {
             promotion.setImage(fileName);
             promotion = iPromotionRepository.save(promotion);
             return promotion.getDTO();
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at updatePromotion PromotionService: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            throw new BadRequestException("Failed to update promotion", e.getMessage());
+            throw new ApplicationException(
+                    "Error at updatePromotion PromotionService: " + e.getMessage(),
+                    "Failed to update promotion");
         }
     }
 
     @Override
     public PromotionDTO findById(int id) {
         // PromotionDTO promotionDTO = iPromotionRepository.findPromotionDTOById(id);
-        Promotion promotion = iPromotionRepository.findById(id).orElseThrow(() -> new BadRequestException("Not found"));
+        Promotion promotion = iPromotionRepository.findById(id)
+                .orElseThrow(() -> new ApplicationException("Not found promotion with id: " + id,
+                        HttpStatus.NOT_FOUND));
         PromotionDTO promotionDTO = promotion.getDTO();
         promotionDTO.setImage(url.trim() + filePath.trim() + promotionDTO.getImage());
         return promotionDTO;
@@ -139,26 +155,36 @@ public class PromotionService implements IPromotionService {
     @Override
     public void deletePromotion(int id) {
         try {
-            Promotion promotion = iPromotionRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Promotion not found with id: " + id));
+            Promotion promotion = iPromotionRepository.findById(id).orElseThrow(
+                    () -> new ApplicationException("Promotion not found with id: " + id,
+                            HttpStatus.NOT_FOUND));
             promotion.setStatus(false);
             iPromotionRepository.save(promotion);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at deletePromotion PromotionService: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            throw new BadRequestException("Failed to delete promotion", e.getMessage());
+            throw new ApplicationException(
+                    "Error at deletePromotion PromotionService: " + e.getMessage(),
+                    "Failed to delete promotion");
         }
     }
 
     @Override
     public ResponseData deleteExpiredPromotions() {
         try {
-            List<Promotion> expiredPromotions = iPromotionRepository.findByEndDateBefore(LocalDate.now());
+            List<Promotion> expiredPromotions =
+                    iPromotionRepository.findByEndDateBefore(LocalDate.now());
             for (Promotion promotion : expiredPromotions) {
                 promotion.setStatus(false);
                 iPromotionRepository.save(promotion);
             }
 
         } catch (Exception e) {
-            throw new BadRequestException("Failed to delete expired promotions", e.getMessage());
+            throw new ApplicationException(
+                    "Error at deleteExpiredPromotions PromotionService: " + e.getMessage(),
+                    "Failed to delete expired promotions");
         }
         return new ResponseData(HttpStatus.OK, "Valid expired promotion", true);
     }
@@ -166,14 +192,15 @@ public class PromotionService implements IPromotionService {
     @Override
     public List<Promotion> getAllPromotionByProductAndInvoiceType(Product product, int invoiceId) {
         try {
-            List<Promotion> promotions = iPromotionRepository
-                    .findPromotionsByCriteria(invoiceId, product.getId(),
-                            product.getProductCategory().getId());
+            List<Promotion> promotions = iPromotionRepository.findPromotionsByCriteria(invoiceId,
+                    product.getId(), product.getProductCategory().getId());
 
             return promotions;
         } catch (Exception e) {
-            System.out.println("Failed get promotion by id product " + e.getMessage());
-            throw new BadRequestException("Failed get promotion by id product", e.getMessage());
+            throw new ApplicationException(
+                    "Error at getAllPromotionByProductAndInvoiceType PromotionService: "
+                            + e.getMessage(),
+                    "Failed get promotion by id product");
         }
     }
 

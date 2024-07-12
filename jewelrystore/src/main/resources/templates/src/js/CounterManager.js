@@ -1,4 +1,6 @@
-const apiurl = process.env.API_URL;
+import UserService from "./userService.js";
+
+const userService = new UserService();
 $(document).ready(function () {
   fetchCounters();
   createCounterModal();
@@ -7,16 +9,14 @@ $(document).ready(function () {
   setupMaintenanceCounterModal();
 });
 
-const token = localStorage.getItem("token");
-
 function fetchCounters() {
-  $.ajax({
-    url: `http://${apiurl}/counter/allactivecounter`,
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/counter/allactivecounter`,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         const counters = response.data;
         generateTabs(counters);
@@ -28,12 +28,13 @@ function fetchCounters() {
           switchToTab(firstCounterId);
           fetchProductsByCounter(firstCounterId);
         }
+      } else {
+        console.error("Error: ", response.desc);
       }
-    },
-    error: function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching counters:", error);
-    },
-  });
+    });
 }
 
 function generateTabs(counters) {
@@ -49,10 +50,11 @@ function generateTabs(counters) {
 
     const tabLink = $("<a>", {
       href: "#",
-      class: `inline-block py-3 px-4 rounded-lg ${index === 0
-        ? "text-white bg-black active"
-        : "text-gray-300 bg-black hover:bg-gray-700"
-        }`,
+      class: `inline-block py-3 px-4 rounded-lg ${
+        index === 0
+          ? "text-white bg-black active"
+          : "text-gray-300 bg-black hover:bg-gray-700"
+      }`,
       text: counter.name,
       "data-tab": `tab-${counter.id}`,
     });
@@ -94,12 +96,12 @@ function generateTabs(counters) {
 
     tabLink.on("click", function (e) {
       e.preventDefault();
-      $("#counter-tabs a").removeClass("text-white bg-white active");
+      $("#counter-tabs a").removeClass("text-white bg-black active");
       $("#counter-tabs a").addClass("text-gray-300 bg-black hover:bg-gray-700");
       $("#tab-contents > div").addClass("hidden");
 
       tabLink.removeClass("text-gray-300 bg-gray-600 hover:bg-gray-700");
-      tabLink.addClass("text-white bg-gray-900 active");
+      tabLink.addClass("text-white bg-black active");
       $(`#${tabLink.data("tab")}`).removeClass("hidden");
 
       // Load products for the selected counter
@@ -211,15 +213,16 @@ function generateTabContents(counters) {
 }
 
 function fetchProductsByCounter(counterId, page = 1) {
-  $.ajax({
-    url: `http://${apiurl}/counter/listproductsbycounter?counterId=${counterId}&page=${page - 1
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/counter/listproductsbycounter?counterId=${counterId}&page=${
+        page - 1
       }`,
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
-      const products = response.products;
+      "GET",
+      null
+    )
+    .then((response) => {
+      const products = response.data.products;
       const tableBody = $(`#table-body-${counterId}`);
       tableBody.empty();
       products.forEach((product) => {
@@ -257,8 +260,8 @@ function fetchProductsByCounter(counterId, page = 1) {
       });
 
       // Cập nhật thông tin trang
-      const totalPages = response.totalPages;
-      const currentPage = response.currentPage + 1;
+      const totalPages = response.data.totalPages;
+      const currentPage = response.data.currentPage + 1;
       $(`#page-info-${counterId}`).text(`Page ${currentPage} of ${totalPages}`);
 
       // Vô hiệu hóa các nút khi cần thiết
@@ -280,11 +283,10 @@ function fetchProductsByCounter(counterId, page = 1) {
           .prop("disabled", false)
           .removeClass("opacity-50 cursor-not-allowed");
       }
-    },
-    error: function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching products:", error);
-    },
-  });
+    });
 }
 
 function createCounterModal() {
@@ -301,14 +303,13 @@ function createCounterModal() {
 
     const counterName = $("#counterName").val();
 
-    $.ajax({
-      url: `http://${apiurl}/counter/insert`,
-      method: "POST",
-      data: { name: counterName },
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/counter/insert`,
+        "POST",
+        $.param({ name: counterName })
+      )
+      .then((response) => {
         if (response.status === "OK") {
           showNotification("Counter created successfully.", "OK");
 
@@ -316,25 +317,24 @@ function createCounterModal() {
         } else {
           showNotification("Error creating counter.", "error");
         }
-      },
-      error: function (error) {
+      })
+      .catch((error) => {
         console.error("Error:", error);
         showNotification("Error creating counter.", "error");
-      },
-    });
+      });
 
     $("#createCounterModal").addClass("hidden");
   });
 }
 
 function fetchProductsForCounter() {
-  $.ajax({
-    url: `http://${apiurl}/counter/products/counter1`,
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/counter/products/counter1`,
+      "GET",
+      null
+    )
+    .then((response) => {
       const productTableBody = $("#productTableBody");
       productTableBody.empty();
 
@@ -383,11 +383,13 @@ function fetchProductsForCounter() {
           }),
           $("<td>", {
             class: "px-6 py-4 whitespace-nowrap",
-            text: product.productCategoryDTO.name,
+            text: product.productCategoryDTO
+              ? product.productCategoryDTO.name
+              : "Unknown",
           }),
           $("<td>", {
             class: "px-6 py-4 whitespace-nowrap",
-            text: product.materialDTO.name,
+            text: product.materialDTO ? product.materialDTO.name : "Unknown",
           }),
           $("<td>", { class: "px-6 py-4 whitespace-nowrap" }).append(
             $("<input>", { type: "checkbox", value: product.id })
@@ -407,11 +409,10 @@ function fetchProductsForCounter() {
 
         productTableBody.append(row);
       });
-    },
-    error: function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching products:", error);
-    },
-  });
+    });
 }
 
 function setupAddProductModal() {
@@ -423,15 +424,11 @@ function setupAddProductModal() {
     fetchProductsForCounter();
   });
 
-  $("#closeCombinedModal, #cancelSelectCounter").on(
-    "click",
-    function () {
-      $("#combinedModal").addClass("hidden");
-    }
-  );
+  $("#closeCombinedModal, #cancelSelectCounter").on("click", function () {
+    $("#combinedModal").addClass("hidden");
+  });
 
   $("#submitAddProductToCounter").on("click", function () {
-
     const counterId = $("#counterSelect").val();
     const selectedProducts = [];
     $("#productTableBody input:checked").each(function () {
@@ -443,66 +440,65 @@ function setupAddProductModal() {
     console.log("Selected Products:", selectedProducts);
 
     if (!counterId) {
-      console.log("Condition check: No counter selected (counterId is falsy)"); // Added log
+      console.log("Condition check: No counter selected (counterId is falsy)");
       showNotification("Please select a counter", "Error");
       return;
     } else {
-      console.log("Condition check: Counter selected: " + counterId); // Added log
+      console.log("Condition check: Counter selected: " + counterId);
     }
 
     if (selectedProducts.length === 0) {
-      console.log("Condition check: No products selected (selectedProducts is empty)"); // Added log
+      console.log(
+        "Condition check: No products selected (selectedProducts is empty)"
+      );
       showNotification("Please select at least one product", "Error");
       return;
     } else {
-      console.log("Condition check: Products selected: " + selectedProducts.length); // Added log
+      console.log(
+        "Condition check: Products selected: " + selectedProducts.length
+      );
     }
 
-
-    $.ajax({
-      url: `http://${apiurl}/counter/addproductsforcounter?counterId=${counterId}`,
-      method: "POST",
-      contentType: "application/json",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      data: JSON.stringify(selectedProducts),
-      success: function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/counter/addproductsforcounter?counterId=${counterId}`,
+        "POST",
+        selectedProducts // Chuyển đổi đối tượng sản phẩm thành chuỗi JSON
+      )
+      .then((response) => {
         if (response.status === "OK") {
           showNotification("Products added to counter successfully", "OK");
-
           $("#combinedModal").addClass("hidden");
           switchToTab(counterId); // Chuyển tới tab theo counterId
         } else {
           showNotification("Error adding products to counter", "Error");
         }
-      },
-      error: function (error) {
+      })
+      .catch((error) => {
         console.error("Error:", error);
         showNotification("Error adding products to counter", "Error");
-      },
-    });
+      });
+
     $("#combinedModal").addClass("hidden");
   });
 }
 
 function fetchCountersForSelect() {
-  $.ajax({
-    url: `http://${apiurl}/counter/allactivecounter`,
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/counter/allactivecounter`,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         const counters = response.data;
         populateCounterSelect(counters);
       }
-    },
-    error: function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching counters:", error);
-    },
-  });
+    });
 }
 
 function populateCounterSelect(counters) {
@@ -590,13 +586,13 @@ function switchToTab(counterId) {
 }
 
 function deleteCounter(counterId) {
-  $.ajax({
-    url: `http://${apiurl}/counter/delete/${counterId}`,
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/counter/delete/${counterId}`,
+      "DELETE",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         showNotification("Counter deleted successfully", "OK");
 
@@ -610,31 +606,29 @@ function deleteCounter(counterId) {
       } else {
         showNotification("Error deleting counter", "Error");
       }
-    },
-    error: function (error) {
+    })
+    .catch((error) => {
       console.error("Error:", error);
       showNotification("Error deleting counter", "Error");
-    },
-  });
+    });
 }
 
 function fetchInactiveCounters() {
-  $.ajax({
-    url: `http://${apiurl}/counter/inactive`,
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/counter/inactive`,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         const counters = response.data;
         populateInactiveCounterTable(counters);
       }
-    },
-    error: function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching inactive counters:", error);
-    },
-  });
+    });
 }
 
 function populateInactiveCounterTable(counters) {
@@ -645,22 +639,28 @@ function populateInactiveCounterTable(counters) {
             <tr class="text-center">
                 <td class="py-2 px-4 border-b">${counter.id}</td>
                 <td class="py-2 px-4">
-                    <input type="text" value="${counter.name
-      }" class="name-input border rounded p-1" data-id="${counter.id
-      }" />
+                    <input type="text" value="${
+                      counter.name
+                    }" class="name-input border rounded p-1" data-id="${
+      counter.id
+    }" />
                 </td>
                 <td class="py-2 px-4 border-b">
-                    <select class="status-select rounded p-1" data-id="${counter.id
-      }">
-                        <option value="true" ${counter.status ? "selected" : ""
-      }>Active</option>
-                        <option value="false" ${!counter.status ? "selected" : ""
-      }>Inactive</option>
+                    <select class="status-select rounded p-1" data-id="${
+                      counter.id
+                    }">
+                        <option value="true" ${
+                          counter.status ? "selected" : ""
+                        }>Active</option>
+                        <option value="false" ${
+                          !counter.status ? "selected" : ""
+                        }>Inactive</option>
                     </select>
                 </td>
                 <td class="py-2 px-4 border-b">
-                    <button class="update-btn bg-green-500 text-white px-2 py-1 rounded" data-id="${counter.id
-      }">Update</button>
+                    <button class="update-btn bg-green-500 text-white px-2 py-1 rounded" data-id="${
+                      counter.id
+                    }">Update</button>
                 </td>
             </tr>
         `;
@@ -669,27 +669,33 @@ function populateInactiveCounterTable(counters) {
 }
 
 function handleUpdateCounter() {
-  const counterId = $(this).data("id"); // Added to retrieve the counter ID
-  const newName = $(`.name-input[data-id="${counterId}"]`).val(); // Added to retrieve the counter name
+  const counterId = $(this).data("id");
+  const newName = $(`.name-input[data-id="${counterId}"]`).val();
   const newStatus =
-    $(`.status-select[data-id="${counterId}"]`).val() === "true"; // Added to retrieve the counter status
+    $(`.status-select[data-id="${counterId}"]`).val() === "true";
+  console.log("Check counter ID /update : " + counterId);
+  console.log("Check counter name /update : " + newName);
+  console.log("Check counter newStatus /update : " + newStatus);
+  const requestData = {
+    id: counterId,
+    name: newName,
+    status: newStatus,
+  };
 
-  $.ajax({
-    url: `http://${apiurl}/counter/update`,
-    method: "POST",
-    data: { id: counterId, name: newName, status: newStatus }, // Added to include the counter ID in the request
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function () {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/counter/update`,
+      "POST",
+      $.param(requestData) // Chuyển đổi đối tượng requestData thành chuỗi JSON
+    )
+    .then(() => {
       showNotification("Counter updated successfully", "OK");
       fetchInactiveCounters();
       fetchCounters();
-    },
-    error: function () {
+    })
+    .catch(() => {
       showNotification("Failed to update counter", "Error");
-    },
-  });
+    });
 }
 
 function showMaintenanceModal() {

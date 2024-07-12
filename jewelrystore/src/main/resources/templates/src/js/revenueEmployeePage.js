@@ -1,14 +1,15 @@
-const apiurl = process.env.API_URL;
+import UserService from "./userService.js";
+
+const userService = new UserService();
+
 let currentPage2 = 0; // Trang hiện tại mặc định là 0
 const pageSize2 = 5; // Kích thước trang mặc định là 5
-const token = localStorage.getItem("token");
-const userId = localStorage.getItem("userId");
 
 $(document).ready(function () {
   $("#loadMoreInvoiceEmplBtn").on("click", function () {
     loadInvoices(currentPage2, pageSize2);
   });
-  if (userId) {
+  if (userService.getUserId()) {
     viewEmployee2();
   } else {
     alert("Không có thông tin người dùng, vui lòng đăng nhập lại!");
@@ -88,7 +89,7 @@ function handlePeriodChangeModal() {
 function handleMonthChangeModal() {
   const month = $("#monthSelectModal").val();
   const year = new Date().getFullYear();
-  Update(userId, "month", year, month);
+  Update(userService.getUserId(), "month", year, month);
 }
 
 function handleYearChangeModal() {
@@ -97,7 +98,7 @@ function handleYearChangeModal() {
     yearOption === "currentYear"
       ? new Date().getFullYear()
       : new Date().getFullYear() - 1;
-  Update(userId, "year", year);
+  Update(userService.getUserId(), "year", year);
 }
 
 // Hàm hiển thị thông tin nhân viên
@@ -154,19 +155,18 @@ function viewEmployee2(
   $("#monthSelectModal").val(month);
   currentPage2 = 0; // Reset lại trang hiện tại về 0 khi hiển thị nhân viên mới
   $("#invoiceEmployeeBody").empty(); // Xóa nội dung của bảng trước khi tải dữ liệu mới
-  $.ajax({
-    url: `http://${apiurl}/invoice/revenue/employeeId`,
-    type: "GET",
-    data: {
-      period: period,
-      year: year,
-      month: period === "month" ? month : null,
-      employeeId: userId,
-    },
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/invoice/revenue/employeeId`,
+      "GET",
+      $.param({
+        period: period,
+        year: year,
+        month: period === "month" ? month : null,
+        employeeId: userService.getUserId(),
+      })
+    )
+    .then((response) => {
       if (response.status === "OK") {
         showEmployeeInfo(response.data);
         loadInvoices(currentPage2, pageSize2);
@@ -176,11 +176,10 @@ function viewEmployee2(
           "Error"
         );
       }
-    },
-    error: function (error) {
+    })
+    .catch(() => {
       showNotification("Error when call API.", "Error");
-    },
-  });
+    });
 }
 // Cập nhật hàm viewEmployee để nhận thêm tham số period và month cho modal
 function Update(
@@ -189,19 +188,18 @@ function Update(
   year = new Date().getFullYear(),
   month = new Date().getMonth() + 1
 ) {
-  $.ajax({
-    url: `http://${apiurl}/invoice/revenue/employeeId`,
-    type: "GET",
-    data: {
-      period: period,
-      year: year,
-      month: period === "month" ? month : null,
-      employeeId: idEmployee,
-    },
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/invoice/revenue/employeeId`,
+      "GET",
+      $.param({
+        period: period,
+        year: year,
+        month: period === "month" ? month : null,
+        employeeId: idEmployee,
+      })
+    )
+    .then((response) => {
       if (response.status === "OK") {
         showEmployeeInfo(response.data);
       } else {
@@ -210,27 +208,24 @@ function Update(
           "Error"
         );
       }
-    },
-    error: function (error) {
+    })
+    .catch(() => {
       showNotification("Error when call API.", "Error");
-    },
-  });
+    });
 }
-
 // Hàm tải danh sách hóa đơn
 function loadInvoices(page, size) {
-  $.ajax({
-    url: `http://${apiurl}/invoice/employee2`,
-    type: "GET",
-    data: {
-      employeeId: userId,
-      page: page,
-      size: size,
-    },
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/invoice/employee2`,
+      "GET",
+      $.param({
+        employeeId: userService.getUserId(),
+        page: page,
+        size: size,
+      })
+    )
+    .then((response) => {
       if (response.status === "OK") {
         showInvoiceList(response.data.content);
         currentPage2++; // Tăng số trang sau mỗi lần tải
@@ -243,13 +238,11 @@ function loadInvoices(page, size) {
       } else {
         showNotification("Load fail invoice.", "Error");
       }
-    },
-    error: function (error) {
+    })
+    .catch(() => {
       showNotification("Error when call API.", "Error");
-    },
-  });
+    });
 }
-
 // Hàm định dạng tiền tệ
 function formatCurrency(amount) {
   return new Intl.NumberFormat("vi-VN", {

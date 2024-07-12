@@ -2,6 +2,7 @@ package com.ks1dotnet.jewelrystore.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,32 +14,34 @@ import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.CustomerTypeService;
 
 @RestController
-@RequestMapping("/customertype")
-@CrossOrigin("*")
+@RequestMapping("${apiURL}/customertype")
+@CrossOrigin(origins = "${domain}", allowCredentials = "true")
 public class CustomerTypeController {
     @Autowired
     private CustomerTypeService customerTypeService;
 
     @PostMapping("/updatepointcondition")
-    public ResponseEntity<?> updatePointCondition(
-            @RequestParam Integer id,
-            @RequestParam String type,
-            @RequestParam Integer pointCondition) {
-        ResponseData responseData = customerTypeService.updatePointCondition(id, type, pointCondition);
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<?> updatePointCondition(@RequestParam Integer id,
+            @RequestParam String type, @RequestParam Integer pointCondition) {
+        ResponseData responseData =
+                customerTypeService.updatePointCondition(id, type, pointCondition);
         return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?> addCustomerType(
-            @RequestParam String type,
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<?> addCustomerType(@RequestParam String type,
             @RequestParam Integer pointCondition) {
         ResponseData responseData = customerTypeService.addCustomerType(type, pointCondition);
         return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
     @PostMapping("/delete")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> deleteCustomerType(@RequestParam Integer customerTypeId) {
-        ResponseData responseData = customerTypeService.deleteCustomerTypeAndUpdateRanks(customerTypeId);
+        ResponseData responseData =
+                customerTypeService.deleteCustomerTypeAndUpdateRanks(customerTypeId);
         return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 

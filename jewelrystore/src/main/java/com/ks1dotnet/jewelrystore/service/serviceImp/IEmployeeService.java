@@ -1,9 +1,7 @@
 package com.ks1dotnet.jewelrystore.service.serviceImp;
 
 import java.util.List;
-
 import org.springframework.web.multipart.MultipartFile;
-
 import com.ks1dotnet.jewelrystore.entity.Employee;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 
@@ -16,11 +14,10 @@ public interface IEmployeeService {
         public Employee findById(String id);
 
         // List<Employee> getHomePageEmployee(int page);
-        public ResponseData getHomePageEmployee(int page);
+        public ResponseData getHomePageEmployee(int page, String id);
 
         public ResponseData insertEmployee(MultipartFile file, String firstName, String lastName,
-                        String pinCode, String phoneNumber, String email, String address,
-                        int roleId, boolean status);
+                        String phoneNumber, String email, String address, int roleId);
 
         public ResponseData updateEmployee(MultipartFile file, String id, String firstName,
                         String lastName, int roleId, String pinCode, boolean status,
@@ -34,5 +31,6 @@ public interface IEmployeeService {
 
         public ResponseData deleteEmployee(String id);
 
-        public ResponseData validateOtp(String otp, String idEmployee);
+
+        public ResponseData myProfile();
 }

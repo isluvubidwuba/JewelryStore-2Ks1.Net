@@ -1,17 +1,19 @@
-const apiurl = process.env.API_URL;
-const token = localStorage.getItem("token");
+import UserService from "./userService.js";
+
+const userService = new UserService();
 let currentPage = 0;
 const itemsPerPage = 5;
 let promotions = [];
 
 function fetchPolicies() {
-  $.ajax({
-    url: `http://${apiurl}/promotion/viewPolicyByInvoiceType/` + invoicetype,
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/promotion/viewPolicyByInvoiceType/` +
+        invoicetype,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         promotions = response.data;
         renderPromotions(currentPage, promotions);
@@ -19,11 +21,10 @@ function fetchPolicies() {
       } else {
         alert("Failed to fetch data");
       }
-    },
-    error: function (xhr, status, error) {
+    })
+    .catch((xhr, status, error) => {
       alert("Error fetching data");
-    },
-  });
+    });
 }
 
 function searchPolicies(keyword) {
@@ -114,7 +115,27 @@ function renderPromotions(page, policies) {
 
   attachModalHandlers();
 }
-
+function changePage(page) {
+  currentPage = page;
+  const keyword = $("#keyword").val().toLowerCase();
+  const promotionsToRender = keyword
+    ? promotions.filter((promotion) => {
+        const invoiceTypeName = promotion.invoiceTypeDTO
+          ? promotion.invoiceTypeDTO.name
+          : "";
+        return (
+          promotion.name.toLowerCase().includes(keyword) ||
+          promotion.startDate.toLowerCase().includes(keyword) ||
+          promotion.endDate.toLowerCase().includes(keyword) ||
+          promotion.promotionType.toLowerCase().includes(keyword) ||
+          invoiceTypeName.toLowerCase().includes(keyword)
+        );
+      })
+    : promotions;
+  renderPromotions(page, promotionsToRender);
+  updatePagination(promotionsToRender);
+}
+window.changePage = changePage;
 function updatePagination(promotionsToRender) {
   let pagination = $(".pagination");
   pagination.empty();
@@ -190,27 +211,6 @@ function updatePagination(promotionsToRender) {
   }
 }
 
-function changePage(page) {
-  currentPage = page;
-  const keyword = $("#keyword").val().toLowerCase();
-  const promotionsToRender = keyword
-    ? promotions.filter((promotion) => {
-        const invoiceTypeName = promotion.invoiceTypeDTO
-          ? promotion.invoiceTypeDTO.name
-          : "";
-        return (
-          promotion.name.toLowerCase().includes(keyword) ||
-          promotion.startDate.toLowerCase().includes(keyword) ||
-          promotion.endDate.toLowerCase().includes(keyword) ||
-          promotion.promotionType.toLowerCase().includes(keyword) ||
-          invoiceTypeName.toLowerCase().includes(keyword)
-        );
-      })
-    : promotions;
-  renderPromotions(page, promotionsToRender);
-  updatePagination(promotionsToRender);
-}
-
 function attachModalHandlers() {
   $("button[data-promotion-type]").click(function () {
     const promotionId = $(this).data("promotion-id");
@@ -219,13 +219,13 @@ function attachModalHandlers() {
     $("#ListApply").text(
       `List ${promotionType.toLowerCase()} apply: ${promotionName}`
     );
-    $.ajax({
-      url: `http://${apiurl}/promotion-generic/in-promotion/${promotionType}/${promotionId}`,
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/promotion-generic/in-promotion/${promotionType}/${promotionId}`,
+        "GET",
+        null
+      )
+      .then((response) => {
         if (response.status === "OK") {
           $("#category-apply-promotion").empty();
           response.data.forEach((item, index) => {
@@ -238,23 +238,22 @@ function attachModalHandlers() {
               name = item[`${promotionType.toLowerCase()}DTO`].name;
             }
             $("#category-apply-promotion").append(`
-              <tr>
-                <td class="px-6 py-3">${index + 1}</td>
-                <td class="px-6 py-3">${name}</td>
-              </tr>
-            `);
+          <tr>
+            <td class="px-6 py-3">${index + 1}</td>
+            <td class="px-6 py-3">${name}</td>
+          </tr>
+        `);
           });
           $("#detail-modal_CategoryApply").removeClass("hidden");
         } else {
           showNotification(response.desc, "Error");
         }
-      },
-      error: function (response) {
+      })
+      .catch((response) => {
         console.log(response.responseJSON.desc);
         // Hiển thị thông báo lỗi nếu yêu cầu AJAX gặp lỗi
         showNotification(response.responseJSON.desc, "error");
-      },
-    });
+      });
   });
 
   $("#modalClose_CategoryApply").click(function () {

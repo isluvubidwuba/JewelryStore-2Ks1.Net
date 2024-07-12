@@ -1,15 +1,14 @@
-const apiurl = process.env.API_URL;
+import UserService from "./userService.js";
+
+const userService = new UserService();
+
 document.addEventListener("DOMContentLoaded", fetchGoldPrices);
 
 function fetchGoldPrices() {
   const token = localStorage.getItem("token");
 
-  fetch(`http://${apiurl}/proxy`, {
+  fetch(`http://${userService.getApiUrl()}/api/material/goldPriceFromSJC`, {
     method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
   })
     .then((response) => {
       if (!response.ok) {

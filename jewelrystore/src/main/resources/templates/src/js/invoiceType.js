@@ -1,3 +1,6 @@
+import UserService from "./userService.js";
+
+const userService = new UserService();
 $(document).ready(function () {
   // Sự kiện click cho nút mở modal
   $("#openManagerInvoiceType").click(function () {
@@ -12,14 +15,13 @@ $(document).ready(function () {
 
 // Hàm để mở modal và load dữ liệu
 function openInvoiceTypeModal() {
-  // Gửi yêu cầu AJAX để lấy dữ liệu từ API
-  $.ajax({
-    url: "http://localhost:8080/invoice-type",
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/invoice-type`,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         var data = response.data;
         var tableBody = $("#rateTable");
@@ -81,18 +83,16 @@ function openInvoiceTypeModal() {
           $(".update-btn").click(function () {
             var newRate = rateInput.val();
             rateInput.removeClass("border");
-            $.ajax({
-              url: "http://localhost:8080/invoice-type/update",
-              method: "GET",
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-              },
-              data: {
-                id: id,
-                rate: newRate,
-              },
-              success: function (response) {
+            userService
+              .sendAjaxWithAuthen(
+                `http://${userService.getApiUrl()}/api/invoice-type/update`,
+                "GET",
+                $.param({
+                  id: id,
+                  rate: newRate,
+                })
+              )
+              .then((response) => {
                 if (response.status === "OK") {
                   rateInput.val(newRate).attr("readonly", true);
                   editCell.html("");
@@ -100,19 +100,17 @@ function openInvoiceTypeModal() {
                 } else {
                   showNotification("Update fail", "Error");
                 }
-              },
-              error: function () {
+              })
+              .catch(() => {
                 showNotification("Update fail", "Error");
-              },
-            });
+              });
           });
         });
       }
-    },
-    error: function () {
+    })
+    .catch(() => {
       showNotification("Load fail", "Error");
-    },
-  });
+    });
 
   // Hiển thị modal
   $("#invoiceTypeModal").removeClass("hidden");

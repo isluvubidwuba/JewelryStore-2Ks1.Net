@@ -14,32 +14,38 @@ import lombok.extern.slf4j.Slf4j;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ResponseData> handleResourceNotFoundException(ResourceNotFoundException ex,
+    @ExceptionHandler(ApplicationException.class)
+    public ResponseEntity<ResponseData> handleApplicationException(ApplicationException ex,
             WebRequest request) {
-        log.error(ex.getMessage());
-        ResponseData response = new ResponseData(HttpStatus.NOT_FOUND, ex.getErrorString(), null);
-        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ResponseData> handleBadRequestException(BadRequestException ex, WebRequest request) {
-        log.error(ex.getMessage());
-        ResponseData response = new ResponseData(HttpStatus.BAD_REQUEST, ex.getErrorString(), null);
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(RunTimeExceptionV1.class)
-    public ResponseEntity<ResponseData> handleGlobalException(RunTimeExceptionV1 ex, WebRequest request) {
-        log.error(ex.getMessage());
-        ResponseData response = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, ex.getErrorString(), null);
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        if (!ex.getMessage().isEmpty()) {
+            log.error(ex.getMessage());
+            log.error("Cause: ", ex.getCause());
+        }
+        ResponseData response = new ResponseData(ex.getStatus(), ex.getErrorString(), null);
+        return new ResponseEntity<>(response, ex.getStatus());
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ResponseData> handleGlobalException(RuntimeException ex, WebRequest request) {
-        log.error(ex.getMessage());
-        ResponseData response = new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL SERVER ERROR", null);
+    public ResponseEntity<ResponseData> handleGlobalException(RuntimeException ex,
+            WebRequest request) {
+        if (!ex.getMessage().isEmpty()) {
+            log.error(ex.getMessage());
+            log.error("Cause: ", ex.getCause());
+        }
+        ResponseData response =
+                new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL SERVER ERROR", null);
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ResponseData> handleGlobalRuntimeException(RuntimeException ex,
+            WebRequest request) {
+        if (!ex.getMessage().isEmpty()) {
+            log.error(ex.getMessage());
+            log.error("Cause: ", ex.getCause());
+        }
+        ResponseData responseData =
+                new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL SERVER ERROR", null);
+        return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

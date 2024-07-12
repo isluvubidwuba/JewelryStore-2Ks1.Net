@@ -13,8 +13,8 @@ import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IEarnPointsService;
 
 @RestController
-@RequestMapping("/earnpoints")
-@CrossOrigin("*")
+@RequestMapping("${apiURL}/earnpoints")
+@CrossOrigin(origins = "${domain}", allowCredentials = "true")
 public class EarnPointsController {
     @Autowired
     private IEarnPointsService iEarnPointsService;
@@ -25,8 +25,4 @@ public class EarnPointsController {
         return ResponseEntity.ok(responseData);
     }
 
-    @PostMapping("/addpoints")
-    public ResponseData addPoints(@RequestParam Integer customerId, @RequestParam Integer points) {
-        return iEarnPointsService.addPoints(customerId, points);
-    }
 }

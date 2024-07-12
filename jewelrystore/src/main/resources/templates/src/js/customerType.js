@@ -1,3 +1,7 @@
+import UserService from "./userService.js";
+import { displayConflictModal } from "./forProduct.js";
+
+const userService = new UserService();
 $(document).ready(function () {
   $(document).on("click", "#modalToggle_Customer_Apply", function () {
     const promotionId = $("#modalToggle_Customer_Apply").attr(
@@ -61,34 +65,34 @@ $(document).ready(function () {
 function fetchCustomersByPromotion(promotionId) {
   var customerTableBody = $("#customer-apply-promotion");
   customerTableBody.empty();
-  $.ajax({
-    url: `http://${apiurl}/promotion-generic/in-promotion/CUSTOMER/${promotionId}`,
-    type: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/promotion-generic/in-promotion/CUSTOMER/${promotionId}`,
+      "GET",
+      null
+    )
+    .then((response) => {
       var customers = response.data;
       if (customers.length > 0 && response.status === "OK") {
         $("#notiBlankCustomer").text("");
         customers.forEach(function (customer) {
           const row = `
-            <tr>
-              <td class="px-6 py-3">${customer.customerTypeDTO.id}</td>
-              <td class="px-6 py-3">${customer.customerTypeDTO.type}</td>
-              <td class="px-6 py-3">${
-                customer.customerTypeDTO.pointCondition
-              }</td>
-              <td class="px-6 py-3">
-                <input type="checkbox" class="customer-checkbox common-customer-checkbox" value="${
-                  customer.customerTypeDTO.id
-                }">
-              </td>
-              <td class="px-6 py-3">${
-                customer.status ? "Active" : "Inactive"
-              }</td>
-            </tr>
-          `;
+          <tr>
+            <td class="px-6 py-3">${customer.customerTypeDTO.id}</td>
+            <td class="px-6 py-3">${customer.customerTypeDTO.type}</td>
+            <td class="px-6 py-3">${
+              customer.customerTypeDTO.pointCondition
+            }</td>
+            <td class="px-6 py-3">
+              <input type="checkbox" class="customer-checkbox common-customer-checkbox" value="${
+                customer.customerTypeDTO.id
+              }">
+            </td>
+            <td class="px-6 py-3">${
+              customer.status ? "Active" : "Inactive"
+            }</td>
+          </tr>
+        `;
           customerTableBody.append(row);
         });
       } else {
@@ -96,37 +100,36 @@ function fetchCustomersByPromotion(promotionId) {
           "No customer types found for this promotion."
         );
       }
-    },
-    error: function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching customers by promotion:", error);
-    },
-  });
+    });
 }
 
 function fetchCustomersNotInPromotion(promotionId) {
   var customerTableBody = $("#customer-not-apply-voucher");
   customerTableBody.empty();
-  $.ajax({
-    url: `http://${apiurl}/promotion-generic/not-in-promotion/CUSTOMER/${promotionId}`,
-    type: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/promotion-generic/not-in-promotion/CUSTOMER/${promotionId}`,
+      "GET",
+      null
+    )
+    .then((response) => {
       var customers = response.data;
       if (customers.length > 0) {
         $("#notiBlankCustomerNotInVoucher").text("");
         customers.forEach(function (customer) {
           const row = `
-            <tr>
-              <td class="px-6 py-3">${customer.id}</td>
-              <td class="px-6 py-3">${customer.type}</td>
-              <td class="px-6 py-3">${customer.pointCondition}</td>
-              <td class="px-6 py-3">
-                <input type="checkbox" class="customer2-checkbox common-customer-checkbox" value="${customer.id}">
-              </td>
-            </tr>
-          `;
+          <tr>
+            <td class="px-6 py-3">${customer.id}</td>
+            <td class="px-6 py-3">${customer.type}</td>
+            <td class="px-6 py-3">${customer.pointCondition}</td>
+            <td class="px-6 py-3">
+              <input type="checkbox" class="customer2-checkbox common-customer-checkbox" value="${customer.id}">
+            </td>
+          </tr>
+        `;
           customerTableBody.append(row);
         });
       } else {
@@ -134,11 +137,10 @@ function fetchCustomersNotInPromotion(promotionId) {
           "No customer types found not in this promotion."
         );
       }
-    },
-    error: function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching customers not in promotion:", error);
-    },
-  });
+    });
 }
 
 function applyPromotionToSelectedCustomers(promotionId) {
@@ -150,26 +152,23 @@ function applyPromotionToSelectedCustomers(promotionId) {
   );
 
   if (selectedCustomerIds.length > 0) {
-    $.ajax({
-      url: `http://${apiurl}/promotion-generic/apply`,
-      type: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      contentType: "application/json",
-      data: JSON.stringify({
-        promotionId: promotionId,
-        entityIds: selectedCustomerIds,
-        entityType: "CUSTOMER",
-      }),
-      success: function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/promotion-generic/apply`,
+        "POST",
+        {
+          promotionId: promotionId,
+          entityIds: selectedCustomerIds,
+          entityType: "CUSTOMER",
+        }
+      )
+      .then((response) => {
         fetchCustomersByPromotion(promotionId);
         $("#add-customers-modal").addClass("hidden");
-      },
-      error: function (error) {
+      })
+      .catch((error) => {
         console.error("Error applying selected customers:", error);
-      },
-    });
+      });
   } else {
     showNotification(
       "Please select at least one customer type to add.",
@@ -185,28 +184,25 @@ function removePromotionFromSelectedCustomers(promotionId) {
   });
 
   if (selectedCustomerIds.length > 0) {
-    $.ajax({
-      url: `http://${apiurl}/promotion-generic/remove`,
-      type: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      contentType: "application/json",
-      data: JSON.stringify({
-        promotionId: promotionId,
-        entityIds: selectedCustomerIds,
-        entityType: "CUSTOMER",
-      }),
-      success: function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/promotion-generic/remove`,
+        "POST",
+        {
+          promotionId: promotionId,
+          entityIds: selectedCustomerIds,
+          entityType: "CUSTOMER",
+        }
+      )
+      .then((response) => {
         if (response.status === "OK") {
           fetchCustomersByPromotion(promotionId);
           showNotification(response.desc, "OK");
         }
-      },
-      error: function (error) {
+      })
+      .catch((error) => {
         console.error("Error removing selected customers:", error);
-      },
-    });
+      });
   } else {
     showNotification(
       "Please select at least one customer type to delete.",
@@ -222,28 +218,25 @@ function activateSelectedCustomers(promotionId) {
   });
 
   if (selectedCustomerIds.length > 0) {
-    $.ajax({
-      url: `http://${apiurl}/promotion-generic/apply`,
-      type: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      contentType: "application/json",
-      data: JSON.stringify({
-        promotionId: promotionId,
-        entityIds: selectedCustomerIds,
-        entityType: "CUSTOMER",
-      }),
-      success: function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/promotion-generic/apply`,
+        "POST",
+        {
+          promotionId: promotionId,
+          entityIds: selectedCustomerIds,
+          entityType: "CUSTOMER",
+        }
+      )
+      .then((response) => {
         if (response.status === "OK") {
           fetchCustomersByPromotion(promotionId);
           showNotification("Activate successful", "OK");
         }
-      },
-      error: function (error) {
+      })
+      .cath((error) => {
         console.error("Error activating selected customers:", error);
-      },
-    });
+      });
   } else {
     showNotification(
       "Please select at least one customer type to activate.",
@@ -253,19 +246,18 @@ function activateSelectedCustomers(promotionId) {
 }
 
 function checkCustomerInOtherPromotions(customerTypeId, promotionId, checkbox) {
-  $.ajax({
-    url: `http://${apiurl}/promotion-generic/check/CUSTOMER/${customerTypeId}/${promotionId}`,
-    type: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/promotion-generic/check/CUSTOMER/${customerTypeId}/${promotionId}`,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "CONFLICT") {
         displayConflictModal(response.data, response.desc, checkbox);
       }
-    },
-    error: function (error) {
+    })
+    .catch((error) => {
       console.error("Error checking customer type in other promotions:", error);
-    },
-  });
+    });
 }

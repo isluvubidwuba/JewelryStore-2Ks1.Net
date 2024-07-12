@@ -8,13 +8,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IGemStoneTypeService;
 
 @RestController
-@RequestMapping("/gemStone/type")
-@CrossOrigin("*")
+@RequestMapping("${apiURL}/gemStone/type")
+@CrossOrigin(origins = "${domain}", allowCredentials = "true")
 public class GemStoneTypeController {
     @Autowired
     private IGemStoneTypeService iGemStoneTypeService;

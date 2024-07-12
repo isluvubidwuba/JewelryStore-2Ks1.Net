@@ -1,61 +1,16 @@
-const apiurl = process.env.API_URL;
+import UserService from "./userService.js";
+
+const userService = new UserService();
+
 $(document).ready(function () {
-  const handleLogin = () => {
-    const id = $("#name").val();
-    const pincode = $("#pincode").val();
-
-    $.ajax({
-      url: `http://${apiurl}/authentication/signup`,
-      type: "POST",
-      contentType: "application/json",
-      data: JSON.stringify({ id, pinCode: pincode }),
-      success: ({ status, data, desc }) => {
-        if (status === "OK" && data) {
-          const { token, id, role } = data;
-
-          if (token && id && role) {
-            localStorage.setItem("token", token);
-            localStorage.setItem("userId", id);
-            localStorage.setItem("userRole", role);
-
-            const redirectUrl =
-              role === "ADMIN" || role === "MANAGER"
-                ? "DashboardAdmin.html"
-                : role === "STAFF"
-                ? "StaffScreen.html"
-                : null;
-
-            if (redirectUrl) {
-              window.location.href = redirectUrl;
-            } else {
-              alert("Role Not Available!");
-            }
-          } else {
-            alert("Error Data From Server!");
-          }
-        } else {
-          alert(desc);
-        }
-      },
-      error: (error) => {
-        console.error("Error:", error);
-      },
-    });
-  };
-  var _token = null;
-  const handleSendOtp = () => {
-    const idEmploy = $("#idEmployyee").val();
-    if (!idEmploy) return;
-    $("#resendButton").attr("data-idEm", idEmploy);
-    sendOtp(idEmploy);
-    toggleForms("#forgetPasswordForm", "#otpForm");
-    countDownResend();
-  };
-
-  $("#loginButton").click(handleLogin);
+  $("#loginButton").click(() => handleLogin());
   $("#forgetPassword").click(() => {
     toggleForms("#loginForm", "#forgetPasswordForm");
-    $("#sendOtp").click(handleSendOtp);
+    $("#sendOtp")
+      .off("click")
+      .on("click", () => {
+        handleSendOtp();
+      }); // Prevent multiple event attachments
   });
   $("#validateOTP").click(function () {
     var idEmploy = $("#resendButton").attr("data-idEm");
@@ -74,14 +29,83 @@ $(document).ready(function () {
       return true;
     };
 
-    if (checkPasswordMatch) {
-      changePasss($("#passswordChange").val());
+    if (checkPasswordMatch()) {
+      changePass($("#passswordChange").val()); // Fixed function name
     }
   });
   $("[name='backToLoginButton']").click(function () {
     toggleForms("#forgetPasswordForm, #otpForm, #changePassForm", "#loginForm");
   });
 });
+
+async function handleLogin() {
+  const id = $("#name").val();
+  const pinCode = $("#pincode").val();
+  try {
+    const response = await userService.sendAjax(
+      `http://${userService.getApiUrl()}/api/authentication/signup`,
+      "POST",
+      { id: id, pinCode: pinCode }
+    );
+    const { status, data, desc } = response;
+    if (status === "OK" && data) {
+      const { at } = data;
+      if (at) {
+        const { sub, role } = userService.parseJwt(at);
+        userService.setToken(at);
+        userService.setUserId(sub);
+        userService.setUserRole(role);
+        await validPromotion();
+        let role_1 = userService.getUserRole();
+        const redirectUrl =
+          role_1 === "ADMIN" || role_1 === "MANAGER"
+            ? "DashboardAdmin.html"
+            : role_1 === "STAFF"
+            ? "StaffScreen.html"
+            : null;
+
+        if (redirectUrl) window.location.href = redirectUrl;
+      }
+    }
+  } catch (response_2) {
+    showNotification(
+      "Login failed: " + (response_2.responseJSON?.desc || "Unknown error"),
+      "error"
+    );
+  }
+}
+
+async function validPromotion() {
+  try {
+    return await userService.sendAjax(
+      `http://${userService.getApiUrl()}/api/promotion/valid`,
+      "GET",
+      null
+    );
+  } catch (error) {
+    if (error.responseJSON) {
+      showNotification(error.responseJSON.desc, "error");
+    } else {
+      showNotification("Error validating promotion!", "error");
+    }
+  }
+}
+async function handleSendOtp() {
+  const idEmploy = $("#idEmployyee").val();
+  if (!idEmploy) return;
+
+  // Show the loader
+  $("#loader-overlay").removeClass("hidden");
+
+  $("#resendButton").attr("data-idEm", idEmploy);
+  var check = await sendOtp(idEmploy);
+  $("#loader-overlay").addClass("hidden");
+
+  if (check) {
+    toggleForms("#forgetPasswordForm", "#otpForm");
+    countDownResend();
+  }
+}
 
 const toggleForms = (hideSelector, showSelector) => {
   $(hideSelector).addClass("hidden");
@@ -115,80 +139,90 @@ const countDownResend = () => {
       .removeClass("hidden")
       .text(`Request resend OTP in 00:${countdown}`);
     sendOtp(resendButton.attr("data-idEm"));
-    setInterval(interval);
+    clearInterval(interval); // Clear the previous interval before starting a new one
+    setInterval(() => {
+      // Start a new interval
+      if (countdown > 0) {
+        countdown--;
+        countdownElement.text(
+          `Request resend OTP in 00:${
+            countdown < 10 ? "0" + countdown : countdown
+          }`
+        );
+      } else {
+        clearInterval(interval);
+        countdownElement.addClass("hidden");
+        resendButton.removeClass("hidden");
+      }
+    }, 1000);
   });
 };
 
-const sendOtp = (idEmploy) => {
-  $.ajax({
-    url: `http://${apiurl}/mail/sendOtp/${idEmploy}`,
-    type: "POST",
-    contentType: "application/json",
-    success: ({ status, desc }) => {
-      if (status !== "OK") {
-        alert(desc);
-      }
-    },
-    error: (error) => {
+function sendOtp(idEmploy) {
+  return userService
+    .sendAjax(
+      `http://${userService.getApiUrl()}/api/authentication/sendOtp/${idEmploy}`,
+      "POST"
+    )
+    .then(() => true)
+    .catch((error) => {
       if (error.responseJSON) {
-        alert(error.responseJSON.desc);
+        showNotification(error.responseJSON.desc, "error");
       } else {
-        console.error("Error while send OTP to employee email : ", error);
-        alert("Error while send OTP to employee email!");
+        showNotification("Error while sending OTP to employee email!", "error");
       }
-    },
-  });
-};
+      return false;
+    });
+}
+
 const validateOtp = (idEmploy, otp) => {
-  $.ajax({
-    url: `http://${apiurl}/employee/validateOtp`,
-    type: "POST",
-    data: { otp: otp, idEmployee: idEmploy },
-    success: ({ status, desc, data }) => {
-      _token = data;
+  userService
+    .sendAjax(
+      `http://${userService.getApiUrl()}/api/authentication/validateOtp`,
+      "POST",
+      $.param({ otp: otp, idEmployee: idEmploy })
+    )
+    .then(({ status, desc, data }) => {
+      if (data.at) userService.setToken(data.at);
       toggleForms("#otpForm", "#changePassForm");
       if (status !== "OK") {
-        alert(desc);
+        showNotification(desc, "error");
       }
-    },
-    error: (error) => {
+    })
+    .catch((error) => {
       if (error.responseJSON) {
-        alert(error.responseJSON.desc);
+        showNotification(error.responseJSON.desc, "error");
       } else {
-        console.error("Error while validate OTP : ", error);
-        alert("Error validate OTP!");
+        showNotification("Error validating OTP!", "error");
       }
-    },
-  });
+    });
 };
 
-const changePasss = (password) => {
-  $.ajax({
-    url: `http://${apiurl}/employee/changePass`,
-    type: "POST",
-    data: {
-      pwd: password,
-      token: _token,
-      idEmploy: $("#resendButton").attr("data-idEm"),
-    },
-    success: ({ status, desc, data }) => {
-      _token = null;
+const changePass = (password) => {
+  // Fixed function name
+  userService
+    .sendAjax(
+      `http://${userService.getApiUrl()}/api/employee/changePass`,
+      "POST",
+      $.param({
+        pwd: password,
+      })
+    )
+    .then(({ status, desc, data }) => {
+      userService.setToken(null);
       $("#resendButton").attr("data-idEm", "");
       if (status == "OK") {
-        alert("Change password successfully");
+        showNotification("Password changed successfully", "OK");
         toggleForms("#changePassForm", "#loginForm");
-      }
-      if (status !== "OK") {
-        alert(desc);
-      }
-    },
-    error: (error) => {
-      if (error.responseJSON) {
-        alert(error.responseJSON.desc);
       } else {
-        console.error("Error while change password : ", error);
-        alert("Error while change password!");
+        showNotification(desc, "error");
       }
-    },
-  });
+    })
+    .catch((error) => {
+      if (error.responseJSON) {
+        showNotification(error.responseJSON.desc, "error");
+      } else {
+        showNotification("Error while changing password!", "error");
+      }
+    });
 };

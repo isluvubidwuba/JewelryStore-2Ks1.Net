@@ -1,3 +1,7 @@
+import UserService from "./userService.js";
+let fileInput = document.getElementById("employeeImageInput"); // Khai báo biến fileInput ở phạm vi toàn cục
+const userService = new UserService();
+
 $(document).ready(function () {
   // Xử lý sự kiện khi click vào vùng hình ảnh
   document
@@ -34,7 +38,6 @@ function editField(fieldId) {
 }
 
 function saveChanges() {
-  const token = localStorage.getItem("token"); // Thay thế bằng token thực tế
   const fileInput = document.getElementById("employeeImageInput");
   const formData = new FormData();
 
@@ -67,15 +70,12 @@ function saveChanges() {
   if (fileInput.files[0]) {
     formData.append("file", fileInput.files[0]);
   }
-
-  fetch("http://localhost:8080/employee/update2", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  })
-    .then((response) => response.json())
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/employee/update2`,
+      "POST",
+      formData
+    )
     .then((data) => {
       if (data.status === "OK") {
         document.querySelector(
@@ -98,7 +98,7 @@ function saveChanges() {
         showNotification("Update failed: " + data.desc, "Error");
       }
     })
-    .catch((error) => {
+    .catch(() => {
       showNotification("Error when call API.", "Error");
     });
 }
@@ -112,3 +112,8 @@ function cancelChanges() {
   });
   document.querySelector(".edit-buttons").style.display = "none";
 }
+
+// Gán hàm vào đối tượng window để có thể truy cập từ HTML
+window.editField = editField;
+window.saveChanges = saveChanges;
+window.cancelChanges = cancelChanges;

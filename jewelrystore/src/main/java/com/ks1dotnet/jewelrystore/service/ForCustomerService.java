@@ -11,8 +11,7 @@ import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 import com.ks1dotnet.jewelrystore.entity.CustomerType;
 import com.ks1dotnet.jewelrystore.entity.ForCustomer;
 import com.ks1dotnet.jewelrystore.entity.Promotion;
-import com.ks1dotnet.jewelrystore.exception.BadRequestException;
-import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
+import com.ks1dotnet.jewelrystore.exception.ApplicationException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.ICustomerTypeRepository;
 import com.ks1dotnet.jewelrystore.repository.IForCustomerRepository;
@@ -46,24 +45,27 @@ public class ForCustomerService implements IPromotionGenericService<CustomerType
             List<Integer> customerTypeIds = applyPromotionDTO.getEntityIds();
 
             Promotion promotion = iPromotionRepository.findById(promotionId)
-                    .orElseThrow(() -> new BadRequestException("Not found"));
+                    .orElseThrow(() -> new ApplicationException("Not found", HttpStatus.NOT_FOUND));
             PromotionDTO promotionDTO = promotion.getDTO();
             if (promotionDTO == null) {
-                throw new ResourceNotFoundException("Promotion not found with id: " + promotionId);
+                throw new ApplicationException("Promotion not found with id: " + promotionId,
+                        HttpStatus.NOT_FOUND);
             } else if (!promotionDTO.getPromotionType().equals("customer")) {
-                throw new BadRequestException("Not allowed to apply this promotion type");
+                throw new ApplicationException("Not allowed to apply this promotion type",
+                        HttpStatus.NOT_ACCEPTABLE);
             }
 
             List<CustomerType> customerTypes = iCustomerTypeRepository.findAllById(customerTypeIds);
             if (customerTypes.isEmpty()) {
-                throw new BadRequestException("No customer types found with the given ids");
+                throw new ApplicationException("No customer types found with the given ids",
+                        HttpStatus.NOT_FOUND);
             }
 
             List<ForCustomer> forCustomersToSave = new ArrayList<>();
             for (CustomerType customerType : customerTypes) {
                 List<ForCustomer> activePromotions = iForCustomerRepository
-                        .findActiveCustomerTypePromotionsByCustomerTypeIdAndInvoiceTypeId(customerType.getId(),
-                                promotion.getInvoiceType().getId());
+                        .findActiveCustomerTypePromotionsByCustomerTypeIdAndInvoiceTypeId(
+                                customerType.getId(), promotion.getInvoiceType().getId());
 
                 for (ForCustomer activePromotion : activePromotions) {
                     activePromotion.setStatus(false);
@@ -82,13 +84,18 @@ public class ForCustomerService implements IPromotionGenericService<CustomerType
 
             iForCustomerRepository.saveAll(forCustomersToSave);
             List<ForCustomerDTO> forCustomerDTOs = forCustomersToSave.stream()
-                    .map(ForCustomer::getDTO)
-                    .collect(Collectors.toList());
+                    .map(ForCustomer::getDTO).collect(Collectors.toList());
 
-            return new ResponseData(HttpStatus.OK, "Promotion applied to customer types successfully",
-                    forCustomerDTOs);
+            return new ResponseData(HttpStatus.OK,
+                    "Promotion applied to customer types successfully", forCustomerDTOs);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at applyPromotion ForCustomerService: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            throw new BadRequestException("Failed to apply promotion to customer types", e.getMessage());
+            throw new ApplicationException(
+                    "Error at applyPromotion ForCustomerService: " + e.getMessage(),
+                    "Failed to apply promotion to customer types");
         }
     }
 
@@ -99,22 +106,32 @@ public class ForCustomerService implements IPromotionGenericService<CustomerType
             List<Integer> customerTypeIds = applyPromotionDTO.getEntityIds();
 
             if (!iPromotionRepository.existsById(promotionId)) {
-                throw new ResourceNotFoundException("Promotion not found with id: " + promotionId);
+                throw new ApplicationException("Promotion not found with id: " + promotionId,
+                        HttpStatus.NOT_FOUND);
             }
 
             List<ForCustomer> forCustomers = iForCustomerRepository
                     .findByPromotionIdAndCustomerTypeIds(promotionId, customerTypeIds);
 
             if (forCustomers.isEmpty()) {
-                throw new BadRequestException("No customer types found with the given ids in the promotion");
+                throw new ApplicationException(
+                        "No customer types found with the given ids in the promotion",
+                        HttpStatus.NOT_FOUND);
             }
 
             forCustomers.forEach(forCustomer -> forCustomer.setStatus(false));
             iForCustomerRepository.saveAll(forCustomers);
 
-            return new ResponseData(HttpStatus.OK, "Promotion removed from customer types successfully", null);
+            return new ResponseData(HttpStatus.OK,
+                    "Promotion removed from customer types successfully", null);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at removePromotion ForCustomerService: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            throw new BadRequestException("Failed to remove promotion from customer types", e.getMessage());
+            throw new ApplicationException(
+                    "Error at removePromotion ForCustomerService: " + e.getMessage(),
+                    "Failed to remove promotion from customer types");
         }
     }
 
@@ -124,48 +141,61 @@ public class ForCustomerService implements IPromotionGenericService<CustomerType
             List<ForCustomer> forCustomers = iForCustomerRepository
                     .findActiveCustomerTypePromotionsByCustomerTypeIdAndInvoiceTypeId(entityId,
                             iPromotionRepository.findById(promotionId)
-                                    .orElseThrow(() -> new ResourceNotFoundException("Promotion not found"))
+                                    .orElseThrow(() -> new ApplicationException(
+                                            "Promotion not found", HttpStatus.NOT_FOUND))
                                     .getInvoiceType().getId());
 
             if (forCustomers.isEmpty()) {
-                return new ResponseData(HttpStatus.OK, "Customer type is not in any other active promotions", null);
+                return new ResponseData(HttpStatus.OK,
+                        "Customer type is not in any other active promotions", null);
             }
 
-            List<PromotionDTO> otherPromotions = forCustomers.stream()
-                    .filter(fg -> fg.getPromotion().getId() != promotionId)
-                    .map(fg -> fg.getPromotion().getDTO())
-                    .collect(Collectors.toList());
+            List<PromotionDTO> otherPromotions =
+                    forCustomers.stream().filter(fg -> fg.getPromotion().getId() != promotionId)
+                            .map(fg -> fg.getPromotion().getDTO()).collect(Collectors.toList());
 
             if (otherPromotions.isEmpty()) {
-                return new ResponseData(HttpStatus.OK, "Customer type is not in any other active promotions", null);
+                return new ResponseData(HttpStatus.OK,
+                        "Customer type is not in any other active promotions", null);
             } else {
-                return new ResponseData(HttpStatus.CONFLICT, "Customer type is active in other promotions",
-                        otherPromotions);
+                return new ResponseData(HttpStatus.CONFLICT,
+                        "Customer type is active in other promotions", otherPromotions);
             }
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at checkInOtherActivePromotions ForCustomerService: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            throw new BadRequestException("Failed to check customer type in other active promotions",
-                    e.getMessage());
+            throw new ApplicationException(
+                    "Error at checkInOtherActivePromotions ForCustomerService: " + e.getMessage(),
+                    "Failed to check customer type in other active promotions");
         }
     }
 
     @Override
     public ResponseData getEntitiesNotInPromotion(int promotionId) {
         try {
-            List<CustomerType> customerTypes = iForCustomerRepository
-                    .findCustomerTypesNotInPromotion(promotionId);
+            List<CustomerType> customerTypes =
+                    iForCustomerRepository.findCustomerTypesNotInPromotion(promotionId);
             if (customerTypes == null || customerTypes.isEmpty()) {
-                throw new ResourceNotFoundException(
-                        "No customer types found not in the given promotion id: " + promotionId);
+                throw new ApplicationException(
+                        "No customer types found not in the given promotion id: " + promotionId,
+                        HttpStatus.NOT_FOUND);
             }
 
-            List<CustomerTypeDTO> customerTypeDTOs = customerTypes.stream()
-                    .map(CustomerType::getDTO)
-                    .collect(Collectors.toList());
+            List<CustomerTypeDTO> customerTypeDTOs =
+                    customerTypes.stream().map(CustomerType::getDTO).collect(Collectors.toList());
 
-            return new ResponseData(HttpStatus.OK, "Customer types not in promotion found successfully",
-                    customerTypeDTOs);
+            return new ResponseData(HttpStatus.OK,
+                    "Customer types not in promotion found successfully", customerTypeDTOs);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at getEntitiesNotInPromotion ForCustomerService: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            throw new BadRequestException("Failed to get customer types not in promotion", e.getMessage());
+            throw new ApplicationException(
+                    "Error at getEntitiesNotInPromotion ForCustomerService: " + e.getMessage(),
+                    "Failed to get customer types not in promotion");
         }
     }
 
@@ -174,19 +204,27 @@ public class ForCustomerService implements IPromotionGenericService<CustomerType
         try {
             Promotion promotion = iPromotionRepository.findById(promotionId)
                     .orElseThrow(() -> new NotFoundException());
-            List<ForCustomer> forCustomers = iForCustomerRepository.findByPromotionId(promotion.getId());
+            List<ForCustomer> forCustomers =
+                    iForCustomerRepository.findByPromotionId(promotion.getId());
             if (forCustomers == null || forCustomers.isEmpty()) {
-                throw new ResourceNotFoundException(
-                        "No customer types found for the given promotion id: " + promotionId);
+                throw new ApplicationException(
+                        "No customer types found for the given promotion id: " + promotionId,
+                        HttpStatus.NOT_FOUND);
             }
 
-            List<ForCustomerDTO> forCustomerDTOs = forCustomers.stream()
-                    .map(ForCustomer::getDTO)
-                    .collect(Collectors.toList());
+            List<ForCustomerDTO> forCustomerDTOs =
+                    forCustomers.stream().map(ForCustomer::getDTO).collect(Collectors.toList());
 
-            return new ResponseData(HttpStatus.OK, "Customer types found successfully", forCustomerDTOs);
+            return new ResponseData(HttpStatus.OK, "Customer types found successfully",
+                    forCustomerDTOs);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at getEntitiesInPromotion ForCustomerService: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            throw new BadRequestException("Failed to get customer types by promotion id", e.getMessage());
+            throw new ApplicationException(
+                    "Error at getEntitiesInPromotion ForCustomerService: " + e.getMessage(),
+                    "Failed to get customer types by promotion id");
         }
     }
 }

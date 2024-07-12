@@ -1,9 +1,9 @@
-const apiurl = process.env.API_URL;
-var token = null;
+import UserService from "./userService.js";
+
+const userService = new UserService();
 let listGemsDetail = null;
 let timeout = null;
 $(document).ready(function () {
-  token = localStorage.getItem("token");
   setupSearch();
   fetchProduct(state.currentServerPage, state.size);
   fetchDropdownData("#Material", fetchMaterial);
@@ -63,11 +63,10 @@ const state = {
 };
 
 function fetchProduct(page, size) {
-  const linkProduct = `http://${apiurl}/product/all?page=${page}&size=${size}`;
-  $.ajax({
-    url: linkProduct,
-    method: "GET",
-    success: function (response) {
+  const linkProduct = `http://${userService.getApiUrl()}/api/product/all?page=${page}&size=${size}`;
+  userService
+    .sendAjaxWithAuthen(linkProduct, "GET", null)
+    .then((response) => {
       if (response && response.data) {
         const { content, totalElements } = response.data;
         state.querySet = content; // Replace with new records
@@ -75,11 +74,10 @@ function fetchProduct(page, size) {
         state.currentServerPage = page;
         buildTable(state); // Build table after fetching products
       }
-    },
-    error: function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching product:", error);
-    },
-  });
+    });
 }
 
 function buildTable(state) {
@@ -237,28 +235,26 @@ function toggleSidebarPolicy(show) {
 }
 
 function getPriceProduct(barcode, idInvocie, idPromo, idPrice) {
-  $.ajax({
-    url: `http://${apiurl}/invoice/create-detail`,
-    method: "POST",
-    contentType: "application/json",
-    data: JSON.stringify({
-      barcode: barcode,
-      quantity: 1,
-      invoiceTypeId: idInvocie,
-    }),
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/invoice/create-detail`,
+      "POST",
+      {
+        barcode: barcode,
+        quantity: 1,
+        invoiceTypeId: idInvocie,
+      }
+    )
+    .then((response) => {
       console.log("Success:", response);
       displayProductPromo(response.data.listPromotion, idPromo);
       $(idPrice).text(formatCurrency(response.data.totalPrice));
-    },
-    error: function (xhr, status, error) {
+    })
+    .catch((xhr, status, error) => {
       console.error("Error:", error);
+      $(idPrice).text("Not available!");
       showNotification("Failed to send data: " + error, "error");
-    },
-  });
+    });
 }
 
 function displayProductPromo(data, idPromo) {
@@ -316,49 +312,44 @@ async function buildTableGemStone(productId) {
 }
 
 async function fetchGemStoneOfProduct(productId) {
-  return fetchData(`http://${apiurl}/gemStone/product?id=${productId}`);
+  return await fetchData(
+    `http://${userService.getApiUrl()}/api/gemStone/product?id=${productId}`
+  );
 }
 
 async function fetchData(url) {
-  try {
-    const response = await $.ajax({
-      url,
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (response.status === "OK" && response.data) {
-      return response.data.content;
-    } else {
-      console.error(`Failed to fetch data from ${url}`);
+  return await userService
+    .sendAjaxWithAuthen(url, "GET", null)
+    .then((response) => {
+      if (response.status === "OK" && response.data) {
+        return response.data.content;
+      } else {
+        console.error(`Failed to fetch data from ${url}`);
+        return [];
+      }
+    })
+    .catch((error) => {
+      console.error(`Error fetching data from ${url}:`, error);
       return [];
-    }
-  } catch (error) {
-    console.error(`Error fetching data from ${url}:`, error);
-    return [];
-  }
+    });
 }
 async function fetchData2(url) {
-  try {
-    const response = await $.ajax({
-      url,
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (response.status === "OK" && response.data) {
-      return response.data;
-    } else {
-      console.error(`Failed to fetch data from ${url}`);
+  return await userService
+    .sendAjaxWithAuthen(url, "GET", null)
+    .then((response) => {
+      if (response.status === "OK" && response.data) {
+        return response.data;
+      } else {
+        console.error(`Failed to fetch data from ${url}`);
+        return [];
+      }
+    })
+    .catch((error) => {
+      console.error(`Error fetching data from ${url}:`, error);
       return [];
-    }
-  } catch (error) {
-    console.error(`Error fetching data from ${url}:`, error);
-    return [];
-  }
+    });
 }
+
 function countCategoriesByType(gemList) {
   return gemList.reduce((acc, gem) => {
     const { name: typeName } = gem.gemstoneType;
@@ -430,29 +421,26 @@ function setupSearch() {
 }
 
 function searchProducts(query) {
-  $.ajax({
-    url: `http://${apiurl}/product/search`,
-    type: "POST",
-    data: $.param({
-      search: query,
-      id_material: $("#Material").val(),
-      id_product_category: $("#Category").val(),
-      id_counter: $("#Counter").val(),
-    }),
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    contentType: "application/x-www-form-urlencoded",
-    success: function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/product/search`,
+      "POST",
+      $.param({
+        search: query,
+        id_material: $("#Material").val(),
+        id_product_category: $("#Category").val(),
+        id_counter: $("#Counter").val(),
+      })
+    )
+    .then((response) => {
       if (response && response.data) {
         searchSuggestion(response.data.content);
       }
-    },
-    error: function (xhr, status, error) {
+    })
+    .catch((xhr, status, error) => {
       showNotification("An error occurred while submitting the form.", "error");
       console.log(xhr.responseText);
-    },
-  });
+    });
 }
 
 function searchSuggestion(listProduct) {
@@ -473,12 +461,16 @@ async function fetchDropdownData(elementId, fetchDataFunc) {
 }
 
 async function fetchProductCategory() {
-  return fetchData(`http://${apiurl}/product/category/all`);
+  return await fetchData(
+    `http://${userService.getApiUrl()}/api/product/category/all`
+  );
 }
 
 async function fetchMaterial() {
-  return fetchData(`http://${apiurl}/material/all`);
+  return await fetchData(`http://${userService.getApiUrl()}/api/material/all`);
 }
 async function fetchCounter() {
-  return fetchData2(`http://${apiurl}/counter/allactivecounter`);
+  return await fetchData2(
+    `http://${userService.getApiUrl()}/api/counter/allactivecounter`
+  );
 }

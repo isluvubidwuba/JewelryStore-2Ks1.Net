@@ -1,4 +1,7 @@
-const apiurl = process.env.API_URL;
+import UserService from "./userService.js";
+
+const userService = new UserService();
+
 var keybuffer = [];
 
 $(document).ready(function () {
@@ -43,15 +46,13 @@ $(document).ready(function () {
       keybuffer.push(number);
     }
   }
+
   $("#add-barcode-button").click(function () {
     const barcode = $("#barcode-input").val().trim();
     if (barcode) {
       addProductByBarcode(barcode);
       $("#barcode-input").val("");
     }
-
-
-
   });
 
   // ============================Phần này thực hiện add customer mới vào system =========================================================
@@ -124,31 +125,26 @@ $(document).ready(function () {
       for (var pair of formData.entries()) {
         console.log(pair[0] + ": " + pair[1]);
       }
-
-      $.ajax({
-        url: `http://${apiurl}/userinfo/insert`,
-        method: "POST",
-        processData: false,
-        contentType: false,
-        data: formData,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        success: function (response) {
+      userService
+        .sendAjaxWithAuthen(
+          `http://${userService.getApiUrl()}/api/userinfo/insert`,
+          "POST",
+          formData
+        )
+        .then((response) => {
           showNotification(response.desc || "User inserted successfully", "OK");
           $("#insertUserModal").addClass("hidden");
           clearInsertForm(); // Clear form fields
           console.log(response.data.id);
           getUserById(response.data.id);
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
+        })
+        .catch((jqXHR, textStatus, errorThrown) => {
           var response = jqXHR.responseJSON;
           showNotification(
             response.desc || "Error inserting user: " + errorThrown,
             "error"
           );
-        },
-      });
+        });
     });
 
     // Show modal
@@ -221,20 +217,20 @@ $(document).ready(function () {
 
     var phone = input;
 
-    $.ajax({
-      url: `http://${apiurl}/userinfo/phonenumberandmailcustomer?phone=${phone}`,
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/userinfo/phonenumberandmailcustomer?phone=${phone}`,
+        "GET",
+        null
+      )
+      .then((response) => {
         if (response.status === "OK" && response.data) {
           getUserById(response.data.id);
         } else {
           showNotification(response.desc, "error");
         }
-      },
-      error: function (xhr, status, error) {
+      })
+      .catch((xhr, status, error) => {
         if (xhr.responseJSON && xhr.responseJSON.desc) {
           showNotification(xhr.responseJSON.desc, "error");
         } else {
@@ -244,8 +240,7 @@ $(document).ready(function () {
             "error"
           );
         }
-      },
-    });
+      });
   });
 
   // Phần này thực hiện phần tính toán tạo hoá đơn của vnpay ===================================================================
@@ -358,29 +353,32 @@ $(document).ready(function () {
           </thead>
           <tbody>
             ${Object.values(productMap)
-        .map(
-          (product) => `
+              .map(
+                (product) => `
             <tr>
               <td class="py-4 text-gray-700">${product.product.barCode}</td>
               <td class="py-4 text-gray-700">${product.quantity}</td>
-              <td class="py-4 text-gray-700">${new Intl.NumberFormat(
-            "vi-VN",
-            { style: "currency", currency: "VND" }
-          ).format(product.totalPrice)}</td>
+              <td class="py-4 text-gray-700">${new Intl.NumberFormat("vi-VN", {
+                style: "currency",
+                currency: "VND",
+              }).format(product.totalPrice)}</td>
             </tr>
             `
-        )
-        .join("")}
+              )
+              .join("")}
           </tbody>
         </table>
         <div class="grid grid-cols-2 gap-4">
           <div class="text-gray-700">Promotion: </div>
-          <div class="text-gray-700 text-right">${userPromotion
-        ? userPromotion.name + " - " + userPromotion.value + "%"
-        : "Do not have !!!"
-      }</div>
+          <div class="text-gray-700 text-right">${
+            userPromotion
+              ? userPromotion.name + " - " + userPromotion.value + "%"
+              : "Do not have !!!"
+          }</div>
           <div class="text-gray-700">Total number of products: </div>
-          <div class="text-gray-700 text-right">${Object.keys(productMap).length}</div>
+          <div class="text-gray-700 text-right">${
+            Object.keys(productMap).length
+          }</div>
         </div>
       </div>
     `;
@@ -406,7 +404,6 @@ $(document).ready(function () {
       });
   }
 
-
   // ==============================Phần này thực hiện add sản phẩm vào trước khi thanh toán ======================================================
   CheckClearBarcodeInput();
 
@@ -424,8 +421,8 @@ $(document).ready(function () {
   }
 
   function clearBarcodeInput() {
-    $('#barcode-input').val('');
-    $('#clear-barcode-input').addClass('hidden');
+    $("#barcode-input").val("");
+    $("#clear-barcode-input").addClass("hidden");
   }
 
   function addProductByBarcode(barcode) {
@@ -436,26 +433,23 @@ $(document).ready(function () {
       } else {
         showNotification(
           "Quantity exceeds inventory quantity. Available: " +
-          productMap[barcode].inventory,
+            productMap[barcode].inventory,
           "error"
         );
       }
       return;
     }
-
-    $.ajax({
-      url: `http://${apiurl}/invoice/create-detail`,
-      method: "POST",
-      data: JSON.stringify({
-        barcode: barcode,
-        quantity: 1,
-        invoiceTypeId: 1,
-      }),
-      contentType: "application/json",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/invoice/create-detail`,
+        "POST",
+        {
+          barcode: barcode,
+          quantity: 1,
+          invoiceTypeId: 1,
+        }
+      )
+      .then((response) => {
         if (response.status === "OK") {
           const productData = response.data;
 
@@ -477,15 +471,16 @@ $(document).ready(function () {
             response.desc || "An error occurred, please try again !!!",
             "error"
           );
+          console.log("Notification trong else function success:", message);
         }
-      },
-      error: function (error) {
+      })
+      .catch((error) => {
         const response = error.responseJSON;
         console.log("Error fetching product data:", error);
         // Hiển thị thông báo lỗi nếu yêu cầu AJAX gặp lỗi
-        showNotification(response.desc || "Product Out Of Stock", "error");
-      },
-    });
+        showNotification(response.desc, "error");
+        console.log("Notification trong else function error:", response.desc);
+      });
   }
 
   function renderProductCard(barcode) {
@@ -493,26 +488,33 @@ $(document).ready(function () {
     const productCard = $(`
         <div id="product-${barcode}" class="product-card border p-4 mb-4 rounded-md shadow-md grid grid-cols-12 gap-4">
             <div class="col-span-4">
-                <img src="${productData.product.imgPath}" alt="${productData.product.name
-      }" class="w-full h-auto rounded-md">
+                <img src="${productData.product.imgPath}" alt="${
+      productData.product.name
+    }" class="w-full h-auto rounded-md">
             </div>
             <div class="col-span-8">
-                <h3 class="text-xl font-semibold mb-2">${productData.product.name
-      }</h3>
-                <p class="text-sm text-gray-600 mb-1"><strong>Product code: </strong> ${productData.product.productCode
-      }</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Material: </strong> ${productData.product.materialDTO.name
-      }</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Category: </strong> ${productData.product.productCategoryDTO.name
-      }</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Barcode: </strong> ${productData.product.barCode
-      }</p>
+                <h3 class="text-xl font-semibold mb-2">${
+                  productData.product.name
+                }</h3>
+                <p class="text-sm text-gray-600 mb-1"><strong>Product code: </strong> ${
+                  productData.product.productCode
+                }</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Material: </strong> ${
+                  productData.product.materialDTO.name
+                }</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Category: </strong> ${
+                  productData.product.productCategoryDTO.name
+                }</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Barcode: </strong> ${
+                  productData.product.barCode
+                }</p>
                 <p class="text-sm text-gray-600 mb-1"><strong>Toltal price: </strong> ${new Intl.NumberFormat(
-        "vi-VN",
-        { style: "currency", currency: "VND" }
-      ).format(productData.totalPrice)}</p>
-                <p class="text-sm text-gray-600 mb-1"><strong>Quantity: </strong> <span id="quantity-${barcode}">${productData.quantity
-      }</span></p>
+                  "vi-VN",
+                  { style: "currency", currency: "VND" }
+                ).format(productData.totalPrice)}</p>
+                <p class="text-sm text-gray-600 mb-1"><strong>Quantity: </strong> <span id="quantity-${barcode}">${
+      productData.quantity
+    }</span></p>
             </div>
         </div>
     `);
@@ -526,12 +528,13 @@ $(document).ready(function () {
                 <td class="px-4 py-2">${productData.product.name}</td>
                 <td class="px-4 py-2">${productData.product.productCode}</td>
                 <td class="px-4 py-2 total-price">${new Intl.NumberFormat(
-      "vi-VN",
-      { style: "currency", currency: "VND" }
-    ).format(productData.totalPrice)}</td>
+                  "vi-VN",
+                  { style: "currency", currency: "VND" }
+                ).format(productData.totalPrice)}</td>
                 <td class="px-4 py-2">
-                    <input type="number" id="sidebar-quantity-${barcode}" class="quantity-input border p-1" value="${productData.quantity
-      }" min="1" max="${productData.inventory}">
+                    <input type="number" id="sidebar-quantity-${barcode}" class="quantity-input border p-1" value="${
+      productData.quantity
+    }" min="1" max="${productData.inventory}">
                 </td>
                 <td class="px-4 py-2">
                     <button class="remove-product-btn bg-red-500 text-white p-1" data-barcode="${barcode}">Delete</button>
@@ -547,7 +550,7 @@ $(document).ready(function () {
       } else {
         showNotification(
           "Quantity exceeds inventory quantity. Avaiable: " +
-          productData.inventory,
+            productData.inventory,
           "error"
         );
         $(this).val(productData.quantity);
@@ -644,22 +647,22 @@ $(document).ready(function () {
 
   //========================== Phần này khi lấy được thông tin của user id có thể được tạo hoặc được tìm ===============================
   function getUserById(userId) {
-    $.ajax({
-      url: `http://${apiurl}/userinfo/getcustomer/${userId}`,
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (data) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/userinfo/getcustomer/${userId}`,
+        "GET",
+        null
+      )
+      .then((data) => {
         const user = data; // Không cần data.data nếu data đã là đối tượng người dùng
         if (user) {
           $("#selected-user-info").removeClass("hidden");
           $("#user-details").html(`
-            <p><strong>Name: </strong> ${user.fullName}</p>
-            <p><strong>ID: </strong> ${user.id}</p>
-            <p><strong>Phone: </strong> ${user.phoneNumber.trim()}</p>
-            <p><strong>Email: </strong> ${user.email}</p>
-          `);
+          <p><strong>Name: </strong> ${user.fullName}</p>
+          <p><strong>ID: </strong> ${user.id}</p>
+          <p><strong>Phone: </strong> ${user.phoneNumber.trim()}</p>
+          <p><strong>Email: </strong> ${user.email}</p>
+        `);
           selectedUserId = user.id; // Gán giá trị cho biến selectedUserId
           selectedUserName = user.fullName; // Gán giá trị cho biến selectedUserName
           sessionStorage.setItem("selectedUserId", user.id); // Lưu ID người dùng vào sessionStorage
@@ -668,24 +671,22 @@ $(document).ready(function () {
         } else {
           showNotification("Unable to load user data !!!", "error");
         }
-      },
-      error: function (error) {
+      })
+      .catch((error) => {
         console.error("Error loading user data !!!", error); // Log lỗi nếu có
         showNotification("Error loading user data !!!", "error");
-      },
-    });
+      });
   }
 
   //=====================================Khi lấy được user id thì đi tìm promotion cho user đó =========================================
   function fetchUserPromotions(userId) {
-    $.ajax({
-      url: `http://${apiurl}/promotion/by-user`,
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      data: { userId: userId }, // Truyền ID người dùng vào đây
-      success: function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/promotion/by-user`,
+        "GET",
+        $.param({ userId: userId })
+      )
+      .then((response) => {
         if (response.status === "OK") {
           userPromotion = response.data;
           const promotionDetails = $("#promotion-details");
@@ -693,13 +694,13 @@ $(document).ready(function () {
 
           if (userPromotion) {
             const promotionInfo = `
-                            <div class="p-2 border-b border-gray-200">
-                                <p><strong>Name: </strong> ${userPromotion.name}</p>
-                                <p><strong>Value: </strong> ${userPromotion.value}%</p>
-                                <p><strong>Start day: </strong> ${userPromotion.startDate}</p>
-                                <p><strong>End date: </strong> ${userPromotion.endDate}</p>
-                            </div>
-                        `;
+                          <div class="p-2 border-b border-gray-200">
+                              <p><strong>Name: </strong> ${userPromotion.name}</p>
+                              <p><strong>Value: </strong> ${userPromotion.value}%</p>
+                              <p><strong>Start day: </strong> ${userPromotion.startDate}</p>
+                              <p><strong>End date: </strong> ${userPromotion.endDate}</p>
+                          </div>
+                      `;
             promotionDetails.append(promotionInfo);
           }
 
@@ -707,12 +708,11 @@ $(document).ready(function () {
         } else {
           showNotification("Can Not Load Information User", "error");
         }
-      },
-      error: function (error) {
+      })
+      .catch((error) => {
         console.error("Error While Loading Information User:", error);
         showNotification("Error While Loading Information User!", "error");
-      },
-    });
+      });
   }
 
   //===============Phần này quan trọng nhất về việc lấy các biến đã lưu của sản phẩm employee và user để gửi về tạo hoá đơn ==========================
@@ -749,16 +749,13 @@ $(document).ready(function () {
     }
 
     console.log("Sending invoice details:", invoiceDetails);
-
-    $.ajax({
-      url: `http://${apiurl}/invoice/create-invoice`,
-      method: "POST",
-      contentType: "application/json",
-      data: JSON.stringify(invoiceDetails),
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/invoice/create-invoice`,
+        "POST",
+        invoiceDetails
+      )
+      .then((response) => {
         if (response.status === "OK") {
           showNotification(
             "The invoice has been created successfully !!!",
@@ -773,12 +770,11 @@ $(document).ready(function () {
             "error"
           );
         }
-      },
-      error: function (error) {
+      })
+      .catch((error) => {
         console.error("Error when creating invoice: ", error);
         showNotification("Error when creating invoice !!!", "error");
-      },
-    });
+      });
   }
 
   function clearAllData() {
@@ -805,14 +801,13 @@ $(document).ready(function () {
 
   // ================================Sau khi tạo hoá đơn thành công thì sẽ hiện ra hoá đơn cho khách hàng ============================================
   function viewInvoice(invoiceId) {
-    $.ajax({
-      url: `http://${apiurl}/invoice/view-invoice`,
-      method: "POST",
-      data: { invoice: invoiceId },
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/invoice/view-invoice`,
+        "POST",
+        $.param({ invoice: invoiceId })
+      )
+      .then((response) => {
         if (response.status === "OK") {
           const invoiceData = response.data;
           const invoiceDetails = $("#invoice-details");
@@ -825,87 +820,146 @@ $(document).ready(function () {
           const invoiceDate = new Date(invoiceData.date).toLocaleDateString();
           const warrantyEndDate = new Date(invoiceDate);
           warrantyEndDate.setFullYear(warrantyEndDate.getFullYear() + 1);
-
+          sendMailInvoice(userInfo.email, userInfo.fullName, invoiceData.id);
           invoiceDetails.append(`
-                    <div class="bg-white rounded-lg shadow-lg px-8 py-10 max-w-7xl mx-auto">
-                        <div class="flex items-center justify-between mb-8">
-                            <div class="flex items-center">
-                                <img class="h-8 w-8 mr-2" src="https://tailwindflex.com/public/images/logos/favicon-32x32.png" alt="Logo" />
-                                <div class="text-gray-700 font-semibold text-lg">2KS 1NET</div>
-                            </div>
-                            <div class="text-gray-700 text-right">
-                                <div class="font-bold text-xl mb-2">INVOICE ${invoiceTypename}</div>
-                                <div class="text-sm">Date: ${invoiceDate}</div>
-                                <div class="text-sm">Invoice: ${invoiceData.id}</div>
-                            </div>
-                        </div>
-                        <div class="border-b-2 border-gray-300 pb-8 mb-8">
-                            <h2 class="text-2xl font-bold mb-4">Customer and Employee Information</h2>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <div class="text-gray-700 mb-2"><strong>Customer: </strong> ${userInfo.fullName}</div>
-                                    <div class="text-gray-700 mb-2"><strong>Phone number: </strong> ${userInfo.phoneNumber}</div>
-                                </div>
-                                <div>
-                                    <div class="text-gray-700 mb-2"><strong>STAFF: </strong> ${employeeInfo.firstName} ${employeeInfo.lastName}</div>
-                                    <div class="text-gray-700 mb-2"><strong>ID: </strong> ${employeeInfo.id}</div>
-                                </div>
-                            </div>
-                        </div>
-                        <table class="w-full text-left mb-8">
-                            <thead>
-                                <tr>
-                                    <th class="text-gray-700 font-bold uppercase py-2">Product Code</th>
-                                    <th class="text-gray-700 font-bold uppercase py-2">Product</th>
-                                    <th class="text-gray-700 font-bold uppercase py-2">Quantity</th>
-                                    <th class="text-gray-700 font-bold uppercase py-2">Total Price</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${orderDetails.map(order => `
-                                <tr>
-                                    <td class="py-4 text-gray-700">${order.productDTO.productCode}</td>
-                                    <td class="py-4 text-gray-700">${order.productDTO.name}</td>
-                                    <td class="py-4 text-gray-700">${order.quantity}</td>
-                                    <td class="py-4 text-gray-700">${new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(order.totalPrice)}</td>
-                                </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="text-gray-700">Total original price: </div>
-                            <div class="text-gray-700 text-right">${new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(invoiceData.totalPriceRaw)}</div>
-                            <div class="text-gray-700">Reduced price: </div>
-                            <div class="text-gray-700 text-right">${new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(invoiceData.discountPrice)}</div>
-                            <div class="text-gray-700 font-bold text-xl">Total price: </div>
-                            <div class="text-gray-700 font-bold text-xl text-right">${new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(invoiceData.totalPrice)}</div>
-                        </div>
-                        <div class="mt-8 flex justify-center">
-                          <div class="flex items-center justify-center font-playwrite text-2xl text-center border-r-2 border-black pr-5">
-                            THANK YOU
+                  <div class="bg-white rounded-lg shadow-lg px-8 py-10 max-w-7xl mx-auto">
+                      <div class="flex items-center justify-between mb-8">
+                          <div class="flex items-center">
+                              <img class="h-8 w-8 mr-2" src="https://tailwindflex.com/public/images/logos/favicon-32x32.png" alt="Logo" />
+                              <div class="text-gray-700 font-semibold text-lg">2KS 1NET</div>
                           </div>
-                          <div class="text-gray-700 text-left ml-4">
-                            <h1 class="font-bold text-red-500">Warranty</h1>
-                            <p class="font-semibold">For any warranty issues, please contact our customer service</p>
-                            <p class="font-semibold">Expiration date from ${invoiceDate} to ${warrantyEndDate.toLocaleDateString()}</p>
-                            <p class="font-semibold">Phone: 0399189976 | Email: 2ks1net@gmail.com</p>
+                          <div class="text-gray-700 text-right">
+                              <div class="font-bold text-xl mb-2">INVOICE ${invoiceTypename}</div>
+                              <div class="text-sm">Date: ${invoiceDate}</div>
+                              <div class="text-sm">Invoice: ${
+                                invoiceData.id
+                              }</div>
                           </div>
+                      </div>
+                      <div class="border-b-2 border-gray-300 pb-8 mb-8">
+                          <h2 class="text-2xl font-bold mb-4">Customer and Employee Information</h2>
+                          <div class="grid grid-cols-2 gap-4">
+                              <div>
+                                  <div class="text-gray-700 mb-2"><strong>Customer: </strong> ${
+                                    userInfo.fullName
+                                  }</div>
+                                  <div class="text-gray-700 mb-2"><strong>Phone number: </strong> ${
+                                    userInfo.phoneNumber
+                                  }</div>
+                              </div>
+                              <div>
+                                  <div class="text-gray-700 mb-2"><strong>STAFF: </strong> ${
+                                    employeeInfo.firstName
+                                  } ${employeeInfo.lastName}</div>
+                                  <div class="text-gray-700 mb-2"><strong>ID: </strong> ${
+                                    employeeInfo.id
+                                  }</div>
+                              </div>
+                          </div>
+                      </div>
+                      <table class="w-full text-left mb-8">
+                          <thead>
+                              <tr>
+                                  <th class="text-gray-700 font-bold uppercase py-2">Product Code</th>
+                                  <th class="text-gray-700 font-bold uppercase py-2">Product</th>
+                                  <th class="text-gray-700 font-bold uppercase py-2">Quantity</th>
+                                  <th class="text-gray-700 font-bold uppercase py-2">Total Price</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              ${orderDetails
+                                .map(
+                                  (order) => `
+                              <tr>
+                                  <td class="py-4 text-gray-700">${
+                                    order.productDTO.productCode
+                                  }</td>
+                                  <td class="py-4 text-gray-700">${
+                                    order.productDTO.name
+                                  }</td>
+                                  <td class="py-4 text-gray-700">${
+                                    order.quantity
+                                  }</td>
+                                  <td class="py-4 text-gray-700">${new Intl.NumberFormat(
+                                    "vi-VN",
+                                    { style: "currency", currency: "VND" }
+                                  ).format(order.totalPrice)}</td>
+                              </tr>
+                              `
+                                )
+                                .join("")}
+                          </tbody>
+                      </table>
+                      <div class="grid grid-cols-2 gap-4">
+                          <div class="text-gray-700">Total original price: </div>
+                          <div class="text-gray-700 text-right">${new Intl.NumberFormat(
+                            "vi-VN",
+                            { style: "currency", currency: "VND" }
+                          ).format(invoiceData.totalPriceRaw)}</div>
+                          <div class="text-gray-700">Reduced price: </div>
+                          <div class="text-gray-700 text-right">${new Intl.NumberFormat(
+                            "vi-VN",
+                            { style: "currency", currency: "VND" }
+                          ).format(invoiceData.discountPrice)}</div>
+                          <div class="text-gray-700 font-bold text-xl">Total price: </div>
+                          <div class="text-gray-700 font-bold text-xl text-right">${new Intl.NumberFormat(
+                            "vi-VN",
+                            { style: "currency", currency: "VND" }
+                          ).format(invoiceData.totalPrice)}</div>
+                      </div>
+                      <div class="mt-8 flex justify-center">
+                        <div class="flex items-center justify-center font-playwrite text-2xl text-center border-r-2 border-black pr-5">
+                          THANK YOU
                         </div>
-                    </div>
-                `);
+                        <div class="text-gray-700 text-left ml-4">
+                          <h1 class="font-bold text-red-500">Warranty</h1>
+                          <p class="font-semibold">For any warranty issues, please contact our customer service</p>
+                          <p class="font-semibold">Expiration date from ${invoiceDate} to ${warrantyEndDate.toLocaleDateString()}</p>
+                          <p class="font-semibold">Phone: 0399189976 | Email: 2ks1net@gmail.com</p>
+                        </div>
+                      </div>
+                  </div>
+              `);
 
           $("#view-invoice-modal").removeClass("hidden");
         } else {
           showNotification("Unable to load invoice details", "error");
         }
-      },
-      error: function (error) {
+      })
+      .catch((error) => {
         console.error("Unable to load invoice details", error);
         showNotification("Unable to load invoice details !!!", "error");
-      },
-    });
+      });
   }
-
+  function sendMailInvoice(mail, username, idinvocie) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/invoice/sendInvoice`,
+        "POST",
+        $.param({
+          email: mail,
+          userName: username,
+          invoiceID: idinvocie,
+        })
+      )
+      .then((response) => {
+        if (response.status === "OK") {
+          showNotification(
+            "The invoice has been send mail successfully !!!",
+            "OK"
+          );
+        } else {
+          showNotification(
+            "Unable to create invoice. Please try again !!!",
+            "error"
+          );
+        }
+      })
+      .catch((error) => {
+        console.error("Error when creating invoice: ", error);
+        showNotification("Error when creating invoice !!!", "error");
+      });
+  }
   function closeViewInvoiceModal() {
     $("#view-invoice-modal").addClass("hidden");
     clearAllData(); // Xóa thông tin sau khi xem hóa đơn
@@ -936,17 +990,16 @@ $(document).ready(function () {
     );
     const cancelNote = $("#cancel-note").val();
 
-    $.ajax({
-      url: `http://${apiurl}/invoice/cancel`,
-      method: "POST",
-      data: {
-        invoiceId: invoiceId,
-        note: cancelNote,
-      },
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/invoice/cancel`,
+        "POST",
+        {
+          invoiceId: invoiceId,
+          note: cancelNote,
+        }
+      )
+      .then((response) => {
         if (response.status === "OK") {
           showNotification("Invoice cancelled successfully", "OK");
 
@@ -955,12 +1008,11 @@ $(document).ready(function () {
         } else {
           showNotification("Unable to cancel invoice", "Error");
         }
-      },
-      error: function (error) {
+      })
+      .catch((error) => {
         console.error("Unable to cancel invoice", error);
         showNotification("Unable to cancel invoice", "Error");
-      },
-    });
+      });
   });
 
   //============================= Phần này xử lý việc chuyển sang trang vnpay để thanh toán hoá đơn=================================
@@ -986,14 +1038,13 @@ $(document).ready(function () {
     console.log("Initiating payment with:");
     console.log("amount:", amount);
     console.log("bankCode:", bankCode);
-
-    $.ajax({
-      url: `http://${apiurl}/payment/vn-pay?amount=${amount}&bankCode=${bankCode}`,
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      success: function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/payment/vn-pay?amount=${amount}&bankCode=${bankCode}`,
+        "GET",
+        null
+      )
+      .then((response) => {
         if (
           response.code === 200 &&
           response.data &&
@@ -1006,12 +1057,11 @@ $(document).ready(function () {
             "error"
           );
         }
-      },
-      error: function (error) {
+      })
+      .catch((error) => {
         console.error("Error initiating payment:", error);
         showNotification("Error initiating payment.", "error");
-      },
-    });
+      });
   }
 
   //============================Phần này quan trọng !! khi thanh toán từ vnpay thành công thì vnpay sẽ trả về trang này cùng url có  paymentSuccess
@@ -1021,11 +1071,12 @@ $(document).ready(function () {
     console.log("Checking vnpResponseCode: " + vnpResponseCode);
 
     if (vnpResponseCode !== null) {
-      fetch(
-        "http://localhost:8080/payment/vn-pay-callback?vnp_ResponseCode=" +
-        vnpResponseCode
-      )
-        .then((response) => response.json())
+      userService
+        .sendAjaxWithAuthen(
+          `http://${userService.getApiUrl()}/api/payment/vn-pay-callback?vnp_ResponseCode=${vnpResponseCode}`,
+          "GET",
+          null
+        )
         .then((data) => {
           const message = data.desc;
           const status = data.status;
@@ -1058,7 +1109,10 @@ $(document).ready(function () {
           window.history.replaceState({}, document.title, url);
           console.log("URL parameters cleared");
         })
-        .catch((error) => console.error("Error:", error));
+        .catch((error) => {
+          console.error("Error:", error);
+          showNotification(error.responseJSON.desc);
+        });
     }
   }
 

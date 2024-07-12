@@ -4,11 +4,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,34 +16,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
 import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 import com.ks1dotnet.jewelrystore.dto.PromotionDTO;
 import com.ks1dotnet.jewelrystore.entity.ForProduct;
 import com.ks1dotnet.jewelrystore.entity.InvoiceType;
 import com.ks1dotnet.jewelrystore.entity.Promotion;
-import com.ks1dotnet.jewelrystore.exception.BadRequestException;
-import com.ks1dotnet.jewelrystore.exception.ResourceNotFoundException;
+import com.ks1dotnet.jewelrystore.exception.ApplicationException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IInvoiceTypeRepository;
 import com.ks1dotnet.jewelrystore.repository.IPromotionRepository;
-import com.ks1dotnet.jewelrystore.service.FirebaseStorageService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionService;
 
 @RestController
-@RequestMapping("/promotion")
-@CrossOrigin("*")
+@RequestMapping("${apiURL}/promotion")
+@CrossOrigin(origins = "${domain}", allowCredentials = "true")
 public class PromotionController {
     @Autowired
     private IPromotionRepository iPromotionRepository;
     @Autowired
     private IPromotionService iPromotionService;
-
-    @Value("${fileUpload.promotionPath}")
-    private String filePath;
-
-    @Autowired
-    private FirebaseStorageService firebaseStorageService;
     @Autowired
     private IInvoiceTypeRepository iInvoiceTypeRepository;
 
@@ -61,84 +51,82 @@ public class PromotionController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> create(
-            @RequestParam(required = false) MultipartFile file,
-            @RequestParam String name,
-            @RequestParam double value,
-            @RequestParam boolean status,
-            @RequestParam String startDate,
-            @RequestParam String endDate,
-            @RequestParam String promotionType,
-            @RequestParam int invoiceType) { // Thêm invoiceTypeId vào đây
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<?> create(@RequestParam(required = false) MultipartFile file,
+            @RequestParam String name, @RequestParam double value, @RequestParam boolean status,
+            @RequestParam String startDate, @RequestParam String endDate,
+            @RequestParam String promotionType, @RequestParam int invoiceType) { // Thêm
+                                                                                 // invoiceTypeId
+                                                                                 // vào đây
         try {
             LocalDate start = LocalDate.parse(startDate);
             LocalDate end = LocalDate.parse(endDate);
-            ResponseData responseData = iPromotionService.insertPromotion(file, name, value, status, start, end,
-                    promotionType, invoiceType);
+            ResponseData responseData = iPromotionService.insertPromotion(file, name, value, status,
+                    start, end, promotionType, invoiceType);
             if (responseData.getStatus() == HttpStatus.OK) {
                 return new ResponseEntity<>(responseData, HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
             }
-        } catch (BadRequestException e) {
-            throw new BadRequestException("Nguuu vc , ", e.getMessage());
+        } catch (ApplicationException e) {
+            throw new ApplicationException("Error at create promotionController: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            return handleException(e);
+            throw new ApplicationException("Error at create promotionController: " + e.getMessage(),
+                    "Something wrong while create promotion!");
         }
     }
 
     @PostMapping("/update")
-    public ResponseEntity<?> update(
-            @RequestParam(required = false) MultipartFile file,
-            @RequestParam int id,
-            @RequestParam String name,
-            @RequestParam double value,
-            @RequestParam boolean status,
-            @RequestParam String startDate,
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<?> update(@RequestParam(required = false) MultipartFile file,
+            @RequestParam int id, @RequestParam String name, @RequestParam double value,
+            @RequestParam boolean status, @RequestParam String startDate,
             @RequestParam String endDate) { // Thêm invoiceTypeId vào đây
         try {
 
             LocalDate start = LocalDate.parse(startDate);
             LocalDate end = LocalDate.parse(endDate);
             ResponseData responseData = new ResponseData();
-            PromotionDTO promotionDTO = iPromotionService.updatePromotion(file, id, name, value, status, start,
-                    end); // Truyền promotionType và invoiceTypeId vào đây
+            PromotionDTO promotionDTO =
+                    iPromotionService.updatePromotion(file, id, name, value, status, start, end); // Truyền
+                                                                                                  // promotionType
+                                                                                                  // và
+                                                                                                  // invoiceTypeId
+                                                                                                  // vào
+            responseData.setStatus(HttpStatus.OK); // đây
             responseData.setDesc("Update successful");
             responseData.setData(promotionDTO);
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
-        } catch (BadRequestException e) {
-            return handleBadRequestException(e);
+            return new ResponseEntity<>(responseData, responseData.getStatus());
+        } catch (ApplicationException e) {
+            throw new ApplicationException("Error at update promotionController: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            return handleException(e);
+            throw new ApplicationException("Error at update promotionController: " + e.getMessage(),
+                    "Something wrong while update promotion!");
         }
     }
 
     @GetMapping("/delete/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public ResponseEntity<?> delete(@PathVariable int id) {
         try {
             ResponseData responseData = new ResponseData();
             PromotionDTO promotionDTO = iPromotionService.findById(id);
             if (promotionDTO == null) {
-                throw new ResourceNotFoundException("Promotion not found with id: " + id);
+                throw new ApplicationException("Promotion not found with id: " + id,
+                        HttpStatus.NOT_FOUND);
             }
             iPromotionService.deletePromotion(id);
+            responseData.setStatus(HttpStatus.OK);
             responseData.setDesc("Delete successful");
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
-        } catch (ResourceNotFoundException e) {
-            ResponseData responseData = new ResponseData();
-            responseData.setStatus(HttpStatus.NOT_FOUND);
-            responseData.setDesc(e.getMessage());
-            return new ResponseEntity<>(responseData, HttpStatus.NOT_FOUND);
-        } catch (BadRequestException e) {
-            ResponseData responseData = new ResponseData();
-            responseData.setStatus(HttpStatus.BAD_REQUEST);
-            responseData.setDesc(e.getMessage());
-            return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(responseData, responseData.getStatus());
+        } catch (ApplicationException e) {
+            throw new ApplicationException("Error at delete promotionController: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            ResponseData responseData = new ResponseData();
-            responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-            responseData.setDesc("An unexpected error occurred: " + e.getMessage());
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ApplicationException("Error at delete promotionController: " + e.getMessage(),
+                    "Something wrong while delete promotion!");
         }
     }
 
@@ -146,30 +134,24 @@ public class PromotionController {
     public ResponseEntity<?> viewPolicy(@PathVariable int id) {
         try {
             ResponseData responseData = new ResponseData();
-            InvoiceType invoiceType = iInvoiceTypeRepository.findById(id)
-                    .orElseThrow(() -> new BadRequestException("not found with invoice type id: " + id));
-            List<PromotionDTO> lPromotionDTOs = iPromotionService.findByInvoiceTypeAndStatusTrue(invoiceType).stream()
-                    .map(Promotion::getDTO)
-                    .collect(Collectors.toList());
+            InvoiceType invoiceType = iInvoiceTypeRepository.findById(id).orElseThrow(
+                    () -> new ApplicationException("Not found with invoice type id: " + id,
+                            HttpStatus.NOT_FOUND));
+            List<PromotionDTO> lPromotionDTOs =
+                    iPromotionService.findByInvoiceTypeAndStatusTrue(invoiceType).stream()
+                            .map(Promotion::getDTO).collect(Collectors.toList());
             responseData.setStatus(HttpStatus.OK);
             responseData.setDesc("get policy successful");
             responseData.setData(lPromotionDTOs);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
-        } catch (ResourceNotFoundException e) {
-            ResponseData responseData = new ResponseData();
-            responseData.setStatus(HttpStatus.NOT_FOUND);
-            responseData.setDesc(e.getMessage());
-            return new ResponseEntity<>(responseData, HttpStatus.NOT_FOUND);
-        } catch (BadRequestException e) {
-            ResponseData responseData = new ResponseData();
-            responseData.setStatus(HttpStatus.BAD_REQUEST);
-            responseData.setDesc(e.getMessage());
-            return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at viewPolicy promotionController: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            ResponseData responseData = new ResponseData();
-            responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-            responseData.setDesc("An unexpected error occurred: " + e.getMessage());
-            return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ApplicationException(
+                    "Error at viewPolicy promotionController: " + e.getMessage(),
+                    "Something wrong while view policy!");
         }
     }
 
@@ -178,18 +160,18 @@ public class PromotionController {
         try {
             ResponseData responseData = new ResponseData();
             PromotionDTO promotionDTO = iPromotionService.findById(id);
+            responseData.setStatus(HttpStatus.OK);
             responseData.setDesc("Find successful");
             responseData.setData(promotionDTO);
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
-        } catch (ResourceNotFoundException e) {
-            ResponseData responseData = new ResponseData();
-            responseData.setStatus(HttpStatus.NOT_FOUND);
-            responseData.setDesc(e.getMessage());
-            return new ResponseEntity<>(responseData, HttpStatus.NOT_FOUND);
-        } catch (BadRequestException e) {
-            return handleBadRequestException(e);
+            return new ResponseEntity<>(responseData, responseData.getStatus());
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at getById promotionController: " + e.getMessage(), e.getErrorString(),
+                    e.getStatus());
         } catch (Exception e) {
-            return handleException(e);
+            throw new ApplicationException(
+                    "Error at getById promotionController: " + e.getMessage(),
+                    "Something wrong while get promotion/policy by id!");
         }
     }
 
@@ -208,8 +190,14 @@ public class PromotionController {
             }
             return new ResponseEntity<>(new ResponseData(null, "Get list promotion success", list2),
                     HttpStatus.OK);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at getPromotionsByProductId promotionController: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            return handleBadRequestException(e);
+            throw new ApplicationException(
+                    "Error at getPromotionsByProductId promotionController: " + e.getMessage(),
+                    "Something wrong while get promotion/policy by product id!");
         }
 
     }
@@ -218,32 +206,19 @@ public class PromotionController {
     public ResponseEntity<?> getPromotionsByUserId(@RequestParam int userId) {
         try {
             PromotionDTO promotion = iPromotionService.getPromotionsByUserId(userId);
-            ResponseData responseData = new ResponseData(HttpStatus.OK, "Get promotion success", promotion);
+            ResponseData responseData =
+                    new ResponseData(HttpStatus.OK, "Get promotion success", promotion);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
+        } catch (ApplicationException e) {
+            throw new ApplicationException(
+                    "Error at getPromotionsByUserId promotionController: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
         } catch (Exception e) {
-            return handleBadRequestException(e);
+            throw new ApplicationException(
+                    "Error at getPromotionsByUserId promotionController: " + e.getMessage(),
+                    "Something wrong while get promotion/policy by user id!");
         }
 
     }
 
-    private ResponseEntity<?> handleBadRequestException(Exception e) {
-        ResponseData responseData = new ResponseData();
-        responseData.setStatus(HttpStatus.BAD_REQUEST);
-        responseData.setDesc(e.getMessage());
-        return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
-    }
-
-    private ResponseEntity<?> handleException(Exception e) {
-        ResponseData responseData = new ResponseData();
-        responseData.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-        responseData.setDesc("An unexpected error occurred: " + e.getMessage());
-        return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @PostMapping("/upload")
-    public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
-        ResponseData response = firebaseStorageService.uploadImage(file, filePath);
-        return new ResponseEntity<>(response, response.getStatus());
-
-    }
 }
