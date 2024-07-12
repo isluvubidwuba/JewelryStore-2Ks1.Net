@@ -68,21 +68,18 @@ function renderEmployees(employees) {
               <td class="px-6 py-4" id="employee-image-${employee.id}">
                   Loading...
               </td>
-              <td class="px-6 py-3">${employee.firstName} ${
-      employee.lastName
-    }</td>
+              <td class="px-6 py-3">${employee.firstName} ${employee.lastName
+      }</td>
               <td class="px-6 py-3">${employee.role.name}</td>
               <td class="px-6 py-3">${statusLabel}</td>
               <td class="px-6 py-3">${formatCurrency(
-                employee.totalRevenue
-              )}</td>
+        employee.totalRevenue
+      )}</td>
               <td class="px-6 py-3">
-                <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" data-view-employee="${
-                  employee.id
-                }">View</button>
-                <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" data-view-employee2="${
-                  employee.id
-                }">Revenue</button>
+                <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" data-view-employee="${employee.id
+      }">View</button>
+                <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" data-view-employee2="${employee.id
+      }">Revenue</button>
               </td>
           </tr>
       `;
@@ -322,6 +319,40 @@ function closeInsertModal() {
 
 function handleInsertEmployee(event) {
   event.preventDefault();
+
+  const phoneNumber = $("#insertPhoneNumber").val();
+  const email = $("#insertEmail").val();
+  const firstName = $("#insertFirstName").val();
+  const lastName = $("#insertLastName").val();
+  const address = $("#insertAddress").val().trim();
+  const role = $("#insertRole").val();
+
+  // Check if any field is empty
+  if (!phoneNumber || !email || !firstName || !lastName || !address || !role) {
+    showNotification("All fields are required", "Error");
+    return;
+  }
+
+  if (!isValidPhoneNumber(phoneNumber)) {
+    showNotification("Phone number must be exactly 10 digits", "Error");
+    return;
+  }
+
+  if (!isValidEmail(email)) {
+    showNotification("Email must be in the format @gmail.com", "Error");
+    return;
+  }
+
+  if (!isValidName(firstName)) {
+    showNotification("Name must not contain special characters or numbers", "Error");
+    return;
+  }
+
+  if (!isValidName(lastName)) {
+    showNotification("Name must not contain special characters or numbers", "Error");
+    return;
+  }
+
   var formData = new FormData($("#insertEmployeeForm")[0]);
   userService
     .sendAjaxWithAuthen(
@@ -343,17 +374,28 @@ function handleInsertEmployee(event) {
       }
     })
     .catch((error) => {
-      showNotification("Error inserting user!", "Error");
       if (error.responseJSON) {
         showNotification(
-          "Error while inserting employee: " + error.responseJSON.desc,
+          error.responseJSON.desc,
           "Error"
         );
       } else {
-        console.error("Error while inserting employee: ", error);
         showNotification("Error inserting user!", "Error");
       }
     });
+}
+function isValidPhoneNumber(phoneNumber) {
+  var phoneRegex = /^\d{10}$/;
+  return phoneRegex.test(phoneNumber);
+}
+
+function isValidEmail(email) {
+  var emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+  return emailRegex.test(email);
+}
+function isValidName(name) {
+  var nameRegex = /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯàáâãèéêìíòóôõùúăđĩũơưĂẮẰẲẴẶẤẦẨẪẬẮẰẲẴẶÉẾỀỂỄỆÍÌỈĨỊỈÌỊÉÊÍÒÓÔÕÙÚỦŨỤƯỨỪỬỮỰÝỲỶỸỴỹýỳỵỷỹỵơớờởỡợợáạảãàâấầẩậẫắằẳẵặèéẹẻẽêếềểễệìíỉĩịòóọỏõôốồổỗộơớờởỡợùúụủũưứừửữựýỳỷỹỵỵ]+(\s[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯàáâãèéêìíòóôõùúăđĩũơưĂẮẰẲẴẶẤẦẨẪẬẮẰẲẴẶÉẾỀỂỄỆÍÌỈĨỊỈÌỊÉÊÍÒÓÔÕÙÚỦŨỤƯỨỪỬỮỰÝỲỶỸỴỹýỳỵỷỹỵơớờởỡợợáạảãàâấầẩậẫắằẳẵặèéẹẻẽêếềểễệìíỉĩịòóọỏõôốồổỗộơớờởỡợùúụủũưứừửữựýỳỷỹỵỵ]+)*$/u;
+  return nameRegex.test(name);
 }
 
 function handleSendMailEmployee(idEmploy) {
@@ -400,10 +442,15 @@ function initializeSearchForm() {
     const criteria = $("#selected-criteria").text().toLowerCase();
     const query = $("#searchInput").val();
 
+    // General validation for empty input
+    if (query === "") {
+      showNotification("Search query cannot be empty", "Error");
+      return;
+    }
     // Validation
     if (criteria === "id" && !/^SE\d{8}$/.test(query)) {
       showNotification(
-        "Invalid ID format. ID should start with 'SE' followed by 8 digits.",
+        "Invalid ID format. ID should start with 'SE' followed by 8 digits",
         "Error"
       );
       return;
@@ -414,7 +461,7 @@ function initializeSearchForm() {
       !["ADMIN", "MANAGER", "STAFF"].includes(query.toUpperCase())
     ) {
       showNotification(
-        "Invalid role. Valid roles are ADMIN, MANAGER, STAFF.",
+        "Invalid role. Valid roles are ADMIN, MANAGER, STAFF",
         "Error"
       );
       return;
@@ -425,7 +472,15 @@ function initializeSearchForm() {
       !["active", "inactive"].includes(query.toLowerCase())
     ) {
       showNotification(
-        "Invalid status. Valid statuses are active or inactive.",
+        "Invalid status. Valid statuses are active or inactive",
+        "Error"
+      );
+      return;
+    }
+    
+    if (criteria === "name" && !isValidName(query)) {
+      showNotification(
+        "Invalid name format. Name should not contain special characters or numbers",
         "Error"
       );
       return;
@@ -457,15 +512,26 @@ function searchEmployees(criteria, query, page) {
     .sendAjaxWithAuthen(apiUrl, "POST", null)
     .then((response) => {
       if (response.status === "OK") {
-        renderEmployees(response.data.employees);
-        updatePagination(response.data.currentPage, response.data.totalPages);
-        currentPage = response.data.currentPage;
+        if (response.data.employees && response.data.employees.length > 0) {
+          showNotification(response.desc, "OK");
+          renderEmployees(response.data.employees);
+          updatePagination(response.data.currentPage, response.data.totalPages);
+          currentPage = response.data.currentPage;
+        } else {
+          showNotification("Employee not exist in system", "Error");
+        }
       } else {
-        showNotification("Failed to search employee data.", "Error");
+        showNotification(response.desc || "Failed to search employee data.", "Error");
       }
     })
-    .catch(() => {
-      showNotification("Error while searching employee data.", "Error");
+    .catch((error) => {
+      // Check if the error response contains a JSON body
+      if (error.responseJSON && error.responseJSON.desc) {
+        showNotification(error.responseJSON.desc, "Error");
+      } else {
+        console.error("Error details: ", error);
+        showNotification("Error while searching employee data.", "Error");
+      }
     });
 }
 

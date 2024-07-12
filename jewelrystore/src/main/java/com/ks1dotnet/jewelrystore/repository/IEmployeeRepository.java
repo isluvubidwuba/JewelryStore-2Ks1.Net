@@ -29,6 +29,14 @@ public interface IEmployeeRepository extends JpaRepository<Employee, String> {
 
     public boolean existsByPhoneNumber(String phoneNumber);
 
+    // Kiểm tra email tồn tại trừ ID hiện tại
+    @Query("SELECT COUNT(e) > 0 FROM Employee e WHERE e.id != :id AND e.email = :email")
+    public boolean existsByEmailExceptId(@Param("email") String email, @Param("id") String id);
+
+    // Kiểm tra số điện thoại tồn tại trừ ID hiện tại
+    @Query("SELECT COUNT(e) > 0 FROM Employee e WHERE e.id != :id AND e.phoneNumber = :phone")
+    public boolean existsByPhoneNumberExceptId(@Param("phone") String phoneNumber, @Param("id") String id);
+
     public boolean existsById(String id);
 
     @Query("SELECT e FROM Employee e WHERE e.role.id = 3")

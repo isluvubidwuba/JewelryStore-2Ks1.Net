@@ -45,6 +45,11 @@ function saveChanges() {
   const firstSpaceIndex = fullName.indexOf(" ");
   let firstName, lastName;
 
+  if (fullName !== "" && !isValidName(fullName)) {
+    showNotification("Name must not contain special characters or numbers and be appropriate for Vietnamese names!", "Error");
+    return;
+  }
+
   if (firstSpaceIndex === -1) {
     // Không tìm thấy khoảng trắng, giả sử fullName chỉ có first name
     firstName = fullName;
@@ -52,6 +57,20 @@ function saveChanges() {
   } else {
     firstName = fullName.substring(0, firstSpaceIndex);
     lastName = fullName.substring(firstSpaceIndex + 1);
+  }
+
+
+  const phoneNumber = document.getElementById("employeePhoneNumberInput").value.trim();
+  const email = document.getElementById("employeeEmailInput").value.trim();
+
+  if (phoneNumber !== "" && !isValidPhoneNumber(phoneNumber)) {
+    showNotification("Phone number must be exactly 10 digits", "Error");
+    return;
+  }
+
+  if (email !== "" && !isValidEmail(email)) {
+    showNotification("Email must be in the format @gmail.com", "Error");
+    return;
   }
 
   formData.append("id", localStorage.getItem("userId"));
@@ -92,15 +111,29 @@ function saveChanges() {
           document.querySelector("#employeeImage img").src =
             URL.createObjectURL(fileInput.files[0]);
         }
+        clearInput();
         showNotification(data.desc, "OK");
         cancelChanges();
       } else {
         showNotification("Update failed: " + data.desc, "Error");
       }
     })
-    .catch(() => {
-      showNotification("Error when call API.", "Error");
+    .catch((error) => {
+      
+      if (error.responseJSON && error.responseJSON.desc) {
+        showNotification(error.responseJSON.desc, "Error");
+      } else {
+        showNotification("Error calling API", "Error");
+      }
     });
+}
+
+
+function clearInput() {
+  $("#employeePhoneNumberInput").val("");
+  $("#employeeEmailInput").val("");
+  $("#employeeNameInput").val("");
+  $("#employeeAddressInput").val("");
 }
 
 function cancelChanges() {
@@ -111,8 +144,26 @@ function cancelChanges() {
     element.parentElement.style.display = "block";
   });
   document.querySelector(".edit-buttons").style.display = "none";
+  clearInput();
 }
 
+
+
+
+function isValidPhoneNumber(phoneNumber) {
+  var regex = /^\d{10}$/;
+  return regex.test(phoneNumber);
+}
+
+function isValidEmail(email) {
+  var regex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+  return regex.test(email);
+}
+
+function isValidName(name) {
+  var fullNameRegex = /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯàáâãèéêìíòóôõùúăđĩũơưĂẮẰẲẴẶẤẦẨẪẬẮẰẲẴẶÉẾỀỂỄỆÍÌỈĨỊỈÌỊÉÊÍÒÓÔÕÙÚỦŨỤƯỨỪỬỮỰÝỲỶỸỴỹýỳỵỷỹỵơớờởỡợợáạảãàâấầẩậẫắằẳẵặèéẹẻẽêếềểễệìíỉĩịòóọỏõôốồổỗộơớờởỡợùúụủũưứừửữựýỳỷỹỵỵ]+(\s[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯàáâãèéêìíòóôõùúăđĩũơưĂẮẰẲẴẶẤẦẨẪẬẮẰẲẴẶÉẾỀỂỄỆÍÌỈĨỊỈÌỊÉÊÍÒÓÔÕÙÚỦŨỤƯỨỪỬỮỰÝỲỶỸỴỹýỳỵỷỹỵơớờởỡợợáạảãàâấầẩậẫắằẳẵặèéẹẻẽêếềểễệìíỉĩịòóọỏõôốồổỗộơớờởỡợùúụủũưứừửữựýỳỷỹỵỵ]+)*$/u;
+  return fullNameRegex.test(name)
+}
 // Gán hàm vào đối tượng window để có thể truy cập từ HTML
 window.editField = editField;
 window.saveChanges = saveChanges;
