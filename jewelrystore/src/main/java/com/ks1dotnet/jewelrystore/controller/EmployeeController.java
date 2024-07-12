@@ -23,6 +23,7 @@ import com.ks1dotnet.jewelrystore.exception.ApplicationException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.MailService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IEmployeeService;
+import com.ks1dotnet.jewelrystore.utils.JwtUtilsHelper;
 import io.jsonwebtoken.Claims;
 
 @RestController
@@ -47,7 +48,9 @@ public class EmployeeController {
     @GetMapping("/listpage")
     @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public ResponseEntity<?> getHomePageEmployee(@RequestParam int page) {
-        ResponseData responseData = iEmployeeService.getHomePageEmployee(page);
+        Claims ATTokenClaims = JwtUtilsHelper.getAuthorizationByTokenType("at");
+        ResponseData responseData =
+                iEmployeeService.getHomePageEmployee(page, ATTokenClaims.getSubject());
         return new ResponseEntity<>(responseData, responseData.getStatus());
     }
 
@@ -58,7 +61,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/listemployee/{id}")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public ResponseEntity<?> findEmployee(@PathVariable String id) {
         ResponseData responseData = iEmployeeService.listEmployee(id);
         return new ResponseEntity<>(responseData, responseData.getStatus());
@@ -171,8 +174,7 @@ public class EmployeeController {
     public ResponseEntity<?> changePass(@RequestParam String pwd) {
         try {
             ResponseData responseData = new ResponseData();
-            Claims claim = (Claims) SecurityContextHolder.getContext().getAuthentication()
-                    .getCredentials();
+            Claims claim = JwtUtilsHelper.getAuthorizationByTokenType("at");
             String idEmploy = claim.getSubject();
             if (!idEmploy.startsWith("SE"))
                 throw new ApplicationException("No employee found " + idEmploy,

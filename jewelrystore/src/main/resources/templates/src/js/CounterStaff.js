@@ -9,10 +9,13 @@ $(document).ready(function () {
 const token = localStorage.getItem("token");
 
 function fetchCounters() {
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/counter/allactivecounter`,
-    "GET",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/counter/allactivecounter`,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         const counters = response.data;
         generateTabs(counters);
@@ -24,12 +27,10 @@ function fetchCounters() {
           fetchProductsByCounter(firstCounterId);
         }
       }
-    },
-    function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching counters:", error);
-    },
-    null
-  );
+    });
 }
 
 function generateTabs(counters) {
@@ -177,12 +178,15 @@ function generateTabContents(counters) {
 }
 
 function fetchProductsByCounter(counterId, page = 1) {
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/counter/listproductsbycounter?counterId=${counterId}&page=${
-      page - 1
-    }`,
-    "GET",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/counter/listproductsbycounter?counterId=${counterId}&page=${
+        page - 1
+      }`,
+      "GET",
+      null
+    )
+    .then((response) => {
       const products = response.products;
       const tableBody = $(`#table-body-${counterId}`);
       tableBody.empty();
@@ -244,12 +248,10 @@ function fetchProductsByCounter(counterId, page = 1) {
           .prop("disabled", false)
           .removeClass("opacity-50 cursor-not-allowed");
       }
-    },
-    function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching products:", error);
-    },
-    null
-  );
+    });
 }
 
 function switchToTab(counterId) {

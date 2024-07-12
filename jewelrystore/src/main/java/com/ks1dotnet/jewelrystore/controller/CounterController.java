@@ -56,10 +56,10 @@ public class CounterController {
     // load các list product theo counter lên để thể hiện counter nào chứa những
     // product nào
     @GetMapping("/listproductsbycounter")
-    public ResponseEntity<Map<String, Object>> listProductsByCounter(@RequestParam int counterId,
+    public ResponseEntity<?> listProductsByCounter(@RequestParam int counterId,
             @RequestParam int page) {
-        Map<String, Object> response = iCounterSerivce.listProductsByCounter(counterId, page);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        ResponseData response = iCounterSerivce.listProductsByCounter(counterId, page);
+        return new ResponseEntity<>(response, response.getStatus());
     }
 
     // trường hợp chuyển product sang quầy khác

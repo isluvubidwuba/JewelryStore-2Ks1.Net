@@ -94,10 +94,10 @@ public class PromotionController {
                                                                                                   // và
                                                                                                   // invoiceTypeId
                                                                                                   // vào
-                                                                                                  // đây
+            responseData.setStatus(HttpStatus.OK); // đây
             responseData.setDesc("Update successful");
             responseData.setData(promotionDTO);
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
+            return new ResponseEntity<>(responseData, responseData.getStatus());
         } catch (ApplicationException e) {
             throw new ApplicationException("Error at update promotionController: " + e.getMessage(),
                     e.getErrorString(), e.getStatus());
@@ -118,8 +118,9 @@ public class PromotionController {
                         HttpStatus.NOT_FOUND);
             }
             iPromotionService.deletePromotion(id);
+            responseData.setStatus(HttpStatus.OK);
             responseData.setDesc("Delete successful");
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
+            return new ResponseEntity<>(responseData, responseData.getStatus());
         } catch (ApplicationException e) {
             throw new ApplicationException("Error at delete promotionController: " + e.getMessage(),
                     e.getErrorString(), e.getStatus());
@@ -159,9 +160,10 @@ public class PromotionController {
         try {
             ResponseData responseData = new ResponseData();
             PromotionDTO promotionDTO = iPromotionService.findById(id);
+            responseData.setStatus(HttpStatus.OK);
             responseData.setDesc("Find successful");
             responseData.setData(promotionDTO);
-            return new ResponseEntity<>(responseData, HttpStatus.OK);
+            return new ResponseEntity<>(responseData, responseData.getStatus());
         } catch (ApplicationException e) {
             throw new ApplicationException(
                     "Error at getById promotionController: " + e.getMessage(), e.getErrorString(),

@@ -3,14 +3,14 @@ import UserService from "./userService.js";
 const userService = new UserService();
 
 $(document).ready(function () {
-  validPromotion;
-  handleLogin;
-  handleSendOtp;
-
-  $("#loginButton").click(handleLogin);
+  $("#loginButton").click(() => handleLogin());
   $("#forgetPassword").click(() => {
     toggleForms("#loginForm", "#forgetPasswordForm");
-    $("#sendOtp").click(handleSendOtp);
+    $("#sendOtp")
+      .off("click")
+      .on("click", () => {
+        handleSendOtp();
+      }); // Prevent multiple event attachments
   });
   $("#validateOTP").click(function () {
     var idEmploy = $("#resendButton").attr("data-idEm");
@@ -29,69 +29,84 @@ $(document).ready(function () {
       return true;
     };
 
-    if (checkPasswordMatch) {
-      changePasss($("#passswordChange").val());
+    if (checkPasswordMatch()) {
+      changePass($("#passswordChange").val()); // Fixed function name
     }
   });
   $("[name='backToLoginButton']").click(function () {
     toggleForms("#forgetPasswordForm, #otpForm, #changePassForm", "#loginForm");
   });
 });
-const handleLogin = () => {
+
+async function handleLogin() {
   const id = $("#name").val();
   const pinCode = $("#pincode").val();
-  userService.sendAjax(
-    `http://${userService.getApiUrl()}/api/authentication/signup`,
-    "POST",
-    handleLoginSuccess,
-    handleLoginError,
-    { id: id, pinCode: pinCode }
-  );
-};
-function handleLoginError(xhr) {
-  showNotification(
-    "Login failed: " + (xhr.responseJSON?.desc || "Unknown error"),
-    "error"
-  );
-}
-function handleLoginSuccess(response) {
-  const { status, data, desc } = response;
-  if (status === "OK" && data) {
-    const { at } = data;
+  try {
+    const response = await userService.sendAjax(
+      `http://${userService.getApiUrl()}/api/authentication/signup`,
+      "POST",
+      { id: id, pinCode: pinCode }
+    );
+    const { status, data, desc } = response;
+    if (status === "OK" && data) {
+      const { at } = data;
+      if (at) {
+        const { sub, role } = userService.parseJwt(at);
+        userService.setToken(at);
+        userService.setUserId(sub);
+        userService.setUserRole(role);
+        await validPromotion();
+        let role_1 = userService.getUserRole();
+        const redirectUrl =
+          role_1 === "ADMIN" || role_1 === "MANAGER"
+            ? "DashboardAdmin.html"
+            : role_1 === "STAFF"
+            ? "StaffScreen.html"
+            : null;
 
-    if (at) {
-      const { sub, role } = userService.parseJwt(at);
-      localStorage.setItem("token", at);
-      localStorage.setItem("userId", sub);
-      localStorage.setItem("userRole", role);
-
-      const redirectUrl =
-        role === "ADMIN" || role === "MANAGER"
-          ? "DashboardAdmin.html"
-          : role === "STAFF"
-          ? "StaffScreen.html"
-          : null;
-
-      if (redirectUrl) {
-        window.location.href = redirectUrl;
-      } else {
-        alert("Role Not Available!");
+        if (redirectUrl) window.location.href = redirectUrl;
       }
-    } else {
-      alert("Error Data From Server!");
     }
-  } else {
-    alert(desc);
+  } catch (response_2) {
+    showNotification(
+      "Login failed: " + (response_2.responseJSON?.desc || "Unknown error"),
+      "error"
+    );
   }
 }
-const handleSendOtp = () => {
+
+async function validPromotion() {
+  try {
+    return await userService.sendAjax(
+      `http://${userService.getApiUrl()}/api/promotion/valid`,
+      "GET",
+      null
+    );
+  } catch (error) {
+    if (error.responseJSON) {
+      showNotification(error.responseJSON.desc, "error");
+    } else {
+      showNotification("Error validating promotion!", "error");
+    }
+  }
+}
+async function handleSendOtp() {
   const idEmploy = $("#idEmployyee").val();
   if (!idEmploy) return;
+
+  // Show the loader
+  $("#loader-overlay").removeClass("hidden");
+
   $("#resendButton").attr("data-idEm", idEmploy);
-  sendOtp(idEmploy);
-  toggleForms("#forgetPasswordForm", "#otpForm");
-  countDownResend();
-};
+  var check = await sendOtp(idEmploy);
+  $("#loader-overlay").addClass("hidden");
+
+  if (check) {
+    toggleForms("#forgetPasswordForm", "#otpForm");
+    countDownResend();
+  }
+}
+
 const toggleForms = (hideSelector, showSelector) => {
   $(hideSelector).addClass("hidden");
   $(showSelector).removeClass("hidden");
@@ -124,92 +139,90 @@ const countDownResend = () => {
       .removeClass("hidden")
       .text(`Request resend OTP in 00:${countdown}`);
     sendOtp(resendButton.attr("data-idEm"));
-    setInterval(interval);
+    clearInterval(interval); // Clear the previous interval before starting a new one
+    setInterval(() => {
+      // Start a new interval
+      if (countdown > 0) {
+        countdown--;
+        countdownElement.text(
+          `Request resend OTP in 00:${
+            countdown < 10 ? "0" + countdown : countdown
+          }`
+        );
+      } else {
+        clearInterval(interval);
+        countdownElement.addClass("hidden");
+        resendButton.removeClass("hidden");
+      }
+    }, 1000);
   });
 };
 
-const sendOtp = (idEmploy) => {
-  userService.sendAjax(
-    `http://${userService.getApiUrl()}/api/mail/sendOtp/${idEmploy}`,
-    "POST",
-    ({ status, desc }) => {
-      if (status !== "OK") {
-        showNotification(desc, "error");
-      }
-    },
-    (error) => {
+function sendOtp(idEmploy) {
+  return userService
+    .sendAjax(
+      `http://${userService.getApiUrl()}/api/authentication/sendOtp/${idEmploy}`,
+      "POST"
+    )
+    .then(() => true)
+    .catch((error) => {
       if (error.responseJSON) {
         showNotification(error.responseJSON.desc, "error");
       } else {
-        showNotification("Error while send OTP to employee email!", "error");
+        showNotification("Error while sending OTP to employee email!", "error");
       }
-    }
-  );
-};
+      return false;
+    });
+}
+
 const validateOtp = (idEmploy, otp) => {
-  userService.sendAjax(
-    `http://${userService.getApiUrl()}/api/employee/validateOtp`,
-    "POST",
-    ({ status, desc, data }) => {
-      token = data;
+  userService
+    .sendAjax(
+      `http://${userService.getApiUrl()}/api/authentication/validateOtp`,
+      "POST",
+      $.param({ otp: otp, idEmployee: idEmploy })
+    )
+    .then(({ status, desc, data }) => {
+      if (data.at) userService.setToken(data.at);
       toggleForms("#otpForm", "#changePassForm");
       if (status !== "OK") {
         showNotification(desc, "error");
       }
-    },
-    (error) => {
+    })
+    .catch((error) => {
       if (error.responseJSON) {
         showNotification(error.responseJSON.desc, "error");
       } else {
-        showNotification("Error validate OTP!", "error");
+        showNotification("Error validating OTP!", "error");
       }
-    },
-    { otp: otp, idEmployee: idEmploy }
-  );
+    });
 };
 
-const changePasss = (password) => {
-  userService.sendAjax(
-    `http://${userService.getApiUrl()}/api/employee/changePass`,
-    "POST",
-    ({ status, desc, data }) => {
-      token = null;
+const changePass = (password) => {
+  // Fixed function name
+  userService
+    .sendAjax(
+      `http://${userService.getApiUrl()}/api/employee/changePass`,
+      "POST",
+      $.param({
+        pwd: password,
+      })
+    )
+    .then(({ status, desc, data }) => {
+      userService.setToken(null);
       $("#resendButton").attr("data-idEm", "");
       if (status == "OK") {
-        showNotification("Change password successfully", "OK");
+        showNotification("Password changed successfully", "OK");
         toggleForms("#changePassForm", "#loginForm");
-      }
-      if (status !== "OK") {
-        showNotification(desc, "Error");
-      }
-    },
-    (error) => {
-      if (error.responseJSON) {
-        showNotification(error.responseJSON.desc);
       } else {
-        showNotification("Error while change password!");
+        showNotification(desc, "error");
       }
-    },
-    {
-      pwd: password,
-      token: token,
-      idEmploy: $("#resendButton").attr("data-idEm"),
-    }
-  );
-};
-
-const validPromotion = () => {
-  userService.sendAjax(
-    `http://${userService.getApiUrl()}/api/promotion/valid`,
-    "GET",
-    null,
-    (error) => {
+    })
+    .catch((error) => {
       if (error.responseJSON) {
-        showNotification(error.responseJSON.desc);
+        showNotification(error.responseJSON.desc, "error");
       } else {
-        showNotification("Error valid promo");
+        showNotification("Error while changing password!", "error");
       }
-    },
-    null
-  );
+    });
 };

@@ -8,21 +8,17 @@ import com.ks1dotnet.jewelrystore.dto.RoleDTO;
 import com.ks1dotnet.jewelrystore.entity.Role;
 import com.ks1dotnet.jewelrystore.repository.IRoleRepository;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IRoleService;
-import com.ks1dotnet.jewelrystore.utils.JwtUtilsHelper;
-import io.jsonwebtoken.Claims;
 
 @Service
 public class RoleService implements IRoleService {
     @Autowired
     private IRoleRepository iRoleRepository;
-    @Autowired
-    private JwtUtilsHelper jwtUtilsHelper;
+
 
     @Override
-    public List<RoleDTO> findAll() {
-        Claims RTTokenClaims = jwtUtilsHelper.getAuthorizationByTokenType("at");
+    public List<RoleDTO> findAll(String id) {
         List<Role> listRole;
-        if ("admin".equals(RTTokenClaims.getSubject()))
+        if ("admin".equals(id))
             listRole = iRoleRepository.findAll();
         else
             listRole = iRoleRepository.findAllExceptRole(1);

@@ -10,10 +10,13 @@ $(document).ready(function () {
 });
 
 function fetchRoles() {
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/role/list`,
-    "GET",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/role/list`,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         const roles = response.data.filter(
           (role) => !["STAFF", "ADMIN", "MANAGER"].includes(role.name)
@@ -25,12 +28,10 @@ function fetchRoles() {
       } else {
         showNotification("Fail to load Role.", "error");
       }
-    },
-    function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching roles:", error);
-    },
-    null
-  );
+    });
 }
 
 function initTabs(roles) {
@@ -38,7 +39,6 @@ function initTabs(roles) {
     $("#role-tabs").append(createTab(role));
     $("#tab-contents").append(createTabContent(role));
   });
-
 
   // Append the insert user button
   $("#role-tabs").append(
@@ -60,8 +60,6 @@ function populateRoleSelect(roles, selector) {
     roleSelect.append(`<option value="${role.id}">${role.name}</option>`);
   });
 }
-
-
 
 function createTab(role) {
   return `<li class="mr-1">
@@ -161,10 +159,13 @@ function fetchImage(elementId, imageUrl) {
 }
 
 function fetchCustomers(page) {
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/userinfo/listcustomer?page=${page}`,
-    "GET",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/userinfo/listcustomer?page=${page}`,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         const { customers, totalPages, currentPage } = response.data;
         fetchCustomerRanks(function (ranks) {
@@ -172,19 +173,20 @@ function fetchCustomers(page) {
           updatePagination(currentPage, totalPages, "customer");
         });
       }
-    },
-    function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching customers:", error);
-    },
-    null
-  );
+    });
 }
 
 function fetchCustomerRanks(callback) {
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/earnpoints/rank`,
-    "GET",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/earnpoints/rank`,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         const ranks = response.data.map((rank) => ({
           customerId: rank.userInfoDTO.id,
@@ -193,31 +195,30 @@ function fetchCustomerRanks(callback) {
         }));
         callback(ranks);
       }
-    },
-    function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching customer ranks:", error);
       callback([]);
-    },
-    null
-  );
+    });
 }
 
 function fetchSuppliers(page) {
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/userinfo/listsupplier?page=${page}`,
-    "GET",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/userinfo/listsupplier?page=${page}`,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         const { suppliers, totalPages, currentPage } = response.data;
         populateTable(suppliers, [], currentPage, "Supplier");
         updatePagination(currentPage, totalPages, "supplier");
       }
-    },
-    function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching suppliers:", error);
-    },
-    null
-  );
+    });
 }
 
 function populateTable(data, ranks, currentPage, role) {
@@ -240,8 +241,9 @@ function populateTable(data, ranks, currentPage, role) {
     }
     const row = `<tr class="text-center">
                   <td class="py-2 px-4 border-b">${count++}</td>
-                  <td class="py-2 px-4 border-b" id="${role.toLowerCase()}-image-${item.id
-      }">
+                  <td class="py-2 px-4 border-b" id="${role.toLowerCase()}-image-${
+      item.id
+    }">
                     Loading...
                   </td>
                   <td class="py-2 px-4 border-b">${item.fullName}</td>
@@ -249,8 +251,9 @@ function populateTable(data, ranks, currentPage, role) {
                   <td class="py-2 px-4 border-b">${item.email}</td>
                   <td class="py-2 px-4 border-b">${item.address}</td>
                   ${rankInfo}
-                  <td class="py-2 px-4 border-b"><button class="edit-btn" data-id="${item.id
-      }"><i class="fas fa-edit"></i></button></td>
+                  <td class="py-2 px-4 border-b"><button class="edit-btn" data-id="${
+                    item.id
+                  }"><i class="fas fa-edit"></i></button></td>
                 </tr>`;
     tableBody.append(row);
 
@@ -327,10 +330,13 @@ function setupEditButtons() {
 }
 
 function fetchUserInfo(id) {
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/userinfo/findcustomer/${id}`,
-    "GET",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/userinfo/findcustomer/${id}`,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         const user = response.data;
         $("#update-id").val(user.id);
@@ -341,21 +347,22 @@ function fetchUserInfo(id) {
         $("#update-role").val(user.role.id);
         $("#updateEmployeeImagePreview").attr("src", user.image);
       }
-    },
-    function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching user info:", error);
-    },
-    null
-  );
+    });
 }
 
 function updateUser() {
   var formData = new FormData($("#update-user-form")[0]);
 
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/userinfo/update`,
-    "POST",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/userinfo/update`,
+      "POST",
+      formData
+    )
+    .then((response) => {
       if (response.status === "OK") {
         showNotification("User updated successfully!", "OK");
 
@@ -372,8 +379,8 @@ function updateUser() {
       } else {
         showNotification("Error updating user: " + response.desc, "OK");
       }
-    },
-    function (error) {
+    })
+    .catch((error) => {
       if (error.responseJSON) {
         showNotification(
           "Error updating user: " + error.responseJSON.desc,
@@ -383,9 +390,7 @@ function updateUser() {
         console.error("Error updating user:", error);
         showNotification("Error updating user!", "OK");
       }
-    },
-    formData
-  );
+    });
 }
 
 function clearImagePreview() {
@@ -420,7 +425,9 @@ function setupSearch(role) {
     .off("click")
     .on("click", function (e) {
       e.preventDefault();
-      const criteria = $(`#${role.toLowerCase()}-search-input`).data("criteria");
+      const criteria = $(`#${role.toLowerCase()}-search-input`).data(
+        "criteria"
+      );
       const query = $(`#${role.toLowerCase()}-search-input`).val();
 
       // Validate input based on criteria
@@ -454,13 +461,16 @@ function searchByRole(role, criteria, query, page) {
   const searchParams = new URLSearchParams({
     criteria: criteria,
     query: query,
-    page: page
+    page: page,
   });
 
-  userService.sendAjaxWithAuthen(
-    searchUrl,
-    "POST",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      searchUrl,
+      "POST",
+      searchParams.toString() // Chuyển đổi đối tượng URLSearchParams thành chuỗi
+    )
+    .then((response) => {
       if (response.status === "OK") {
         const { customers, suppliers, totalPages, currentPage } = response.data;
         const data = role === "CUSTOMER" ? customers : suppliers;
@@ -476,14 +486,11 @@ function searchByRole(role, criteria, query, page) {
       } else {
         showNotification("Failed to search employee data.", "error");
       }
-    },
-    function (error) {
+    })
+    .catch((error) => {
       showNotification("Error while searching employee data.", "error");
       console.error(`Error searching ${role.toLowerCase()}s:`, error);
-    },
-    searchParams.toString(), // Chuyển đổi đối tượng URLSearchParams thành chuỗi
-    { "Content-Type": "application/x-www-form-urlencoded" } // Đặt loại nội dung là URL-encoded
-  );
+    });
 }
 
 function setupInsertModalToggle() {
@@ -535,10 +542,13 @@ function setupInsertModalToggle() {
       if (fileInput) {
         formData.append("file", fileInput);
       }
-      userService.sendAjaxWithAuthen(
-        `http://${userService.getApiUrl()}/api/userinfo/insert`,
-        "POST",
-        function (response) {
+      userService
+        .sendAjaxWithAuthen(
+          `http://${userService.getApiUrl()}/api/userinfo/insert`,
+          "POST",
+          formData
+        )
+        .then((response) => {
           if (response.status === "OK") {
             showNotification("Insert Successful!", "OK");
             $("#insertUserModal").addClass("hidden");
@@ -550,18 +560,16 @@ function setupInsertModalToggle() {
               "error"
             );
           }
-        },
-        function (error) {
+        })
+        .catch((error) => {
           console.error("Error while insert user:", error);
           showNotification(
             "Error while insert user: " +
-            (error.responseJSON ? error.responseJSON.desc : "System Error"),
+              (error.responseJSON ? error.responseJSON.desc : "System Error"),
             "error",
             "error"
           );
-        },
-        formData
-      );
+        });
     });
 }
 
@@ -569,7 +577,6 @@ function clearInsertForm() {
   $("#insert-user-form")[0].reset(); // Đặt lại form
   $("#insertEmployeeImagePreview").attr("src", "#").hide(); // Xóa hình ảnh xem trước
 }
-
 
 function switchTabByRole(role) {
   switchTab(role); // Switch the tab first
@@ -614,10 +621,13 @@ function isValidPhoneNumber(phoneNumber) {
 
 // Fetch rank data and populate the table
 function fetchUniqueRankData() {
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/customertype/findall`,
-    "GET",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/customertype/findall`,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         var tableBody = $("#rankTableBody");
         tableBody.empty(); // Xóa dữ liệu cũ
@@ -659,12 +669,10 @@ function fetchUniqueRankData() {
       } else {
         console.error("Error loading customer types:", response.desc);
       }
-    },
-    function (error) {
+    })
+    .catch((error) => {
       console.error("There was an error fetching the rank data: ", error);
-    },
-    null
-  );
+    });
 }
 
 // Gắn sự kiện click vào các nút chỉnh sửa
@@ -697,28 +705,27 @@ function updateUniqueCustomerType() {
     const formData = new URLSearchParams({
       id: id,
       type: type,
-      pointCondition: pointCondition
+      pointCondition: pointCondition,
     });
 
-    userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/api/customertype/updatepointcondition`,
-      "POST",
-      function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/customertype/updatepointcondition`,
+        "POST",
+        formData.toString() // Chuyển đổi đối tượng URLSearchParams thành chuỗi
+      )
+      .then((response) => {
         showNotification(response.desc, "OK");
         $("#updateCustomerTypeModal").addClass("hidden");
         fetchUniqueRankData(); // Làm mới dữ liệu trong modal chính
         fetchCustomers(0);
         fetchSuppliers(0);
-      },
-      function (error) {
+      })
+      .catch((error) => {
         console.error("There was an error updating the rank data: ", error);
-      },
-      formData.toString(), // Chuyển đổi đối tượng URLSearchParams thành chuỗi
-      { "Content-Type": "application/x-www-form-urlencoded" } // Đặt loại nội dung là URL-encoded
-    );
+      });
   });
 }
-
 
 // Open customer type modal
 function openUniqueCustomerTypeModal() {
@@ -778,29 +785,28 @@ function addUniqueCustomerType() {
     // Tạo đối tượng dữ liệu để gửi
     const formData = new URLSearchParams({
       type: type,
-      pointCondition: pointCondition
+      pointCondition: pointCondition,
     });
 
-    userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/api/customertype/add`,
-      "POST",
-      function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/customertype/add`,
+        "POST",
+        formData.toString() // Chuyển đổi đối tượng URLSearchParams thành chuỗi
+      )
+      .then((response) => {
         showNotification("Customer Type added successfully!", "OK");
 
         $("#addCustomerTypeModal").addClass("hidden");
         fetchUniqueRankData(); // Làm mới dữ liệu trong modal chính
         fetchCustomers(0);
         fetchSuppliers(0);
-      },
-      function (error) {
+      })
+      .catch((error) => {
         console.error("There was an error adding the customer type: ", error);
-      },
-      formData.toString(), // Chuyển đổi đối tượng URLSearchParams thành chuỗi
-      { "Content-Type": "application/x-www-form-urlencoded" } // Đặt loại nội dung là URL-encoded
-    );
+      });
   });
 }
-
 
 // Close add customer type modal
 function closeAddCustomerTypeModal() {
@@ -822,29 +828,29 @@ function deleteUniqueCustomerType() {
     if (isConfirmed) {
       // Tạo đối tượng dữ liệu để gửi
       const formData = new URLSearchParams({
-        customerTypeId: id
+        customerTypeId: id,
       });
 
-      userService.sendAjaxWithAuthen(
-        `http://${userService.getApiUrl()}/api/customertype/delete`,
-        "POST",
-        function (response) {
+      userService
+        .sendAjaxWithAuthen(
+          `http://${userService.getApiUrl()}/api/customertype/delete`,
+          "POST",
+          formData.toString(), // Chuyển đổi đối tượng URLSearchParams thành chuỗi
+          { "Content-Type": "application/x-www-form-urlencoded" } // Đặt loại nội dung là URL-encoded
+        )
+        .then((response) => {
           showNotification("Delete successful!", "OK");
           $("#updateCustomerTypeModal").addClass("hidden");
           fetchUniqueRankData(); // Làm mới dữ liệu trong modal chính
           fetchCustomers(0);
           fetchSuppliers(0);
-        },
-        function (error) {
+        })
+        .catch((error) => {
           console.error(
             "There was an error deleting the customer type: ",
             error
           );
-        },
-        formData.toString(), // Chuyển đổi đối tượng URLSearchParams thành chuỗi
-        { "Content-Type": "application/x-www-form-urlencoded" } // Đặt loại nội dung là URL-encoded
-      );
+        });
     }
   });
 }
-

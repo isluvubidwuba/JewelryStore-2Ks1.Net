@@ -103,13 +103,17 @@ public class EmployeeService implements IEmployeeService {
    }
 
    @Override
-   public ResponseData getHomePageEmployee(int page) {
+   public ResponseData getHomePageEmployee(int page, String id) {
       ResponseData responseData = new ResponseData();
       try {
          Map<String, Object> response = new HashMap<>();
          PageRequest pageRequest = PageRequest.of(page, 5);
          List<EmployeeDTO> employeeDTOs = new ArrayList<>();
-         Page<Employee> listData = iEmployeeRepository.findAllExceptRole(1, pageRequest);
+         Page<Employee> listData;
+         if ("admin".equals(id)) {
+            listData = iEmployeeRepository.findAll(pageRequest);
+         } else
+            listData = iEmployeeRepository.findAllExceptRole(1, pageRequest);
          employeeDTOs = convertToDTOPage(listData).getContent();
          response.put("employees", employeeDTOs);
          response.put("totalPages", listData.getTotalPages());

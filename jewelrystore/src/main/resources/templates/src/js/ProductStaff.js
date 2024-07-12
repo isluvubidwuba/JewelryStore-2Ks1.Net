@@ -64,10 +64,9 @@ const state = {
 
 function fetchProduct(page, size) {
   const linkProduct = `http://${userService.getApiUrl()}/api/product/all?page=${page}&size=${size}`;
-  userService.sendAjaxWithAuthen(
-    linkProduct,
-    "GET",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(linkProduct, "GET", null)
+    .then((response) => {
       if (response && response.data) {
         const { content, totalElements } = response.data;
         state.querySet = content; // Replace with new records
@@ -75,12 +74,10 @@ function fetchProduct(page, size) {
         state.currentServerPage = page;
         buildTable(state); // Build table after fetching products
       }
-    },
-    function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching product:", error);
-    },
-    null
-  );
+    });
 }
 
 function buildTable(state) {
@@ -238,25 +235,26 @@ function toggleSidebarPolicy(show) {
 }
 
 function getPriceProduct(barcode, idInvocie, idPromo, idPrice) {
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/invoice/create-detail`,
-    "POST",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/invoice/create-detail`,
+      "POST",
+      {
+        barcode: barcode,
+        quantity: 1,
+        invoiceTypeId: idInvocie,
+      }
+    )
+    .then((response) => {
       console.log("Success:", response);
       displayProductPromo(response.data.listPromotion, idPromo);
       $(idPrice).text(formatCurrency(response.data.totalPrice));
-    },
-    function (xhr, status, error) {
+    })
+    .catch((xhr, status, error) => {
       console.error("Error:", error);
       $(idPrice).text("Not available!");
       showNotification("Failed to send data: " + error, "error");
-    },
-    {
-      barcode: barcode,
-      quantity: 1,
-      invoiceTypeId: idInvocie,
-    }
-  );
+    });
 }
 
 function displayProductPromo(data, idPromo) {
@@ -320,42 +318,36 @@ async function fetchGemStoneOfProduct(productId) {
 }
 
 async function fetchData(url) {
-  await userService.sendAjaxWithAuthen(
-    url,
-    "GET",
-    function (response) {
+  return await userService
+    .sendAjaxWithAuthen(url, "GET", null)
+    .then((response) => {
       if (response.status === "OK" && response.data) {
         return response.data.content;
       } else {
         console.error(`Failed to fetch data from ${url}`);
         return [];
       }
-    },
-    function (error) {
+    })
+    .catch((error) => {
       console.error(`Error fetching data from ${url}:`, error);
       return [];
-    },
-    null
-  );
+    });
 }
 async function fetchData2(url) {
-  await userService.sendAjaxWithAuthen(
-    url,
-    "GET",
-    function (response) {
+  return await userService
+    .sendAjaxWithAuthen(url, "GET", null)
+    .then((response) => {
       if (response.status === "OK" && response.data) {
         return response.data;
       } else {
         console.error(`Failed to fetch data from ${url}`);
         return [];
       }
-    },
-    function (error) {
+    })
+    .catch((error) => {
       console.error(`Error fetching data from ${url}:`, error);
       return [];
-    },
-    null
-  );
+    });
 }
 
 function countCategoriesByType(gemList) {
@@ -429,25 +421,26 @@ function setupSearch() {
 }
 
 function searchProducts(query) {
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/product/search`,
-    "POST",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/product/search`,
+      "POST",
+      $.param({
+        search: query,
+        id_material: $("#Material").val(),
+        id_product_category: $("#Category").val(),
+        id_counter: $("#Counter").val(),
+      })
+    )
+    .then((response) => {
       if (response && response.data) {
         searchSuggestion(response.data.content);
       }
-    },
-    function (xhr, status, error) {
+    })
+    .catch((xhr, status, error) => {
       showNotification("An error occurred while submitting the form.", "error");
       console.log(xhr.responseText);
-    },
-    userService.convertToFormData({
-      search: query,
-      id_material: $("#Material").val(),
-      id_product_category: $("#Category").val(),
-      id_counter: $("#Counter").val(),
-    })
-  );
+    });
 }
 
 function searchSuggestion(listProduct) {

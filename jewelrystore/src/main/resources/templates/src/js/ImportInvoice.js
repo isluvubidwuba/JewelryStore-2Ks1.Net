@@ -9,7 +9,6 @@ $(document).ready(function () {
   let totalPrice = 0;
   let supplierId = null;
 
-
   $(document).on("keypress", press);
 
   function press(event) {
@@ -144,10 +143,13 @@ $(document).ready(function () {
   }
 
   function searchProductByBarcode(barcode) {
-    userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/api/product/${barcode}`,
-      "GET",
-      function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/product/${barcode}`,
+        "GET",
+        null
+      )
+      .then((response) => {
         if (response.status === "OK" && response.data) {
           const product = response.data;
           addProductToTable(product);
@@ -155,19 +157,20 @@ $(document).ready(function () {
         } else {
           showNotification("No products found with this barcode !!!", "error");
         }
-      },
-      function () {
+      })
+      .catch(() => {
         showNotification("No products found with this barcode !!!", "error");
-      },
-      null
-    );
+      });
   }
 
   function searchSupplier(supplierIdInput) {
-    userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/api/userinfo/phonenumberandmailsupplier?citeria=${supplierIdInput}`,
-      "GET",
-      function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/userinfo/phonenumberandmailsupplier?citeria=${supplierIdInput}`,
+        "GET",
+        null
+      )
+      .then((response) => {
         if (response) {
           supplierId = response.data.id;
           displaySupplierInfo(response.data);
@@ -175,12 +178,10 @@ $(document).ready(function () {
         } else {
           showNotification("No supplier found with this code !!!", "error");
         }
-      },
-      function () {
+      })
+      .catch(() => {
         showNotification("No supplier found with this code !!!", "error");
-      },
-      null
-    );
+      });
   }
 
   function displaySupplierInfo(supplier) {
@@ -239,10 +240,13 @@ $(document).ready(function () {
       request: invoiceRequest,
       barcodePriceMap: barcodePriceMap,
     };
-    userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/api/invoice/create-import`,
-      "POST",
-      function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/invoice/create-import`,
+        "POST",
+        importInvoiceRequestWrapper
+      )
+      .then((response) => {
         if (response.status === "OK") {
           showNotification("Invoice created successfully !!!", "OK");
           // Xóa các sản phẩm khỏi bảng và đặt lại tổng giá tiền
@@ -255,15 +259,13 @@ $(document).ready(function () {
             "error"
           );
         }
-      },
-      function () {
+      })
+      .catch(() => {
         showNotification(
           "Can error occurred while creating the invoice !!!",
           "error"
         );
-      },
-      importInvoiceRequestWrapper
-    );
+      });
   }
 
   function clearAllInformation() {

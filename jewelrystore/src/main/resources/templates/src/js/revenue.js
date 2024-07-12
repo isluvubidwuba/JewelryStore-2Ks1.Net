@@ -18,16 +18,13 @@ $(document).ready(function () {
   ];
 
   periods.forEach((period, index) => {
-    $.ajax({
-      url: `http://${userService.getApiUrl()}/api/invoice/revenue/invoice-count?period=${period}`,
-      method: "GET",
-      xhrFields: {
-        withCredentials: true, // Ensures cookies are included for all AJAX calls
-      },
-      headers: {
-        Authorization: `Bearer ${userService.getToken()}`,
-      },
-      success: function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/invoice/revenue/invoice-count?period=${period}`,
+        "GET",
+        null
+      )
+      .then((response) => {
         if (response.status === "OK") {
           const totalRevenue = response.data.totalRevenue.toFixed(2);
           const invoiceCount = response.data.invoiceCount;
@@ -35,11 +32,10 @@ $(document).ready(function () {
           $(`${ids[index]} .num-3`).text(formatCurrency(totalRevenue));
           $(`${ids[index]} .num-2`).text(invoiceCount);
         }
-      },
-      error: function (xhr, status, error) {
+      })
+      .catch((xhr, status, error) => {
         console.error(`Error fetching data for ${period}:`, error);
-      },
-    });
+      });
   });
 });
 function formatCurrency(amount) {

@@ -72,7 +72,7 @@ public class CounterService implements ICounterSerivce {
     }
 
     @Override
-    public Map<String, Object> listProductsByCounter(int counterId, int page) {
+    public ResponseData listProductsByCounter(int counterId, int page) {
         Map<String, Object> response = new HashMap<>();
         int pageSize = 5;
         List<ProductDTO> productDTOList = new ArrayList<>();
@@ -92,7 +92,13 @@ public class CounterService implements ICounterSerivce {
                                                                                  // calculate total
                                                                                  // pages
         response.put("currentPage", page);
-        return response;
+
+        ResponseData responseData = new ResponseData();
+        responseData.setStatus(HttpStatus.OK);
+        responseData.setDesc("Products listed successfully");
+        responseData.setData(response);
+
+        return responseData;
     }
 
     // Method to load all products with counter id 1

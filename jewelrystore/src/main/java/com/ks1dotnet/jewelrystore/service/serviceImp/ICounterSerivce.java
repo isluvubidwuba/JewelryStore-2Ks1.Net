@@ -1,8 +1,6 @@
 package com.ks1dotnet.jewelrystore.service.serviceImp;
 
 import java.util.List;
-import java.util.Map;
-
 import com.ks1dotnet.jewelrystore.dto.ProductDTO;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 
@@ -11,7 +9,7 @@ public interface ICounterSerivce {
 
     public ResponseData addProductsToCounter(int counterId, List<ProductDTO> products);
 
-    public Map<String, Object> listProductsByCounter(int counterId, int page);
+    public ResponseData listProductsByCounter(int counterId, int page);
 
     public ResponseData getAllProductsInCounterOne();
 
@@ -27,5 +25,5 @@ public interface ICounterSerivce {
 
     public ResponseData getInactiveCounters();
 
-    public ResponseData updateCounter(int id,String name, boolean status);
+    public ResponseData updateCounter(int id, String name, boolean status);
 }

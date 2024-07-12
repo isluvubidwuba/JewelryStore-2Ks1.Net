@@ -15,10 +15,13 @@ $(document).ready(function () {
 
 // Hàm để mở modal và load dữ liệu
 function openInvoiceTypeModal() {
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/invoice-type`,
-    "GET",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/invoice-type`,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         var data = response.data;
         var tableBody = $("#rateTable");
@@ -80,10 +83,16 @@ function openInvoiceTypeModal() {
           $(".update-btn").click(function () {
             var newRate = rateInput.val();
             rateInput.removeClass("border");
-            userService.sendAjaxWithAuthen(
-              `http://${userService.getApiUrl()}/api/invoice-type/update`,
-              "GET",
-              function (response) {
+            userService
+              .sendAjaxWithAuthen(
+                `http://${userService.getApiUrl()}/api/invoice-type/update`,
+                "GET",
+                $.param({
+                  id: id,
+                  rate: newRate,
+                })
+              )
+              .then((response) => {
                 if (response.status === "OK") {
                   rateInput.val(newRate).attr("readonly", true);
                   editCell.html("");
@@ -91,24 +100,17 @@ function openInvoiceTypeModal() {
                 } else {
                   showNotification("Update fail", "Error");
                 }
-              },
-              function () {
-                showNotification("Update fail", "Error");
-              },
-              $.param({
-                id: id,
-                rate: newRate,
               })
-            );
+              .catch(() => {
+                showNotification("Update fail", "Error");
+              });
           });
         });
       }
-    },
-    function () {
+    })
+    .catch(() => {
       showNotification("Load fail", "Error");
-    },
-    null
-  );
+    });
 
   // Hiển thị modal
   $("#invoiceTypeModal").removeClass("hidden");

@@ -70,13 +70,37 @@ function saveChanges() {
   if (fileInput.files[0]) {
     formData.append("file", fileInput.files[0]);
   }
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/employee/update2`,
-    "POST",
-    handleSuccess,
-    handleError,
-    formData
-  );
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/employee/update2`,
+      "POST",
+      formData
+    )
+    .then((data) => {
+      if (data.status === "OK") {
+        document.querySelector(
+          "#employeeName .value"
+        ).textContent = `${data.data.firstName} ${data.data.lastName}`;
+        document.querySelector("#employeePhoneNumber .value").textContent =
+          data.data.phoneNumber;
+        document.querySelector("#employeeEmail .value").textContent =
+          data.data.email;
+        document.querySelector("#employeeAddress .value").textContent =
+          data.data.address;
+
+        if (fileInput.files[0]) {
+          document.querySelector("#employeeImage img").src =
+            URL.createObjectURL(fileInput.files[0]);
+        }
+        showNotification(data.desc, "OK");
+        cancelChanges();
+      } else {
+        showNotification("Update failed: " + data.desc, "Error");
+      }
+    })
+    .catch(() => {
+      showNotification("Error when call API.", "Error");
+    });
 }
 
 function cancelChanges() {
@@ -89,33 +113,6 @@ function cancelChanges() {
   document.querySelector(".edit-buttons").style.display = "none";
 }
 
-function handleSuccess(data) {
-  if (data.status === "OK") {
-    document.querySelector(
-      "#employeeName .value"
-    ).textContent = `${data.data.firstName} ${data.data.lastName}`;
-    document.querySelector("#employeePhoneNumber .value").textContent =
-      data.data.phoneNumber;
-    document.querySelector("#employeeEmail .value").textContent =
-      data.data.email;
-    document.querySelector("#employeeAddress .value").textContent =
-      data.data.address;
-
-    if (fileInput.files[0]) {
-      document.querySelector("#employeeImage img").src = URL.createObjectURL(
-        fileInput.files[0]
-      );
-    }
-    showNotification(data.desc, "OK");
-    cancelChanges();
-  } else {
-    showNotification("Update failed: " + data.desc, "Error");
-  }
-}
-
-function handleError() {
-  showNotification("Error when call API.", "Error");
-}
 // Gán hàm vào đối tượng window để có thể truy cập từ HTML
 window.editField = editField;
 window.saveChanges = saveChanges;

@@ -10,10 +10,13 @@ $(document).ready(function () {
 });
 
 function fetchCounters() {
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/counter/allactivecounter`,
-    "GET",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/counter/allactivecounter`,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         const counters = response.data;
         generateTabs(counters);
@@ -28,14 +31,11 @@ function fetchCounters() {
       } else {
         console.error("Error: ", response.desc);
       }
-    },
-    function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching counters:", error);
-    },
-    null
-  );
+    });
 }
-
 
 function generateTabs(counters) {
   const tabsContainer = $("#counter-tabs").empty();
@@ -50,10 +50,11 @@ function generateTabs(counters) {
 
     const tabLink = $("<a>", {
       href: "#",
-      class: `inline-block py-3 px-4 rounded-lg ${index === 0
-        ? "text-white bg-black active"
-        : "text-gray-300 bg-black hover:bg-gray-700"
-        }`,
+      class: `inline-block py-3 px-4 rounded-lg ${
+        index === 0
+          ? "text-white bg-black active"
+          : "text-gray-300 bg-black hover:bg-gray-700"
+      }`,
       text: counter.name,
       "data-tab": `tab-${counter.id}`,
     });
@@ -212,48 +213,80 @@ function generateTabContents(counters) {
 }
 
 function fetchProductsByCounter(counterId, page = 1) {
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/counter/listproductsbycounter?counterId=${counterId}&page=${page - 1}`,
-    "GET",
-    function (response) {
-      const products = response.products;
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/counter/listproductsbycounter?counterId=${counterId}&page=${
+        page - 1
+      }`,
+      "GET",
+      null
+    )
+    .then((response) => {
+      const products = response.data.products;
       const tableBody = $(`#table-body-${counterId}`);
       tableBody.empty();
       products.forEach((product) => {
         const row = $("<tr>").append(
-          $("<td>", { class: "px-6 py-4 whitespace-nowrap", text: product.productCode }),
-          $("<td>", { class: "px-6 py-4 whitespace-nowrap", text: product.barCode }),
-          $("<td>", { class: "px-6 py-4 whitespace-nowrap", text: product.name }),
-          $("<td>", { class: "px-6 py-4 whitespace-nowrap", text: product.fee }),
-          $("<td>", { class: "px-6 py-4 whitespace-nowrap", text: product.weight }),
-          $("<td>", { class: "px-6 py-4 whitespace-nowrap", text: product.materialDTO.name }),
-          $("<td>", { class: "px-6 py-4 whitespace-nowrap", text: product.productCategoryDTO.name })
+          $("<td>", {
+            class: "px-6 py-4 whitespace-nowrap",
+            text: product.productCode,
+          }),
+          $("<td>", {
+            class: "px-6 py-4 whitespace-nowrap",
+            text: product.barCode,
+          }),
+          $("<td>", {
+            class: "px-6 py-4 whitespace-nowrap",
+            text: product.name,
+          }),
+          $("<td>", {
+            class: "px-6 py-4 whitespace-nowrap",
+            text: product.fee,
+          }),
+          $("<td>", {
+            class: "px-6 py-4 whitespace-nowrap",
+            text: product.weight,
+          }),
+          $("<td>", {
+            class: "px-6 py-4 whitespace-nowrap",
+            text: product.materialDTO.name,
+          }),
+          $("<td>", {
+            class: "px-6 py-4 whitespace-nowrap",
+            text: product.productCategoryDTO.name,
+          })
         );
         tableBody.append(row);
       });
 
       // Cập nhật thông tin trang
-      const totalPages = response.totalPages;
-      const currentPage = response.currentPage + 1;
+      const totalPages = response.data.totalPages;
+      const currentPage = response.data.currentPage + 1;
       $(`#page-info-${counterId}`).text(`Page ${currentPage} of ${totalPages}`);
 
       // Vô hiệu hóa các nút khi cần thiết
       if (currentPage === 1) {
-        $(`button.prev-page[data-counter-id=${counterId}]`).prop("disabled", true).addClass("opacity-50 cursor-not-allowed");
+        $(`button.prev-page[data-counter-id=${counterId}]`)
+          .prop("disabled", true)
+          .addClass("opacity-50 cursor-not-allowed");
       } else {
-        $(`button.prev-page[data-counter-id=${counterId}]`).prop("disabled", false).removeClass("opacity-50 cursor-not-allowed");
+        $(`button.prev-page[data-counter-id=${counterId}]`)
+          .prop("disabled", false)
+          .removeClass("opacity-50 cursor-not-allowed");
       }
       if (currentPage === totalPages) {
-        $(`button.next-page[data-counter-id=${counterId}]`).prop("disabled", true).addClass("opacity-50 cursor-not-allowed");
+        $(`button.next-page[data-counter-id=${counterId}]`)
+          .prop("disabled", true)
+          .addClass("opacity-50 cursor-not-allowed");
       } else {
-        $(`button.next-page[data-counter-id=${counterId}]`).prop("disabled", false).removeClass("opacity-50 cursor-not-allowed");
+        $(`button.next-page[data-counter-id=${counterId}]`)
+          .prop("disabled", false)
+          .removeClass("opacity-50 cursor-not-allowed");
       }
-    },
-    function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching products:", error);
-    },
-    null
-  );
+    });
 }
 
 function createCounterModal() {
@@ -270,10 +303,13 @@ function createCounterModal() {
 
     const counterName = $("#counterName").val();
 
-    userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/api/counter/insert`,
-      "POST",
-      function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/counter/insert`,
+        "POST",
+        $.param({ name: counterName })
+      )
+      .then((response) => {
         if (response.status === "OK") {
           showNotification("Counter created successfully.", "OK");
 
@@ -281,23 +317,24 @@ function createCounterModal() {
         } else {
           showNotification("Error creating counter.", "error");
         }
-      },
-      function (error) {
+      })
+      .catch((error) => {
         console.error("Error:", error);
         showNotification("Error creating counter.", "error");
-      },
-      $.param({ name: counterName })
-    );
+      });
 
     $("#createCounterModal").addClass("hidden");
   });
 }
 
 function fetchProductsForCounter() {
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/counter/products/counter1`,
-    "GET",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/counter/products/counter1`,
+      "GET",
+      null
+    )
+    .then((response) => {
       const productTableBody = $("#productTableBody");
       productTableBody.empty();
 
@@ -346,7 +383,9 @@ function fetchProductsForCounter() {
           }),
           $("<td>", {
             class: "px-6 py-4 whitespace-nowrap",
-            text: product.productCategoryDTO ? product.productCategoryDTO.name : "Unknown",
+            text: product.productCategoryDTO
+              ? product.productCategoryDTO.name
+              : "Unknown",
           }),
           $("<td>", {
             class: "px-6 py-4 whitespace-nowrap",
@@ -370,12 +409,10 @@ function fetchProductsForCounter() {
 
         productTableBody.append(row);
       });
-    },
-    function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching products:", error);
-    },
-    null
-  );
+    });
 }
 
 function setupAddProductModal() {
@@ -411,17 +448,24 @@ function setupAddProductModal() {
     }
 
     if (selectedProducts.length === 0) {
-      console.log("Condition check: No products selected (selectedProducts is empty)");
+      console.log(
+        "Condition check: No products selected (selectedProducts is empty)"
+      );
       showNotification("Please select at least one product", "Error");
       return;
     } else {
-      console.log("Condition check: Products selected: " + selectedProducts.length);
+      console.log(
+        "Condition check: Products selected: " + selectedProducts.length
+      );
     }
 
-    userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/api/counter/addproductsforcounter?counterId=${counterId}`,
-      "POST",
-      function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/counter/addproductsforcounter?counterId=${counterId}`,
+        "POST",
+        selectedProducts // Chuyển đổi đối tượng sản phẩm thành chuỗi JSON
+      )
+      .then((response) => {
         if (response.status === "OK") {
           showNotification("Products added to counter successfully", "OK");
           $("#combinedModal").addClass("hidden");
@@ -429,33 +473,32 @@ function setupAddProductModal() {
         } else {
           showNotification("Error adding products to counter", "Error");
         }
-      },
-      function (error) {
+      })
+      .catch((error) => {
         console.error("Error:", error);
         showNotification("Error adding products to counter", "Error");
-      },
-      (selectedProducts)// Chuyển đổi đối tượng sản phẩm thành chuỗi JSON
-    );
+      });
 
     $("#combinedModal").addClass("hidden");
   });
 }
 
 function fetchCountersForSelect() {
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/counter/allactivecounter`,
-    "GET",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/counter/allactivecounter`,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         const counters = response.data;
         populateCounterSelect(counters);
       }
-    },
-    function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching counters:", error);
-    },
-    null
-  );
+    });
 }
 
 function populateCounterSelect(counters) {
@@ -543,10 +586,13 @@ function switchToTab(counterId) {
 }
 
 function deleteCounter(counterId) {
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/counter/delete/${counterId}`,
-    "DELETE",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/counter/delete/${counterId}`,
+      "DELETE",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         showNotification("Counter deleted successfully", "OK");
 
@@ -560,30 +606,29 @@ function deleteCounter(counterId) {
       } else {
         showNotification("Error deleting counter", "Error");
       }
-    },
-    function (error) {
+    })
+    .catch((error) => {
       console.error("Error:", error);
       showNotification("Error deleting counter", "Error");
-    },
-    null
-  );
+    });
 }
 
 function fetchInactiveCounters() {
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/counter/inactive`,
-    "GET",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/counter/inactive`,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         const counters = response.data;
         populateInactiveCounterTable(counters);
       }
-    },
-    function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching inactive counters:", error);
-    },
-    null
-  );
+    });
 }
 
 function populateInactiveCounterTable(counters) {
@@ -594,22 +639,28 @@ function populateInactiveCounterTable(counters) {
             <tr class="text-center">
                 <td class="py-2 px-4 border-b">${counter.id}</td>
                 <td class="py-2 px-4">
-                    <input type="text" value="${counter.name
-      }" class="name-input border rounded p-1" data-id="${counter.id
-      }" />
+                    <input type="text" value="${
+                      counter.name
+                    }" class="name-input border rounded p-1" data-id="${
+      counter.id
+    }" />
                 </td>
                 <td class="py-2 px-4 border-b">
-                    <select class="status-select rounded p-1" data-id="${counter.id
-      }">
-                        <option value="true" ${counter.status ? "selected" : ""
-      }>Active</option>
-                        <option value="false" ${!counter.status ? "selected" : ""
-      }>Inactive</option>
+                    <select class="status-select rounded p-1" data-id="${
+                      counter.id
+                    }">
+                        <option value="true" ${
+                          counter.status ? "selected" : ""
+                        }>Active</option>
+                        <option value="false" ${
+                          !counter.status ? "selected" : ""
+                        }>Inactive</option>
                     </select>
                 </td>
                 <td class="py-2 px-4 border-b">
-                    <button class="update-btn bg-green-500 text-white px-2 py-1 rounded" data-id="${counter.id
-      }">Update</button>
+                    <button class="update-btn bg-green-500 text-white px-2 py-1 rounded" data-id="${
+                      counter.id
+                    }">Update</button>
                 </td>
             </tr>
         `;
@@ -620,31 +671,32 @@ function populateInactiveCounterTable(counters) {
 function handleUpdateCounter() {
   const counterId = $(this).data("id");
   const newName = $(`.name-input[data-id="${counterId}"]`).val();
-  const newStatus = $(`.status-select[data-id="${counterId}"]`).val() === "true";
+  const newStatus =
+    $(`.status-select[data-id="${counterId}"]`).val() === "true";
   console.log("Check counter ID /update : " + counterId);
   console.log("Check counter name /update : " + newName);
   console.log("Check counter newStatus /update : " + newStatus);
   const requestData = {
     id: counterId,
     name: newName,
-    status: newStatus
+    status: newStatus,
   };
 
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/counter/update`,
-    "POST",
-    function () {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/counter/update`,
+      "POST",
+      $.param(requestData) // Chuyển đổi đối tượng requestData thành chuỗi JSON
+    )
+    .then(() => {
       showNotification("Counter updated successfully", "OK");
       fetchInactiveCounters();
       fetchCounters();
-    },
-    function () {
+    })
+    .catch(() => {
       showNotification("Failed to update counter", "Error");
-    },
-    $.param(requestData), // Chuyển đổi đối tượng requestData thành chuỗi JSON
-  );
+    });
 }
-
 
 function showMaintenanceModal() {
   $("#maintenanceModal").removeClass("hidden");

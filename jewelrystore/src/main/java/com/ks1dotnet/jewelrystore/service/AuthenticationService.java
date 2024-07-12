@@ -120,7 +120,8 @@ public class AuthenticationService implements IAuthenticationService {
         }
         if (!em.getOtp().equals(otp))
             return new ResponseData(HttpStatus.BAD_REQUEST, "OTP code is not correct ", null);
-        String at = jwtUtilsHelper.generateToken(idEmployee, "", 5, TokenType.ACCESS_TOKEN);
+        String at = jwtUtilsHelper.generateToken(em.getId(), em.getRole().getName(), 5,
+                TokenType.ACCESS_TOKEN);
         Map<String, String> responseDataMap = new HashMap<>();
         responseDataMap.put("at", at);
         return new ResponseData(HttpStatus.OK, "OK ", responseDataMap);
@@ -128,9 +129,6 @@ public class AuthenticationService implements IAuthenticationService {
 
     @Override
     public Employee getOtp(String idEmp) {
-        if (!idEmp.startsWith("SE"))
-            throw new ApplicationException("No employee found with id: " + idEmp,
-                    HttpStatus.NOT_FOUND);
         Employee emp = iAuthenticationRepository.findById(idEmp)
                 .orElseThrow(() -> new ApplicationException("No employee found with id: " + idEmp,
                         HttpStatus.NOT_FOUND));

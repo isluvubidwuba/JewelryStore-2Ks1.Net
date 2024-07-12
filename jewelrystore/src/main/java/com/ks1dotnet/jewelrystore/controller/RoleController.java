@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ks1dotnet.jewelrystore.dto.RoleDTO;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IRoleService;
+import com.ks1dotnet.jewelrystore.utils.JwtUtilsHelper;
+import io.jsonwebtoken.Claims;
 
 @RestController
 @RequestMapping("${apiURL}/role")
@@ -24,7 +26,8 @@ public class RoleController {
 
     @GetMapping("/list")
     private ResponseEntity<?> findAll() {
-        List<RoleDTO> listRoleDTO = iRoleService.findAll();
+        Claims ATTokenClaims = JwtUtilsHelper.getAuthorizationByTokenType("at");
+        List<RoleDTO> listRoleDTO = iRoleService.findAll(ATTokenClaims.getSubject());
         ResponseData ResponseData = new ResponseData();
         ResponseData.setStatus(HttpStatus.OK);
         ResponseData.setData(listRoleDTO);

@@ -14,31 +14,33 @@ $(document).ready(function () {
 });
 
 function getInvoiceData(invoice) {
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/invoice/view-invoice`,
-    "POST",
-    handleSuccessGetInvoiceData,
-    handleErrorGetInvoiceData,
-    $.param({ invoice: invoice })
-  );
-}
-function handleErrorGetInvoiceData(xhr) {
-  if (xhr.status === 400) {
-    var response = JSON.parse(xhr.responseText);
-    showNotification(response.desc, "error");
-  } else {
-    showNotification("An error occurred while calling the API !!!", "error");
-  }
-}
-function handleSuccessGetInvoiceData(response) {
-  if (response.status === "OK") {
-    populateInvoice(response.data);
-    $("#invoiceContent").removeClass("hidden"); // Hiển thị div sau khi có dữ liệu
-  } else if (response.status === "BAD_REQUEST") {
-    showNotification(response.desc, "error"); // Hiển thị thông báo lỗi khi không tìm thấy hóa đơn
-  } else {
-    showNotification("Unable to get invoice data !!!", "error");
-  }
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/invoice/view-invoice`,
+      "POST",
+      $.param({ invoice: invoice })
+    )
+    .then((response) => {
+      if (response.status === "OK") {
+        populateInvoice(response.data);
+        $("#invoiceContent").removeClass("hidden"); // Hiển thị div sau khi có dữ liệu
+      } else if (response.status === "BAD_REQUEST") {
+        showNotification(response.desc, "error"); // Hiển thị thông báo lỗi khi không tìm thấy hóa đơn
+      } else {
+        showNotification("Unable to get invoice data !!!", "error");
+      }
+    })
+    .catch((xhr) => {
+      if (xhr.status === 400) {
+        var response = JSON.parse(xhr.responseText);
+        showNotification(response.desc, "error");
+      } else {
+        showNotification(
+          "An error occurred while calling the API !!!",
+          "error"
+        );
+      }
+    });
 }
 function populateInvoice(data) {
   var content = `

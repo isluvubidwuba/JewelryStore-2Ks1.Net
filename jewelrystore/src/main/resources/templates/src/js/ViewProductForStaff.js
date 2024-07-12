@@ -35,23 +35,24 @@ $(document).ready(function () {
     var barcode = $("#barcode").val();
     console.log("Check invoice type passed back : " + selectedInvoiceType);
     if (barcode.trim() !== "" || selectedInvoiceType !== "") {
-      userService.sendAjaxWithAuthen(
-        `http://${userService.getApiUrl()}/invoice/create-detail`,
-        "POST",
-        function (response) {
+      userService
+        .sendAjaxWithAuthen(
+          `http://${userService.getApiUrl()}/invoice/create-detail`,
+          "POST",
+          JSON.stringify({
+            barcode: barcode,
+            quantity: 1,
+            invoiceTypeId: selectedInvoiceType,
+          })
+        )
+        .then((response) => {
           console.log("Success:", response);
           displayProductDetails(response.data);
-        },
-        function (xhr, status, error) {
+        })
+        .catch((xhr, status, error) => {
           console.error("Error:", error);
           alert("Failed to send data: " + error);
-        },
-        JSON.stringify({
-          barcode: barcode,
-          quantity: 1,
-          invoiceTypeId: selectedInvoiceType,
-        })
-      );
+        });
     } else {
       alert(
         "Please select an invoice type or enter a product barcode before searching."

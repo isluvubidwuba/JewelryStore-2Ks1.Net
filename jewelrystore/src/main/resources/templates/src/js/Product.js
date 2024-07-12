@@ -29,10 +29,9 @@ let timeout = null;
 
 function fetchProduct(page, size) {
   const linkProduct = `http://${userService.getApiUrl()}/api/product/all?page=${page}&size=${size}`;
-  userService.sendAjaxWithAuthen(
-    linkProduct,
-    "GET",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(linkProduct, "GET", null)
+    .then((response) => {
       if (response && response.data) {
         const { content, totalElements } = response.data;
         state.querySet = content; // Replace with new records
@@ -40,14 +39,12 @@ function fetchProduct(page, size) {
         state.currentServerPage = page;
         buildTable(state, "There are no  product"); // Build table after fetching products
       }
-    },
-    function (error) {
+    })
+    .catch((error) => {
       showNotification("Error fetching product.", "Error");
 
       console.error("Error fetching product:", error);
-    },
-    null
-  );
+    });
 }
 
 function buildTable(state, noti) {
@@ -448,25 +445,26 @@ function setupSearch() {
 }
 
 function searchProducts(query) {
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/product/search`,
-    "POST",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/product/search`,
+      "POST",
+      $.param({
+        search: query,
+        id_material: $("#Material").val(),
+        id_product_category: $("#Category").val(),
+        id_counter: $("#Counter").val(),
+      })
+    )
+    .then((response) => {
       if (response && response.data) {
         searchSuggestion(response.data.content);
       }
-    },
-    function (xhr, status, error) {
+    })
+    .catch((xhr, status, error) => {
       showNotification("An error occurred while submitting the form.", "error");
       console.log(xhr.responseText);
-    },
-    $.param({
-      search: query,
-      id_material: $("#Material").val(),
-      id_product_category: $("#Category").val(),
-      id_counter: $("#Counter").val(),
-    })
-  );
+    });
 }
 
 function searchSuggestion(listProduct) {
@@ -506,14 +504,7 @@ async function fetchGemStoneOfProduct(productId) {
 
 async function fetchData(url) {
   try {
-    const response = await userService.sendAjaxWithAuthen(
-      url,
-      "GET",
-      null,
-      null,
-      null
-    );
-    console.log(response);
+    const response = await userService.sendAjaxWithAuthen(url, "GET", null);
     if (response.status === "OK" && response.data) {
       return response.data.content;
     } else {
@@ -528,13 +519,7 @@ async function fetchData(url) {
 
 async function fetchData2(url) {
   try {
-    const response = await userService.sendAjaxWithAuthen(
-      url,
-      "GET",
-      null,
-      null,
-      null
-    );
+    const response = await userService.sendAjaxWithAuthen(url, "GET", null);
 
     if (response.status === "OK" && response.data) {
       return response.data;
@@ -731,22 +716,23 @@ async function uploadImage(file) {
   var formData = new FormData();
   formData.append("file", file);
   try {
-    const response = await userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/api/product/upload`,
-      "POST",
-      function (response) {
+    const response = await userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/product/upload`,
+        "POST",
+        formData
+      )
+      .then((response) => {
         return response.data;
-      },
-      function (xhr, status, error) {
+      })
+      .catch((xhr, status, error) => {
         showNotification(
           "An error occurred while submitting the form.",
           "error"
         );
         console.log(xhr.responseText);
-      },
-      formData
-    );
-    return response.data;
+      });
+    if (response) return response.data;
   } catch (error) {
     showNotification("An error occurred while uploading the image.", "error");
     console.error(error);

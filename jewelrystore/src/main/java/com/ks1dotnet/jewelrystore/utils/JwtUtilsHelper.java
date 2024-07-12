@@ -97,7 +97,7 @@ public class JwtUtilsHelper {
         return error;
     }
 
-    public Claims getAuthorizationByTokenType(String tokenType) {
+    public static Claims getAuthorizationByTokenType(String tokenType) {
         Authentication context = SecurityContextHolder.getContext().getAuthentication();
         if (context == null || !context.isAuthenticated()
                 || "anonymousUser".equals(context.getPrincipal())) {

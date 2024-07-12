@@ -7,8 +7,6 @@ $(document).ready(function () {
   initializePagination();
   initializeSearchForm();
   fetchEmployees(0);
-
-
 });
 
 let currentPage = 0;
@@ -35,10 +33,13 @@ function fetchEmployeeImage(employeeId, imageUrl) {
 }
 
 function fetchEmployees(page) {
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/employee/listpage?page=${page}`,
-    "GET",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/employee/listpage?page=${page}`,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         renderEmployees(response.data.employees);
         updatePagination(response.data.currentPage, response.data.totalPages);
@@ -46,12 +47,10 @@ function fetchEmployees(page) {
       } else {
         showNotification("Failed to load employee data.", "error");
       }
-    },
-    function () {
+    })
+    .catch(() => {
       showNotification("Error while fetching employee data.", "error");
-    },
-    null
-  );
+    });
 }
 
 function renderEmployees(employees) {
@@ -69,16 +68,21 @@ function renderEmployees(employees) {
               <td class="px-6 py-4" id="employee-image-${employee.id}">
                   Loading...
               </td>
-              <td class="px-6 py-3">${employee.firstName} ${employee.lastName
-      }</td>
+              <td class="px-6 py-3">${employee.firstName} ${
+      employee.lastName
+    }</td>
               <td class="px-6 py-3">${employee.role.name}</td>
               <td class="px-6 py-3">${statusLabel}</td>
               <td class="px-6 py-3">${formatCurrency(
-        employee.totalRevenue
-      )}</td>
+                employee.totalRevenue
+              )}</td>
               <td class="px-6 py-3">
-                <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" data-view-employee="${employee.id}">View</button>
-                <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" data-view-employee2="${employee.id}">Revenue</button>
+                <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" data-view-employee="${
+                  employee.id
+                }">View</button>
+                <button class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded" data-view-employee2="${
+                  employee.id
+                }">Revenue</button>
               </td>
           </tr>
       `;
@@ -132,10 +136,13 @@ function updatePagination(currentPage, totalPages) {
 }
 
 function fetchRoles(selectElementId) {
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/role/list`,
-    "GET",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/role/list`,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         const roles = response.data;
         const roleSelect = $(`#${selectElementId}`);
@@ -150,8 +157,8 @@ function fetchRoles(selectElementId) {
       } else {
         showNotification("Failed to load roles: " + response.desc, "error");
       }
-    },
-    function (error) {
+    })
+    .catch((error) => {
       if (error.responseJSON) {
         showNotification(
           "Error while load roles: " + error.responseJSON.desc,
@@ -161,18 +168,19 @@ function fetchRoles(selectElementId) {
         console.error("Error while load roles: ", error);
         showNotification("Error load roles!", "error");
       }
-    },
-    null
-  );
+    });
 }
 
 function viewEmployee(id) {
   fetchRoles("viewRole"); // Fetch roles before opening the modal
 
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/employee/listemployee/${id}`,
-    "GET",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/employee/listemployee/${id}`,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         const employee = response.data;
         // Sử dụng URL hình ảnh từ phản hồi API
@@ -201,8 +209,8 @@ function viewEmployee(id) {
           "error"
         );
       }
-    },
-    function (error) {
+    })
+    .catch((error) => {
       showNotification("Error while fetching employee details", "error");
       if (error.responseJSON) {
         showNotification(
@@ -213,9 +221,7 @@ function viewEmployee(id) {
         console.error("Error while fetching employee details : ", error);
         showNotification("Error fetching employee details :!", "error");
       }
-    },
-    null
-  );
+    });
 }
 
 function openModal() {
@@ -240,10 +246,13 @@ function updateEmployee() {
     console.log(pair[0] + ": " + pair[1]);
   }
 
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/employee/update`,
-    "POST",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/employee/update`,
+      "POST",
+      formData
+    )
+    .then((response) => {
       if (response.status === "OK") {
         showNotification(response.desc, "OK");
         clearUpdateForm();
@@ -255,8 +264,8 @@ function updateEmployee() {
           "error"
         );
       }
-    },
-    function (error) {
+    })
+    .catch((error) => {
       showNotification("Error update employee!", "error");
       if (error.responseJSON) {
         showNotification(
@@ -267,9 +276,7 @@ function updateEmployee() {
         console.error("Error while update employee: ", error);
         showNotification("Error update employee!", "error");
       }
-    },
-    formData
-  );
+    });
 }
 
 function clearUpdateForm() {
@@ -316,10 +323,13 @@ function closeInsertModal() {
 function handleInsertEmployee(event) {
   event.preventDefault();
   var formData = new FormData($("#insertEmployeeForm")[0]);
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/employee/insert`,
-    "POST",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/employee/insert`,
+      "POST",
+      formData
+    )
+    .then((response) => {
       if (response.status === "OK") {
         showNotification(response.desc, "OK");
         handleSendMailEmployee(response.data);
@@ -331,8 +341,8 @@ function handleInsertEmployee(event) {
           "Error"
         );
       }
-    },
-    function (error) {
+    })
+    .catch((error) => {
       showNotification("Error inserting user!", "Error");
       if (error.responseJSON) {
         showNotification(
@@ -343,23 +353,24 @@ function handleInsertEmployee(event) {
         console.error("Error while inserting employee: ", error);
         showNotification("Error inserting user!", "Error");
       }
-    },
-    formData
-  );
+    });
 }
 
 function handleSendMailEmployee(idEmploy) {
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/employee/sendInfo/${idEmploy}`,
-    "POST",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/employee/sendInfo/${idEmploy}`,
+      "POST",
+      null
+    )
+    .then((response) => {
       if (response.status === "OK") {
         showNotification(response.desc, "OK");
       } else {
         showNotification(response.desc, "Error");
       }
-    },
-    function (error) {
+    })
+    .catch((error) => {
       showNotification("Error send mail user!", "Error");
       if (error.responseJSON) {
         showNotification(
@@ -370,9 +381,7 @@ function handleSendMailEmployee(idEmploy) {
         console.error("Error while send mail employee: ", error);
         showNotification("Error send mail user!", "Error");
       }
-    },
-    null
-  );
+    });
 }
 
 function initializeSearchForm() {
@@ -436,16 +445,17 @@ function searchEmployees(criteria, query, page) {
     query = query.toLowerCase();
   }
 
-  const apiUrl = `http://${userService.getApiUrl()}/api/employee/search?criteria=${criteria}&query=${encodeURIComponent(query)}&page=${page}`;
+  const apiUrl = `http://${userService.getApiUrl()}/api/employee/search?criteria=${criteria}&query=${encodeURIComponent(
+    query
+  )}&page=${page}`;
 
   console.log("Check Search Employee : " + criteria);
   console.log("Check Search Employee : " + query);
   console.log("Check Search Employee : " + page);
 
-  userService.sendAjaxWithAuthen(
-    apiUrl,
-    "POST",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(apiUrl, "POST", null)
+    .then((response) => {
       if (response.status === "OK") {
         renderEmployees(response.data.employees);
         updatePagination(response.data.currentPage, response.data.totalPages);
@@ -453,24 +463,23 @@ function searchEmployees(criteria, query, page) {
       } else {
         showNotification("Failed to search employee data.", "Error");
       }
-    },
-    function () {
+    })
+    .catch(() => {
       showNotification("Error while searching employee data.", "Error");
-    },
-    null, // Không cần gửi dữ liệu trong phần body
-    { "Content-Type": "application/x-www-form-urlencoded" } // Đặt loại nội dung là URL-encoded
-  );
+    });
 }
-
 
 function deleteEmployee() {
   const employeeId = $("#viewEmployeeId").val();
 
   if (confirm("Are you sure you want to delete this employee?")) {
-    userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/api/employee/delete/${employeeId}`,
-      "GET",
-      function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/employee/delete/${employeeId}`,
+        "GET",
+        null
+      )
+      .then((response) => {
         console.log("Delete response:", response); // Ghi log phản hồi
         if (response.status === "OK") {
           showNotification(response.desc, "Error");
@@ -482,8 +491,8 @@ function deleteEmployee() {
             "Error"
           );
         }
-      },
-      function (error) {
+      })
+      .catch((error) => {
         showNotification("Error deleting employee!", "Error");
         console.error("Error while deleting employee:", error); // Ghi log lỗi
         if (error.responseJSON) {
@@ -494,8 +503,6 @@ function deleteEmployee() {
         } else {
           showNotification("Error deleting employee!", "Error");
         }
-      },
-      null
-    );
+      });
   }
 }

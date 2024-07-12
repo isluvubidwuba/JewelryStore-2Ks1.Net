@@ -25,10 +25,9 @@ let promotions = []; // Lưu trữ danh sách promotions đã tải về
 function fetchPromotions(keyword = "") {
   const linkPromotion = `http://${userService.getApiUrl()}/api/promotion`;
   const deferred = $.Deferred();
-  userService.sendAjaxWithAuthen(
-    linkPromotion,
-    "GET",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(linkPromotion, "GET", null)
+    .then((response) => {
       if (response && response.data) {
         promotions = response.data;
         if (keyword) {
@@ -54,15 +53,13 @@ function fetchPromotions(keyword = "") {
       } else {
         deferred.reject("No data found");
       }
-    },
-    function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching promotions:", error);
       showNotification("Error fetching promotions.", "Error");
 
       deferred.reject(error);
-    },
-    null
-  );
+    });
 
   return deferred.promise();
 }
@@ -312,10 +309,13 @@ function capitalizeFirstLetter(string) {
 }
 // Các hàm khác không thay đổi
 function fetchPromotionDetails(promotionId) {
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/promotion/getById`,
-    "POST",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/promotion/getById`,
+      "POST",
+      $.param({ id: promotionId })
+    )
+    .then((response) => {
       var promotion = response.data;
 
       $("#update-id").val(promotion.id);
@@ -335,83 +335,81 @@ function fetchPromotionDetails(promotionId) {
       let buttonHtml = "";
       if (promotion.promotionType === "product") {
         buttonHtml = `
-        <button
-          type="button"
-          id="modalToggle_Detail_Apply"
-          class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-          data-promotion-id="${promotion.id}"
-          data-promotion-name = "${promotion.name}"
-          style="width: 100%"
-        >
-          View products applied
-        </button>
-      `;
+      <button
+        type="button"
+        id="modalToggle_Detail_Apply"
+        class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+        data-promotion-id="${promotion.id}"
+        data-promotion-name = "${promotion.name}"
+        style="width: 100%"
+      >
+        View products applied
+      </button>
+    `;
       } else if (promotion.promotionType === "category") {
         buttonHtml = `
-        <button
-          type="button"
-          id="modalToggle_Category_Apply"
-          class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
-          data-promotion-id="${promotion.id}"
-          data-promotion-name = "${promotion.name}"
-          style="width: 100%"
-        >
-          View categories applied
-        </button>
-      `;
+      <button
+        type="button"
+        id="modalToggle_Category_Apply"
+        class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
+        data-promotion-id="${promotion.id}"
+        data-promotion-name = "${promotion.name}"
+        style="width: 100%"
+      >
+        View categories applied
+      </button>
+    `;
       } else if (promotion.promotionType === "customer") {
         buttonHtml = `
-        <button
-          type="button"
-          id="modalToggle_Customer_Apply"
-          class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
-          data-promotion-id="${promotion.id}"
-          data-promotion-name = "${promotion.name}"
+      <button
+        type="button"
+        id="modalToggle_Customer_Apply"
+        class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
+        data-promotion-id="${promotion.id}"
+        data-promotion-name = "${promotion.name}"
 
-          style="width: 100%"
-        >
-           View type customers applied
-        </button>
-      `;
+        style="width: 100%"
+      >
+         View type customers applied
+      </button>
+    `;
       } else if (promotion.promotionType === "gemstone") {
         buttonHtml = `
-        <button
-          type="button"
-          id="modalToggle_Gemstone_Apply"
-          class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
-          data-promotion-id="${promotion.id}"
-          data-promotion-name = "${promotion.name}"
+      <button
+        type="button"
+        id="modalToggle_Gemstone_Apply"
+        class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
+        data-promotion-id="${promotion.id}"
+        data-promotion-name = "${promotion.name}"
 
-          style="width: 100%"
-        >
-           View type gemstone applied
-        </button>
-      `;
+        style="width: 100%"
+      >
+         View type gemstone applied
+      </button>
+    `;
       } else if (promotion.promotionType === "material") {
         buttonHtml = `
-        <button
-          type="button"
-          id="modalToggle_Material_Apply"
-          class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
-          data-promotion-id="${promotion.id}"
-          data-promotion-name = "${promotion.name}"
+      <button
+        type="button"
+        id="modalToggle_Material_Apply"
+        class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
+        data-promotion-id="${promotion.id}"
+        data-promotion-name = "${promotion.name}"
 
-          style="width: 100%"
-        >
-           View type material applied
-        </button>
-      `;
+        style="width: 100%"
+      >
+         View type material applied
+      </button>
+    `;
       }
 
       $("#button-container").html(buttonHtml);
 
       $("#crud-update-modal").removeClass("hidden").addClass("flex");
-    },
-    function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching promotion:", error);
-    },
-    $.param({ id: promotionId })
-  );
+    });
 }
 
 // Các hàm khác giữ nguyên như trước
@@ -463,24 +461,25 @@ function setupEventListeners() {
 }
 
 function deletePromotion(promotionId) {
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/promotion/delete/${promotionId}`,
-    "GET",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/promotion/delete/${promotionId}`,
+      "GET",
+      null
+    )
+    .then((response) => {
       showNotification(response.desc, "OK");
       $("#deleteModal").addClass("hidden");
 
       fetchPromotions(0); // Tải lại danh sách promotion
-    },
-    function () {
+    })
+    .catch(() => {
       $("#deleteModal").addClass("hidden");
       showNotification(
         "An error occurred while deleting the promotion.",
         "Error"
       );
-    },
-    null
-  );
+    });
 }
 
 // update promotion
@@ -495,25 +494,26 @@ function submitUpdateForm() {
 
     if (allFieldsFilled && numberFieldValid && datesValid) {
       var formData = new FormData($("#form-update")[0]);
-      userService.sendAjaxWithAuthen(
-        `http://${userService.getApiUrl()}/api/promotion/update`,
-        "POST",
-        function (response) {
+      userService
+        .sendAjaxWithAuthen(
+          `http://${userService.getApiUrl()}/api/promotion/update`,
+          "POST",
+          formData
+        )
+        .then((response) => {
           clearForm("#form-update");
           $("#crud-update-modal").addClass("hidden");
           showNotification(response.desc, "OK");
           fetchPromotions(0); // Tải lại danh sách promotion
-        },
-        function (xhr, status, error) {
+        })
+        .catch((xhr, status, error) => {
           showNotification(
             "An error occurred while submitting the form.",
             "ERROR"
           );
 
           console.log(xhr.responseText);
-        },
-        formData
-      );
+        });
     } else {
       if (!allFieldsFilled) {
         showNotification("You must fill all fields.", "Error");
@@ -606,10 +606,13 @@ function submitInsertForm() {
     if (allFieldsFilled && numberFieldValid && datesValid) {
       var formData = new FormData($("#form-insert")[0]);
 
-      userService.sendAjaxWithAuthen(
-        `http://${userService.getApiUrl()}/api/promotion/create`,
-        "POST",
-        function (response) {
+      userService
+        .sendAjaxWithAuthen(
+          `http://${userService.getApiUrl()}/api/promotion/create`,
+          "POST",
+          formData
+        )
+        .then((response) => {
           clearForm("#form-insert");
           $("#crud-modal").addClass("hidden");
           showNotification(response.desc, "OK");
@@ -620,16 +623,14 @@ function submitInsertForm() {
             renderPromotions(currentPage, promotions); // Render promotions cho trang cuối cùng
             updatePagination(promotions); // Cập nhật phân trang
           });
-        },
-        function (xhr, status, error) {
+        })
+        .catch((xhr, status, error) => {
           showNotification(
             "An error occurred while submitting the form.",
             "Error"
           );
           console.log(xhr.responseText);
-        },
-        formData
-      );
+        });
     } else {
       if (!allFieldsFilled) {
         showNotification("You must fill all fields.", "Error");
@@ -658,10 +659,13 @@ function clearForm(formId) {
 }
 
 function fetchInvoiceType() {
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/invoice-type`,
-    "GET",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/invoice-type`,
+      "GET",
+      null
+    )
+    .then((response) => {
       let invoiceTypeSelect = $("#invoiceType");
       invoiceTypeSelect.empty();
       invoiceTypeSelect.append(
@@ -676,14 +680,12 @@ function fetchInvoiceType() {
       } else {
         showNotification("Failed to fetch invoice types.", "Error");
       }
-    },
-    function (xhr, status, error) {
+    })
+    .catch((xhr, status, error) => {
       showNotification(
         "An error occurred while loading invoice types.",
         "Error"
       );
       console.log(xhr.responseText);
-    },
-    null
-  );
+    });
 }

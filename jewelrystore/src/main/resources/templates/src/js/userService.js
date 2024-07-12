@@ -62,11 +62,12 @@ class UserService {
     return "application/x-www-form-urlencoded; charset=UTF-8";
   }
 
-  async sendAjax(url, type, successCallback, errorCallback, data) {
+  async sendAjax(url, type, data) {
     try {
       const contentType = this.determineContentType(data);
       const processData = !(data instanceof FormData); // Disable processData for FormData
-      return await new Promise((resolve, reject) => {
+
+      return new Promise((resolve, reject) => {
         $.ajax({
           url: url,
           method: type,
@@ -76,96 +77,112 @@ class UserService {
               : data,
           contentType: contentType,
           processData: processData,
-          xhrFields: {
-            withCredentials: true, // Ensures cookies are included for all AJAX calls
-          },
-          headers: {
-            Authorization: `Bearer ${this.token}`,
-          },
-          success: (response) => {
-            if (successCallback) successCallback(response);
-            resolve(response);
-          },
-          error: (error) => {
-            if (errorCallback) errorCallback(error);
-          },
+          xhrFields: { withCredentials: true }, // Ensures cookies are included for all AJAX calls
+          headers: { Authorization: `Bearer ${this.token}` },
+          success: (response) => resolve(response),
+          error: (error) => reject(error),
         });
       });
     } catch (error) {
       console.error("Error setting up AJAX request:", error);
-      if (errorCallback) {
-        errorCallback(error);
+      throw error;
+    }
+  }
+  async refreshToken() {
+    try {
+      return await this.sendAjax(
+        `http://${this.apiurl}/api/authentication/refreshToken`,
+        "GET",
+        null
+      );
+    } catch (error) {
+      console.error("Error sending refresh token request:", error);
+      throw error;
+    }
+  }
+  async authenticate() {
+    try {
+      const authResponse = await this.sendAjax(
+        `http://${this.apiurl}/api/authentication/isAuthenticated`,
+        "GET",
+        null
+      );
+      if (authResponse.status === "OK") {
+        return await this.handleAuthResponse(authResponse.data);
+      } else {
+        return { authenticated: false };
       }
+    } catch (authResponse) {
+      return this.handleAuthError(authResponse);
     }
   }
 
-  async authenticate() {
-    const authResponse = await this.sendAjax(
-      `http://${this.apiurl}/api/authentication/isAuthenticated`,
-      "GET",
-      function (response) {
-        return response;
-      },
-      function (error) {
-        return error;
-      },
-      null
-    );
-
-    console.log("authResponse:", authResponse); // Log the authResponse
-
-    if (!authResponse) {
-      console.error("authResponse is undefined or null");
-      return { authenticated: false };
+  async handleAuthResponse(authData) {
+    if (authData.at === "Valid" && authData.rt === "Valid") {
+      return { authenticated: true };
+    } else if (authData.at !== "Valid" && authData.rt === "Valid") {
+      try {
+        const refreshTokenResponse = await this.refreshToken();
+        if (refreshTokenResponse && refreshTokenResponse.status === "OK") {
+          this.setToken(refreshTokenResponse.data.at);
+          return { authenticated: true };
+        } else {
+          return { authenticated: false };
+        }
+      } catch (error) {
+        console.error("Error during token refresh:", error);
+        return { authenticated: false };
+      }
+    } else if (authData.at === "Valid") {
+      return { authenticated: true };
     }
+    return { authenticated: false };
+  }
 
+  handleAuthError(authResponse) {
     if (
       authResponse.responseJSON &&
       authResponse.responseJSON.status === "FORBIDDEN"
     ) {
       return { authenticated: false };
+    } else {
+      console.error("Error during authentication:", authResponse);
+      return { authenticated: false };
     }
-
-    if (authResponse.status === "OK") {
-      const authData = authResponse.data;
-      if (authData.at === "Valid" && authData.rt === "Valid") {
-        return { authenticated: true };
-      }
-
-      if (authData.at !== "Valid" && authData.rt === "Valid") {
-        const refreshTokenResponse = await this.sendAjax(
-          `http://${this.apiurl}/api/authentication/refreshToken`,
-          "GET",
-          null,
-          null,
-          null
-        );
-
-        console.log("refreshTokenResponse:", refreshTokenResponse); // Log the refreshTokenResponse
-
-        if (refreshTokenResponse && refreshTokenResponse.status === "OK") {
-          this.setToken(refreshTokenResponse.data.at);
-          return { authenticated: true };
-        }
-      } else if (authData.at === "Valid") {
-        return { authenticated: true };
-      }
-    }
-
-    return { authenticated: false };
   }
 
-  async sendAjaxWithAuthen(url, type, successCallback, errorCallback, data) {
+  async sendAjaxWithAuthen(url, type, data) {
     try {
-      const authResult = await this.authenticate();
-      if (!authResult.authenticated) {
-        throw new Error("User is not authenticated");
+      const result = await this.sendAjax(url, type, data);
+      if (result.status === "OK") {
+        return result;
+      } else {
+        throw new Error("Unexpected response status");
       }
-      return this.sendAjax(url, type, successCallback, errorCallback, data);
     } catch (error) {
-      console.error("Error in sendAjaxWithAuthen:", error);
-      if (errorCallback) {
-        errorCallback(error);
+      if (
+        error.responseJSON &&
+        (error.responseJSON.status === "FORBIDDEN" ||
+          error.responseJSON.status === "UNAUTHORIZED")
+      ) {
+        const authen = await this.authenticate();
+        if (authen.authenticated) {
+          try {
+            return await this.sendAjax(url, type, data);
+          } catch (retryError) {
+            console.error(
+              "Error during retry after authentication:",
+              retryError
+            );
+            throw retryError;
+          }
+        } else {
+          console.error("Authentication failed:", authen);
+          throw new Error("Authentication failed");
+        }
+      } else {
+        console.error("Error during AJAX request:", error);
+        throw error;
       }
     }
   }

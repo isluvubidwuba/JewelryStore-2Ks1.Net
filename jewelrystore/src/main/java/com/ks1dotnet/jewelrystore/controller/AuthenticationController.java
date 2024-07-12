@@ -102,7 +102,7 @@ public class AuthenticationController {
             @RequestParam String idEmployee) {
         if (!idEmployee.startsWith("SE"))
             throw new ApplicationException("No employee found " + idEmployee, HttpStatus.NOT_FOUND);
-        if (otp.isEmpty())
+        if (otp == null || otp.isEmpty())
             throw new ApplicationException("Otp can not be empty", HttpStatus.BAD_REQUEST);
         ResponseData responseData = iAuthenticationService.validateOtp(otp, idEmployee);
         if (responseData.getStatus() != HttpStatus.OK)

@@ -88,19 +88,20 @@ $(document).ready(function () {
   });
 });
 function checkProductInOtherActivePromotions(productId, promotionId, checkbox) {
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/promotion-generic/check/PRODUCT/${productId}/${promotionId}`,
-    "GET",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/promotion-generic/check/PRODUCT/${productId}/${promotionId}`,
+      "GET",
+      null
+    )
+    .then((response) => {
       if (response.status === "CONFLICT") {
         displayConflictModal(response.data, response.desc, checkbox);
       }
-    },
-    function (error) {
+    })
+    .catch((error) => {
       console.error("Error checking product in other promotions:", error);
-    },
-    null
-  );
+    });
 }
 
 export function displayConflictModal(conflictPromotions, desc, checkbox) {
@@ -142,26 +143,27 @@ function activeSelectedProducts(promotionId) {
   });
   var entity = "PRODUCT";
   if (selectedProductIds.length > 0) {
-    userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/api/promotion-generic/apply`,
-      "POST",
-      function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/promotion-generic/apply`,
+        "POST",
+        {
+          promotionId: promotionId,
+          entityIds: selectedProductIds,
+          entityType: entity,
+        }
+      )
+      .then((response) => {
         // Sau khi thực hiện thành công, tải lại danh sách sản phẩm
         fetchProductsByPromotion(
           promotionId,
           $("#promotion-name-listapply").text()
         );
         showNotification("Active successful", "OK");
-      },
-      function (error) {
+      })
+      .catch((error) => {
         console.error("Error inactivating selected products:", error);
-      },
-      {
-        promotionId: promotionId,
-        entityIds: selectedProductIds,
-        entityType: entity,
-      }
-    );
+      });
   } else {
     showNotification(
       "Please select at least one product to inactive.",
@@ -263,10 +265,13 @@ function filterItems() {
 function fetchProductsByPromotion(promotionId, promotionName) {
   var productTableBody = $("#product-apply-promotion");
   productTableBody.empty(); // Clear existing rows
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/promotion-generic/in-promotion/PRODUCT/${promotionId}`,
-    "GET",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/promotion-generic/in-promotion/PRODUCT/${promotionId}`,
+      "GET",
+      null
+    )
+    .then((response) => {
       var products = response.data;
       $("#promotion-name-listapply").text(promotionName);
       if (products.length > 0 && response.status === "OK") {
@@ -276,19 +281,19 @@ function fetchProductsByPromotion(promotionId, promotionName) {
           const product = forProduct.productDTO;
           const statusText = forProduct.status ? "Active" : "Inactive";
           const row = `
-                    <tr>
-                        <td class="px-6 py-3">${product.id}</td>
-                        <td class="px-6 py-3">${product.productCode}</td>
-                        <td class="px-6 py-3">${product.barCode}</td>
-                        <td class="px-6 py-3">${product.name}</td>
-                        <td class="px-6 py-3">${product.materialDTO.name}</td>
-                        <td class="px-6 py-3">${product.productCategoryDTO.name}</td>
-                        <td class="px-6 py-3">${statusText}</td>
-                        <td class="px-6 py-3">
-                            <input type="checkbox" class="product-checkbox item-checkbox" value="${product.id}">
-                        </td>
-                    </tr>
-                `;
+                  <tr>
+                      <td class="px-6 py-3">${product.id}</td>
+                      <td class="px-6 py-3">${product.productCode}</td>
+                      <td class="px-6 py-3">${product.barCode}</td>
+                      <td class="px-6 py-3">${product.name}</td>
+                      <td class="px-6 py-3">${product.materialDTO.name}</td>
+                      <td class="px-6 py-3">${product.productCategoryDTO.name}</td>
+                      <td class="px-6 py-3">${statusText}</td>
+                      <td class="px-6 py-3">
+                          <input type="checkbox" class="product-checkbox item-checkbox" value="${product.id}">
+                      </td>
+                  </tr>
+              `;
           productTableBody.append(row);
           categories.push(product.productCategoryDTO.name);
           materials.push(product.materialDTO.name);
@@ -302,12 +307,10 @@ function fetchProductsByPromotion(promotionId, promotionName) {
           "Error"
         );
       }
-    },
-    function (error) {
+    })
+    .catch((error) => {
       console.error("Lỗi khi tải sản phẩm từ promotion:", error);
-    },
-    null
-  );
+    });
 }
 
 // Xóa các sản phẩm đã chọn khỏi promotion
@@ -317,10 +320,17 @@ function deleteSelectedProducts(promotionId) {
     selectedProductIds.push($(this).val());
   });
   if (selectedProductIds.length > 0) {
-    userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/api/promotion-generic/remove`,
-      "POST",
-      function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/promotion-generic/remove`,
+        "POST",
+        {
+          promotionId: promotionId,
+          entityIds: selectedProductIds,
+          entityType: "PRODUCT",
+        }
+      )
+      .then((response) => {
         // Sau khi xóa thành công, tải lại danh sách sản phẩm
         if (response.status === "OK") {
           fetchProductsByPromotion(
@@ -329,17 +339,11 @@ function deleteSelectedProducts(promotionId) {
           );
           showNotification(response.desc, "OK");
         }
-      },
-      function (error) {
+      })
+      .catch((error) => {
         showNotification(response.desc, "error");
         console.error("Error deleting selected products:", error);
-      },
-      {
-        promotionId: promotionId,
-        entityIds: selectedProductIds,
-        entityType: "PRODUCT",
-      }
-    );
+      });
   } else {
     showNotification("Please select at least one product to delete.", "Error");
   }
@@ -349,24 +353,27 @@ function deleteSelectedProducts(promotionId) {
 function fetchProductsNotInPromotion(promotionId) {
   var itemTableBody = $("#itemTableBody");
   itemTableBody.empty(); // Clear existing rows
-  userService.sendAjaxWithAuthen(
-    `http://${userService.getApiUrl()}/api/promotion-generic/not-in-promotion/PRODUCT/${promotionId}`,
-    "GET",
-    function (response) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/promotion-generic/not-in-promotion/PRODUCT/${promotionId}`,
+      "GET",
+      null
+    )
+    .then((response) => {
       var products = response.data;
       if (products.length > 0) {
         products.forEach(function (product) {
           const row = `
-            <tr>
-              <td class="px-6 py-3">${product.id}</td>
-              <td class="px-6 py-3">${product.name}</td>
-              <td class="px-6 py-3">${product.productCategoryDTO.name}</td>
-              <td class="px-6 py-3">${product.materialDTO.name}</td>
-              <td class="px-6 py-3">
-                <input type="checkbox" class="item-checkbox" value="${product.id}">
-              </td>
-            </tr>
-          `;
+          <tr>
+            <td class="px-6 py-3">${product.id}</td>
+            <td class="px-6 py-3">${product.name}</td>
+            <td class="px-6 py-3">${product.productCategoryDTO.name}</td>
+            <td class="px-6 py-3">${product.materialDTO.name}</td>
+            <td class="px-6 py-3">
+              <input type="checkbox" class="item-checkbox" value="${product.id}">
+            </td>
+          </tr>
+        `;
           itemTableBody.append(row);
         });
         populateCategoryFilter([
@@ -380,12 +387,10 @@ function fetchProductsNotInPromotion(promotionId) {
       } else {
         $("#notiBlankItems").text("No products found not in this promotion.");
       }
-    },
-    function (error) {
+    })
+    .catch((error) => {
       console.error("Error fetching products not in promotion:", error);
-    },
-    null
-  );
+    });
 }
 
 // Thêm các sản phẩm đã chọn vào promotion
@@ -396,10 +401,17 @@ function addSelectedProductsToPromotion(promotionId) {
   });
   var entity = "PRODUCT";
   if (selectedProductIds.length > 0) {
-    userService.sendAjaxWithAuthen(
-      `http://${userService.getApiUrl()}/api/promotion-generic/apply`,
-      "POST",
-      function (response) {
+    userService
+      .sendAjaxWithAuthen(
+        `http://${userService.getApiUrl()}/api/promotion-generic/apply`,
+        "POST",
+        {
+          promotionId: promotionId,
+          entityIds: selectedProductIds,
+          entityType: entity,
+        }
+      )
+      .then((response) => {
         showNotification(response.desc, "OK");
 
         // Sau khi thêm thành công, tải lại danh sách sản phẩm
@@ -408,16 +420,10 @@ function addSelectedProductsToPromotion(promotionId) {
           $("#promotion-name-listapply").text()
         );
         $("#combinedModal").addClass("hidden");
-      },
-      function (error) {
+      })
+      .catch((error) => {
         console.error("Error adding selected products:", error);
-      },
-      {
-        promotionId: promotionId,
-        entityIds: selectedProductIds,
-        entityType: entity,
-      }
-    );
+      });
   } else {
     showNotification(response.desc, "Error");
   }

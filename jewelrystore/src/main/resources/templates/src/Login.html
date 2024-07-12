@@ -4,15 +4,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LOGIN</title>
     <style>
+      /* Style for loader overlay */
+      .loader-overlay {
+        position: absolute; /* Adjust if needed to cover only the button */
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      }
       .loader {
-        border: 4px solid rgba(0, 0, 0, 0.1);
-        border-left-color: #3498db;
+        border: 16px solid #f3f3f3; /* Light grey */
+        border-top: 16px solid #3498db; /* Blue */
         border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        animation: spin 1s linear infinite;
+        width: 120px;
+        height: 120px;
+        animation: spin 2s linear infinite;
       }
 
+      /* Animation for the loader */
       @keyframes spin {
         0% {
           transform: rotate(0deg);
@@ -40,11 +54,12 @@
     <!-- Tailwind -->
     <link href="css/styles.css" rel="stylesheet" />
     <script src="js/jquery.min.js"></script>
-    <script type="module" src="js/loginPage.js"></script>
   </head>
   <div id="notification-placeholder">
     @@include('components/notification.html')
   </div>
+  <script type="module" src="js/loginPage.js"></script>
+
   <body class="relative">
     <div
       class="bg-purple-900 absolute top-0 left-0 bg-gradient-to-b from-gray-900 via-gray-900 to-purple-800 bottom-0 leading-5 h-full w-full overflow-hidden"
@@ -116,6 +131,12 @@
               class="p-12 bg-white mx-auto rounded-3xl w-96 h-96 hidden relative"
             >
               <div
+                id="loader-overlay"
+                class="loader-overlay hidden rounded-3xl"
+              >
+                <div class="loader"></div>
+              </div>
+              <div
                 name="backToLoginButton"
                 class="absolute top-2 items-center justify-center w-1/2 px-5 py-2 text-sm text-gray-700 transition-colors duration-200 bg-white rounded-lg gap-x-2 sm:w-auto hover:bg-gray-100"
                 style="right: 15px"
@@ -152,6 +173,7 @@
                   Please enter your id employee to reset for your account
                   password.
                 </p>
+
                 <button
                   id="sendOtp"
                   type="button"
@@ -198,7 +220,7 @@
                   placeholder="Your otp"
                 />
               </div>
-              <p class="mt-4 text-sm">The OTP is only valid for 1 minute.</p>
+              <p class="mt-4 text-sm">The OTP is only valid for 5 minute.</p>
               <p id="countdown" class="text-zinc-500 mb-4">
                 Request resend OTP in 00:60
               </p>
