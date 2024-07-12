@@ -477,8 +477,8 @@ function initializeSearchForm() {
       );
       return;
     }
-
-    if (criteria === "name" && !/^[a-zA-Z\s]+$/.test(query)) {
+    
+    if (criteria === "name" && !isValidName(query)) {
       showNotification(
         "Invalid name format. Name should not contain special characters or numbers",
         "Error"
