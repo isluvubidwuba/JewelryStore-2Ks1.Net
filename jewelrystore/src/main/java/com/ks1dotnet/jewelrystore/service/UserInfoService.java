@@ -380,6 +380,7 @@ public class UserInfoService implements IUserInfoService {
             UserInfo userInfo = iUserInfoRepository.findCustomerById(id);
             ResponseData responseData = new ResponseData();
             responseData.setData(userInfo.getDTO());
+            responseData.setDesc("Get customer successful");
             responseData.setStatus(HttpStatus.OK);
             return responseData;
         } catch (Exception e) {

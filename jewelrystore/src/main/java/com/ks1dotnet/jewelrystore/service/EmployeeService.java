@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 import com.ks1dotnet.jewelrystore.dto.EmployeeDTO;
 import com.ks1dotnet.jewelrystore.entity.Employee;
 import com.ks1dotnet.jewelrystore.exception.ApplicationException;
@@ -72,7 +74,6 @@ public class EmployeeService implements IEmployeeService {
       }
       return response;
    }
-
 
    @Override
    public List<Employee> findAll() {
@@ -137,7 +138,6 @@ public class EmployeeService implements IEmployeeService {
       try {
          String fileName = null;
 
-
          if (file != null && !file.isEmpty()) {
             fileName = firebaseStorageService.uploadImage(file, filePath).getData().toString();
          } else {
@@ -181,7 +181,7 @@ public class EmployeeService implements IEmployeeService {
          employee.setImage(fileName);
          iEmployeeRepository.save(employee);
          responseData.setStatus(HttpStatus.OK);
-         responseData.setDesc("Insert successful");
+         responseData.setDesc("Insert employee successful");
          responseData.setData(employee.getId());
          return responseData;
       } catch (Exception e) {
@@ -296,8 +296,7 @@ public class EmployeeService implements IEmployeeService {
                break;
 
             case "role":
-               employeePage =
-                     iEmployeeRepository.findByRoleNameContainingIgnoreCase(query, pageRequest);
+               employeePage = iEmployeeRepository.findByRoleNameContainingIgnoreCase(query, pageRequest);
                break;
 
             case "status":
@@ -310,13 +309,19 @@ public class EmployeeService implements IEmployeeService {
                      "Invalid criteria!");
          }
 
-         Page<EmployeeDTO> employeeDTOPage = convertToDTOPage(employeePage);
-         response.put("employees", employeeDTOPage.getContent());
-         response.put("totalPages", employeePage.getTotalPages());
-         response.put("currentPage", page);
+         if (employeePage.isEmpty()) {
+            responseData.setStatus(HttpStatus.NOT_FOUND);
+            responseData.setDesc("Employee not exist in system");
+         } else {
+            Page<EmployeeDTO> employeeDTOPage = convertToDTOPage(employeePage);
+            response.put("employees", employeeDTOPage.getContent());
+            response.put("totalPages", employeePage.getTotalPages());
+            response.put("currentPage", page);
 
-         responseData.setStatus(HttpStatus.OK);
-         responseData.setData(response);
+            responseData.setStatus(HttpStatus.OK);
+            responseData.setData(response);
+            responseData.setDesc("Find employee succesful");
+         }
       } catch (ApplicationException e) {
          throw new ApplicationException(
                "Error at findbyCriteria EmployeeService: " + e.getMessage(), e.getErrorString(),
@@ -376,7 +381,5 @@ public class EmployeeService implements IEmployeeService {
       }).collect(Collectors.toList());
       return new PageImpl<>(dtolist, empPage.getPageable(), empPage.getTotalElements());
    }
-
-
 
 }

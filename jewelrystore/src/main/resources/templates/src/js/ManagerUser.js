@@ -7,6 +7,7 @@ $(document).ready(function () {
   fetchUniqueRankData();
   initializeUnique();
   setupInsertModalToggle();
+  initializeTabs();
 });
 
 function fetchRoles() {
@@ -21,6 +22,7 @@ function fetchRoles() {
         const roles = response.data.filter(
           (role) => !["STAFF", "ADMIN", "MANAGER"].includes(role.name)
         );
+        initializeTabs(roles);  // Gọi hàm initializeTabs ở đây
         initTabs(roles);
         roles.forEach((role) => setupSearch(role.name));
         populateRoleSelect(roles, "#update-role"); // Populate role select for update modal
@@ -91,6 +93,7 @@ function createTabContent(role) {
             </div>
             <input type="text" id="${role.name.toLowerCase()}-search-input" class="border rounded px-4 py-2 ml-2" placeholder="Search...">
             <button id="${role.name.toLowerCase()}-search-button" class="bg-gray-800 hover:bg-black text-white font-bold py-2 px-4 rounded ml-2">Search</button>
+             <button id="${role.name.toLowerCase()}-find-all-button" class="bg-gray-800 hover:bg-black text-white font-bold py-2 px-4 rounded ml-2">Find All</button>
           </div>
       </div>
       <table id="${role.name.toLowerCase()}-table" class="min-w-full bg-white">
@@ -356,16 +359,14 @@ function updateUser() {
 
   var phoneNumber = $("#update-phone").val();
   var email = $("#update-email").val();
+  var fullName = $("#update-fullname").val();
+  var address = $("#update-address").val();
+  var role = $("#update-role").val();
 
-  // Validate phone number
-  if (!isValidPhoneNumber(phoneNumber)) {
-    showNotification("Phone number must be 10 digits!", "Error");
-    return;
-  }
-
-  // Validate email
-  if (!isValidEmail(email)) {
-    showNotification("Invalid email format!", "Error");
+  // Validate form fields
+  var validationMessage = validateFormUpdate({ phoneNumber, email, fullName, address, role });
+  if (validationMessage) {
+    showNotification(validationMessage, "Error");
     return;
   }
 
@@ -396,14 +397,38 @@ function updateUser() {
     .catch((error) => {
       if (error.responseJSON) {
         showNotification(
-          "Error updating user: " + error.responseJSON.desc,
-          "OK"
+          error.responseJSON.desc,
+          "Error"
         );
       } else {
         console.error("Error updating user:", error);
         showNotification("Error updating user!", "OK");
       }
     });
+}
+
+function validateFormUpdate({ phoneNumber, email, fullName, address, role }) {
+  // Validate if fields are not empty
+  if (!fullName.trim() || !phoneNumber.trim() || !email.trim() || !address.trim() || !role) {
+    return "All fields must be filled";
+  }
+
+  // Validate phone number
+  if (!isValidPhoneNumber(phoneNumber)) {
+    return "Phone number must be 10 digits and contain no letters or special characters!";
+  }
+
+  // Validate email
+  if (!isValidEmail(email)) {
+    return "Invalid email address. Email must be in format @gmail.com";
+  }
+
+  // Validate full name
+  if (!isValidFullName(fullName)) {
+    return "Full name must contain no special characters or numbers and be appropriate for Vietnamese names!";
+  }
+
+  return null; // No errors
 }
 
 function clearImagePreview() {
@@ -438,29 +463,45 @@ function setupSearch(role) {
     .off("click")
     .on("click", function (e) {
       e.preventDefault();
-      const criteria = $(`#${role.toLowerCase()}-search-input`).data(
-        "criteria"
-      );
+      const criteria = $(`#${role.toLowerCase()}-search-input`).data("criteria");
       const query = $(`#${role.toLowerCase()}-search-input`).val();
+
+      // Check if criteria is selected
+      if (!criteria) {
+        showNotification("Please select a search criteria !", "error");
+        return;
+      }
+      // Check if search input is empty
+      if (!query) {
+        showNotification("Search input cannot be empty !", "error");
+        return;
+      }
 
       // Validate input based on criteria
       if (criteria === "numberphone") {
         if (!isValidPhoneNumber(query)) {
-          showNotification("Phone number must be exactly 10 digits.", "error");
+          showNotification("Invalid phone number. It must contain only digits and be 10 numbers long", "error");
           return;
         }
       } else if (criteria === "email") {
         if (!isValidEmail(query)) {
-          showNotification("Invalid email format.", "error");
+          showNotification("Invalid email address. Email must be in format @gmail.com", "error");
           return;
         }
-      } else if (criteria === "id") { // Added validation for ID
+      } else if (criteria === "id") {
         if (!/^\d+$/.test(query)) {
-          showNotification("ID must be a number.", "error");
+          showNotification("ID must be a number", "error");
+          return;
+        }
+      } else if (criteria === "name") {
+        // Added validation for name
+        const vietnameseNameRegex = /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯàáâãèéêìíòóôõùúăđĩũơưĂẮẰẲẴẶẤẦẨẪẬẮẰẲẴẶÉẾỀỂỄỆÍÌỈĨỊỈÌỊÉÊÍÒÓÔÕÙÚỦŨỤƯỨỪỬỮỰÝỲỶỸỴỹýỳỵỷỹỵơớờởỡợợáạảãàâấầẩậẫắằẳẵặèéẹẻẽêếềểễệìíỉĩịòóọỏõôốồổỗộơớờởỡợùúụủũưứừửữựýỳỷỹỵỵ]+(\s[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯàáâãèéêìíòóôõùúăđĩũơưĂẮẰẲẴẶẤẦẨẪẬẮẰẲẴẶÉẾỀỂỄỆÍÌỈĨỊỈÌỊÉÊÍÒÓÔÕÙÚỦŨỤƯỨỪỬỮỰÝỲỶỸỴỹýỳỵỷỹỵơớờởỡợợáạảãàâấầẩậẫắằẳẵặèéẹẻẽêếềểễệìíỉĩịòóọỏõôốồổỗộơớờởỡợùúụủũưứừửữựýỳỷỹỵỵ]+)*$/u;
+
+        if (!vietnameseNameRegex.test(query)) {
+          showNotification("Full name must contain no special characters or numbers and be appropriate for Vietnamese names!", "error");
           return;
         }
       }
-
       searchByRole(role, criteria, query, 0);
     });
 }
@@ -578,13 +619,13 @@ function setupInsertModalToggle() {
         )
         .then((response) => {
           if (response.status === "OK") {
-            showNotification("Insert Successful!", "OK");
+            showNotification("Insert Successful !", "OK");
             $("#insertUserModal").addClass("hidden");
             clearInsertForm(); // Xóa các trường trong form
             switchTabByRole(selectedRole);
           } else {
             showNotification(
-              "Error while insert user " + response.desc,
+              response.desc,
               "error"
             );
           }
@@ -592,7 +633,6 @@ function setupInsertModalToggle() {
         .catch((error) => {
           console.error("Error while insert user:", error);
           showNotification(
-            "Error while insert user: " +
             (error.responseJSON ? error.responseJSON.desc : "System Error"),
             "error",
             "error"
@@ -616,21 +656,33 @@ function switchTabByRole(role) {
 }
 
 function validateForm(form) {
-  const email = form.find('input[name="email"]').val();
-  const phoneNumber = form.find('input[name="phoneNumber"]').val();
+  const fullName = form.find('input[name="fullName"]').val().trim();
+  const email = form.find('input[name="email"]').val().trim();
+  const phoneNumber = form.find('input[name="phoneNumber"]').val().trim();
+  const address = form.find('input[name="address"]').val().trim();
+  const role = form.find('select[name="roleId"]').val();
 
-  if (!isValidEmail(email)) {
-    showNotification("Invalid email address.", "error");
-
+  // Check if any field is empty
+  if (!fullName || !email || !phoneNumber || !address || !role) {
+    showNotification("All fields are required", "error");
     return false;
   }
 
-  if (!isValidPhoneNumber(phoneNumber)) {
-    showNotification(
-      "Invalid phone number. It must contain only digits and be 10 numbers long",
-      "error"
-    );
+  // Validate full name
+  if (!isValidFullName(fullName)) {
+    showNotification("Full name must contain no special characters or numbers and be appropriate for Vietnamese names!", "error");
+    return false;
+  }
 
+  // Validate email
+  if (!isValidEmail(email)) {
+    showNotification("Invalid email address. Email must be in format @gmail.com", "error");
+    return false;
+  }
+
+  // Validate phone number
+  if (!isValidPhoneNumber(phoneNumber)) {
+    showNotification("Invalid phone number. It must contain only digits and be 10 numbers long", "error");
     return false;
   }
 
@@ -638,13 +690,19 @@ function validateForm(form) {
 }
 
 function isValidEmail(email) {
-  const emailPattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
-  return emailPattern.test(email);
+  var emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+  return emailRegex.test(email);
 }
 
 function isValidPhoneNumber(phoneNumber) {
-  const phonePattern = /^\d{10}$/;
-  return phonePattern.test(phoneNumber);
+  var phoneRegex = /^[0-9]{10}$/;
+  return phoneRegex.test(phoneNumber);
+}
+
+function isValidFullName(fullName) {
+  // Biểu thức chính quy để kiểm tra tên đầy đủ tiếng Việt không chứa số và ký tự đặc biệt
+  var fullNameRegex = /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯàáâãèéêìíòóôõùúăđĩũơưĂẮẰẲẴẶẤẦẨẪẬẮẰẲẴẶÉẾỀỂỄỆÍÌỈĨỊỈÌỊÉÊÍÒÓÔÕÙÚỦŨỤƯỨỪỬỮỰÝỲỶỸỴỹýỳỵỷỹỵơớờởỡợợáạảãàâấầẩậẫắằẳẵặèéẹẻẽêếềểễệìíỉĩịòóọỏõôốồổỗộơớờởỡợùúụủũưứừửữựýỳỷỹỵỵ]+(\s[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯàáâãèéêìíòóôõùúăđĩũơưĂẮẰẲẴẶẤẦẨẪẬẮẰẲẴẶÉẾỀỂỄỆÍÌỈĨỊỈÌỊÉÊÍÒÓÔÕÙÚỦŨỤƯỨỪỬỮỰÝỲỶỸỴỹýỳỵỷỹỵơớờởỡợợáạảãàâấầẩậẫắằẳẵặèéẹẻẽêếềểễệìíỉĩịòóọỏõôốồổỗộơớờởỡợùúụủũưứừửữựýỳỷỹỵỵ]+)*$/u;
+  return fullNameRegex.test(fullName);
 }
 
 // Fetch rank data and populate the table
@@ -882,3 +940,31 @@ function deleteUniqueCustomerType() {
     }
   });
 }
+
+function initializeTabs(roles) {
+  if (!Array.isArray(roles)) {
+    console.error("Roles is not an array or is undefined");
+    return;
+  }
+
+  roles.forEach(role => {
+    const tabContent = createTabContent(role);
+    $('body').append(tabContent);
+    addFindAllEventListener(role);
+  });
+}
+
+function addFindAllEventListener(role) {
+  $(document).on('click', `#${role.name.toLowerCase()}-find-all-button`, function () {
+    handleFindAllClick(role);
+  });
+}
+
+function handleFindAllClick(role) {
+  if (role.name === "CUSTOMER") {
+    fetchCustomers(0);
+  } else if (role.name === "SUPPLIER") {
+    fetchSuppliers(0);
+  }
+}
+
