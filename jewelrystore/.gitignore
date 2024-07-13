@@ -32,6 +32,12 @@ build/
 ### VS Code ###
 .vscode/
 
-src/main/resources/firebase-service-account.json
+
 src/main/resources/templates/dist/
 src/main/resources/templates/node_modules/
+# Ignore specific files in src/main/resources
+/src/main/resources/firebase-service-account.json
+/src/main/resources/application-aws.yml
+/src/main/resources/application-local.yml
+/src/main/resources/application.yml
+
