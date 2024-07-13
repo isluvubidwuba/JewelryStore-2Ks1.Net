@@ -188,8 +188,7 @@ public class MailService {
                         message.append("<div style='background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 20px; max-width: 1000px; margin: auto;'>");
                         message.append("<div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;'>");
                         message.append("<div style='display: flex; align-items: center;'>");
-                        message.append("<img style='height: auto; width: 32px; margin-right: 8px;' src='https://storage.googleapis.com/jewelrystore-2ks1dotnet.appspot.com/User/c3b3e699-1466-48cf-b1ae-1db13264e44e_2024-07-12' alt='Logo' />");
-                        message.append("<div style='color: #4a4a4a; font-weight: 600; font-size: 18px;'>2KS 1NET</div>");
+                        message.append("<img style='width: 170px; height: auto;  margin-right: 8px;' src='https://storage.googleapis.com/jewelrystore-2ks1dotnet.appspot.com/User/c3b3e699-1466-48cf-b1ae-1db13264e44e_2024-07-12' alt='Logo' />");
                         message.append("</div>");
                         message.append("<div style='color: #4a4a4a; text-align: right;'>");
                         message.append("<div style='font-weight: bold; font-size: 24px; margin-bottom: 8px;'>HÓA ĐƠN</div>");
