@@ -1,8 +1,0 @@
-spring:
-  application:
-    name: jewelrystore
-  datasource:
-    url: jdbc:sqlserver://localhost\\LAPTOP-F98VSAGL:1433;databaseName=StoreManager;encrypt=true;trustServerCertificate=true
-    username: sa
-    password: 12345
-domain: http://127.0.0.1:5501
