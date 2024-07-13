@@ -42,8 +42,7 @@ public class MailService {
                         String EmployName) {
                 MimeMessage mimeMessage = mailSender.createMimeMessage();
                 try {
-                        MimeMessageHelper helper =
-                                        new MimeMessageHelper(mimeMessage, true, "UTF-8");
+                        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
                         helper.setFrom(fromMail);
                         helper.setTo(mail);
                         helper.setSubject("Thông tin tài khoản làm việc của bạn");
@@ -76,8 +75,7 @@ public class MailService {
         public ResponseData sendOtpEmail(String email, String username, String otp) {
                 MimeMessage mimeMessage = mailSender.createMimeMessage();
                 try {
-                        MimeMessageHelper helper =
-                                        new MimeMessageHelper(mimeMessage, true, "UTF-8");
+                        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
                         helper.setFrom(fromMail);
                         helper.setTo(email);
                         helper.setSubject("Mã OTP xác nhận đổi mật khẩu");
@@ -124,8 +122,7 @@ public class MailService {
         public ResponseData sendInvoiceEmail(String email, String username) {
                 MimeMessage mimeMessage = mailSender.createMimeMessage();
                 try {
-                        MimeMessageHelper helper =
-                                        new MimeMessageHelper(mimeMessage, true, "UTF-8");
+                        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
                         helper.setFrom("your-email@example.com");
                         helper.setTo(email);
                         helper.setSubject("Hóa đơn thanh toán của bạn");
@@ -179,8 +176,7 @@ public class MailService {
                 MimeMessage mimeMessage = mailSender.createMimeMessage();
                 Invoice invoiceData = invoiceRepository.findById(invoiceId).get();
                 try {
-                        MimeMessageHelper helper =
-                                        new MimeMessageHelper(mimeMessage, true, "UTF-8");
+                        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
                         helper.setFrom("your-email@example.com");
                         helper.setTo(email);
                         helper.setSubject("Hóa đơn thanh toán của bạn");
@@ -192,8 +188,7 @@ public class MailService {
                         message.append("<div style='background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 20px; max-width: 1000px; margin: auto;'>");
                         message.append("<div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;'>");
                         message.append("<div style='display: flex; align-items: center;'>");
-                        message.append("<img style='height: 32px; width: 32px; margin-right: 8px;' src='https://tailwindflex.com/public/images/logos/favicon-32x32.png' alt='Logo' />");
-                        message.append("<div style='color: #4a4a4a; font-weight: 600; font-size: 18px;'>2KS 1NET</div>");
+                        message.append("<img style='width: 170px; height: auto;  margin-right: 8px;' src='https://storage.googleapis.com/jewelrystore-2ks1dotnet.appspot.com/User/c3b3e699-1466-48cf-b1ae-1db13264e44e_2024-07-12' alt='Logo' />");
                         message.append("</div>");
                         message.append("<div style='color: #4a4a4a; text-align: right;'>");
                         message.append("<div style='font-weight: bold; font-size: 24px; margin-bottom: 8px;'>HÓA ĐƠN</div>");
