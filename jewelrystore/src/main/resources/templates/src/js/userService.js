@@ -1,8 +1,8 @@
 class UserService {
   constructor() {
-    this.token = localStorage.getItem("token");
-    this.userId = localStorage.getItem("userId");
-    this.userRole = localStorage.getItem("userRole");
+    this.token = sessionStorage.getItem("token");
+    this.userId = sessionStorage.getItem("userId");
+    this.userRole = sessionStorage.getItem("userRole");
     this.apiurl = process.env.API_URL;
   }
 
@@ -24,17 +24,17 @@ class UserService {
 
   setToken(token) {
     this.token = token;
-    localStorage.setItem("token", token);
+    sessionStorage.setItem("token", token);
   }
 
   setUserId(userId) {
     this.userId = userId;
-    localStorage.setItem("userId", userId);
+    sessionStorage.setItem("userId", userId);
   }
 
   setUserRole(userRole) {
     this.userRole = userRole;
-    localStorage.setItem("userRole", userRole);
+    sessionStorage.setItem("userRole", userRole);
   }
 
   parseJwt(token) {

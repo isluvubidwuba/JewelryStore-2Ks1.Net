@@ -13,9 +13,7 @@ function Logout() {
         null
       )
       .then(() => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("userId");
-        localStorage.removeItem("userRole");
+        sessionStorage.clear();
         window.location.href = "Login.html";
       })
       .catch((response) => {

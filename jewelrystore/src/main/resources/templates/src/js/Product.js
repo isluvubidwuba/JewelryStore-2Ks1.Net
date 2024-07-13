@@ -11,8 +11,16 @@ function init() {
   setupFormSubmissions();
   setupSearch();
   setUpOnChange();
+  configState();
 }
-const state = {
+function configState() {
+  $("#rowOfPage").change((event) => {
+    state.rows = event.target.value;
+    $("#pagination-wrapper").empty();
+    buildTable(state, "There are no products");
+  });
+}
+var state = {
   querySet: [],
   page: 1,
   rows: 10,
