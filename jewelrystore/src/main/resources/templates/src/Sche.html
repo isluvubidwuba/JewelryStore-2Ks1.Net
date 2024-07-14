@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>View Schedule</title>
+    <link href="css/styles.css" rel="stylesheet" />
+    <script src="js/jquery.min.js"></script>
+    <style>
+      /* events.css */
+      .event-type-1 {
+        background-color: #ff7f50; /* Màu cam */
+      }
+
+      .event-type-2 {
+        background-color: #6a5acd; /* Màu xanh đậm */
+      }
+
+      .event-type-3 {
+        background-color: #20b2aa; /* Màu xanh nhạt */
+      }
+
+      .event-type-4 {
+        background-color: #ff6347; /* Màu đỏ cam */
+      }
+
+      .event-type-5 {
+        background-color: #4682b4; /* Màu xanh dương */
+      }
+
+      .event-type-6 {
+        background-color: #32cd32; /* Màu xanh lá cây */
+      }
+
+      .event-type-7 {
+        background-color: #ff69b4; /* Màu hồng đậm */
+      }
+
+      .event-type-8 {
+        background-color: #ffa500; /* Màu cam vàng */
+      }
+
+      .event-add-user {
+        background-color: #f3f4f6; /* Màu xám */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .overflow-x-scroll {
+        display: flex;
+        overflow-x: auto;
+        overflow-y: hidden; /* Ẩn cuộn dọc */
+        white-space: nowrap;
+      }
+
+      .single-event {
+        display: inline-block;
+      }
+
+      .events {
+        max-height: 100%; /* Đảm bảo không vượt quá chiều cao màn hình */
+        overflow-y: hidden; /* Ẩn cuộn dọc */
+      }
+
+      .top-info {
+        border-top-left-radius: 0.5rem; /* Bo góc trên trái */
+        border-top-right-radius: 0.5rem; /* Bo góc trên phải */
+        margin-right: 12px;
+      }
+
+      .week-selector {
+        margin: 20px;
+      }
+
+      .week-selector label {
+        margin-right: 10px;
+        font-weight: bold;
+      }
+
+      .week-selector select {
+        padding: 5px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+      }
+    </style>
+    <div id="notification-placeholder">
+      @@include('components/notification.html')
+    </div>
+    <script type="module" src="js/updateEvents.js"></script>
+  </head>
+  <body class="bg-gray-100 h-screen flex">
+    <!-- Side bar -->
+    <div id="sidebar-placeholder">@@include('components/sidebar.html')</div>
+
+    <div class="relative w-full flex flex-col h-screen overflow-y-hidden">
+      <!-- Desktop Header -->
+      <div id="header-placeholder">@@include('components/header.html')</div>
+
+      <!-- Year and Week Selector -->
+      <div class="week-selector">
+        <label for="year-dropdown">YEAR:</label>
+        <select id="year-dropdown"></select>
+        <label for="week-dropdown">WEEK:</label>
+        <select id="week-dropdown"></select>
+      </div>
+
+      <div
+        class="cd-schedule loading relative my-8 w-full max-w-screen-lg mx-auto"
+      >
+        <div class="events">
+          <ul class="wrap flex flex-col ml-3">
+            <li class="events-group mb-4">
+              <div class="top-info py-2 px-4 bg-gray-300">
+                <span>Monday</span>
+              </div>
+              <ul class="flex overflow-x-scroll mr-3"></ul>
+            </li>
+            <li class="events-group mb-4">
+              <div class="top-info py-2 px-4 bg-gray-300">
+                <span>Tuesday</span>
+              </div>
+              <ul class="flex overflow-x-scroll mr-3"></ul>
+            </li>
+            <li class="events-group mb-4">
+              <div class="top-info py-2 px-4 bg-gray-300">
+                <span>Wednesday</span>
+              </div>
+              <ul class="flex overflow-x-scroll mr-3"></ul>
+            </li>
+            <li class="events-group mb-4">
+              <div class="top-info py-2 px-4 bg-gray-300">
+                <span>Thursday</span>
+              </div>
+              <ul class="flex overflow-x-scroll mr-3"></ul>
+            </li>
+            <li class="events-group mb-4">
+              <div class="top-info py-2 px-4 bg-gray-300">
+                <span>Friday</span>
+              </div>
+              <ul class="flex overflow-x-scroll mr-3"></ul>
+            </li>
+            <li class="events-group mb-4">
+              <div class="top-info py-2 px-4 bg-gray-300">
+                <span>Saturday</span>
+              </div>
+              <ul class="flex overflow-x-scroll mr-3"></ul>
+            </li>
+            <li class="events-group mb-4">
+              <div class="top-info py-2 px-4 bg-gray-300">
+                <span>Sunday</span>
+              </div>
+              <ul class="flex overflow-x-scroll mr-3"></ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
