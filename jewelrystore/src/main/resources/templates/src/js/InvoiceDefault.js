@@ -11,8 +11,7 @@ $(document).ready(function () {
   let totalPriceRaw = $("#totalPriceRaw");
   let discountPrice = $("#discountPrice");
   let subtotal = $("#subtotal");
-  let token = localStorage.getItem("token");
-  let employeeID = localStorage.getItem("userId"); // ID của nhân viên từ token
+  let employeeID = userService.getUserId(); // ID của nhân viên từ token
 
   let productMap = {};
   let selectedUserId = null;
@@ -1013,7 +1012,7 @@ $(document).ready(function () {
   });
 
   //============================= Phần này xử lý việc chuyển sang trang vnpay để thanh toán hoá đơn=================================
-  function initiatePayment(amount, bankCode) {
+  async function initiatePayment(amount, bankCode) {
     if (!selectedUserId) {
       showNotification(
         "Please select a user before creating an invoice !!!",
@@ -1035,7 +1034,7 @@ $(document).ready(function () {
     console.log("Initiating payment with:");
     console.log("amount:", amount);
     console.log("bankCode:", bankCode);
-    userService
+    await userService
       .sendAjaxWithAuthen(
         `http://${userService.getApiUrl()}/api/payment/vn-pay?amount=${amount}&bankCode=${bankCode}`,
         "GET",
@@ -1047,7 +1046,8 @@ $(document).ready(function () {
           response.data &&
           response.data.paymentUrl
         ) {
-          window.location.href = response.data.paymentUrl;
+          console.log(response.data.paymentUrl);
+          //window.location.href = response.data.paymentUrl;
         } else {
           showNotification(
             "Can error occurred while initiating payment. Please try again !!!",

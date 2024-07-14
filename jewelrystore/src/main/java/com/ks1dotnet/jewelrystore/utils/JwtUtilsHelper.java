@@ -1,15 +1,21 @@
 package com.ks1dotnet.jewelrystore.utils;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.UUID;
+import javax.crypto.Mac;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Base64Utils;
 import com.ks1dotnet.jewelrystore.Enum.TokenType;
 import com.ks1dotnet.jewelrystore.exception.ApplicationException;
 import com.ks1dotnet.jewelrystore.repository.IInvalidatedTokenRepository;
@@ -27,7 +33,8 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Slf4j
 public class JwtUtilsHelper {
-
+    @Value("${payOs.checkSum}")
+    private String checkSumKey;
     @Value("${jwt.privateKey}")
     private String privateKey;
     @Autowired
@@ -49,6 +56,42 @@ public class JwtUtilsHelper {
                 .claim("role", role).setIssuedAt(getIssueDate())
                 .setExpiration(getExpirationDate(minute)).claim("token_type", type).signWith(key)
                 .compact();
+    }
+
+    public String generateSignature(Map<String, String> data) throws Exception {
+        // Sort data by alphabet
+        TreeMap<String, String> sortedData = new TreeMap<>(data);
+
+        // Create the data string
+        StringBuilder dataToSign = new StringBuilder();
+        for (Map.Entry<String, String> entry : sortedData.entrySet()) {
+            if (dataToSign.length() > 0) {
+                dataToSign.append("&");
+            }
+            dataToSign.append(entry.getKey()).append("=").append(entry.getValue());
+        }
+
+        System.out.println(dataToSign);
+        // Generate the HMAC SHA-256 signature
+        Mac mac = Mac.getInstance("HmacSHA256");
+        SecretKeySpec secretKeySpec =
+                new SecretKeySpec(checkSumKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+        mac.init(secretKeySpec);
+
+        byte[] hmacSha256 = mac.doFinal(dataToSign.toString().getBytes(StandardCharsets.UTF_8));
+        return bytesToHex(hmacSha256);
+    }
+
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder hexString = new StringBuilder(2 * bytes.length);
+        for (byte b : bytes) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
 
     public Object verifyToken(String token) {
