@@ -33,8 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Slf4j
 public class JwtUtilsHelper {
-    @Value("${payOs.checkSum}")
-    private String checkSumKey;
+
     @Value("${jwt.privateKey}")
     private String privateKey;
     @Autowired
@@ -56,30 +55,6 @@ public class JwtUtilsHelper {
                 .claim("role", role).setIssuedAt(getIssueDate())
                 .setExpiration(getExpirationDate(minute)).claim("token_type", type).signWith(key)
                 .compact();
-    }
-
-    public String generateSignature(Map<String, String> data) throws Exception {
-        // Sort data by alphabet
-        TreeMap<String, String> sortedData = new TreeMap<>(data);
-
-        // Create the data string
-        StringBuilder dataToSign = new StringBuilder();
-        for (Map.Entry<String, String> entry : sortedData.entrySet()) {
-            if (dataToSign.length() > 0) {
-                dataToSign.append("&");
-            }
-            dataToSign.append(entry.getKey()).append("=").append(entry.getValue());
-        }
-
-        System.out.println(dataToSign);
-        // Generate the HMAC SHA-256 signature
-        Mac mac = Mac.getInstance("HmacSHA256");
-        SecretKeySpec secretKeySpec =
-                new SecretKeySpec(checkSumKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-        mac.init(secretKeySpec);
-
-        byte[] hmacSha256 = mac.doFinal(dataToSign.toString().getBytes(StandardCharsets.UTF_8));
-        return bytesToHex(hmacSha256);
     }
 
     private static String bytesToHex(byte[] bytes) {
