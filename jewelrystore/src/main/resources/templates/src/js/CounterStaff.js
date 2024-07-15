@@ -187,7 +187,7 @@ function fetchProductsByCounter(counterId, page = 1) {
       null
     )
     .then((response) => {
-      const products = response.products;
+      const products = response.data.products;
       const tableBody = $(`#table-body-${counterId}`);
       tableBody.empty();
       products.forEach((product) => {
@@ -225,8 +225,8 @@ function fetchProductsByCounter(counterId, page = 1) {
       });
 
       // Cập nhật thông tin trang
-      const totalPages = response.totalPages;
-      const currentPage = response.currentPage + 1;
+      const totalPages = response.data.totalPages;
+      const currentPage = response.data.currentPage + 1;
       $(`#page-info-${counterId}`).text(`Page ${currentPage} of ${totalPages}`);
 
       // Vô hiệu hóa các nút khi cần thiết

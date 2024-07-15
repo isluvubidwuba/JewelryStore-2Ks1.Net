@@ -262,6 +262,13 @@ function processEventsData(eventsData) {
     // Format the date to "yyyy-MM-dd"
     const formattedDate = offsetDate.toISOString().split("T")[0];
 
+    // Kiểm tra điều kiện để hiển thị hoặc ẩn nút
+    if (formattedDate <= new Date().toISOString().split("T")[0]) {
+      $("#buttonDeleteSChedule").addClass("hidden"); // Ẩn nút nếu ngày là quá khứ hoặc đã check-in
+    } else {
+      $("#buttonDeleteSChedule").removeClass("hidden"); // Hiển thị nút nếu ngày không phải là quá khứ và chưa check-in
+    }
+    $("#formDelete").empty();
     // Gán giá trị vào các input ẩn
     $("#hiddenDate").val(formattedDate);
     $("#hiddenCounterId").val(counter.id);
@@ -316,11 +323,12 @@ $("#deleteForm").submit(function (e) {
         $("#viewEmployeeModal2").addClass("hidden");
         updateEvents(); // Refresh the events
       } else {
-        showNotification("Error deleting schedule: " + response.desc);
+        showNotification(response.responseJSON.desc);
       }
     })
     .catch(function (err) {
-      showNotification("Error deleting schedule: " + err);
+      console.log(err);
+      showNotification(err.responseJSON.desc);
     });
 });
 $(document).ready(function () {

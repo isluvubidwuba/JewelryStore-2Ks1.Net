@@ -134,6 +134,10 @@ public class AssignShiftForStaffService implements IAssignShiftForStaffService {
                     .orElseThrow(
                             () -> new ApplicationException("Counter assignment not found: " + counterId,
                                     HttpStatus.NOT_FOUND));
+            Date currentDate = new Date();
+            if (date.before(currentDate)) {
+                throw new ApplicationException("Cannot delete shift for a past date: " + date, HttpStatus.BAD_REQUEST);
+            }
 
             // Remove the counter assignment
             assignCountersForStaffRepository.delete(assignCounter);
