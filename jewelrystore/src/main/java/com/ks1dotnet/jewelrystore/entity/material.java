@@ -34,6 +34,8 @@ public class Material {
 
     @Column(name = "price_at_time")
     private Double priceAtTime;
+    @Column(name = "price_buy_at_time")
+    private Double priceBuyAtTime;
 
     @Column(name = "last_modified")
     private String lastModified;
@@ -44,7 +46,8 @@ public class Material {
     List<ForMaterial> listForMaterials;
 
     public MaterialDTO getDTO() {
-        return new MaterialDTO(this.id, this.name, this.purity, this.priceAtTime, this.lastModified);
+        return new MaterialDTO(this.id, this.name, this.purity, this.priceAtTime,
+                this.priceBuyAtTime, this.lastModified);
     }
 
     public Material(MaterialDTO t) {
@@ -56,6 +59,8 @@ public class Material {
             this.purity = t.getPurity();
         if (t.getPriceAtTime() != 0)
             this.priceAtTime = t.getPriceAtTime();
+        if (t.getPriceBuyAtTime() != 0)
+            this.priceBuyAtTime = t.getPriceBuyAtTime();
         if (t.getLastModified() != null)
             this.lastModified = t.getLastModified();
     }
