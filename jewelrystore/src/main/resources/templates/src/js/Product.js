@@ -11,8 +11,16 @@ function init() {
   setupFormSubmissions();
   setupSearch();
   setUpOnChange();
+  configState();
 }
-const state = {
+function configState() {
+  $("#rowOfPage").change((event) => {
+    state.rows = event.target.value;
+    $("#pagination-wrapper").empty();
+    buildTable(state, "There are no products");
+  });
+}
+var state = {
   querySet: [],
   page: 1,
   rows: 10,
@@ -49,6 +57,7 @@ function fetchProduct(page, size) {
 
 function buildTable(state, noti) {
   $("#productTableBody").empty();
+  $("#notiBlankProduct").empty();
   if (!state.querySet || state.querySet.length === 0) {
     $("#notiBlankProduct").text(noti);
     return;
@@ -99,6 +108,7 @@ function pagination(querySet, page, rows) {
 }
 
 function createPagination(totalPages, page, actualTotalPagesAtClient) {
+  $("#pagination-wrapper").empty();
   if (totalPages <= 1) return;
   let liTag = "";
   let active;
@@ -424,28 +434,36 @@ function countCategoriesByType(gemList) {
 
 function setupSearch() {
   $("#search-input").on("keyup", function () {
+    $("#notiBlankProduct").empty();
     clearTimeout(timeout);
     const text = this.value.trim();
     if (text === "") {
+      $("#clearSearch").addClass("hidden");
       fetchProduct(state.currentServerPage, state.size);
     } else {
       timeout = setTimeout(() => {
-        searchProducts(text);
+        searchProducts(text, 0);
       }, 500);
     }
   });
   $("#Category,#Material,#Counter").change(function () {
-    searchProducts($("#search-input").val());
+    if ($("#Material").val() || $("#Category").val() || $("#Counter").val())
+      searchProducts($("#search-input").val(), 0);
   });
-  $("#search-input").on("change", function () {
-    if (this.value.trim() === "0") {
-      fetchProduct(state.currentServerPage, state.size);
-    }
+
+  $("#clearSearch").click(() => {
+    $("#clearSearch").addClass("hidden");
+    $("#search-input").val("");
+    $("#Material").val("");
+    $("#Category").val("");
+    $("#Counter").val("");
+    fetchProduct(state.currentServerPage, state.size);
   });
 }
 
-function searchProducts(query) {
-  userService
+async function searchProducts(query, pageS) {
+  $("#clearSearch").removeClass("hidden");
+  return await userService
     .sendAjaxWithAuthen(
       `http://${userService.getApiUrl()}/api/product/search`,
       "POST",
@@ -454,26 +472,31 @@ function searchProducts(query) {
         id_material: $("#Material").val(),
         id_product_category: $("#Category").val(),
         id_counter: $("#Counter").val(),
+        page: pageS,
       })
     )
     .then((response) => {
-      if (response && response.data) {
-        searchSuggestion(response.data.content);
+      if (response.data) {
+        showNotification("Search product successfully.", "OK");
+        const { content, totalElements } = response.data;
+        state.querySet = content;
+        state.totalPagesAtClient = Math.ceil(totalElements / state.rows);
+        state.currentServerPage = pageS;
+        buildTable(state); // Build table after fetching products
       }
     })
     .catch((xhr, status, error) => {
-      showNotification("An error occurred while submitting the form.", "error");
+      if (xhr.responseJSON) {
+        showNotification(xhr.responseJSON.desc, "error");
+        $("#productTableBody").empty();
+        $("#pagination-wrapper").empty();
+        $("#notiBlankProduct").text(
+          "There are no product suitable for your search!"
+        );
+      } else
+        showNotification("An error occurred while search product.", "error");
       console.log(xhr.responseText);
     });
-}
-
-function searchSuggestion(listProduct) {
-  $("#productTableBody").empty();
-  $("#pagination-wrapper").empty();
-  listProduct.forEach((product) => {
-    const productRow = createProductRow(product);
-    $("#productTableBody").append(productRow);
-  });
 }
 
 async function fetchProductCategory() {
@@ -573,20 +596,24 @@ function setupFormSubmission(
     if (validateFormFields(formSelector)) {
       const formData = await formToObject();
       console.log(formData);
-      userService.sendAjaxWithAuthen(
-        url,
-        "POST",
-        successCallback,
-        function (xhr, status, error) {
+      return await userService
+        .sendAjaxWithAuthen(
+          url,
+          "POST",
+
+          formData
+        )
+        .then((response) => {
+          successCallback(response);
+        })
+        .catch((xhr) => {
           showNotification(
             "An error occurred while submitting the form.",
             "Error"
           );
 
           console.log(xhr.responseText);
-        },
-        formData
-      );
+        });
     } else {
       showNotification("You must fill all fields.", "Error");
     }

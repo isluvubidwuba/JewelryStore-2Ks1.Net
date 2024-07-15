@@ -57,13 +57,41 @@
             <h1 class="text-3xl text-black pb-6">View Product</h1>
             <button
               id="modalToggle_Create"
-              class="ml-auto bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+              class="ml-auto bg-black text-white px-4 py-2 rounded hover:bg-gray-400"
             >
               Create Product
             </button>
           </div>
 
-          <div class="flex justify-end" id="searchProduct">
+          <div
+            class="flex items-center justify-between w-full"
+            id="searchProduct"
+          >
+            <div class="flex flex-col justify-start">
+              <div>
+                <span>Show: </span>
+                <select
+                  id="rowOfPage"
+                  name="rowPage"
+                  class="ml-2 mr-2 pl-2 pr-2 py-2 text-sm rounded-lg border border-gray-300 w-fit h-10 shadow-md hover:shadow-xl"
+                >
+                  <option value="10" selected>10</option>
+                  <option value="20">20</option>
+                  <option value="30">30</option>
+                  <option value="40">40</option>
+                  <option value="50">50</option>
+                </select>
+                row
+              </div>
+              <div class="mt-2 mb-2 ml-4">
+                <button
+                  id="clearSearch"
+                  class="bg-black text-white px-2 py-1 rounded hover:bg-gray-400 hidden"
+                >
+                  Clear search
+                </button>
+              </div>
+            </div>
             <div class="flex flex-col justify-start">
               <input
                 type="search"
@@ -308,7 +336,10 @@
         class="hidden mx-0 overflow-y-auto overflow-x-hidden fixed inset-0 z-40 items-center justify-center w-full h-full bg-gray-900 bg-opacity-50 bg-gray-500/50"
       >
         <!-- Modal content -->
-        <div class="bg-white rounded-lg shadow w-8/12">
+        <div
+          class="bg-white rounded-lg shadow w-8/12"
+          style="max-width: 1100px; max-height: 700px"
+        >
           <div
             class="flex items-center justify-between p-4 border-b rounded-t w-full"
           >
@@ -795,7 +826,34 @@
                     required
                   />
                 </div>
+
                 <div class="col-span-2 sm:col-span-1">
+                  <label for="colorC" class="block mb-2 text-sm font-medium"
+                    >Color</label
+                  >
+                  <input
+                    type="text"
+                    name="colorC"
+                    id="colorC"
+                    class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    placeholder="color"
+                    required
+                  />
+                </div>
+                <div class="col-span-2 sm:col-span-1">
+                  <label class="block mb-2 text-sm font-medium">Quantity</label>
+                  <input
+                    type="number"
+                    name="Quantity"
+                    id="quantityC"
+                    class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    placeholder="quantity"
+                    step="0.01"
+                    min="0"
+                    required
+                  />
+                </div>
+                <div class="col-span-2">
                   <label
                     for="gemstone-clarity"
                     class="block mb-2 text-sm font-medium"
@@ -840,32 +898,6 @@
                       Included (I3)
                     </option>
                   </select>
-                </div>
-                <div class="col-span-2 sm:col-span-1">
-                  <label for="colorC" class="block mb-2 text-sm font-medium"
-                    >Color</label
-                  >
-                  <input
-                    type="text"
-                    name="colorC"
-                    id="colorC"
-                    class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder="color"
-                    required
-                  />
-                </div>
-                <div class="col-span-2 sm:col-span-1">
-                  <label class="block mb-2 text-sm font-medium">Quantity</label>
-                  <input
-                    type="number"
-                    name="Quantity"
-                    id="quantityC"
-                    class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder="quantity"
-                    step="0.01"
-                    min="0"
-                    required
-                  />
                 </div>
               </div>
               <div class="flex justify-end">

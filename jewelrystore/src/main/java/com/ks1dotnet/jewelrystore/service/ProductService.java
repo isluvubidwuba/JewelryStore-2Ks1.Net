@@ -279,12 +279,13 @@ public class ProductService implements IProductService {
 
     @Override
     public ResponseData searchProductV2(String search, String id_material,
-            String id_product_category, String id_counter) {
+            String id_product_category, String id_counter, int page) {
         try {
             Page<Product> listDTO = iProductRepository.dynamicSearchProductV2(search, id_material,
-                    id_product_category, id_counter, PageRequest.of(0, 50));
-
-            return new ResponseData(HttpStatus.OK, "Found Product successfully",
+                    id_product_category, id_counter, PageRequest.of(page, 50));
+            if (listDTO.isEmpty())
+                return new ResponseData(HttpStatus.NOT_FOUND, "No product found", null);
+            return new ResponseData(HttpStatus.OK, "Search product successfully",
                     convertToDtoPage(listDTO));
         } catch (ApplicationException e) {
             throw new ApplicationException("Failed search product: " + e.getMessage(),
