@@ -128,8 +128,6 @@ public class MaterialController {
                                             (Double.parseDouble(sell) * 1000) / 37.5);
                                     materialDTO.setPriceBuyAtTime(
                                             (Double.parseDouble(buy) * 1000) / 37.5);
-                                    System.out.println(Double.parseDouble(buy));
-                                    System.out.println((formatter.format(date)));
                                     materialDTO.setLastModified((formatter.format(date)));
                                     listMaterial.add(materialDTO);
                                 }
@@ -139,10 +137,7 @@ public class MaterialController {
                 }
             }
             if (listMaterial.size() > 0)
-                for (MaterialDTO materialDTO : listMaterial) {
-                    System.out.println(materialDTO);
-                }
-            responsedata = iMaterialService.getGoldPirce(listMaterial);
+                responsedata = iMaterialService.getGoldPirce(listMaterial);
             return new ResponseEntity<>(responsedata, responsedata.getStatus());
 
         } catch (Exception e) {
