@@ -1,8 +1,9 @@
 package com.ks1dotnet.jewelrystore.entity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.Set;
+import java.util.List;
 
 import com.ks1dotnet.jewelrystore.dto.AssignShiftForStaffDTO;
 
@@ -33,39 +34,33 @@ public class AssignShiftForStaff {
     @Column(name = "date")
     private Date date;
 
-    @Column(name = "check_in")
-    private LocalDate checkIn;
+    @Column(name = "check_in", nullable = true)
+    private LocalDateTime checkIn;
 
-    @Column(name = "check_out")
-    private LocalDate checkOut;
+    @Column(name = "check_out", nullable = true)
+    private LocalDateTime checkOut;
 
-    @Column(name = "is_late")
-    private boolean isLate;
-    
-    @Column(name = "note")
-    private String note;
+    @Column(name = "is_late", nullable = true)
+    private Boolean isLate; // Sử dụng Boolean thay vì boolean để cho phép giá trị null
 
     @ManyToOne
     @JoinColumn(name = "id_employee")
     private Employee employee;
 
-    @OneToMany
-    @JoinColumn(name = "assignShiftForStaff")
-    Set<AssignCountersForStaff> listAssignCountersForStaff;
+    @OneToMany(mappedBy = "assignShiftForStaff")
+    List<AssignCountersForStaff> listAssignCountersForStaff;
 
-    public AssignShiftForStaffDTO getDTO(){
-        return new AssignShiftForStaffDTO(this.id, this.date, this.checkIn, this.checkOut, this.isLate, this.note, this.employee.getDTO());
+    public AssignShiftForStaffDTO getDTO() {
+        return new AssignShiftForStaffDTO(this.id, this.date, this.checkIn, this.checkOut, this.isLate,
+                this.employee.getDTO());
     }
 
-    public AssignShiftForStaff(AssignShiftForStaffDTO e){
+    public AssignShiftForStaff(AssignShiftForStaffDTO e) {
         this.id = e.getId();
         this.date = e.getDate();
         this.checkIn = e.getCheckIn();
         this.checkOut = e.getCheckOut();
-        this.isLate = e.isLate();
-        this.note = e.getNote();
+        this.isLate = e.getIsLate();
         this.employee = new Employee(e.getEmployeeDTO());
     }
-
-
 }

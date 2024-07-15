@@ -351,7 +351,7 @@ public class EmployeeService implements IEmployeeService {
       ResponseData responseData = new ResponseData();
       try {
          List<EmployeeDTO> employeeDTOs = new ArrayList<>();
-         for (Employee employee : iEmployeeRepository.findAllStaff()) {
+         for (Employee employee : iEmployeeRepository.findAllStaffByStatus()) {
             employeeDTOs.add(employee.getDTO());
          }
          responseData.setDesc("Load list staff successfully");

@@ -187,7 +187,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/getstaff")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public ResponseEntity<?> getStaff() {
         ResponseData responseData = iEmployeeService.getStaff();
         return new ResponseEntity<>(responseData, responseData.getStatus());

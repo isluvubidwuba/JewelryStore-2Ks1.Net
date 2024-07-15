@@ -4,22 +4,26 @@ const userService = new UserService();
 
 // logout
 function Logout() {
-  $("#logout").click(function (event) {
+  $("#logout").click(async function (event) {
     event.preventDefault();
-    userService
-      .sendAjaxWithAuthen(
-        `http://${userService.getApiUrl()}/api/authentication/logout`,
-        "POST",
-        null
-      )
-      .then(() => {
-        sessionStorage.clear();
-        window.location.href = "Login.html";
-      })
-      .catch((response) => {
-        showNotification("Logout failed:" + response.responseJSON?.desc);
-      });
+    await LogoutApi();
   });
+}
+
+export async function LogoutApi() {
+  return await userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/authentication/logout`,
+      "POST",
+      null
+    )
+    .then(() => {
+      sessionStorage.clear();
+      window.location.href = "Login.html";
+    })
+    .catch((response) => {
+      showNotification("Logout failed:" + response.responseJSON?.desc);
+    });
 }
 
 async function authenticate() {
@@ -30,6 +34,7 @@ async function authenticate() {
         console.log("Authenticate ne :" + userAuthenticated);
         window.location.href = "Login.html";
       }
+      // if(userService.getUserRole === "STAFF" && "check checin chua")
     }
   } catch (error) {
     console.error("Authentication failed:", error);
