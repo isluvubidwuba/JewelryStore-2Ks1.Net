@@ -154,11 +154,7 @@ class UserService {
   async sendAjaxWithAuthen(url, type, data) {
     try {
       const result = await this.sendAjax(url, type, data);
-      if (result.status === "OK") {
-        return result;
-      } else {
-        throw new Error("Unexpected response status");
-      }
+      return result;
     } catch (error) {
       if (
         error.responseJSON &&
