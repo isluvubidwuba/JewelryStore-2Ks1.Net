@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>View Schedule</title>
+    <link href="css/styles.css" rel="stylesheet" />
+    <script src="js/jquery.min.js"></script>
+    <style>
+      /* events.css */
+      .event-type-1 {
+        background-color: #ff7f50; /* Màu cam */
+      }
+
+      .event-type-2 {
+        background-color: #6a5acd; /* Màu xanh đậm */
+      }
+
+      .event-type-3 {
+        background-color: #20b2aa; /* Màu xanh nhạt */
+      }
+
+      .event-type-4 {
+        background-color: #ff6347; /* Màu đỏ cam */
+      }
+
+      .event-type-5 {
+        background-color: #4682b4; /* Màu xanh dương */
+      }
+
+      .event-type-6 {
+        background-color: #32cd32; /* Màu xanh lá cây */
+      }
+
+      .event-type-7 {
+        background-color: #ff69b4; /* Màu hồng đậm */
+      }
+
+      .event-type-8 {
+        background-color: #ffa500; /* Màu cam vàng */
+      }
+
+      .event-add-user {
+        background-color: #f3f4f6; /* Màu xám */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .overflow-x-scroll {
+        display: flex;
+        overflow-x: auto;
+        overflow-y: hidden; /* Ẩn cuộn dọc */
+        white-space: nowrap;
+      }
+
+      .single-event {
+        display: inline-block;
+      }
+
+      .top-info {
+        border-top-left-radius: 0.5rem; /* Bo góc trên trái */
+        border-top-right-radius: 0.5rem; /* Bo góc trên phải */
+        margin-right: 12px;
+      }
+
+      .week-selector {
+        margin: 20px;
+      }
+
+      .week-selector label {
+        margin-right: 10px;
+        font-weight: bold;
+      }
+      .events-group ul {
+        display: flex;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+
+      .single-event {
+        flex: 0 0 auto; /* Prevent the event from shrinking */
+        width: 150px; /* Set a fixed width for each event */
+        margin-right: 10px;
+      }
+      .week-selector select {
+        padding: 5px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+      }
+    </style>
+    <div id="notification-placeholder">
+      @@include('components/notification.html')
+    </div>
+    <script type="module" src="js/updateEvents.js"></script>
+  </head>
+  <body class="bg-gray-100 h-screen flex">
+    <!-- Side bar -->
+    <div id="sidebar-placeholder">@@include('components/sidebar.html')</div>
+
+    <div class="relative w-full flex flex-col h-screen overflow-y-hidden">
+      <!-- Desktop Header -->
+      <div id="header-placeholder">@@include('components/header.html')</div>
+
+      <!-- Year and Week Selector -->
+      <div class="week-selector">
+        <label for="year-dropdown">YEAR:</label>
+        <select id="year-dropdown"></select>
+        <label for="week-dropdown">WEEK:</label>
+        <select id="week-dropdown"></select>
+      </div>
+
+      <div class="cd-schedule loading relative w-full h-screen mx-auto">
+        <div class="events">
+          <ul class="wrap flex flex-col ml-3">
+            <li class="events-group mb-4">
+              <div class="top-info py-2 px-4 bg-gray-300">
+                <span>Monday</span>
+                <span class="date"></span>
+              </div>
+              <ul class="flex overflow-x-scroll mr-3"></ul>
+            </li>
+            <li class="events-group mb-4">
+              <div class="top-info py-2 px-4 bg-gray-300">
+                <span>Tuesday</span>
+                <span class="date"></span>
+              </div>
+              <ul class="flex overflow-x-scroll mr-3"></ul>
+            </li>
+            <li class="events-group mb-4">
+              <div class="top-info py-2 px-4 bg-gray-300">
+                <span>Wednesday</span>
+                <span class="date"></span>
+              </div>
+              <ul class="flex overflow-x-scroll mr-3"></ul>
+            </li>
+            <li class="events-group mb-4">
+              <div class="top-info py-2 px-4 bg-gray-300">
+                <span>Thursday</span>
+                <span class="date"></span>
+              </div>
+              <ul class="flex overflow-x-scroll mr-3"></ul>
+            </li>
+            <li class="events-group mb-4">
+              <div class="top-info py-2 px-4 bg-gray-300">
+                <span>Friday</span>
+                <span class="date"></span>
+              </div>
+              <ul class="flex overflow-x-scroll mr-3"></ul>
+            </li>
+            <li class="events-group mb-4">
+              <div class="top-info py-2 px-4 bg-gray-300">
+                <span>Saturday</span>
+                <span class="date"></span>
+              </div>
+              <ul class="flex overflow-x-scroll mr-3"></ul>
+            </li>
+            <li class="events-group mb-4">
+              <div class="top-info py-2 px-4 bg-gray-300">
+                <span>Sunday</span>
+                <span class="date"></span>
+              </div>
+              <ul class="flex overflow-x-scroll mr-3"></ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </body>
+
+  <!-- modal delete confirm -->
+  <div
+    id="deleteModal"
+    tabindex="-1"
+    aria-hidden="true"
+    class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden"
+  >
+    <div class="relative p-4 w-full max-w-md h-full md:h-auto">
+      <!-- Modal content -->
+      <div class="relative p-4 text-center bg-white rounded-lg shadow sm:p-5">
+        <button
+          id="closeDelete"
+          type="button"
+          class="text-gray-400 absolute top-2.5 right-2.5 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
+          data-modal-toggle="deleteModal"
+        >
+          <svg
+            aria-hidden="true"
+            class="w-5 h-5"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
+          <span class="sr-only">Close modal</span>
+        </button>
+        <svg
+          class="text-gray-400 w-11 h-11 mb-3.5 mx-auto"
+          aria-hidden="true"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+            clip-rule="evenodd"
+          ></path>
+        </svg>
+        <p class="mb-4 text-gray-500">
+          Are you sure you want to delete this schedule?
+        </p>
+        <div class="flex justify-center items-center space-x-4">
+          <button
+            data-modal-toggle="deleteModal"
+            type="button"
+            class="py-2 px-3 text-sm font-medium text-gray-500 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 hover:text-gray-900 focus:z-40"
+            id="cancelDelete"
+          >
+            No, cancel
+          </button>
+          <button
+            type="button"
+            class="py-2 px-3 text-sm font-medium text-center text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300"
+            id="confirmDelete"
+          >
+            Yes, I'm sure
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal create schedule -->
+  <div
+    id="create-modal"
+    tabindex="-1"
+    aria-hidden="true"
+    class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden"
+  >
+    <div class="relative p-4 w-full max-w-md max-h-full">
+      <!-- Modal content -->
+      <div class="relative bg-white rounded-lg shadow">
+        <!-- Modal header -->
+        <div class="flex items-center justify-between p-4 border-b rounded-t">
+          <span>Create Schedule: </span>
+          <span class="date ml-3 font-bold"></span>
+          <button
+            type="button"
+            id="modalClose"
+            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
+          >
+            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fill-rule="evenodd"
+                d="M10 8.586L15.657 2.93a1 1 0 011.414 1.414L11.414 10l5.657 5.657a1 1 0 01-1.414 1.414L10 11.414l-5.657 5.657a1 1 0 01-1.414 1.414L8.586 10 2.93 4.343A1 1 0 014.343 2.93L10 8.586z"
+                clip-rule="evenodd"
+              ></path>
+            </svg>
+            <span class="sr-only">Close modal</span>
+          </button>
+        </div>
+        <!-- Modal body -->
+        <form id="form-insert" class="p-4">
+          <input type="hidden" id="date" name="date" />
+          <div class="grid gap-4 mb-4 grid-cols-2">
+            <div class="col-span-2">
+              <label
+                for="employeeId"
+                class="block mb-2 text-sm font-medium text-gray-900"
+                >Choose Employee</label
+              >
+              <select
+                id="employeeId"
+                name="employeeId"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
+                required
+              >
+                <!-- empl load here -->
+              </select>
+            </div>
+            <div class="col-span-2">
+              <label
+                for="counterId"
+                class="block mb-2 text-sm font-medium text-gray-900"
+                >Counter</label
+              >
+              <select
+                id="counterId"
+                name="counterId"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
+                required
+              >
+                <!-- counter load here -->
+              </select>
+            </div>
+          </div>
+          <button
+            type="submit"
+            id="submit-insert"
+            class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+          >
+            Create Schedule
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- View Employee Modal -->
+  <div
+    id="viewEmployeeModal2"
+    class="fixed inset-0 flex items-center justify-center z-40 bg-gray-800 bg-opacity-75 hidden"
+  >
+    <div class="bg-white rounded-lg shadow-lg w-1/3">
+      <div
+        class="px-4 py-2 flex justify-between items-center bg-gray-800 text-white rounded-t-lg"
+      >
+        <h2 class="text-lg">Shift details</h2>
+        <button id="closeViewModalBtn2" class="text-white">&times;</button>
+      </div>
+      <div class="p-4">
+        <div class="flex space-x-4">
+          <div class="w-full">
+            <div class="flex flex-col items-center">
+              <img
+                src="https://randomuser.me/api/portraits/men/94.jpg"
+                class="w-32 h-32 bg-gray-300 rounded-full mb-4 object-cover"
+                id="employeeImage"
+              />
+              <h1 class="text-xl font-bold" id="employeeName">John Doe</h1>
+              <p class="text-gray-700" id="employeeRole">Software Developer</p>
+            </div>
+            <hr class="my-6 border-t border-gray-300" />
+            <div class="flex">
+              <div class="w-1/2 pr-2">
+                <span
+                  class="text-gray-700 uppercase font-bold tracking-wider mb-2"
+                  >Information</span
+                >
+                <ul>
+                  <li class="mb-2" id="employeeId2">ID Employee:</li>
+                  <li class="mb-2" id="employeePhone">Phone:</li>
+                  <li class="mb-2" id="employeeEmail">Email:</li>
+                  <li class="mb-2" id="employeeAddress">Address:</li>
+                </ul>
+              </div>
+              <div class="w-1/2 pl-2 border-l border-gray-300">
+                <span
+                  class="text-gray-700 uppercase font-bold tracking-wider mb-2"
+                  >Information Shift</span
+                >
+                <ul>
+                  <li class="mb-2" id="shiftCounter">Counter:</li>
+                  <li class="mb-2">
+                    Check In Status: <span id="checkInStatus"></span>
+                  </li>
+                  <li class="mb-2">
+                    Check Out Status: <span id="checkOutStatus"></span>
+                  </li>
+                  <li class="mb-2">Is late: <span id="isLateStatus"></span></li>
+                </ul>
+              </div>
+            </div>
+            <div class="w-full flex justify-end">
+              <!-- Hidden form -->
+              <form id="deleteForm">
+                <input type="hidden" id="hiddenDate" name="date" />
+                <input type="hidden" id="hiddenCounterId" name="counterId" />
+                <input type="hidden" id="hiddenEmployeeId" name="employeeId" />
+                <button
+                  type="submit"
+                  id="buttonDeleteSChedule"
+                  class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                >
+                  Delete
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</html>

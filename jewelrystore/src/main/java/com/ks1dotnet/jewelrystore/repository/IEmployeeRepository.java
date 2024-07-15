@@ -39,8 +39,8 @@ public interface IEmployeeRepository extends JpaRepository<Employee, String> {
 
     public boolean existsById(String id);
 
-    @Query("SELECT e FROM Employee e WHERE e.role.id = 3")
-    public List<Employee> findAllStaff();
+    @Query("SELECT e FROM Employee e WHERE e.role.id = 3 AND e.status = true")
+    public List<Employee> findAllStaffByStatus();
 
     @Query("SELECT e FROM Employee e WHERE e.role.id = 1")
     public List<Employee> findAdmin();

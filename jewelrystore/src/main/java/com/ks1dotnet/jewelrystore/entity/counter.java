@@ -1,6 +1,6 @@
 package com.ks1dotnet.jewelrystore.entity;
 
-import java.util.Set;
+import java.util.List;
 
 import com.ks1dotnet.jewelrystore.dto.CounterDTO;
 
@@ -36,13 +36,13 @@ public class Counter {
     private boolean status;
 
     @OneToMany(mappedBy = "counter")
-    Set<AssignCountersForStaff> ListAssignCountersForStaff;
+    List<AssignCountersForStaff> ListAssignCountersForStaff;
 
     @OneToMany(mappedBy = "counter")
-    Set<Product> listProduct;
+    List<Product> listProduct;
 
     @OneToMany(mappedBy = "counter")
-    Set<InvoiceDetail> listOrderInvoiceDetail;
+    List<InvoiceDetail> listOrderInvoiceDetail;
 
     public CounterDTO getDTO() {
         return new CounterDTO(this.id, this.name, this.status);
