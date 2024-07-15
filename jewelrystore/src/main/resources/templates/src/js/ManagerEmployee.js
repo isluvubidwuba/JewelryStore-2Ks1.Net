@@ -1,15 +1,37 @@
 import UserService from "./userService.js";
 import { viewEmployee2 } from "./revenueEmployee.js";
 const userService = new UserService();
+const userRole = userService.getUserRole();
+
 
 $(document).ready(function () {
   initializeInsertEmployee();
   initializePagination();
   initializeSearchForm();
   fetchEmployees(0);
+  toggleButtonVisibility(userRole);
+
 });
 
 let currentPage = 0;
+
+function toggleButtonVisibility(userRole) {
+  console.log("Check role vao trang : " + userRole);
+  if (userRole === 'ADMIN') {
+    $('#openInsertModalBtn').show();
+    $('#updateEmployeeBtn').show();
+    $('#deleteEmployeeBtn').show();
+  } else {
+    $('#openInsertModalBtn').hide();
+    $('#updateEmployeeBtn').hide();
+    $('#deleteEmployeeBtn').hide();
+  }
+}
+
+
+
+
+
 
 function initializePagination() {
   $("#prevPageBtn").click(handlePrevPage);
@@ -477,7 +499,7 @@ function initializeSearchForm() {
       );
       return;
     }
-    
+
     if (criteria === "name" && !isValidName(query)) {
       showNotification(
         "Invalid name format. Name should not contain special characters or numbers",
