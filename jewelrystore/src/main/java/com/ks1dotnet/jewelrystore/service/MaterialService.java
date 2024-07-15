@@ -98,6 +98,7 @@ public class MaterialService implements IMaterialService {
                                 "Can not find material with id: " + material.getId(),
                                 HttpStatus.BAD_REQUEST));
                 m.setPriceAtTime(material.getPriceAtTime());
+                m.setPriceBuyAtTime(material.getPriceBuyAtTime());
                 m.setLastModified(material.getLastModified());
                 list.add(m);
             }

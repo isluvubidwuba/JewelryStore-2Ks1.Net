@@ -294,7 +294,6 @@ $(document).ready(function () {
     sessionStorage.setItem("selectedUserName", selectedUserName);
     sessionStorage.setItem("userPromotion", JSON.stringify(userPromotion));
     sessionStorage.setItem("productMap", JSON.stringify(productMap));
-    sessionStorage.setItem("employeeID", employeeID);
   }
 
   function showConfirmModal(paymentMethod, bankCode, amount = null) {
@@ -302,7 +301,7 @@ $(document).ready(function () {
     const userName = sessionStorage.getItem("selectedUserName");
     const userPromotion = JSON.parse(sessionStorage.getItem("userPromotion"));
     const productMap = JSON.parse(sessionStorage.getItem("productMap"));
-    const employeeID = sessionStorage.getItem("employeeID");
+    const employeeID = userService.getUserId();
 
     console.log("showConfirmModal called with:");
     console.log("userId:", userId);
@@ -1085,7 +1084,7 @@ $(document).ready(function () {
             selectedUserName = sessionStorage.getItem("selectedUserName");
             userPromotion = JSON.parse(sessionStorage.getItem("userPromotion"));
             productMap = JSON.parse(sessionStorage.getItem("productMap"));
-            employeeID = sessionStorage.getItem("employeeID");
+            employeeID = userService.getUserId();
 
             // Tạo hóa đơn với thông tin thanh toán qua VNPAY và sử dụng các biến đã khai báo
             createInvoice("VNPAY", null);
@@ -1095,7 +1094,6 @@ $(document).ready(function () {
             sessionStorage.removeItem("selectedUserName");
             sessionStorage.removeItem("userPromotion");
             sessionStorage.removeItem("productMap");
-            sessionStorage.removeItem("employeeID");
           } else {
             showNotification(message, "Error");
           }

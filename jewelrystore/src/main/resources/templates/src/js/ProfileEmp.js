@@ -46,7 +46,10 @@ function saveChanges() {
   let firstName, lastName;
 
   if (fullName !== "" && !isValidName(fullName)) {
-    showNotification("Name must not contain special characters or numbers and be appropriate for Vietnamese names!", "Error");
+    showNotification(
+      "Name must not contain special characters or numbers and be appropriate for Vietnamese names!",
+      "Error"
+    );
     return;
   }
 
@@ -59,8 +62,9 @@ function saveChanges() {
     lastName = fullName.substring(firstSpaceIndex + 1);
   }
 
-
-  const phoneNumber = document.getElementById("employeePhoneNumberInput").value.trim();
+  const phoneNumber = document
+    .getElementById("employeePhoneNumberInput")
+    .value.trim();
   const email = document.getElementById("employeeEmailInput").value.trim();
 
   if (phoneNumber !== "" && !isValidPhoneNumber(phoneNumber)) {
@@ -73,7 +77,7 @@ function saveChanges() {
     return;
   }
 
-  formData.append("id", localStorage.getItem("userId"));
+  formData.append("id", userService.getUserId());
   formData.append("firstName", firstName);
   formData.append("lastName", lastName);
   formData.append(
@@ -119,7 +123,6 @@ function saveChanges() {
       }
     })
     .catch((error) => {
-      
       if (error.responseJSON && error.responseJSON.desc) {
         showNotification(error.responseJSON.desc, "Error");
       } else {
@@ -127,7 +130,6 @@ function saveChanges() {
       }
     });
 }
-
 
 function clearInput() {
   $("#employeePhoneNumberInput").val("");
@@ -147,9 +149,6 @@ function cancelChanges() {
   clearInput();
 }
 
-
-
-
 function isValidPhoneNumber(phoneNumber) {
   var regex = /^\d{10}$/;
   return regex.test(phoneNumber);
@@ -161,8 +160,9 @@ function isValidEmail(email) {
 }
 
 function isValidName(name) {
-  var fullNameRegex = /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯàáâãèéêìíòóôõùúăđĩũơưĂẮẰẲẴẶẤẦẨẪẬẮẰẲẴẶÉẾỀỂỄỆÍÌỈĨỊỈÌỊÉÊÍÒÓÔÕÙÚỦŨỤƯỨỪỬỮỰÝỲỶỸỴỹýỳỵỷỹỵơớờởỡợợáạảãàâấầẩậẫắằẳẵặèéẹẻẽêếềểễệìíỉĩịòóọỏõôốồổỗộơớờởỡợùúụủũưứừửữựýỳỷỹỵỵ]+(\s[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯàáâãèéêìíòóôõùúăđĩũơưĂẮẰẲẴẶẤẦẨẪẬẮẰẲẴẶÉẾỀỂỄỆÍÌỈĨỊỈÌỊÉÊÍÒÓÔÕÙÚỦŨỤƯỨỪỬỮỰÝỲỶỸỴỹýỳỵỷỹỵơớờởỡợợáạảãàâấầẩậẫắằẳẵặèéẹẻẽêếềểễệìíỉĩịòóọỏõôốồổỗộơớờởỡợùúụủũưứừửữựýỳỷỹỵỵ]+)*$/u;
-  return fullNameRegex.test(name)
+  var fullNameRegex =
+    /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯàáâãèéêìíòóôõùúăđĩũơưĂẮẰẲẴẶẤẦẨẪẬẮẰẲẴẶÉẾỀỂỄỆÍÌỈĨỊỈÌỊÉÊÍÒÓÔÕÙÚỦŨỤƯỨỪỬỮỰÝỲỶỸỴỹýỳỵỷỹỵơớờởỡợợáạảãàâấầẩậẫắằẳẵặèéẹẻẽêếềểễệìíỉĩịòóọỏõôốồổỗộơớờởỡợùúụủũưứừửữựýỳỷỹỵỵ]+(\s[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯàáâãèéêìíòóôõùúăđĩũơưĂẮẰẲẴẶẤẦẨẪẬẮẰẲẴẶÉẾỀỂỄỆÍÌỈĨỊỈÌỊÉÊÍÒÓÔÕÙÚỦŨỤƯỨỪỬỮỰÝỲỶỸỴỹýỳỵỷỹỵơớờởỡợợáạảãàâấầẩậẫắằẳẵặèéẹẻẽêếềểễệìíỉĩịòóọỏõôốồổỗộơớờởỡợùúụủũưứừửữựýỳỷỹỵỵ]+)*$/u;
+  return fullNameRegex.test(name);
 }
 // Gán hàm vào đối tượng window để có thể truy cập từ HTML
 window.editField = editField;

@@ -124,8 +124,10 @@ public class MaterialController {
                                     String sell = itemElement.getAttribute("sell");
                                     MaterialDTO materialDTO = new MaterialDTO();
                                     materialDTO.setId(idMaterial);
-                                    materialDTO.setPriceAtTime(Double.parseDouble(sell));
-                                    System.out.println((formatter.format(date)));
+                                    materialDTO.setPriceAtTime(
+                                            (Double.parseDouble(sell) * 1000) / 37.5);
+                                    materialDTO.setPriceBuyAtTime(
+                                            (Double.parseDouble(buy) * 1000) / 37.5);
                                     materialDTO.setLastModified((formatter.format(date)));
                                     listMaterial.add(materialDTO);
                                 }

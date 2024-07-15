@@ -134,9 +134,8 @@ public class InvoiceService implements IInvoiceService {
                         }
 
                         InvoiceType invoiceType = invoiceTypeService.findById(invoiceTypeId);
-                        List<Promotion> promotions =
-                                        promotionService.getAllPromotionByProductAndInvoiceType(
-                                                        product, invoiceType.getId());
+                        List<Promotion> promotions = promotionService.getAllPromotionByProductAndInvoiceType(
+                                        product, invoiceType.getId());
 
                         return calculateInvoiceDetail(product, quantity, promotions, invoiceType);
                 } catch (ApplicationException e) {
@@ -176,7 +175,10 @@ public class InvoiceService implements IInvoiceService {
                                         .filter(promotion -> promotion.getPromotionType()
                                                         .equals("category"))
                                         .findFirst().orElse(null);
-                        Double priceAtTime = product.getMaterial().getPriceAtTime();
+
+                        Double priceAtTime = invoiceType.getId() == Sell ? product.getMaterial().getPriceAtTime()
+                                        : product.getMaterial().getPriceBuyAtTime();
+                        ;
                         float weight = product.getWeight();
                         double materialPrice = priceAtTime * weight;
 
@@ -362,7 +364,9 @@ public class InvoiceService implements IInvoiceService {
                                 invoiceDetail.setQuantity(detailDTO.getQuantity());
                                 invoiceDetail.setPrice(detailDTO.getPrice());
                                 invoiceDetail.setPriceMaterialAtTime(
-                                                product.getMaterial().getPriceAtTime());
+                                                invoice.getInvoiceType().getId() == Sell
+                                                                ? product.getMaterial().getPriceAtTime()
+                                                                : product.getMaterial().getPriceBuyAtTime());
                                 invoiceDetail.setTotalPrice(detailDTO.getTotalPrice());
                                 invoiceDetail.setInvoice(invoice);
                                 invoiceDetail.setCounter(product.getCounter());
@@ -418,8 +422,7 @@ public class InvoiceService implements IInvoiceService {
         @Override
         public int convertDoubleToInt(double input) {
                 try {
-                        BigDecimal bigDecimal =
-                                        new BigDecimal(input).setScale(0, RoundingMode.HALF_UP);
+                        BigDecimal bigDecimal = new BigDecimal(input).setScale(0, RoundingMode.HALF_UP);
                         return bigDecimal.intValue();
                 } catch (Exception e) {
                         throw new ApplicationException(
@@ -591,8 +594,7 @@ public class InvoiceService implements IInvoiceService {
         @Override
         public List<InvoiceDTO> getInvoicesByDateRange(Date startDate, Date endDate) {
                 try {
-                        List<Invoice> invoices =
-                                        invoiceRepository.findByDateBetween(startDate, endDate);
+                        List<Invoice> invoices = invoiceRepository.findByDateBetween(startDate, endDate);
                         return invoices.stream().map(Invoice::getDTO).collect(Collectors.toList());
                 } catch (Exception e) {
                         throw new ApplicationException(
@@ -1120,9 +1122,8 @@ public class InvoiceService implements IInvoiceService {
                                                                                                     // 5
                                                                                                     // kết
                                                                                                     // quả
-                Page<Invoice> invoices =
-                                invoiceRepository.findByEmployeeIdAndInvoiceTypeIdAndStatus(
-                                                employeeId, Sell, true, pageable);
+                Page<Invoice> invoices = invoiceRepository.findByEmployeeIdAndInvoiceTypeIdAndStatus(
+                                employeeId, Sell, true, pageable);
                 return invoices.map(Invoice::getDTO);
         }
 
