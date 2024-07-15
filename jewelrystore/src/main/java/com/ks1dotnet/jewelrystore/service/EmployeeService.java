@@ -373,7 +373,7 @@ public class EmployeeService implements IEmployeeService {
          Employee updatedEmployee = save(employee); // Giả sử bạn đã có phương thức save trong
                                                     // service
          responseData.setStatus(HttpStatus.OK);
-         responseData.setDesc("Delete successful");
+         responseData.setDesc("Delete employee successful");
          responseData.setData(updatedEmployee);
       } catch (Exception e) {
          throw new ApplicationException(
