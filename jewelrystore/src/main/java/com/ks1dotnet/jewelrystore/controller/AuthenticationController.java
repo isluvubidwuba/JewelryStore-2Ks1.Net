@@ -73,6 +73,7 @@ public class AuthenticationController {
                     "Error at login AuthenticationController: " + ex.getMessage(), "Login failed",
                     HttpStatus.BAD_REQUEST);
         }
+
     }
 
     @PostMapping("/logout")
