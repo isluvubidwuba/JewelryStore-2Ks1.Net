@@ -11,8 +11,9 @@ $(document).ready(function () {
   $("#logoutButton").click(function () {
     if (userRole === "STAFF") {
       $("#logoutModal").removeClass("hidden");
+    } else {
+      LogoutApi();
     }
-    LogoutApi();
   });
 
   // Đóng modal khi click vào nút close

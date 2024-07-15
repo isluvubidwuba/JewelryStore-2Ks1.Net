@@ -118,8 +118,10 @@ public class EmployeeController {
             @RequestParam(required = false) String email,
             @RequestParam(required = false) String address) {
         ResponseData responseData;
-        String idEmployeeFromToken = SecurityContextHolder.getContext().getAuthentication().getName();
-        Employee employeeDTO = iEmployeeService.findById(idEmployeeFromToken);
+        String idEmp = JwtUtilsHelper.getAuthorizationByTokenType("at").getSubject();
+        System.out.println(idEmp);
+        System.out.println(id);
+        Employee employeeDTO = iEmployeeService.findById(idEmp);
         // Sử dụng dữ liệu cũ nếu dữ liệu mới không có hoặc rỗng
         String firstNameToUpdate = firstName != null ? (firstName.isEmpty() ? employeeDTO.getFirstName() : firstName)
                 : employeeDTO.getFirstName();
@@ -134,7 +136,7 @@ public class EmployeeController {
                 : employeeDTO.getAddress();
 
         if (employeeDTO.getId().equals(id)) {
-            responseData = iEmployeeService.updateEmployee(file, idEmployeeFromToken,
+            responseData = iEmployeeService.updateEmployee(file, idEmp,
                     firstNameToUpdate, lastNameToUpdate, employeeDTO.getRole().getId(),
                     employeeDTO.getPinCode(), employeeDTO.isStatus(), phoneNumberToUpdate,
                     emailToUpdate, addressToUpdate);
