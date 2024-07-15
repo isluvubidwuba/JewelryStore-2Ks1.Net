@@ -1,9 +1,11 @@
 package com.ks1dotnet.jewelrystore.dto;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
@@ -11,9 +13,8 @@ import lombok.*;
 public class AssignShiftForStaffDTO {
     private Integer id;
     private Date date;
-    private LocalDate checkIn;
-    private LocalDate checkOut;
-    private boolean isLate;
-    private String note;
+    private LocalDateTime checkIn;
+    private LocalDateTime checkOut;
+    private Boolean isLate;
     private EmployeeDTO employeeDTO;
 }

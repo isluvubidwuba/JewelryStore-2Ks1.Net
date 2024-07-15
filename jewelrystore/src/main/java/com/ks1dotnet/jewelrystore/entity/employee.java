@@ -1,6 +1,7 @@
 package com.ks1dotnet.jewelrystore.entity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 import com.ks1dotnet.jewelrystore.dto.EmployeeDTO;
@@ -68,10 +69,10 @@ public class Employee {
     private Role role;
 
     @OneToMany(mappedBy = "employee")
-    Set<AssignShiftForStaff> ListAssignShiftForStaff;
+    List<AssignShiftForStaff> ListAssignShiftForStaff;
 
     @OneToMany(mappedBy = "employee")
-    Set<Invoice> listOrderInvoice;
+    List<Invoice> listOrderInvoice;
 
     public Employee() {
         this.id = "";
