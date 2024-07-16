@@ -411,40 +411,6 @@ $(document).ready(function () {
   });
 });
 
-// function compareDates() {
-//   const selectedWeek = $("#week-dropdown").val();
-//   const selectedYear = $("#year-dropdown").val();
-//   const [startDate, endDate] = selectedWeek.split(" to ");
-
-//   // Chuyển đổi startDate và endDate thành định dạng MM/DD/YYYY
-//   const [startMonth, startDay] = startDate.trim().split("/");
-//   const [endMonth, endDay] = endDate.trim().split("/");
-//   const startDateObj = new Date(`${startMonth}/${startDay}/${selectedYear}`);
-//   const endDateObj = new Date(`${endMonth}/${endDay}/${selectedYear}`);
-
-//   // Lấy ngày hiện tại
-//   const currentDate = new Date();
-//   currentDate.setHours(0, 0, 0, 0); // Đặt thời gian hiện tại về 0 để so sánh chính xác
-
-//   // Debugging logs
-//   console.log("startDateObj: " + startDateObj);
-//   console.log("endDateObj: " + endDateObj);
-//   console.log("currentDate: " + currentDate);
-
-//   // So sánh ngày
-//   if (endDateObj < currentDate) {
-//     // Nếu tuần đã qua, vô hiệu hóa nút
-//     $("#sendMailToEmployee")
-//       .prop("disabled", true)
-//       .addClass("opacity-50 cursor-not-allowed");
-//   } else {
-//     // Nếu tuần hiện tại hoặc tương lai, kích hoạt nút
-//     $("#sendMailToEmployee")
-//       .prop("disabled", false)
-//       .removeClass("opacity-50 cursor-not-allowed");
-//   }
-// }
-
 async function sendSchedule() {
   const selectedWeek = $("#week-dropdown").val();
   const selectedYear = $("#year-dropdown").val();

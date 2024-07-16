@@ -11,9 +11,6 @@ $(document).ready(function () {
   });
   if (userService.getUserId()) {
     viewEmployee2();
-  } else {
-    alert("Không có thông tin người dùng, vui lòng đăng nhập lại!");
-    window.location.href = "/login.html";
   }
   // Sự kiện thay đổi khoảng thời gian trong modal
   $("#revenuePeriodModal").on("change", handlePeriodChangeModal);

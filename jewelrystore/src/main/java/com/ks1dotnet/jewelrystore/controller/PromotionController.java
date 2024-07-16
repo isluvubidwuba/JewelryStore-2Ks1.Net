@@ -88,12 +88,11 @@ public class PromotionController {
             LocalDate start = LocalDate.parse(startDate);
             LocalDate end = LocalDate.parse(endDate);
             ResponseData responseData = new ResponseData();
-            PromotionDTO promotionDTO =
-                    iPromotionService.updatePromotion(file, id, name, value, status, start, end); // Truyền
-                                                                                                  // promotionType
-                                                                                                  // và
-                                                                                                  // invoiceTypeId
-                                                                                                  // vào
+            PromotionDTO promotionDTO = iPromotionService.updatePromotion(file, id, name, value, status, start, end); // Truyền
+                                                                                                                      // promotionType
+                                                                                                                      // và
+                                                                                                                      // invoiceTypeId
+                                                                                                                      // vào
             responseData.setStatus(HttpStatus.OK); // đây
             responseData.setDesc("Update successful");
             responseData.setData(promotionDTO);
@@ -137,9 +136,8 @@ public class PromotionController {
             InvoiceType invoiceType = iInvoiceTypeRepository.findById(id).orElseThrow(
                     () -> new ApplicationException("Not found with invoice type id: " + id,
                             HttpStatus.NOT_FOUND));
-            List<PromotionDTO> lPromotionDTOs =
-                    iPromotionService.findByInvoiceTypeAndStatusTrue(invoiceType).stream()
-                            .map(Promotion::getDTO).collect(Collectors.toList());
+            List<PromotionDTO> lPromotionDTOs = iPromotionService.findByInvoiceTypeAndStatusTrue(invoiceType).stream()
+                    .map(Promotion::getDTO).collect(Collectors.toList());
             responseData.setStatus(HttpStatus.OK);
             responseData.setDesc("get policy successful");
             responseData.setData(lPromotionDTOs);
@@ -206,8 +204,7 @@ public class PromotionController {
     public ResponseEntity<?> getPromotionsByUserId(@RequestParam int userId) {
         try {
             PromotionDTO promotion = iPromotionService.getPromotionsByUserId(userId);
-            ResponseData responseData =
-                    new ResponseData(HttpStatus.OK, "Get promotion success", promotion);
+            ResponseData responseData = new ResponseData(HttpStatus.OK, "Get promotion success", promotion);
             return new ResponseEntity<>(responseData, HttpStatus.OK);
         } catch (ApplicationException e) {
             throw new ApplicationException(

@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -83,6 +84,7 @@ public class ScheduleController {
     }
 
     @PostMapping("/sendSchedule")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public ResponseEntity<?> sendInvoice(@RequestParam String startDateStr, @RequestParam String endDateStr) {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
         Date currentDate = new Date();
@@ -113,6 +115,7 @@ public class ScheduleController {
     }
 
     @PostMapping("/assign")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public ResponseEntity<?> assignShift(
             @RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") Date date,
             @RequestParam("counterId") Integer counterId,
@@ -128,6 +131,7 @@ public class ScheduleController {
     }
 
     @PostMapping("/delete")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public ResponseEntity<?> deleteSchedule(
             @RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") Date date,
             @RequestParam("counterId") Integer counterId,
