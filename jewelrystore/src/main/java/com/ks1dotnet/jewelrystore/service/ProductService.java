@@ -151,8 +151,8 @@ public class ProductService implements IProductService {
 
             iProductRepository.saveAll(productsToUpdate);
 
-            List<ProductDTO> updatedProductDTOs =
-                    productsToUpdate.stream().map(Product::getDTO).collect(Collectors.toList());
+            List<ProductDTO> updatedProductDTOs = productsToUpdate.stream().map(Product::getDTO)
+                    .collect(Collectors.toList());
 
             return new ResponseData(HttpStatus.OK, "All products updated successfully!",
                     updatedProductDTOs);

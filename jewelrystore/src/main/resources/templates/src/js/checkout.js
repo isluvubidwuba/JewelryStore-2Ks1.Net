@@ -7,6 +7,9 @@ $(document).ready(function () {
   if (userRole === "STAFF") {
     CheckInStatus();
   }
+  if (userRole === "MANAGER" || userRole === "ADMIN") {
+    $("#scheStaff").hide();
+  }
   // Mở modal khi click vào nút Logout
   $("#logoutButton").click(function () {
     if (userRole === "STAFF") {
