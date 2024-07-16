@@ -3,104 +3,133 @@
 <!-- Font Awesome -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"
   integrity="sha256-KzZiKy0DWYsnwMF+X1DvQngQ2/FxF7MF3Ff72XcpuPs=" crossorigin="anonymous"></script>
-<aside id="mySidebar" class="relative bg-gray-800 h-screen w-64 hidden sm:block shadow-xl">
-  <div class="p-6">
-    <a href="DashboardAdmin.html" class="text-white text-3xl font-semibold uppercase hover:text-gray-300"
-      id="roleSideBar">Admin</a>
-    <button
-      class="w-full bg-gray-600 text-white font-semibold py-2 mt-5 rounded-br-lg rounded-bl-lg rounded-tr-lg shadow-lg hover:shadow-xl hover:bg-gray-700 flex items-center justify-center">
-      <i class="fas fa-plus mr-3"></i> New Report
-    </button>
+<script type="module" src="js/logout.js"></script>
+
+<aside
+  class="flex flex-col w-52 h-screen px-5 py-8 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l dark:bg-gray-900 dark:border-gray-700">
+  <a href="#">
+    <img class="w-44 h-auto"
+      src="https://storage.googleapis.com/jewelrystore-2ks1dotnet.appspot.com/User/82041f19-65b4-4d0d-9130-2748b6fde039_2024-07-12"
+      alt="" />
+  </a>
+
+  <div class="flex flex-col justify-between flex-1 mt-6">
+    <nav class="-mx-3 space-y-6">
+      <div class="space-y-3">
+        <label class="px-3 text-xs text-gray-500 uppercase dark:text-gray-400">Manage</label>
+
+        <a class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          href="CounterManager.html">
+          <svg class="h-5 w-5 text-white" width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
+            stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" />
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <path d="M3 8h18M8 8v8m8-8v8m-12 0h16" />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Counter</span>
+        </a>
+
+
+        <a class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          href="product.html">
+          <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="9.9 2 2 9.9 12 22 22 9.9 14.1 2 9.9 2" />
+            <line x1="12" y1="22" x2="9.9" y2="2" />
+            <line x1="2" y1="9.9" x2="22" y2="9.9" />
+            <line x1="14.1" y1="2" x2="12" y2="22" />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Product</span>
+        </a>
+
+
+        <a class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          href="ManagerEmployee.html">
+          <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 14c4.418 0 8-1.791 8-4s-3.582-4-8-4-8 1.791-8 4 3.582 4 8 4z" />
+            <path d="M12 14c-4.418 0-8 1.791-8 4s3.582 4 8 4 8-1.791 8-4-3.582-4-8-4z" />
+            <path d="M12 14v7m-6-7v4m12-4v4" />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Employee</span>
+        </a>
+
+
+        <a class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          href="ManangerUser.html">
+          <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path
+              d="M12 11c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM12 13c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z" />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Customer</span>
+        </a>
+
+
+
+        <a id="scheStaff"
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          href="Sche.html">
+          <svg class="h-5 w-5 text-white" width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
+            stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" />
+            <rect x="4" y="5" width="16" height="16" rx="2" />
+            <line x1="16" y1="3" x2="16" y2="7" />
+            <line x1="8" y1="3" x2="8" y2="7" />
+            <line x1="4" y1="11" x2="20" y2="11" />
+            <rect x="8" y="15" width="2" height="2" />
+          </svg>
+
+          <span class="mx-2 text-sm font-medium">Work schedule </span>
+        </a>
+      </div>
+
+      <div class="space-y-3">
+        <label class="px-3 text-xs text-gray-500 uppercase dark:text-gray-400">Policy & Promotion</label>
+
+        <a class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          href="Promotion.html">
+          <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 21h8a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-3l-1-2H8a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2z" />
+            <line x1="8" y1="13" x2="16" y2="13" />
+            <line x1="8" y1="17" x2="16" y2="17" />
+            <polyline points="10 9 10 13 8 13" />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Policy</span>
+        </a>
+
+
+      </div>
+      <div class="space-y-3">
+        <label class="px-3 text-xs text-gray-500 uppercase dark:text-gray-400">AUTHEN</label>
+        <!-- HTML -->
+        <a class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          href="InvoiceDefault.html">
+          <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3m9 14V5a2 2 0 00-2-2H6a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2z" />
+          </svg>
+
+          <span class="mx-2 text-sm font-medium">Sale Screen</span>
+        </a>
+
+        <a class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          id="logout">
+          <svg class="h-5 w-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+            <polyline points="10 17 15 12 10 7" />
+            <line x1="15" y1="12" x2="3" y2="12" />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Logout</span>
+        </a>
+
+      </div>
+    </nav>
   </div>
-  <nav class="text-white text-base font-semibold pt-3" id="sidebar-nav">
-    <div x-data="{ open: false }">
-      <a href="DashboardAdmin.html">
-        <button @click="open = !open"
-          class="flex items-center justify-between w-full p-2 text-white opacity-75 hover:opacity-100 py-4 pl-6 nav-item">
-          <div class="flex items-center">
-            <i class="fas fa-tachometer-alt mr-3"></i>
-            <span>Dashboard</span>
-          </div>
-          <!-- <svg
-          class="w-3 h-3 transition-transform mr-5"
-          :class="{ 'rotate-180': open }"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 10 6"
-        >
-          <path
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="m1 1 4 4 4-4"
-          />
-        </svg> -->
-        </button></a>
-      <!-- <ul
-        x-show="open"
-        x-cloak
-        x-transition:enter="transition-all ease-in-out duration-300"
-        x-transition:enter-start="opacity-0 max-h-0"
-        x-transition:enter-end="opacity-100 max-h-screen"
-        x-transition:leave="transition-all ease-in-out duration-300"
-        x-transition:leave-start="opacity-100 max-h-screen"
-        x-transition:leave-end="opacity-0 max-h-0"
-        class="pl-12 space-y-2"
-      >
-        <li>
-          <a
-            href="DashboardAdmin.html"
-            class="flex items-center text-white opacity-75 hover:opacity-100 py-2"
-            >Overview</a
-          >
-        </li>
-        <li>
-          <a
-            href="sub-dashboard-2.html"
-            class="flex items-center text-white opacity-75 hover:opacity-100 py-2"
-            >Counter</a
-          >
-        </li>
-        <li>
-          <a
-            href="DashboardEmp.html"
-            class="flex items-center text-white opacity-75 hover:opacity-100 py-2"
-            >Employee</a
-          >
-        </li>
-      </ul> -->
-    </div>
-    <a href="ManagerEmployee.html" class="flex items-center text-white opacity-75 hover:opacity-100 py-4 pl-6 nav-item">
-      <i class="fas fa-sticky-note mr-3"></i>
-      Employee
-    </a>
-    <a href="product.html" class="flex items-center text-white opacity-75 hover:opacity-100 py-4 pl-6 nav-item">
-      <i class="fas fa-box mr-3"></i>
-      Product
-    </a>
-    <a href="Promotion.html" class="flex items-center text-white opacity-75 hover:opacity-100 py-4 pl-6 nav-item">
-      <i class="fas fa-tags mr-3"></i>
-      Policy
-    </a>
-    <a href="ManangerUser.html" class="flex items-center text-white opacity-75 hover:opacity-100 py-4 pl-6 nav-item">
-      <i class="fas fa-users mr-3"></i>
-      User Information
-    </a>
-    <a href="CounterManager.html" class="flex items-center text-white opacity-75 hover:opacity-100 py-4 pl-6 nav-item">
-      <i class="fas fa-cash-register mr-3"></i>
-      Counter Manager
-    </a>
-    <a href="Sche.html" class="flex items-center text-white opacity-75 hover:opacity-100 py-4 pl-6 nav-item">
-      <i class="fas fa-calendar-alt mr-3"></i>
-      Calendar
-    </a>
-    <a href="InvoiceDefault.html" class="flex items-center text-white opacity-75 hover:opacity-100 py-4 pl-6 nav-item">
-      <i class="fas fa-angle-double-right mr-3"></i>
-      Sale Screen
-    </a>
-  </nav>
+
 </aside>
 <script>
-  $("#roleSideBar").text(localStorage.getItem("userRole"));
+  $("#roleSideBar").text(sessionStorage.getItem("userRole"));
 </script>
