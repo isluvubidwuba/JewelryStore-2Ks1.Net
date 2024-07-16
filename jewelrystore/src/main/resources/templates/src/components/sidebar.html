@@ -12,9 +12,10 @@
 <script type="module" src="js/logout.js"></script>
 
 <aside
-  class="flex flex-col w-52 h-screen px-5 py-8 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l dark:bg-gray-900 dark:border-gray-700"
+  id="adminPage"
+  class="flex flex-col w-52 h-screen px-5 py-8 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l dark:bg-gray-900 dark:border-gray-700 no-scrollbar"
 >
-  <a href="#">
+  <a id="updateGoldPrice" href="#">
     <img
       id="logoAdmin"
       class="w-44 h-auto"
@@ -25,6 +26,35 @@
 
   <div class="flex flex-col justify-between flex-1 mt-6">
     <nav class="-mx-3 space-y-6">
+      <div class="space-y-3">
+        <label class="px-3 text-xs text-gray-500 uppercase dark:text-gray-400"
+          >Profile</label
+        >
+
+        <a
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          id="profileAdmin"
+          href="#"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M8 21h8a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-3l-1-2H8a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2z"
+            />
+            <line x1="8" y1="13" x2="16" y2="13" />
+            <line x1="8" y1="17" x2="16" y2="17" />
+            <polyline points="10 9 10 13 8 13" />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Account</span>
+        </a>
+      </div>
       <div class="space-y-3">
         <label class="px-3 text-xs text-gray-500 uppercase dark:text-gray-400"
           >Manage</label
@@ -220,6 +250,121 @@
         </a>
       </div>
     </nav>
+  </div>
+  <div
+    id="viewProfileModal"
+    class="fixed inset-0 z-40 flex items-center justify-center z-45 hidden bg-gray-800 bg-opacity-75"
+  >
+    <div class="bg-white rounded-lg shadow-lg w-2/3">
+      <div
+        class="px-4 py-2 flex justify-between items-center bg-gray-800 text-white rounded-t-lg"
+      >
+        <h2 id="profileIDemp" class="text-lg">View Employee</h2>
+        <button id="closeProfileModal" class="text-white">&times;</button>
+      </div>
+      <div class="p-4">
+        <div class="flex space-x-4">
+          <div class="w-1/3 border-r-4 border-gray-100 mr-2 pr-2">
+            <div class="relative group">
+              <div id="profileImagePlaceHolder"></div>
+              <img
+                id="imgProfileDetail"
+                class="w-64 h-64 object-cover mx-auto border border-gray-300 rounded-md"
+                src=""
+                onerror="this.src='https\://picsum.photos/180/100';"
+                alt=""
+              />
+
+              <label
+                for="profileImgUpdate"
+                class="absolute inset-0 bg-gray-300 bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                edit
+              </label>
+              <input id="profileImgUpdate" type="file" class="hidden" />
+            </div>
+          </div>
+          <div class="w-2/3">
+            <form id="viewProfileForm">
+              <input type="hidden" id="viewProfileId" name="id" />
+              <div class="mb-4 flex space-x-4">
+                <div class="w-full">
+                  <label for="viewProfileFirstName" class="block text-gray-700"
+                    >First Name</label
+                  >
+                  <input
+                    type="text"
+                    id="viewProfileFirstName"
+                    name="firstName"
+                    class="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div class="w-full">
+                  <label for="viewProfileLastName" class="block text-gray-700"
+                    >Last Name</label
+                  >
+                  <input
+                    type="text"
+                    id="viewProfileLastName"
+                    name="lastName"
+                    class="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+              </div>
+              <div class="mb-4">
+                <label for="viewProfilePhoneNumber" class="block text-gray-700"
+                  >Phone Number</label
+                >
+                <input
+                  type="text"
+                  id="viewProfilePhoneNumber"
+                  name="phoneNumber"
+                  class="w-full px-3 py-2 border rounded"
+                />
+              </div>
+              <div class="mb-4">
+                <label for="viewProfileEmail" class="block text-gray-700"
+                  >Email</label
+                >
+                <input
+                  type="text"
+                  id="viewProfileEmail"
+                  name="email"
+                  class="w-full px-3 py-2 border rounded"
+                />
+              </div>
+              <div id="changePASS" class="mb-4 hidden">
+                <label for="viewProfilePincode" class="block text-gray-700"
+                  >Change pass</label
+                >
+                <input
+                  type="text"
+                  id="viewProfilePincode"
+                  name="pinCode"
+                  class="w-full px-3 py-2 border rounded"
+                />
+              </div>
+              <div class="flex justify-end space-x-4">
+                <button
+                  type="button"
+                  id="changePincodeProfileBtn"
+                  class="bg-blue-500 text-white px-4 py-2 rounded"
+                >
+                  Change pinCode
+                </button>
+                <button
+                  type="button"
+                  id="updateProfileBtn"
+                  class="bg-blue-500 text-white px-4 py-2 rounded"
+                >
+                  Update
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </aside>
 <script>

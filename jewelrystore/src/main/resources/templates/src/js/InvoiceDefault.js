@@ -2,8 +2,6 @@ import UserService from "./userService.js";
 
 const userService = new UserService();
 
-var keybuffer = [];
-
 $(document).ready(function () {
   //phần xuất hiện
   let productSoldDiv = $("#product-sold");
@@ -23,28 +21,45 @@ $(document).ready(function () {
   setupInsertModalToggle();
 
   //==================================== Phần này là scaning barcode để thanh toán ==========================================================
-  $(document).on("keypress", press);
-
-  function press(event) {
-    if (event.which === 13) {
-      addProductByBarcode(keybuffer.join(""));
-      keybuffer.length = 0;
-      return;
+  class BarcodeScaner {
+    constructor() {
+      this.timeoutHandler = 0;
+      this.inputString = "";
     }
 
-    var number = null;
-    if (event.which >= 48 && event.which <= 57) {
-      // Handle numbers on the main keyboard (0-9)
-      number = event.which - 48;
-    } else if (event.which >= 96 && event.which <= 105) {
-      // Handle numbers on the numpad (0-9)
-      number = event.which - 96;
-    }
+    initialize = () => {
+      document.addEventListener("keydown", this.keydown);
+      if (this.timeoutHandler) {
+        clearTimeout(this.timeoutHandler);
+      }
+      this.timeoutHandler = setTimeout(() => {
+        this.inputString = "";
+      }, 10);
+    };
 
-    if (number !== null) {
-      keybuffer.push(number);
-    }
+    close = () => {
+      document.removeEventListener("keydown", this.keydown);
+    };
+
+    keydown = (e) => {
+      if (this.timeoutHandler) {
+        clearTimeout(this.timeoutHandler);
+        this.inputString += String.fromCharCode(e.keyCode);
+      }
+
+      this.timeoutHandler = setTimeout(() => {
+        if (this.inputString.length <= 3) {
+          this.inputString = "";
+          return;
+        }
+        addProductByBarcode(this.inputString); // Call the addProductByBarcode function
+        this.inputString = "";
+      }, 100);
+    };
   }
+
+  const barcodeScanner = new BarcodeScaner();
+  barcodeScanner.initialize();
 
   $("#add-barcode-button").click(function () {
     const barcode = $("#barcode-input").val().trim();

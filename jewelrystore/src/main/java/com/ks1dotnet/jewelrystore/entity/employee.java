@@ -88,8 +88,8 @@ public class Employee {
     }
 
     public EmployeeDTO getDTO() {
-        return new EmployeeDTO(id, firstName, lastName, "", status, phoneNumber, email, address,
-                role.getDTO(), image, 0);
+        return new EmployeeDTO(id, firstName, lastName, pinCode, status, phoneNumber, email,
+                address, role.getDTO(), image, 0);
     }
 
     public Employee(EmployeeDTO e) {

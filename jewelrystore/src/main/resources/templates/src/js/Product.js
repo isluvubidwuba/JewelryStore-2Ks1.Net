@@ -13,25 +13,30 @@ function init() {
   setupSearch();
   setUpOnChange();
   configState();
-  toggleButtonVisibility(userRole)
+  toggleButtonVisibility(userRole);
 }
 
 function toggleButtonVisibility(userRole) {
   console.log("Check role vao trang : " + userRole);
-  if (userRole === 'ADMIN') {
-    $('#modalToggle_Create').show();
+  if (userRole === "ADMIN") {
+    $("#modalToggle_Create").show();
   } else {
-    $('#modalToggle_Create').hide();
+    $("#modalToggle_Create").hide();
   }
 }
 
-
-
 function configState() {
   $("#rowOfPage").change((event) => {
-    state.rows = event.target.value;
+    state.totalPagesAtClient = state.totalPagesAtClient * state.rows;
+    var oldRows = state.rows;
+    state.rows = parseInt(event.target.value, 10);
+    state.size =
+      oldRows > state.rows
+        ? state.size + oldRows - state.rows
+        : state.size + state.rows - oldRows;
+    state.totalPagesAtClient = Math.ceil(state.totalPagesAtClient / state.rows);
     $("#pagination-wrapper").empty();
-    buildTable(state, "There are no products");
+    fetchProduct(state.currentServerPage, state.size);
   });
 }
 var state = {
@@ -56,10 +61,10 @@ function fetchProduct(page, size) {
     .then((response) => {
       if (response && response.data) {
         const { content, totalElements } = response.data;
-        state.querySet = content; // Replace with new records
+        state.querySet = content;
         state.totalPagesAtClient = Math.ceil(totalElements / state.rows);
         state.currentServerPage = page;
-        buildTable(state, "There are no  product"); // Build table after fetching products
+        buildTable(state, "There are no  product");
       }
     })
     .catch((error) => {
@@ -98,8 +103,9 @@ function createProductRow(product) {
       <td class="px-6 py-4">${product.counterDTO.name}</td>
       <td class="px-6 py-4">
         <div class="relative flex justify-items-center">
-          <button type="button" name="modalToggle_Detail" class="flex items-center w-fit h-fit gap-1 py-2 px-4 rounded-md hover:bg-gray-300 transition duration-300 ease-in-out transform hover:scale-110" data-id="${product.id
-    }">
+          <button type="button" name="modalToggle_Detail" class="flex items-center w-fit h-fit gap-1 py-2 px-4 rounded-md hover:bg-gray-300 transition duration-300 ease-in-out transform hover:scale-110" data-id="${
+            product.id
+          }">
             Detail
           </button>
         </div>
@@ -197,10 +203,11 @@ function createPageItem(
 ) {
   return `
     <li class="page rounded-full relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium ${active} cursor-pointer" data-page="${page}">
-      ${icon
-      ? `<span class="flex items-center"><i class="${icon}"></i> ${text}</span>`
-      : `<span>${text}</span>`
-    }
+      ${
+        icon
+          ? `<span class="flex items-center"><i class="${icon}"></i> ${text}</span>`
+          : `<span>${text}</span>`
+      }
     </li>
   `;
 }
