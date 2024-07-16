@@ -78,7 +78,7 @@ public class CounterController {
     }
 
     @DeleteMapping("/delete/{counterId}")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public ResponseEntity<?> deleteCounter(@PathVariable int counterId) {
         ResponseData responseData = iCounterSerivce.deleteCounter(counterId);
         return new ResponseEntity<>(responseData, HttpStatus.OK);
@@ -92,7 +92,7 @@ public class CounterController {
     }
 
     @PostMapping("/update")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
     public ResponseEntity<ResponseData> updateCounter(@RequestParam int id,
             @RequestParam String name, @RequestParam boolean status) {
         ResponseData responseData = iCounterSerivce.updateCounter(id, name, status);

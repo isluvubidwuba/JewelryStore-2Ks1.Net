@@ -1,6 +1,7 @@
 import UserService from "./userService.js";
 
 const userService = new UserService();
+const userRole = userService.getUserRole();
 
 $(document).ready(function () {
   fetchRoles();
@@ -8,7 +9,20 @@ $(document).ready(function () {
   initializeUnique();
   setupInsertModalToggle();
   initializeTabs();
+  toggleButtonVisibility(userRole);
 });
+
+
+function toggleButtonVisibility(userRole) {
+  console.log("Check role vao trang : " + userRole);
+  if (userRole === 'ADMIN') {
+    $('.edit-unique-btn').show();
+    $('#addCustomerType').show();
+  } else {
+    $('.edit-unique-btn').hide();
+    $('#addCustomerType').hide();
+  }
+}
 
 function fetchRoles() {
   userService
@@ -752,6 +766,7 @@ function fetchUniqueRankData() {
 
         // Gắn sự kiện click cho các nút chỉnh sửa
         attachUniqueEditButtonEvents();
+        toggleButtonVisibility(userRole);
       } else {
         console.error("Error loading customer types:", response.desc);
       }

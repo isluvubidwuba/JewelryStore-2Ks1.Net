@@ -1,7 +1,7 @@
 import UserService from "./userService.js";
 
 const userService = new UserService();
-
+const userRole = userService.getUserRole();
 // logout
 function Logout() {
   $("#logout").click(async function (event) {
@@ -42,6 +42,21 @@ async function authenticate() {
   }
 }
 authenticate();
+function setupDashboardButton() {
+  if (userRole === 'ADMIN' || userRole === 'MANAGER') {
+    $('#changeScreen').show();
+  }
+
+  $('#changeScreen').on('click', function () {
+    if (userRole === 'ADMIN' || userRole === 'MANAGER') {
+      window.location.href = 'DashboardAdmin.html';
+    } else {
+      showNotification("You can not access this page", "Error");
+    }
+  });
+}
+
 $(document).ready(function () {
   Logout();
+  setupDashboardButton();
 });

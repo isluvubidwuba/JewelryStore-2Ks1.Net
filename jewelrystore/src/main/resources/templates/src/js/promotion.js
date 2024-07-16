@@ -1,6 +1,7 @@
 import UserService from "./userService.js";
 
 const userService = new UserService();
+const userRole = userService.getUserRole();
 
 $(document).ready(function () {
   setupEventListeners();
@@ -8,7 +9,7 @@ $(document).ready(function () {
   setupModalToggles();
   submitInsertForm();
   submitUpdateForm(); // Call the function to handle update form submission
-
+  toggleButtonVisibility(userRole);
   // Add search event listener
   $("#keyword").on("input", function () {
     const keyword = $(this).val().toLowerCase();
@@ -20,6 +21,21 @@ $(document).ready(function () {
 let currentPage = 0;
 const itemsPerPage = 2; // Số lượng mục trên mỗi trang
 let promotions = []; // Lưu trữ danh sách promotions đã tải về
+
+
+function toggleButtonVisibility(userRole) {
+  console.log("Check role vao trang : " + userRole);
+  if (userRole === 'ADMIN') {
+    $('#openManagerInvoiceType').show();
+    $('#modalToggle').show();
+    $('#bttn-delete-promotion').show();
+  } else {
+    $('#openManagerInvoiceType').hide();
+    $('#modalToggle').hide();
+    $('#bttn-delete-promotion').hide();
+  }
+}
+
 
 // fetch all promotions
 function fetchPromotions(keyword = "") {
@@ -76,8 +92,7 @@ function renderPromotions(page, promotionsToRender) {
     const statusColor = promotion.status ? "text-green-500" : "text-red-500";
 
     const promotionCard = `
-      <div id="promotion-card-${
-        promotion.id
+      <div id="promotion-card-${promotion.id
       }" class="bg-white rounded-lg shadow-lg w-full mb-3">
         <div class="p-4">
           <div class="flex space-x-4">
@@ -169,9 +184,8 @@ function renderPromotions(page, promotionsToRender) {
                 </div>
               </div>
               <div class="flex justify-end space-x-4 relative">
-                ${
-                  promotion.status
-                    ? `
+                ${(promotion.status && userRole === "ADMIN")
+        ? `
                 <button
                   id="bttn-delete-promotion"
                   type="button"
@@ -180,23 +194,25 @@ function renderPromotions(page, promotionsToRender) {
                 >
                   Disable
                 </button>`
-                    : ""
-                }
-                <button
+        : ""
+      }
+      ${userRole === "ADMIN" ? `<button
                   type="button"
                   class="bg-blue-500 text-white px-4 py-2 rounded promotion-update-btn"
                   data-id="${promotion.id}"
                 >
                   Update
-                </button>
+                </button>` : ""}
               </div>
             </div>
           </div>
         </div>
       </div>
-    `;
+    `
+      ;
 
     $("#promotion-container").append(promotionCard);
+
   });
 
   // Cập nhật thông tin số lượng mục
@@ -205,6 +221,8 @@ function renderPromotions(page, promotionsToRender) {
     promotionsToRender.length
   )} of ${promotionsToRender.length} entries`;
   $("#entries-info").text(entriesInfo);
+
+
 }
 
 function changePage(page) {
@@ -212,17 +230,17 @@ function changePage(page) {
   const keyword = $("#keyword").val().toLowerCase();
   const promotionsToRender = keyword
     ? promotions.filter((promotion) => {
-        const invoiceTypeName = promotion.invoiceTypeDTO
-          ? promotion.invoiceTypeDTO.name
-          : "";
-        return (
-          promotion.name.toLowerCase().includes(keyword) ||
-          promotion.startDate.toLowerCase().includes(keyword) ||
-          promotion.endDate.toLowerCase().includes(keyword) ||
-          promotion.promotionType.toLowerCase().includes(keyword) ||
-          invoiceTypeName.toLowerCase().includes(keyword)
-        );
-      })
+      const invoiceTypeName = promotion.invoiceTypeDTO
+        ? promotion.invoiceTypeDTO.name
+        : "";
+      return (
+        promotion.name.toLowerCase().includes(keyword) ||
+        promotion.startDate.toLowerCase().includes(keyword) ||
+        promotion.endDate.toLowerCase().includes(keyword) ||
+        promotion.promotionType.toLowerCase().includes(keyword) ||
+        invoiceTypeName.toLowerCase().includes(keyword)
+      );
+    })
     : promotions;
   renderPromotions(page, promotionsToRender);
   updatePagination(promotionsToRender);
@@ -272,11 +290,10 @@ function updatePagination(promotionsToRender) {
       <li>
         <span
           tabindex="0"
-          class="focus:outline-none focus:bg-indigo-700 focus:text-white flex text-indigo-700  ${
-            i === currentPage
-              ? "bg-gray-400 text-white"
-              : "bg-white  hover:bg-indigo-600 hover:text-white"
-          } text-base leading-tight font-bold cursor-pointer shadow transition duration-150 ease-in-out mx-2 sm:mx-4 rounded px-3 py-2"
+          class="focus:outline-none focus:bg-indigo-700 focus:text-white flex text-indigo-700  ${i === currentPage
+        ? "bg-gray-400 text-white"
+        : "bg-white  hover:bg-indigo-600 hover:text-white"
+      } text-base leading-tight font-bold cursor-pointer shadow transition duration-150 ease-in-out mx-2 sm:mx-4 rounded px-3 py-2"
           onclick="changePage(${i})"
         >
           ${i + 1}
@@ -689,3 +706,4 @@ function fetchInvoiceType() {
       console.log(xhr.responseText);
     });
 }
+
