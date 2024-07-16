@@ -180,6 +180,7 @@ function processEventsData(eventsData) {
     const today = new Date();
     today.setHours(0, 0, 0);
     const dateAttr = $(`.top-info:contains(${day})`).attr("data-date");
+
     if (dateAttr) {
       const [dayPart, monthPart] = dateAttr.split("/");
       const currentYear = $("#year-dropdown").val();
@@ -305,32 +306,50 @@ function processEventsData(eventsData) {
     $("#create-modal").addClass("hidden");
   });
 }
-// Xử lý sự kiện xóa lịch
+// Sự kiện submit form xóa lịch
 $("#deleteForm").submit(function (e) {
   e.preventDefault();
+  // Mở modal xác nhận
+  $("#deleteModal").removeClass("hidden");
+
+  // Lưu trữ dữ liệu form để sử dụng sau khi xác nhận
   const formData = new FormData(this);
   console.log("formData: " + formData);
 
-  userService
-    .sendAjaxWithAuthen(
-      `http://${userService.apiurl}/api/schedule/delete`,
-      "POST",
-      formData
-    )
-    .then(function (response) {
-      if (response.status === "OK") {
-        showNotification(response.desc, "OK");
-        $("#viewEmployeeModal2").addClass("hidden");
-        updateEvents(); // Refresh the events
-      } else {
-        showNotification(response.responseJSON.desc);
-      }
-    })
-    .catch(function (err) {
-      console.log(err);
-      showNotification(err.responseJSON.desc);
+  // Sự kiện khi người dùng xác nhận xóa
+  $("#confirmDelete")
+    .off("click")
+    .on("click", function () {
+      userService
+        .sendAjaxWithAuthen(
+          `http://${userService.apiurl}/api/schedule/delete`,
+          "POST",
+          formData
+        )
+        .then(function (response) {
+          if (response.status === "OK") {
+            showNotification(response.desc, "OK");
+            $("#deleteModal").addClass("hidden");
+            $("#viewEmployeeModal2").addClass("hidden");
+            updateEvents(); // Refresh the events
+          } else {
+            showNotification(response.responseJSON.desc);
+          }
+        })
+        .catch(function (err) {
+          console.log(err);
+          showNotification(err.responseJSON.desc);
+        });
+    });
+
+  // Sự kiện khi người dùng hủy bỏ xóa
+  $("#cancelDelete, #closeDelete")
+    .off("click")
+    .on("click", function () {
+      $("#deleteModal").addClass("hidden");
     });
 });
+
 $(document).ready(function () {
   const currentYear = new Date().getFullYear();
   const years = [currentYear - 1, currentYear, currentYear + 1];
@@ -363,9 +382,23 @@ $(document).ready(function () {
     updateEvents();
   });
 
+  // Hiển thị modal khi người dùng nhấn nút gửi lịch
+  $("#sendMailToEmployee").on("click", function () {
+    $("#confirmSendModal").removeClass("hidden");
+  });
+
+  // Đóng modal khi người dùng nhấn nút đóng hoặc hủy
+  $("#closeSendModal, #cancelSendModal").on("click", function () {
+    $("#confirmSendModal").addClass("hidden");
+  });
+  $("#confirmSendMail").on("click", async function () {
+    await sendSchedule();
+  });
+
   // Cập nhật sự kiện khi người dùng chọn tuần mới
   $("#week-dropdown").change(function () {
     updateEvents();
+    // compareDates();
   });
 
   // Xử lý gửi form để tạo lịch mới
@@ -378,6 +411,76 @@ $(document).ready(function () {
   });
 });
 
+// function compareDates() {
+//   const selectedWeek = $("#week-dropdown").val();
+//   const selectedYear = $("#year-dropdown").val();
+//   const [startDate, endDate] = selectedWeek.split(" to ");
+
+//   // Chuyển đổi startDate và endDate thành định dạng MM/DD/YYYY
+//   const [startMonth, startDay] = startDate.trim().split("/");
+//   const [endMonth, endDay] = endDate.trim().split("/");
+//   const startDateObj = new Date(`${startMonth}/${startDay}/${selectedYear}`);
+//   const endDateObj = new Date(`${endMonth}/${endDay}/${selectedYear}`);
+
+//   // Lấy ngày hiện tại
+//   const currentDate = new Date();
+//   currentDate.setHours(0, 0, 0, 0); // Đặt thời gian hiện tại về 0 để so sánh chính xác
+
+//   // Debugging logs
+//   console.log("startDateObj: " + startDateObj);
+//   console.log("endDateObj: " + endDateObj);
+//   console.log("currentDate: " + currentDate);
+
+//   // So sánh ngày
+//   if (endDateObj < currentDate) {
+//     // Nếu tuần đã qua, vô hiệu hóa nút
+//     $("#sendMailToEmployee")
+//       .prop("disabled", true)
+//       .addClass("opacity-50 cursor-not-allowed");
+//   } else {
+//     // Nếu tuần hiện tại hoặc tương lai, kích hoạt nút
+//     $("#sendMailToEmployee")
+//       .prop("disabled", false)
+//       .removeClass("opacity-50 cursor-not-allowed");
+//   }
+// }
+
+async function sendSchedule() {
+  const selectedWeek = $("#week-dropdown").val();
+  const selectedYear = $("#year-dropdown").val();
+  const [startDate, endDate] = selectedWeek.split(" to ");
+  const startDateStr = startDate.trim() + "/" + selectedYear;
+  const endDateStr = endDate.trim() + "/" + selectedYear;
+
+  // Hiển thị overlay
+  $("#overlay-sendmail").removeClass("hidden");
+
+  try {
+    const response = await userService.sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/schedule/sendSchedule`,
+      "POST",
+      $.param({
+        startDateStr: startDateStr,
+        endDateStr: endDateStr,
+      })
+    );
+
+    if (response.status === "OK") {
+      showNotification(response.desc, "OK");
+      $("#confirmSendModal").addClass("hidden");
+    } else {
+      console.error("Error creating schedule:", response.desc);
+      showNotification(response.desc);
+    }
+  } catch (err) {
+    console.error("Error creating schedule:", err);
+    showNotification(err.responseJSON.desc);
+    $("#confirmSendModal").addClass("hidden");
+  } finally {
+    // Ẩn overlay
+    $("#overlay-sendmail").addClass("hidden");
+  }
+}
 function sendScheduleFormData(formData) {
   userService
     .sendAjaxWithAuthen(

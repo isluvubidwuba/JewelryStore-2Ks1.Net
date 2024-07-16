@@ -537,7 +537,11 @@ public class InvoiceService implements IInvoiceService {
                         for (InvoiceDetail detail : invoiceDetails) {
                                 Product product = detail.getProduct();
                                 Inventory inventory = product.getInventory();
-
+                                if (detail.getAvailableReturnQuantity() != detail.getQuantity()) {
+                                        throw new ApplicationException(
+                                                        "The invoice has been resold so it cannot be canceled",
+                                                        HttpStatus.BAD_REQUEST);
+                                }
                                 if (invoice.getInvoiceType().getId() == Sell) {
                                         inventory.setQuantity(inventory.getQuantity()
                                                         + detail.getQuantity());

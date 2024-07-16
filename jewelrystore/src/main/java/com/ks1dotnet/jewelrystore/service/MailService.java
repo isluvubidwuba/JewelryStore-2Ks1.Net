@@ -1,7 +1,13 @@
 package com.ks1dotnet.jewelrystore.service;
 
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -10,10 +16,14 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import com.ks1dotnet.jewelrystore.dto.MailStructure;
+import com.ks1dotnet.jewelrystore.entity.AssignCountersForStaff;
+import com.ks1dotnet.jewelrystore.entity.Employee;
 import com.ks1dotnet.jewelrystore.entity.Invoice;
 import com.ks1dotnet.jewelrystore.entity.InvoiceDetail;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IInvoiceRepository;
+import com.ks1dotnet.jewelrystore.service.serviceImp.IAssignShiftForStaffService;
+import com.ks1dotnet.jewelrystore.service.serviceImp.IEmployeeService;
 import com.ks1dotnet.jewelrystore.utils.Utils;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -28,6 +38,10 @@ public class MailService {
         private Utils mailUtils;
         @Autowired
         private IInvoiceRepository invoiceRepository;
+        @Autowired
+        private IAssignShiftForStaffService assignShiftForStaffService;
+        @Autowired
+        private IEmployeeService employeeService;
 
         public void sendMail(String mail, MailStructure mailStructure) {
                 SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
@@ -266,6 +280,7 @@ public class MailService {
                         message.append("</div>");
 
                         message.append("</div>");
+
                         message.append("</body></html>");
 
                         helper.setText(message.toString(), true);
@@ -284,6 +299,144 @@ public class MailService {
         private String formatCurrency(double amount) {
                 NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
                 return formatter.format(amount);
+        }
+
+        public ResponseData sendScheduleEmail(List<String> userIds, Date startDate, Date endDate) {
+                for (String userId : userIds) {
+                        // Tìm employee bằng userId
+                        Employee employee = employeeService.findById(userId);
+                        if (employee != null) {
+                                String email = employee.getEmail();
+                                String username = employee.getFirstName() + " " + employee.getLastName();
+                                try {
+                                        MimeMessage mimeMessage = mailSender.createMimeMessage();
+                                        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+                                        helper.setFrom("your-email@example.com");
+                                        helper.setTo(email);
+                                        helper.setSubject("Lịch Làm Việc Của Bạn");
+
+                                        // Lấy lịch làm việc
+                                        List<AssignCountersForStaff> schedules = assignShiftForStaffService
+                                                        .getShiftsByUserId(startDate, endDate, userId);
+
+                                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                                        StringBuilder message = new StringBuilder();
+                                        message.append("<html><body>");
+
+                                        // Thêm nội dung email
+                                        message.append("<div style='display: flex; align-items: center;'>");
+                                        message.append("<img style='width: 170px; height: auto;  margin-right: 8px;' src='https://storage.googleapis.com/jewelrystore-2ks1dotnet.appspot.com/User/c3b3e699-1466-48cf-b1ae-1db13264e44e_2024-07-12' alt='Logo' />");
+                                        message.append("</div>");
+                                        message.append("<div style='background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 20px; max-width: 1000px; margin: auto;'>");
+                                        message.append("<br style='display: flex; justify-content: space-between; align-items: center;'>");
+                                        message.append("</br>");
+                                        message.append("<div style='color: #4a4a4a; text-align: center;'>");
+                                        message.append("<div style='font-weight: bold; font-size: 24px; margin-bottom: 8px;'>LỊCH LÀM VIỆC</div>");
+                                        message.append("<div style='font-size: 14px;'>Ngày gửi: ")
+                                                        .append(LocalDate.now().toString()).append("</div>");
+                                        message.append("</div>");
+                                        message.append("</div>");
+
+                                        message.append("<div style='font-size: 14px;'>Lịch làm việc của <span style='font-weight: bold;'>")
+                                                        .append(username)
+                                                        .append("</span> từ <span style='font-weight: bold;'>")
+                                                        .append(dateFormat.format(startDate))
+                                                        .append("</span> đến <span style='font-weight: bold;'>")
+                                                        .append(dateFormat.format(endDate)).append("</span>:</div>");
+
+                                        Calendar calendar = Calendar.getInstance();
+                                        calendar.setTime(startDate);
+
+                                        // Khởi tạo ngày bắt đầu
+                                        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+
+                                        for (int i = 0; i < 7; i++) {
+                                                String dayOfWeek = new SimpleDateFormat("EEEE")
+                                                                .format(calendar.getTime());
+                                                String formattedDate = dateFormat.format(calendar.getTime());
+
+                                                message.append("<li class='events-group mb-4'>");
+                                                message.append("<div class='top-info py-2 px-4 bg-gray-300'>");
+                                                message.append("<span>").append(dayOfWeek).append(" ")
+                                                                .append(formattedDate).append("</span>");
+                                                message.append("<span class='date'></span>");
+                                                message.append("</div>");
+                                                message.append("<ul class='flex overflow-x-scroll mr-3'>");
+
+                                                for (AssignCountersForStaff schedule : schedules) {
+                                                        Calendar scheduleCalendar = Calendar.getInstance();
+                                                        scheduleCalendar.setTime(schedule.getAssignShiftForStaff()
+                                                                        .getDTO().getDate());
+                                                        int scheduleDayOfWeek = scheduleCalendar
+                                                                        .get(Calendar.DAY_OF_WEEK);
+
+                                                        if (scheduleDayOfWeek == calendar.get(Calendar.DAY_OF_WEEK)) {
+                                                                message.append("<li class='single-event' data-start='")
+                                                                                .append(schedule.getAssignShiftForStaff()
+                                                                                                .getCheckIn() != null
+                                                                                                                ? schedule.getAssignShiftForStaff()
+                                                                                                                                .getCheckIn()
+                                                                                                                                .toString()
+                                                                                                                : "")
+                                                                                .append("' data-end='")
+                                                                                .append(schedule.getAssignShiftForStaff()
+                                                                                                .getCheckOut() != null
+                                                                                                                ? schedule.getAssignShiftForStaff()
+                                                                                                                                .getCheckOut()
+                                                                                                                                .toString()
+                                                                                                                : "")
+                                                                                .append("' data-content='event-abs-circuit' data-event='event-1'>");
+                                                                message.append("<a href='#0'>");
+                                                                message.append("<em class='event-name'>")
+                                                                                .append(schedule.getAssignShiftForStaff()
+                                                                                                .getEmployee()
+                                                                                                .getFirstName())
+                                                                                .append(" ")
+                                                                                .append(schedule.getAssignShiftForStaff()
+                                                                                                .getEmployee()
+                                                                                                .getLastName())
+                                                                                .append(" - ")
+                                                                                .append(schedule.getCounter().getName())
+                                                                                .append("</em>");
+                                                                message.append("</a>");
+                                                                message.append("</li>");
+                                                        }
+                                                }
+
+                                                message.append("</ul>");
+                                                message.append("</li>");
+
+                                                // Tăng ngày lên 1
+                                                calendar.add(Calendar.DATE, 1);
+                                        }
+
+                                        message.append("</ul>");
+                                        message.append("</div>");
+                                        message.append("</div>");
+
+                                        message.append("</div>");
+                                        message.append("<div style='font-size: 12px; font-style: italic; margin-top: 20px;'>");
+                                        message.append("Công ty gửi bạn lịch làm việc. Cảm ơn bạn đã chú ý đến lịch làm việc. Bạn không thể đăng nhập vào hệ thống ngoài giờ làm việc của mình. Cảm ơn.");
+                                        message.append("</div>");
+
+                                        message.append("<div style='text-align: center; background-color: #f2f2f2; padding: 20px;'>");
+                                        message.append("<p style='color: #666;'>Công ty 2ks1dotnet</p>");
+                                        message.append("<p style='color: #666;'>Địa chỉ: Số 123, Đường ABC, Thành phố XYZ</p>");
+                                        message.append("<p style='color: #666;'>Email: support@2ks1dotnet.com | Điện thoại: 0123 456 789</p>");
+                                        message.append("</div>");
+                                        message.append("</body></html>");
+
+                                        helper.setText(message.toString(), true);
+
+                                        mailSender.send(mimeMessage);
+                                } catch (MessagingException e) {
+                                        e.printStackTrace();
+                                        return new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR,
+                                                        "Send failed work schedule to " + username, null);
+                                }
+                        }
+                }
+                return new ResponseData(HttpStatus.OK, "The work schedule has been sent successfully.", null);
         }
 
 }

@@ -37,4 +37,15 @@ public interface IAssignShiftForStaffRepository
                         @Param("startDate") Date startDate,
                         @Param("endDate") Date endDate,
                         @Param("employeeId") String employeeId);
+
+        // @Query("SELECT ass FROM AssignShiftForStaff ass " +
+        // "WHERE ass.date BETWEEN :startDate AND :endDate")
+        // List<AssignShiftForStaff> findAllByDateBetween2(@Param("startDate") Date
+        // startDate,
+        // @Param("endDate") Date endDate);
+
+        @Query("SELECT DISTINCT ass.employee.id FROM AssignShiftForStaff ass " +
+                        "WHERE ass.date BETWEEN :startDate AND :endDate")
+        List<String> findDistinctEmployeeIdsByDateBetween(@Param("startDate") Date startDate,
+                        @Param("endDate") Date endDate);
 }

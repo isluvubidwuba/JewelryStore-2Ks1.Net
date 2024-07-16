@@ -33,6 +33,7 @@ import com.ks1dotnet.jewelrystore.entity.Employee;
 import com.ks1dotnet.jewelrystore.exception.ApplicationException;
 import com.ks1dotnet.jewelrystore.payload.ResponseData;
 import com.ks1dotnet.jewelrystore.repository.IAssignShiftForStaffRepository;
+import com.ks1dotnet.jewelrystore.service.MailService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IAssignShiftForStaffService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IEmployeeService;
 import com.ks1dotnet.jewelrystore.utils.JwtUtilsHelper;
@@ -52,6 +53,8 @@ public class ScheduleController {
     private IAssignShiftForStaffRepository assignShiftForStaffRepository;
     @Autowired
     private IEmployeeService employService;
+    @Autowired
+    private MailService mailService;
 
     @GetMapping("/events")
     public ResponseEntity<?> getEvents(@RequestParam String startDateStr, @RequestParam String endDateStr)
@@ -59,7 +62,6 @@ public class ScheduleController {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
         Date startDate = formatter.parse(startDateStr);
         Date endDate = formatter.parse(endDateStr);
-
         List<AssignCountersForStaff> assignments = assignShiftForStaffService.getShiftsForWeek(startDate, endDate);
 
         Map<String, List<AssignCountersForStaffDTO>> eventsData = new HashMap<>();
@@ -78,6 +80,36 @@ public class ScheduleController {
 
         return new ResponseEntity<>(new ResponseData(HttpStatus.OK, "Find events successfully", eventsData),
                 HttpStatus.OK);
+    }
+
+    @PostMapping("/sendSchedule")
+    public ResponseEntity<?> sendInvoice(@RequestParam String startDateStr, @RequestParam String endDateStr) {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+        Date currentDate = new Date();
+        try {
+            Date startDate = formatter.parse(startDateStr);
+            Date endDate = formatter.parse(endDateStr);
+            if (endDate.before(currentDate)) {
+                throw new ApplicationException(
+                        "Cannot send schedule: The selected week is in the past.",
+                        HttpStatus.BAD_REQUEST);
+            }
+            List<String> listUserIdHaveSchedule = assignShiftForStaffService.getlistUserIdHaveSchedule(startDate,
+                    endDate);
+            if (listUserIdHaveSchedule.isEmpty()) {
+                throw new ApplicationException(
+                        "Not have any shift in this week : " + startDateStr + " to " + endDateStr,
+                        HttpStatus.BAD_REQUEST);
+            }
+            ResponseData response = mailService.sendScheduleEmail(listUserIdHaveSchedule, startDate, endDate);
+            return new ResponseEntity<>(response, response.getStatus());
+        } catch (ApplicationException e) {
+            throw new ApplicationException("Error at sendInvoice MailController: " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
+        } catch (Exception e) {
+            throw new ApplicationException("Error at sendSchedule schedule controller: " + e.getMessage(),
+                    "Something wrong while sending sendSchedule to stafff !");
+        }
     }
 
     @PostMapping("/assign")

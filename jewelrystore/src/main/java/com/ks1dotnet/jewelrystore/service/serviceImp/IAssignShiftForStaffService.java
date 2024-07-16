@@ -18,4 +18,7 @@ public interface IAssignShiftForStaffService {
 
     void saveShift(AssignShiftForStaff shift);
 
+    public List<AssignCountersForStaff> getShiftsByUserId(Date startDate, Date endDate, String userID);
+
+    List<String> getlistUserIdHaveSchedule(Date startDate, Date endDate);
 }

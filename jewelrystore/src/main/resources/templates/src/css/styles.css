@@ -2968,6 +2968,11 @@ video {
     color: rgb(129 140 248 / var(--tw-text-opacity));
   }
 
+  .dark\:text-neutral-400 {
+    --tw-text-opacity: 1;
+    color: rgb(163 163 163 / var(--tw-text-opacity));
+  }
+
   .dark\:text-white {
     --tw-text-opacity: 1;
     color: rgb(255 255 255 / var(--tw-text-opacity));

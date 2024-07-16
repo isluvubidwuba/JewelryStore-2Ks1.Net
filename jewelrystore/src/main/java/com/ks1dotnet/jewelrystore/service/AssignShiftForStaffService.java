@@ -1,5 +1,6 @@
 package com.ks1dotnet.jewelrystore.service;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -44,12 +45,26 @@ public class AssignShiftForStaffService implements IAssignShiftForStaffService {
             Employee employee = iEmployeeRepository.findById(id).orElseThrow(
                     () -> new ApplicationException("User not exist!", HttpStatus.NOT_FOUND));
             EmployeeDTO emp = employee.getDTO();
+
             if (emp.getRole().getId() == 3) {
                 return assignShiftForStaffRepository.findAllByDateBetweenAndEmployeeId(startDate, endDate, emp.getId());
             } else {
                 return assignShiftForStaffRepository.findAllByDateBetween(startDate, endDate);
             }
 
+        } catch (ApplicationException e) {
+            throw new ApplicationException("Find schedule error:  " + e.getMessage(),
+                    e.getErrorString(), e.getStatus());
+        }
+    }
+
+    @Override
+    public List<AssignCountersForStaff> getShiftsByUserId(Date startDate, Date endDate, String userID) {
+        try {
+            Employee employee = iEmployeeRepository.findById(userID).orElseThrow(
+                    () -> new ApplicationException("User not exist!", HttpStatus.NOT_FOUND));
+            EmployeeDTO emp = employee.getDTO();
+            return assignShiftForStaffRepository.findAllByDateBetweenAndEmployeeId(startDate, endDate, emp.getId());
         } catch (ApplicationException e) {
             throw new ApplicationException("Find schedule error:  " + e.getMessage(),
                     e.getErrorString(), e.getStatus());
@@ -174,6 +189,11 @@ public class AssignShiftForStaffService implements IAssignShiftForStaffService {
     @Override
     public void saveShift(AssignShiftForStaff shift) {
         assignShiftForStaffRepository.save(shift);
+    }
+
+    @Override
+    public List<String> getlistUserIdHaveSchedule(Date startDate, Date endDate) {
+        return assignShiftForStaffRepository.findDistinctEmployeeIdsByDateBetween(startDate, endDate);
     }
 
 }
