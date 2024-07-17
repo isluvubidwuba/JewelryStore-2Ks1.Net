@@ -476,9 +476,6 @@ async function fetchCounter() {
 }
 
 function parseIntWithPrefix(str, prefix) {
-  // Ensure the input is a string
-  if (typeof str === "string") return false;
-
   // Check if the string starts with the prefix
   if (!str.startsWith(prefix)) return false;
 

@@ -23,9 +23,7 @@ $(document).ready(function () {
   //==================================== Phần này là scaning barcode để thanh toán ==========================================================
   function parseIntWithPrefix(str, prefix) {
     // Ensure the input is a string
-    if (typeof str === "string") return false;
 
-    // Check if the string starts with the prefix
     if (!str.startsWith(prefix)) return false;
 
     // Attempt to parse the string to an integer

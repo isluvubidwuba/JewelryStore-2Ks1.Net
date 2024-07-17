@@ -421,7 +421,7 @@ $(document).ready(function () {
           const userInfo = invoiceData.userInfoDTO;
           const employeeInfo = invoiceData.employeeDTO;
           const orderDetails = invoiceData.listOrderInvoiceDetail;
-
+          sendMailInvoice(userInfo.email, userInfo.fullName, invoiceData.id);
           invoiceDetails.append(`
                       <div class="bg-white rounded-lg shadow-lg px-8 py-10 max-w-7xl mx-auto">
                           <div class="flex items-center justify-between mb-8">
@@ -572,3 +572,32 @@ $(document).ready(function () {
     printInvoice();
   });
 });
+function sendMailInvoice(mail, username, idinvocie) {
+  userService
+    .sendAjaxWithAuthen(
+      `http://${userService.getApiUrl()}/api/invoice/sendInvoice`,
+      "POST",
+      $.param({
+        email: mail,
+        userName: username,
+        invoiceID: idinvocie,
+      })
+    )
+    .then((response) => {
+      if (response.status === "OK") {
+        showNotification(
+          "The invoice has been send mail successfully !!!",
+          "OK"
+        );
+      } else {
+        showNotification(
+          "Unable to create invoice. Please try again !!!",
+          "error"
+        );
+      }
+    })
+    .catch((error) => {
+      console.error("Error when creating invoice: ", error);
+      showNotification("Error when creating invoice !!!", "error");
+    });
+}
