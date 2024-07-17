@@ -954,6 +954,7 @@ $(document).ready(function () {
                           <p class="font-semibold">For any warranty issues, please contact our customer service</p>
                           <p class="font-semibold">Expiration date from ${invoiceDate} to ${warrantyEndDate.toLocaleDateString()}</p>
                           <p class="font-semibold">Phone: 0399189976 | Email: 2ks1net@gmail.com</p>
+                          <p class="font-semibold">*The store only accepts invoice cancellations within 24 hours from the time the invoice is printed.*</p>
                         </div>
                       </div>
                   </div>
@@ -1032,10 +1033,10 @@ $(document).ready(function () {
       .sendAjaxWithAuthen(
         `http://${userService.getApiUrl()}/api/invoice/cancel`,
         "POST",
-        {
+        $.param({
           invoiceId: invoiceId,
           note: cancelNote,
-        }
+        })
       )
       .then((response) => {
         if (response.status === "OK") {

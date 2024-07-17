@@ -532,6 +532,20 @@ public class InvoiceService implements IInvoiceService {
                                 throw new ApplicationException("Invoice is already canceled.",
                                                 HttpStatus.CONFLICT);
                         }
+                        Date invoiceDate = invoice.getDate();
+                        Date currentDate = new Date(); // lấy thời gian hiện tại
+
+                        // Tính thời gian chênh lệch giữa hiện tại và thời gian tạo hóa đơn
+                        long diffInMillis = currentDate.getTime() - invoiceDate.getTime();
+
+                        // Chuyển đổi thời gian chênh lệch từ milliseconds sang giờ
+                        long diffInHours = diffInMillis / (1000 * 60 * 60);
+
+                        if (diffInHours >= 24) {
+                                throw new ApplicationException(
+                                                "The invoice cannot be canceled because its out of time for cancel !",
+                                                HttpStatus.BAD_REQUEST);
+                        }
 
                         List<InvoiceDetail> invoiceDetails = invoice.getListOrderInvoiceDetail();
                         for (InvoiceDetail detail : invoiceDetails) {
