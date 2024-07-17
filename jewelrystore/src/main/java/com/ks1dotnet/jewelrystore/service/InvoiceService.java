@@ -473,7 +473,13 @@ public class InvoiceService implements IInvoiceService {
                                 String barcode = entry.getKey();
                                 int quantity = Integer.parseInt(entry.getValue());
                                 double price = barcodePriceMap.get(barcode);
-
+                                if (quantity <= 0 || price <= 0) {
+                                        throw new ApplicationException(
+                                                        (quantity <= 0 ? "Quantity cannot be negative numbers: "
+                                                                        + quantity
+                                                                        : "Qrice cannot be negative numbers: " + price),
+                                                        HttpStatus.BAD_REQUEST);
+                                }
                                 Product product = iProductRepository.findByBarCode(barcode);
                                 if (product == null) {
                                         throw new ApplicationException(

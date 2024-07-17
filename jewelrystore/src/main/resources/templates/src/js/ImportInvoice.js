@@ -8,8 +8,6 @@ $(document).ready(function () {
   let totalPrice = 0;
   let supplierId = null;
 
-  $(document).on("keypress", press);
-
   function parseIntWithPrefix(str, prefix) {
     // Check if the string starts with the prefix
     if (!str.startsWith(prefix)) return false;
@@ -55,7 +53,7 @@ $(document).ready(function () {
           return;
         }
         if (parseIntWithPrefix(this.inputString, "893171831"))
-          addProductByBarcode(this.inputString); // Call the addProductByBarcode function
+          searchProductByBarcode(this.inputString); // Call the addProductByBarcode function
         this.inputString = "";
       }, 100);
     };
@@ -292,11 +290,8 @@ $(document).ready(function () {
           );
         }
       })
-      .catch(() => {
-        showNotification(
-          "Can error occurred while creating the invoice !!!",
-          "error"
-        );
+      .catch((err) => {
+        showNotification(err.responseJSON.desc);
       });
   }
 
