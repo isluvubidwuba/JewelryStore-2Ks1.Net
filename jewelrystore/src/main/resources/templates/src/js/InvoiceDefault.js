@@ -95,7 +95,13 @@ $(document).ready(function () {
     function validateForm(form) {
       const email = form.find('input[name="email"]').val();
       const phoneNumber = form.find('input[name="phoneNumber"]').val();
-
+      const fullName = form.find('input[name="fullName"]').val();
+      if (!isValidName(fullName)) {
+        showNotification(
+          "Name must not contain special characters or numbers.",
+          "error"
+        );
+      }
       if (!isValidEmail(email)) {
         showNotification("Invalid email address.", "error");
         return false;
@@ -111,6 +117,11 @@ $(document).ready(function () {
       }
 
       return true;
+    }
+    function isValidName(name) {
+      var nameRegex =
+        /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯàáâãèéêìíòóôõùúăđĩũơưĂẮẰẲẴẶẤẦẨẪẬẮẰẲẴẶÉẾỀỂỄỆÍÌỈĨỊỈÌỊÉÊÍÒÓÔÕÙÚỦŨỤƯỨỪỬỮỰÝỲỶỸỴỹýỳỵỷỹỵơớờởỡợợáạảãàâấầẩậẫắằẳẵặèéẹẻẽêếềểễệìíỉĩịòóọỏõôốồổỗộơớờởỡợùúụủũưứừửữựýỳỷỹỵỵ]+(\s[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯàáâãèéêìíòóôõùúăđĩũơưĂẮẰẲẴẶẤẦẨẪẬẮẰẲẴẶÉẾỀỂỄỆÍÌỈĨỊỈÌỊÉÊÍÒÓÔÕÙÚỦŨỤƯỨỪỬỮỰÝỲỶỸỴỹýỳỵỷỹỵơớờởỡợợáạảãàâấầẩậẫắằẳẵặèéẹẻẽêếềểễệìíỉĩịòóọỏõôốồổỗộơớờởỡợùúụủũưứừửữựýỳỷỹỵỵ]+)*$/u;
+      return nameRegex.test(name);
     }
 
     function isValidEmail(email) {
