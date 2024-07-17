@@ -136,8 +136,8 @@ public class PromotionController {
             InvoiceType invoiceType = iInvoiceTypeRepository.findById(id).orElseThrow(
                     () -> new ApplicationException("Not found with invoice type id: " + id,
                             HttpStatus.NOT_FOUND));
-            List<PromotionDTO> lPromotionDTOs = iPromotionService.findByInvoiceTypeAndStatusTrue(invoiceType).stream()
-                    .map(Promotion::getDTO).collect(Collectors.toList());
+            List<PromotionDTO> lPromotionDTOs = iPromotionService.findByInvoiceTypeAndStatusTrue(invoiceType);
+
             responseData.setStatus(HttpStatus.OK);
             responseData.setDesc("get policy successful");
             responseData.setData(lPromotionDTOs);

@@ -57,17 +57,6 @@ function renderPromotions(page, policies) {
       case "category":
       case "material":
       case "customer":
-        applicableButton = `<button
-          type="button"
-          class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
-          data-promotion-id="${data.id}"
-          data-promotion-name="${data.name}"
-          data-promotion-type="${data.promotionType.toUpperCase()}"
-          style="width: 100%"
-        >
-          View applied
-        </button>`;
-        break;
       case "product":
         applicableButton = `<button
           type="button"
@@ -86,7 +75,16 @@ function renderPromotions(page, policies) {
       <tr class="${index % 2 === 0 ? "bg-gray-100" : "bg-white"}" data-id="${
       data.id
     }">
-        <td class="text-left py-3 px-4">${data.name}</td>
+        <td class="text-left py-3 px-4">
+          <div class="image-hover-container">
+            ${data.name}
+            <div class="image-hover-content">
+              <img src="${data.image}" alt="${
+      data.name
+    }" style="max-width: 200px; max-height: 200px;"/>
+            </div>
+          </div>
+        </td>
         <td class="text-center py-3 px-4">${data.value}</td>
         <td class="text-center py-3 px-4">${
           data.status ? "Active" : "Inactive"
@@ -115,6 +113,7 @@ function renderPromotions(page, policies) {
 
   attachModalHandlers();
 }
+
 function changePage(page) {
   currentPage = page;
   const keyword = $("#keyword").val().toLowerCase();

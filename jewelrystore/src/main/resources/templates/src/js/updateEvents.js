@@ -158,8 +158,12 @@ function processEventsData(eventsData) {
           : "Not Yet";
 
         $eventsGroup.append(`
-          <li class="single-event event-type-${counterNumber} hover:bg-opacity-75 shadow-inner h-16 w-1/6 mr-5">
-            <a href="#0" class="block h-full p-2 open-employee-modal" 
+          <li class="single-event event-type-${
+            counterNumber - 1
+          } hover:bg-opacity-75 shadow-inner h-16 w-1/6 mr-5">
+            <a href="#0" class="block h-full p-2 open-employee-modal" data-color='${
+              counterNumber - 1
+            }' 
               data-assign='${JSON.stringify(assign)}' 
               data-counter='${JSON.stringify(counterDTO)}'>
               <em class="event-counter block text-white">
@@ -209,7 +213,14 @@ function processEventsData(eventsData) {
     const counter = $(this).data("counter");
     const assign = $(this).data("assign");
     const manager = assign.employeeDTO;
+    const color = $(this).data("color");
+    // Xóa tất cả các lớp bắt đầu với 'event-type-'
+    $("#backgroundColor").removeClass(function (index, className) {
+      return (className.match(/(^|\s)event-type-\S+/g) || []).join(" ");
+    });
+    $("#backgroundColor").addClass("event-type-" + color);
 
+    console.log("color: " + color);
     // Xử lý logic check-in, check-out và isLate
     const checkInStatus = assign.checkIn
       ? new Date(assign.checkIn).toLocaleString()
@@ -269,12 +280,15 @@ function processEventsData(eventsData) {
     } else {
       $("#buttonDeleteSChedule").removeClass("hidden"); // Hiển thị nút nếu ngày không phải là quá khứ và chưa check-in
     }
+    $("#date-shift").text("#" + formattedDate);
+
     $("#formDelete").empty();
     // Gán giá trị vào các input ẩn
     $("#hiddenDate").val(formattedDate);
     $("#hiddenCounterId").val(counter.id);
     $("#hiddenEmployeeId").val(manager.id);
     // Hiển thị modal
+
     $("#viewEmployeeModal2").removeClass("hidden");
   });
 

@@ -61,8 +61,8 @@ public class CounterService implements ICounterSerivce {
         // Lấy tất cả sản phẩm thuộc counter này
         List<Product> allProductsInCounter = iProductRepository.findByCounterId(counterId);
 
-        List<ProductDTO> updatedProductDTOs =
-                allProductsInCounter.stream().map(Product::getDTO).collect(Collectors.toList());
+        List<ProductDTO> updatedProductDTOs = allProductsInCounter.stream().map(Product::getDTO)
+                .collect(Collectors.toList());
 
         ResponseData responseData = new ResponseData();
         responseData.setData(updatedProductDTOs);
@@ -74,7 +74,7 @@ public class CounterService implements ICounterSerivce {
     @Override
     public ResponseData listProductsByCounter(int counterId, int page) {
         Map<String, Object> response = new HashMap<>();
-        int pageSize = 5;
+        int pageSize = 10;
         List<ProductDTO> productDTOList = new ArrayList<>();
         List<Product> products = iProductRepository.findByCounterId(counterId);
 
@@ -105,14 +105,12 @@ public class CounterService implements ICounterSerivce {
     @Override
     public ResponseData getAllProductsInCounterOne() {
         List<Product> products = iProductRepository.findByCounterId(1);
-        List<ProductDTO> productDTOs =
-                products.stream().map(Product::getDTO).collect(Collectors.toList());
+        List<ProductDTO> productDTOs = products.stream().map(Product::getDTO).collect(Collectors.toList());
         ResponseData responseData = new ResponseData();
         responseData.setStatus(HttpStatus.OK);
         responseData.setData(productDTOs);
         return responseData;
     }
-
 
     @Override
     public ResponseData moveProductsToCounter(List<Integer> productIds, int newCounterId) {
@@ -146,7 +144,6 @@ public class CounterService implements ICounterSerivce {
         return responseData;
     }
 
-
     @Override
     public ResponseData getProductDetails(int productId) {
         Optional<Product> productOpt = iProductRepository.findById(productId);
@@ -168,8 +165,7 @@ public class CounterService implements ICounterSerivce {
     @Override
     public ResponseData getAllProducts() {
         List<Product> products = iProductRepository.findAll();
-        List<ProductDTO> productDTOs =
-                products.stream().map(Product::getDTO).collect(Collectors.toList());
+        List<ProductDTO> productDTOs = products.stream().map(Product::getDTO).collect(Collectors.toList());
 
         ResponseData responseData = new ResponseData();
         responseData.setData(productDTOs);
@@ -181,8 +177,7 @@ public class CounterService implements ICounterSerivce {
     @Override
     public ResponseData getAllCountersActive() {
         List<Counter> counters = iCounterRepository.findAllActiveCounters();
-        List<CounterDTO> counterDTOs =
-                counters.stream().map(Counter::getDTO).collect(Collectors.toList());
+        List<CounterDTO> counterDTOs = counters.stream().map(Counter::getDTO).collect(Collectors.toList());
 
         ResponseData responseData = new ResponseData();
         responseData.setData(counterDTOs);
@@ -228,8 +223,7 @@ public class CounterService implements ICounterSerivce {
     @Override
     public ResponseData getInactiveCounters() {
         List<Counter> counters = iCounterRepository.findByStatus(false);
-        List<CounterDTO> counterDTOs =
-                counters.stream().map(Counter::getDTO).collect(Collectors.toList());
+        List<CounterDTO> counterDTOs = counters.stream().map(Counter::getDTO).collect(Collectors.toList());
 
         ResponseData responseData = new ResponseData();
         responseData.setData(counterDTOs);

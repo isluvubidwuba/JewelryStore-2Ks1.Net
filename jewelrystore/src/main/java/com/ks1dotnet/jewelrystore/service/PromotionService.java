@@ -43,12 +43,11 @@ public class PromotionService implements IPromotionService {
 
     @Override
     public ResponseData getAllPromotionDTO() {
-        List<PromotionDTO> promotionDTOs =
-                iPromotionRepository.findAll().stream().map(promotion -> {
-                    PromotionDTO dto = promotion.getDTO();
-                    dto.setImage(url.trim() + filePath.trim() + dto.getImage());
-                    return dto;
-                }).collect(Collectors.toList());
+        List<PromotionDTO> promotionDTOs = iPromotionRepository.findAll().stream().map(promotion -> {
+            PromotionDTO dto = promotion.getDTO();
+            dto.setImage(url.trim() + filePath.trim() + dto.getImage());
+            return dto;
+        }).collect(Collectors.toList());
         return new ResponseData(HttpStatus.OK, "Fetched all exchange rate policies", promotionDTOs);
     }
 
@@ -174,8 +173,7 @@ public class PromotionService implements IPromotionService {
     @Override
     public ResponseData deleteExpiredPromotions() {
         try {
-            List<Promotion> expiredPromotions =
-                    iPromotionRepository.findByEndDateBefore(LocalDate.now());
+            List<Promotion> expiredPromotions = iPromotionRepository.findByEndDateBefore(LocalDate.now());
             for (Promotion promotion : expiredPromotions) {
                 promotion.setStatus(false);
                 iPromotionRepository.save(promotion);
@@ -216,8 +214,16 @@ public class PromotionService implements IPromotionService {
     }
 
     @Override
-    public List<Promotion> findByInvoiceTypeAndStatusTrue(InvoiceType invoiceType) {
-        return iPromotionRepository.findByInvoiceTypeAndStatusTrue(invoiceType);
+    public List<PromotionDTO> findByInvoiceTypeAndStatusTrue(InvoiceType invoiceType) {
+
+        List<PromotionDTO> promotionDTOs = iPromotionRepository.findByInvoiceTypeAndStatusTrue(invoiceType).stream()
+                .map(promotion -> {
+                    PromotionDTO dto = promotion.getDTO();
+                    dto.setImage(url.trim() + filePath.trim() + dto.getImage());
+                    return dto;
+                }).collect(Collectors.toList());
+
+        return promotionDTOs;
     }
 
 }

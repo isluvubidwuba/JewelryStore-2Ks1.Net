@@ -179,7 +179,7 @@ public class UserInfoService implements IUserInfoService {
         ResponseData responseData = new ResponseData();
         try {
             Map<String, Object> response = new HashMap<>();
-            int pageSize = 5;
+            int pageSize = 10;
             PageRequest pageRequest = PageRequest.of(page, pageSize);
             Page<UserInfo> customersPage = iUserInfoRepository.findCustomersByRoleId(pageRequest);
 
@@ -204,7 +204,7 @@ public class UserInfoService implements IUserInfoService {
         ResponseData responseData = new ResponseData();
         try {
             Map<String, Object> response = new HashMap<>();
-            int pageSize = 5;
+            int pageSize = 10;
             PageRequest pageRequest = PageRequest.of(page, pageSize);
             Page<UserInfo> suppliersPage = iUserInfoRepository.findSuppliersByRoleId(pageRequest);
 

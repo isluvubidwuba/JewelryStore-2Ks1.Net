@@ -7,6 +7,36 @@
     <link href="css/styles.css" rel="stylesheet" />
     <script src="js/jquery.min.js"></script>
     <script type="module" src="js/policy.js"></script>
+    <style>
+      .image-hover-container {
+        position: relative;
+        display: inline-block;
+      }
+
+      .image-hover-content {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        max-width: 200px;
+        max-height: 200px;
+        animation: fadeIn 0.5s;
+      }
+
+      .image-hover-container:hover .image-hover-content {
+        display: block;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
   </head>
 
   <body>

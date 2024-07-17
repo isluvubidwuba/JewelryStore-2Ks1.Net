@@ -108,7 +108,7 @@ public class EmployeeService implements IEmployeeService {
       ResponseData responseData = new ResponseData();
       try {
          Map<String, Object> response = new HashMap<>();
-         PageRequest pageRequest = PageRequest.of(page, 5);
+         PageRequest pageRequest = PageRequest.of(page, 10);
          List<EmployeeDTO> employeeDTOs = new ArrayList<>();
          Page<Employee> listData;
          if ("admin".equals(id)) {

@@ -32,6 +32,6 @@ public interface IPromotionService {
 
         public PromotionDTO getPromotionsByUserId(int userId);
 
-        public List<Promotion> findByInvoiceTypeAndStatusTrue(InvoiceType invoiceType);
+        public List<PromotionDTO> findByInvoiceTypeAndStatusTrue(InvoiceType invoiceType);
 
 }
