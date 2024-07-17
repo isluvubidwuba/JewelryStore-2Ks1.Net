@@ -246,12 +246,11 @@ function getPriceProduct(barcode, idInvocie, idPromo, idPrice) {
       }
     )
     .then((response) => {
-      console.log("Success:", response);
       displayProductPromo(response.data.listPromotion, idPromo);
       $(idPrice).text(formatCurrency(response.data.totalPrice));
     })
     .catch((xhr, status, error) => {
-      console.error("Error:", error);
+      $(idPromo).empty();
       $(idPrice).text("Not available!");
       showNotification("Failed to send data: " + error, "error");
     });
