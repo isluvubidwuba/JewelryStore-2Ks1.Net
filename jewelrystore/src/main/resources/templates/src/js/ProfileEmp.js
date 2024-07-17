@@ -73,7 +73,7 @@ function saveChanges() {
   }
 
   if (email !== "" && !isValidEmail(email)) {
-    showNotification("Email must be in the format @gmail.com", "Error");
+    showNotification("Email must be in the formatted", "Error");
     return;
   }
 
@@ -155,7 +155,8 @@ function isValidPhoneNumber(phoneNumber) {
 }
 
 function isValidEmail(email) {
-  var regex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+  var regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
   return regex.test(email);
 }
 
