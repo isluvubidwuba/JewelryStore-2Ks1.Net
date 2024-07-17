@@ -15,7 +15,7 @@
   id="adminPage"
   class="flex flex-col w-52 h-screen px-5 py-8 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l dark:bg-gray-900 dark:border-gray-700 no-scrollbar"
 >
-  <a id="updateGoldPrice" href="DashboardAdmin.html">
+  <a href="DashboardAdmin.html">
     <img
       id="logoAdmin"
       class="w-44 h-auto"
@@ -53,6 +53,29 @@
             <polyline points="10 9 10 13 8 13" />
           </svg>
           <span class="mx-2 text-sm font-medium">Account</span>
+        </a>
+        <a
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          id="updateGoldPrice"
+          href="#"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M8 21h8a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-3l-1-2H8a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2z"
+            />
+            <line x1="8" y1="13" x2="16" y2="13" />
+            <line x1="8" y1="17" x2="16" y2="17" />
+            <polyline points="10 9 10 13 8 13" />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Update gold price</span>
         </a>
       </div>
       <div class="space-y-3">
@@ -335,11 +358,24 @@
               </div>
               <div id="changePASS" class="mb-4 hidden">
                 <label for="viewProfilePincode" class="block text-gray-700"
-                  >Change pass</label
+                  >Change pinCode</label
                 >
                 <input
-                  type="text"
+                  type="password"
                   id="viewProfilePincode"
+                  name="pinCode"
+                  class="w-full px-3 py-2 border rounded"
+                />
+              </div>
+              <div id="ConfirmchangePASS" class="mb-4 hidden">
+                <label
+                  for="viewConfirmProfilePincode"
+                  class="block text-gray-700"
+                  >Confirm change pinCode</label
+                >
+                <input
+                  type="password"
+                  id="viewConfirmProfilePincode"
                   name="pinCode"
                   class="w-full px-3 py-2 border rounded"
                 />

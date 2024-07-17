@@ -614,7 +614,7 @@ function setupFormSubmission(
     event.preventDefault();
     if (validateFormFields(formSelector)) {
       const formData = await formToObject();
-      console.log(formData);
+      if (formData == null) return;
       return await userService
         .sendAjaxWithAuthen(
           url,
@@ -696,6 +696,16 @@ function handleFormUpload(response) {
 }
 
 function updateFormToGemStone() {
+  if (
+    $("#caratC").val() < 0 ||
+    $("#priceGemC").val() < 0 ||
+    $("#quantityC").val() < 0
+  ) {
+    showNotification(
+      "Can not have negative number when create gemstone for product!"
+    );
+    return null;
+  }
   let gem = {
     color: $("#colorC").val(),
     clarity: $("#gemstone-clarity").val(),
@@ -716,6 +726,10 @@ function updateFormToGemStone() {
 }
 
 async function updateFormToProduct() {
+  if ($("#update-fee").val() < 0 || $("#update-weight").val() < 0) {
+    showNotification("Fee and weight of product cannot be negative");
+    return null;
+  }
   var imgPathUp = await uploadImage($("#productImgUpdate").prop("files")[0]);
   let product = {
     id: $("#submit-update").attr("data-product-id"),
@@ -739,6 +753,10 @@ async function updateFormToProduct() {
   return product;
 }
 async function insertFormToProduct() {
+  if ($("#feeC").val() < 0 || $("#materialWeightC").val() < 0) {
+    showNotification("Fee and weight of product cannot be negative");
+    return null;
+  }
   let product = {
     name: $("#nameC").val(),
     fee: $("#feeC").val(),

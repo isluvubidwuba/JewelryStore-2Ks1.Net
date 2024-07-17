@@ -23,7 +23,7 @@ $(document).ready(function () {
       const confirmPassword = $("#passswordChangeConfirm").val();
 
       if (password !== confirmPassword) {
-        alert("Passwords do not match!");
+        showNotification("Passwords do not match!");
         return false;
       }
       return true;

@@ -346,13 +346,6 @@ $(document).ready(function () {
     const productMap = JSON.parse(sessionStorage.getItem("productMap"));
     const employeeID = userService.getUserId();
 
-    console.log("showConfirmModal called with:");
-    console.log("userId:", userId);
-    console.log("userName:", userName);
-    console.log("userPromotion:", userPromotion);
-    console.log("productMap:", productMap);
-    console.log("employeeID:", employeeID);
-
     if (!userId || !userName || !productMap || !employeeID) {
       showNotification(
         "Information is incomplete. Please check again !!!",

@@ -75,11 +75,13 @@ function adminProfile() {
   ) {
     $("#changePincodeProfileBtn").click(() => {
       $("#changePASS").removeClass("hidden");
+      $("#ConfirmchangePASS").removeClass("hidden");
     });
 
     $("#closeProfileModal").click(() => {
       $("#viewProfileModal").addClass("hidden");
       $("#changePASS").addClass("hidden");
+      $("#ConfirmchangePASS").addClass("hidden");
       $("#viewProfileForm")[0].reset();
       const fileInput = document.getElementById("profileImgUpdate");
       if (fileInput) {
@@ -134,7 +136,24 @@ function adminProfile() {
         "#imgProfileDetail"
       );
     });
+
+    const checkPasswordMatch = () => {
+      const password = $("#viewProfilePincode").val();
+      const confirmPassword = $("#viewConfirmProfilePincode").val();
+      console.log(password);
+      console.log(confirmPassword);
+      if (password == "" || confirmPassword == "") {
+        showNotification("PinCode do not empty!");
+        return false;
+      }
+      if (password !== confirmPassword) {
+        showNotification("PinCode do not match!");
+        return false;
+      }
+      return true;
+    };
     $("#updateProfileBtn").click(async () => {
+      if (!checkPasswordMatch()) return;
       var formData = new FormData($("#viewProfileForm")[0]);
       var fileInput = $("#profileImgUpdate")[0];
 
@@ -214,3 +233,69 @@ function previewImage(idDisplay, file, placeholder) {
     reader.readAsDataURL(file);
   }
 }
+
+// Define the inactivity timeout in milliseconds (e.g., 5 minutes)
+const inactivityTimeout = 30 * 1000;
+
+// Variable to store the timeout ID
+let inactivityTimer;
+
+// Function to add the iframe and overlay
+function addIframe() {
+  const iframe = document.createElement("iframe");
+  iframe.id = "goldPriceIframe";
+  iframe.src = "goldPrice.html";
+  iframe.width = "100%";
+  iframe.height = "100%";
+  iframe.style.position = "fixed";
+  iframe.style.top = "0";
+  iframe.style.left = "0";
+  iframe.style.zIndex = "1000";
+  document.body.appendChild(iframe);
+
+  const overlay = document.createElement("div");
+  overlay.id = "activityOverlay";
+  overlay.style.position = "fixed";
+  overlay.style.top = "0";
+  overlay.style.left = "0";
+  overlay.style.width = "100%";
+  overlay.style.height = "100%";
+  overlay.style.zIndex = "1001";
+  document.body.appendChild(overlay);
+
+  // Add event listeners to the overlay to detect user activity
+  ["click", "mousemove", "keypress", "scroll", "touchstart"].forEach(
+    (event) => {
+      overlay.addEventListener(event, () => {
+        removeIframeAndOverlay();
+        resetInactivityTimer(); // Reset timer after removing iframe and overlay
+      });
+    }
+  );
+}
+
+// Function to remove the iframe and overlay
+function removeIframeAndOverlay() {
+  const iframe = document.getElementById("goldPriceIframe");
+  if (iframe) {
+    iframe.remove();
+  }
+  const overlay = document.getElementById("activityOverlay");
+  if (overlay) {
+    overlay.remove();
+  }
+}
+
+// Function to reset the inactivity timer
+function resetInactivityTimer() {
+  clearTimeout(inactivityTimer);
+  inactivityTimer = setTimeout(addIframe, inactivityTimeout);
+}
+
+// Add event listeners for user activity
+["click", "mousemove", "keypress", "scroll", "touchstart"].forEach((event) => {
+  window.addEventListener(event, resetInactivityTimer);
+});
+
+// Initialize the inactivity timer on page load
+resetInactivityTimer();
