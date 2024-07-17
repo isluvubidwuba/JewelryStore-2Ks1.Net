@@ -60,7 +60,7 @@ public class ProductController {
     @PostMapping("search")
     public ResponseEntity<?> searchProductV2(@RequestParam String search,
             @RequestParam String id_material, @RequestParam String id_product_category,
-            @RequestParam String id_counter, @RequestParam int page) {
+            @RequestParam String id_counter, @RequestParam int page, int size) {
         if (search.isEmpty() && id_material.isEmpty() && id_product_category.isEmpty()
                 && id_counter.isEmpty()) {
             return new ResponseEntity<>(
@@ -72,7 +72,7 @@ public class ProductController {
         id_product_category = id_product_category.isEmpty() ? null : id_product_category;
         id_counter = id_counter.isEmpty() ? null : id_counter;
         ResponseData response = iProductService.searchProductV2(search, id_material,
-                id_product_category, id_counter, page);
+                id_product_category, id_counter, page, size);
         return new ResponseEntity<>(response, response.getStatus());
     }
 

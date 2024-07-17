@@ -32,11 +32,17 @@ function configState() {
     state.rows = parseInt(event.target.value, 10);
     state.size =
       oldRows > state.rows
-        ? state.size + oldRows - state.rows
-        : state.size + state.rows - oldRows;
+        ? state.size - (oldRows - state.rows)
+        : state.size + (state.rows - oldRows);
     state.totalPagesAtClient = Math.ceil(state.totalPagesAtClient / state.rows);
     $("#pagination-wrapper").empty();
-    fetchProduct(state.currentServerPage, state.size);
+    state.currentPageAtClient = 0;
+    state.currentServerPage = 0;
+    state.previousPageAtClient = 0;
+    state.actualPageIndexAtClient = 1;
+    state.page = 1;
+    if (state.search == null) fetchProduct(state.currentServerPage, state.size);
+    else searchProducts(state.search, state.currentServerPage, state.size);
   });
 }
 var state = {
@@ -49,6 +55,7 @@ var state = {
   currentPageAtClient: 0,
   previousPageAtClient: 0,
   size: 50,
+  search: null,
 };
 
 let listGemsDetail = null;
@@ -174,7 +181,8 @@ function createPagination(totalPages, page, actualTotalPagesAtClient) {
     state.currentPageAtClient = state.page;
     const serverPage = Math.floor((state.page - 1) / actualTotalPagesAtClient);
     if (serverPage != state.currentServerPage) {
-      fetchProduct(serverPage, state.size); // Fetch new records for every new server page
+      if (state.search == null) fetchProduct(serverPage, state.size);
+      else searchProducts(state.search, serverPage, state.size);
     } else {
       buildTable(state, "There are no  product");
     }
@@ -456,18 +464,25 @@ function setupSearch() {
     $("#notiBlankProduct").empty();
     clearTimeout(timeout);
     const text = this.value.trim();
+    state.search = text;
     if (text === "") {
       $("#clearSearch").addClass("hidden");
+      $("#search-input").val("");
+      $("#Material").val("");
+      $("#Category").val("");
+      $("#Counter").val("");
+      state.search = null;
       fetchProduct(state.currentServerPage, state.size);
     } else {
       timeout = setTimeout(() => {
-        searchProducts(text, 0);
+        searchProducts(state.search, 0, state.size);
       }, 500);
     }
   });
   $("#Category,#Material,#Counter").change(function () {
     if ($("#Material").val() || $("#Category").val() || $("#Counter").val())
-      searchProducts($("#search-input").val(), 0);
+      state.search = $("#search-input").val();
+    searchProducts(state.search, 0, state.size);
   });
 
   $("#clearSearch").click(() => {
@@ -476,11 +491,12 @@ function setupSearch() {
     $("#Material").val("");
     $("#Category").val("");
     $("#Counter").val("");
+    state.search = null;
     fetchProduct(state.currentServerPage, state.size);
   });
 }
 
-async function searchProducts(query, pageS) {
+async function searchProducts(query, pageS, sizeS) {
   $("#clearSearch").removeClass("hidden");
   return await userService
     .sendAjaxWithAuthen(
@@ -492,6 +508,7 @@ async function searchProducts(query, pageS) {
         id_product_category: $("#Category").val(),
         id_counter: $("#Counter").val(),
         page: pageS,
+        size: sizeS,
       })
     )
     .then((response) => {
@@ -501,7 +518,7 @@ async function searchProducts(query, pageS) {
         state.querySet = content;
         state.totalPagesAtClient = Math.ceil(totalElements / state.rows);
         state.currentServerPage = pageS;
-        buildTable(state); // Build table after fetching products
+        buildTable(state, "There are no product!"); // Build table after fetching products
       }
     })
     .catch((xhr, status, error) => {

@@ -50,7 +50,7 @@ $(document).ready(function () {
   });
 });
 
-const state = {
+var state = {
   querySet: [],
   page: 1,
   rows: 8,
@@ -60,6 +60,7 @@ const state = {
   currentPageAtClient: 0,
   previousPageAtClient: 0,
   size: 40,
+  search: null,
 };
 
 function fetchProduct(page, size) {
@@ -82,7 +83,7 @@ function fetchProduct(page, size) {
 
 function buildTable(state) {
   $("#cardHere").empty();
-
+  $("#notiBlankProduct").empty();
   const data = pagination(state.querySet, state.page, state.rows);
   const myList = data.querySet;
 
@@ -126,6 +127,7 @@ function createProductRow(product) {
 }
 
 function pagination(querySet, page, rows) {
+  $("#pagination-wrapper").empty();
   const pages = Math.ceil(state.size / rows);
   state.actualPageIndexAtClient = Math.floor((page - 1) / pages) * pages + 1;
   const trimStart = (page - state.actualPageIndexAtClient) * rows;
@@ -184,9 +186,10 @@ function createPagination(totalPages, page, actualTotalPagesAtClient) {
     state.currentPageAtClient = state.page;
     const serverPage = Math.floor((state.page - 1) / actualTotalPagesAtClient);
     if (serverPage != state.currentServerPage) {
-      fetchProduct(serverPage, state.size); // Fetch new records for every new server page
+      if (state.search == null) fetchProduct(serverPage, state.size);
+      else searchProducts(state.search, serverPage, state.size);
     } else {
-      buildTable(state, "There are no  product");
+      buildTable(state);
     }
   });
 }
@@ -397,29 +400,46 @@ function toggleModal(idModal, idClose, idOpen) {
     $(idModal).addClass("hidden").removeClass("flex");
   });
 }
+
 function setupSearch() {
   $("#search-input").on("keyup", function () {
+    $("#notiBlankProduct").empty();
     clearTimeout(timeout);
     const text = this.value.trim();
+    state.search = text;
     if (text === "") {
+      $("#clearSearch").addClass("hidden");
+      $("#search-input").val("");
+      $("#Material").val("");
+      $("#Category").val("");
+      $("#Counter").val("");
+      state.search = null;
       fetchProduct(state.currentServerPage, state.size);
     } else {
       timeout = setTimeout(() => {
-        searchProducts(text);
+        searchProducts(state.search, 0, state.size);
       }, 500);
     }
   });
   $("#Category,#Material,#Counter").change(function () {
-    searchProducts($("#search-input").val());
+    if ($("#Material").val() || $("#Category").val() || $("#Counter").val())
+      state.search = $("#search-input").val();
+    searchProducts(state.search, 0, state.size);
   });
-  $("#search-input").on("change", function () {
-    if (this.value.trim() === "0") {
-      fetchProduct(state.currentServerPage, state.size);
-    }
+
+  $("#clearSearch").click(() => {
+    $("#clearSearch").addClass("hidden");
+    $("#sidbar-Policy").addClass("hidden");
+    $("#search-input").val("");
+    $("#Material").val("");
+    $("#Category").val("");
+    $("#Counter").val("");
+    state.search = null;
+    fetchProduct(state.currentServerPage, state.size);
   });
 }
-
-function searchProducts(query) {
+function searchProducts(query, pageS, sizeS) {
+  $("#clearSearch").removeClass("hidden");
   userService
     .sendAjaxWithAuthen(
       `http://${userService.getApiUrl()}/api/product/search`,
@@ -429,26 +449,35 @@ function searchProducts(query) {
         id_material: $("#Material").val(),
         id_product_category: $("#Category").val(),
         id_counter: $("#Counter").val(),
+        page: pageS,
+        size: sizeS,
       })
     )
     .then((response) => {
       if (response && response.data) {
-        searchSuggestion(response.data.content);
+        showNotification("Search product successfully.", "OK");
+        const { content, totalElements } = response.data;
+        state.querySet = content;
+        state.totalPagesAtClient = Math.ceil(totalElements / state.rows);
+        state.currentServerPage = pageS;
+        buildTable(state, "There are no product!"); // Build table after fetching products
       }
     })
     .catch((xhr, status, error) => {
-      showNotification("An error occurred while submitting the form.", "error");
+      if (xhr.responseJSON) {
+        showNotification(xhr.responseJSON.desc, "error");
+        $("#cardHere").empty();
+        $("#pagination-wrapper").empty();
+        $("#notiBlankProduct").text(
+          "There are no product suitable for your search!"
+        );
+      } else
+        showNotification(
+          "An error occurred while submitting the form.",
+          "error"
+        );
       console.log(xhr.responseText);
     });
-}
-
-function searchSuggestion(listProduct) {
-  $("#cardHere").empty();
-  $("#pagination-wrapper").empty();
-  listProduct.forEach((product) => {
-    const productRow = createProductRow(product);
-    $("#cardHere").append(productRow);
-  });
 }
 
 async function fetchDropdownData(elementId, fetchDataFunc) {
@@ -518,8 +547,10 @@ class BarcodeScaner {
         this.inputString = "";
         return;
       }
-      if (parseIntWithPrefix(this.inputString, "893171831"))
-        searchProducts(this.inputString); // Call the addProductByBarcode function
+      if (parseIntWithPrefix(this.inputString, "893171831")) {
+        state.search = this.inputString;
+        searchProducts(state.search, 0, state.size); // Call the addProductByBarcode function
+      }
       this.inputString = "";
     }, 100);
   };

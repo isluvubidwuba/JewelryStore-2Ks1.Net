@@ -151,8 +151,8 @@ public class ProductService implements IProductService {
 
             iProductRepository.saveAll(productsToUpdate);
 
-            List<ProductDTO> updatedProductDTOs = productsToUpdate.stream().map(Product::getDTO)
-                    .collect(Collectors.toList());
+            List<ProductDTO> updatedProductDTOs =
+                    productsToUpdate.stream().map(Product::getDTO).collect(Collectors.toList());
 
             return new ResponseData(HttpStatus.OK, "All products updated successfully!",
                     updatedProductDTOs);
@@ -279,10 +279,10 @@ public class ProductService implements IProductService {
 
     @Override
     public ResponseData searchProductV2(String search, String id_material,
-            String id_product_category, String id_counter, int page) {
+            String id_product_category, String id_counter, int page, int size) {
         try {
             Page<Product> listDTO = iProductRepository.dynamicSearchProductV2(search, id_material,
-                    id_product_category, id_counter, PageRequest.of(page, 50));
+                    id_product_category, id_counter, PageRequest.of(page, size));
             if (listDTO.isEmpty())
                 return new ResponseData(HttpStatus.NOT_FOUND, "No product found", null);
             return new ResponseData(HttpStatus.OK, "Search product successfully",
