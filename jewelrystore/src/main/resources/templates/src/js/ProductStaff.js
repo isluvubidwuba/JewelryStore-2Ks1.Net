@@ -474,3 +474,60 @@ async function fetchCounter() {
     `http://${userService.getApiUrl()}/api/counter/allactivecounter`
   );
 }
+
+function parseIntWithPrefix(str, prefix) {
+  // Ensure the input is a string
+  if (typeof str === "string") return false;
+
+  // Check if the string starts with the prefix
+  if (!str.startsWith(prefix)) return false;
+
+  // Attempt to parse the string to an integer
+  const parsed = parseInt(str, 10);
+
+  // Check if the result is a valid integer
+  if (!Number.isInteger(parsed)) return false;
+
+  return true;
+}
+
+class BarcodeScaner {
+  constructor() {
+    this.timeoutHandler = 0;
+    this.inputString = "";
+  }
+
+  initialize = () => {
+    document.addEventListener("keydown", this.keydown);
+    if (this.timeoutHandler) {
+      clearTimeout(this.timeoutHandler);
+    }
+    this.timeoutHandler = setTimeout(() => {
+      this.inputString = "";
+    }, 10);
+  };
+
+  close = () => {
+    document.removeEventListener("keydown", this.keydown);
+  };
+
+  keydown = (e) => {
+    if (this.timeoutHandler) {
+      clearTimeout(this.timeoutHandler);
+      this.inputString += String.fromCharCode(e.keyCode);
+    }
+
+    this.timeoutHandler = setTimeout(() => {
+      if (this.inputString.length <= 3) {
+        this.inputString = "";
+        return;
+      }
+      if (parseIntWithPrefix(this.inputString, "893171831"))
+        searchProducts(this.inputString); // Call the addProductByBarcode function
+      this.inputString = "";
+    }, 100);
+  };
+}
+
+const barcodeScanner = new BarcodeScaner();
+barcodeScanner.initialize();

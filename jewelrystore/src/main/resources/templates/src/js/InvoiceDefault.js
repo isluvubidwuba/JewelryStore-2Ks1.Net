@@ -21,6 +21,22 @@ $(document).ready(function () {
   setupInsertModalToggle();
 
   //==================================== Phần này là scaning barcode để thanh toán ==========================================================
+  function parseIntWithPrefix(str, prefix) {
+    // Ensure the input is a string
+    if (typeof str === "string") return false;
+
+    // Check if the string starts with the prefix
+    if (!str.startsWith(prefix)) return false;
+
+    // Attempt to parse the string to an integer
+    const parsed = parseInt(str, 10);
+
+    // Check if the result is a valid integer
+    if (!Number.isInteger(parsed)) return false;
+
+    return true;
+  }
+
   class BarcodeScaner {
     constructor() {
       this.timeoutHandler = 0;
@@ -52,7 +68,8 @@ $(document).ready(function () {
           this.inputString = "";
           return;
         }
-        addProductByBarcode(this.inputString); // Call the addProductByBarcode function
+        if (parseIntWithPrefix(this.inputString, "893171831"))
+          addProductByBarcode(this.inputString); // Call the addProductByBarcode function
         this.inputString = "";
       }, 100);
     };
