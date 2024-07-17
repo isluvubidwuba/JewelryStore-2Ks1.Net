@@ -434,7 +434,7 @@ function validateFormUpdate({ phoneNumber, email, fullName, address, role }) {
 
   // Validate email
   if (!isValidEmail(email)) {
-    return "Invalid email address. Email must be in format @gmail.com";
+    return "Invalid email address. Email must be in format";
   }
 
   // Validate full name
@@ -499,7 +499,7 @@ function setupSearch(role) {
         }
       } else if (criteria === "email") {
         if (!isValidEmail(query)) {
-          showNotification("Invalid email address. Email must be in format @gmail.com", "error");
+          showNotification("Invalid email address. Email must be in format", "error");
           return;
         }
       } else if (criteria === "id") {
@@ -690,7 +690,7 @@ function validateForm(form) {
 
   // Validate email
   if (!isValidEmail(email)) {
-    showNotification("Invalid email address. Email must be in format @gmail.com", "error");
+    showNotification("Invalid email address. Email must be", "error");
     return false;
   }
 
@@ -704,8 +704,8 @@ function validateForm(form) {
 }
 
 function isValidEmail(email) {
-  var emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
-  return emailRegex.test(email);
+  const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  return emailPattern.test(email);
 }
 
 function isValidPhoneNumber(phoneNumber) {
