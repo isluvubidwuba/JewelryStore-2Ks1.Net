@@ -77,6 +77,7 @@ class UserService {
               : data,
           contentType: contentType,
           processData: processData,
+          crossDomain: true,
           xhrFields: { withCredentials: true }, // Ensures cookies are included for all AJAX calls
           headers: { Authorization: `Bearer ${this.token}` },
           success: (response) => resolve(response),
