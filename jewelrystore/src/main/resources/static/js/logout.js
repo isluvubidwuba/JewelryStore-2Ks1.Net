@@ -159,11 +159,6 @@ function adminProfile() {
 
       formData.append("file", fileInput.files[0]);
 
-      // In ra console để kiểm tra FormData
-      for (var pair of formData.entries()) {
-        console.log(pair[0] + ": " + pair[1]);
-      }
-
       await userService
         .sendAjaxWithAuthen(
           `http://${userService.getApiUrl()}/api/employee/updateProfile`,

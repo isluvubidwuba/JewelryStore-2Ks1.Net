@@ -3,7 +3,7 @@ class UserService {
     this.token = sessionStorage.getItem("token");
     this.userId = sessionStorage.getItem("userId");
     this.userRole = sessionStorage.getItem("userRole");
-    this.apiurl = "localhost:8080";
+    this.apiurl = "2ks1dotnet.id.vn";
   }
 
   getToken() {
