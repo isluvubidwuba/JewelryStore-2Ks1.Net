@@ -125,6 +125,9 @@ class UserService {
       try {
         const refreshTokenResponse = await this.refreshToken();
         if (refreshTokenResponse && refreshTokenResponse.status === "OK") {
+          const { sub, role } = this.parseJwt(refreshTokenResponse.data.at);
+          this.setUserId(sub);
+          this.setUserRole(role);
           this.setToken(refreshTokenResponse.data.at);
           return { authenticated: true };
         } else {

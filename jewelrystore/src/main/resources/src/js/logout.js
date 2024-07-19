@@ -53,7 +53,7 @@ async function authenticate() {
     window.location.href = "/login";
   }
 }
-authenticate();
+await authenticate();
 function setupDashboardButton() {
   if (userRole === "ADMIN" || userRole === "MANAGER") {
     $("#changeScreen").show();
@@ -158,11 +158,6 @@ function adminProfile() {
       var fileInput = $("#profileImgUpdate")[0];
 
       formData.append("file", fileInput.files[0]);
-
-      // In ra console để kiểm tra FormData
-      for (var pair of formData.entries()) {
-        console.log(pair[0] + ": " + pair[1]);
-      }
 
       await userService
         .sendAjaxWithAuthen(

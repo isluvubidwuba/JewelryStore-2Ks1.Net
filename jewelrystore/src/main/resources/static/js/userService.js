@@ -3,7 +3,7 @@ class UserService {
     this.token = sessionStorage.getItem("token");
     this.userId = sessionStorage.getItem("userId");
     this.userRole = sessionStorage.getItem("userRole");
-    this.apiurl = "2ks1dotnet.id.vn";
+    this.apiurl = "localhost:8080";
   }
 
   getToken() {
@@ -125,6 +125,9 @@ class UserService {
       try {
         const refreshTokenResponse = await this.refreshToken();
         if (refreshTokenResponse && refreshTokenResponse.status === "OK") {
+          const { sub, role } = this.parseJwt(refreshTokenResponse.data.at);
+          this.setUserId(sub);
+          this.setUserRole(role);
           this.setToken(refreshTokenResponse.data.at);
           return { authenticated: true };
         } else {

@@ -417,6 +417,11 @@ function setupSearch() {
       fetchProduct(state.currentServerPage, state.size);
     } else {
       timeout = setTimeout(() => {
+        state.currentPageAtClient = 0;
+        state.currentServerPage = 0;
+        state.previousPageAtClient = 0;
+        state.actualPageIndexAtClient = 1;
+        state.page = 1;
         searchProducts(state.search, 0, state.size);
       }, 500);
     }
@@ -424,6 +429,11 @@ function setupSearch() {
   $("#Category,#Material,#Counter").change(function () {
     if ($("#Material").val() || $("#Category").val() || $("#Counter").val())
       state.search = $("#search-input").val();
+    state.currentPageAtClient = 0;
+    state.currentServerPage = 0;
+    state.previousPageAtClient = 0;
+    state.actualPageIndexAtClient = 1;
+    state.page = 1;
     searchProducts(state.search, 0, state.size);
   });
 
@@ -549,6 +559,11 @@ class BarcodeScaner {
       }
       if (parseIntWithPrefix(this.inputString, "893171831")) {
         state.search = this.inputString;
+        state.currentPageAtClient = 0;
+        state.currentServerPage = 0;
+        state.previousPageAtClient = 0;
+        state.actualPageIndexAtClient = 1;
+        state.page = 1;
         searchProducts(state.search, 0, state.size); // Call the addProductByBarcode function
       }
       this.inputString = "";

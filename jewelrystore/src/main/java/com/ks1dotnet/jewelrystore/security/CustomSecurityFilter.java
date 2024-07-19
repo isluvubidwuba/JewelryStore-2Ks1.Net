@@ -56,7 +56,9 @@ public class CustomSecurityFilter {
                                 .authorizeHttpRequests(authz -> authz
                                                 .requestMatchers(WHITE_LIST_URL).permitAll()
                                                 .requestMatchers(PUBLIC_API).permitAll()
-                                                .anyRequest().permitAll())
+                                                .requestMatchers("/api/**")
+                                                .hasAuthority("ACCESS_TOKEN").anyRequest()
+                                                .permitAll())
                                 .exceptionHandling(exception -> exception
                                                 .accessDeniedHandler(customAccessDeniedHandler))
                                 .addFilterBefore(customJwtFilter,

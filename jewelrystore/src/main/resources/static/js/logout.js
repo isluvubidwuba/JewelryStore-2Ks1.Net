@@ -53,7 +53,7 @@ async function authenticate() {
     window.location.href = "/login";
   }
 }
-authenticate();
+await authenticate();
 function setupDashboardButton() {
   if (userRole === "ADMIN" || userRole === "MANAGER") {
     $("#changeScreen").show();
