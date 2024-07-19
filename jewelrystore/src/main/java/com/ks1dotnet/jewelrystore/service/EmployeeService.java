@@ -388,6 +388,7 @@ public class EmployeeService implements IEmployeeService {
          dto.setImage(url.trim() + filePath.trim() + dto.getImage());
          dto.setTotalRevenue(iInvoiceRepository.sumTotalPriceByEmployeeId(dto.getId()) == null ? 0
                : iInvoiceRepository.sumTotalPriceByEmployeeId(dto.getId()));
+         dto.setPinCode("");
          return dto;
       }).collect(Collectors.toList());
       return new PageImpl<>(dtolist, empPage.getPageable(), empPage.getTotalElements());

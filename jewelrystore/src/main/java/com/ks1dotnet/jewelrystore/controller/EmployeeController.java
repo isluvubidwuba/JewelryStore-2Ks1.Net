@@ -89,9 +89,9 @@ public class EmployeeController {
         ResponseData responseData;
         String idEmployeeFromToken = JwtUtilsHelper.getAuthorizationByTokenType("at").getSubject();
         EmployeeDTO employeeDTO = iEmployeeService.findById(idEmployeeFromToken).getDTO();
-        String pincodeCheck = pinCode != null ? pinCode : employeeDTO.getPinCode();
-        pincodeCheck = pincodeCheck.isEmpty() ? employeeDTO.getPinCode()
-                : passwordEncoder.encode(pincodeCheck);
+        String pincodeCheck =
+                (pinCode != null && !pinCode.isEmpty()) ? passwordEncoder.encode(pinCode)
+                        : employeeDTO.getPinCode();
         String mailCheck = email != null ? email : employeeDTO.getEmail();
 
         if (employeeDTO.getRole().getName().equals("ADMIN")) {
@@ -126,11 +126,10 @@ public class EmployeeController {
         ResponseData responseData;
         String idEmployeeFromToken = JwtUtilsHelper.getAuthorizationByTokenType("at").getSubject();
         EmployeeDTO employeeDTO = iEmployeeService.findById(idEmployeeFromToken).getDTO();
-        String pincodeCheck = pinCode != null ? pinCode : employeeDTO.getPinCode();
-        System.out.println(pinCode);
+        String pincodeCheck =
+                (pinCode != null && !pinCode.isEmpty()) ? passwordEncoder.encode(pinCode)
+                        : employeeDTO.getPinCode();
 
-        pincodeCheck = pincodeCheck.isEmpty() ? employeeDTO.getPinCode()
-                : passwordEncoder.encode(pincodeCheck);
         String mailCheck = email != null ? email : employeeDTO.getEmail();
 
         roleId = roleId != null ? roleId : employeeDTO.getRole().getId();

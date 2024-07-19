@@ -140,8 +140,7 @@ function adminProfile() {
     const checkPasswordMatch = () => {
       const password = $("#viewProfilePincode").val();
       const confirmPassword = $("#viewConfirmProfilePincode").val();
-      console.log(password);
-      console.log(confirmPassword);
+      if ($("#changePASS").hasClass("hidden")) return false;
       if (password == "" || confirmPassword == "") {
         showNotification("PinCode do not empty!");
         return false;
@@ -153,7 +152,7 @@ function adminProfile() {
       return true;
     };
     $("#updateProfileBtn").click(async () => {
-      if (!checkPasswordMatch()) return;
+      if (!checkPasswordMatch()) $("#viewProfilePincode").val(null);
       var formData = new FormData($("#viewProfileForm")[0]);
       var fileInput = $("#profileImgUpdate")[0];
 
