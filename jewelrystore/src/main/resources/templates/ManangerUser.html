@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin 2KS1NET</title>
+    <meta name="author" content="David Grzyb" />
+    <meta name="description" content="" />
+
+    <!-- Tailwind -->
+    <link href="/css/styles.css" rel="stylesheet" />
+    <script src="/js/jquery.min.js"></script>
+
+    <style>
+      @import url("https://fonts.googleapis.com/css?family=Karla:400,700&display=swap");
+
+      .cta-btn {
+        color: #3d68ff;
+      }
+
+      .upgrade-btn {
+        background: #1947ee;
+      }
+
+      .upgrade-btn:hover {
+        background: #0038fd;
+      }
+
+      .active-nav-link {
+        background: #1947ee;
+      }
+
+      .nav-item:hover {
+        background: #1947ee;
+      }
+
+      .account-link:hover {
+        background: #3d68ff;
+      }
+    </style>
+    <div id="notification-placeholder">
+      <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+<script>
+  function showNotification(message, type) {
+    const toastContainer = $("#toast-container");
+    const toast = $(`
+          <div class="toast p-4 rounded shadow-md text-white font-medium"></div>
+      `).text(message);
+
+    if (type === "OK") {
+      toast.addClass("bg-green-500");
+    } else {
+      toast.addClass("bg-red-500");
+    }
+
+    toastContainer.append(toast);
+    toast.addClass("show");
+
+    // Tự động ẩn sau 2 giây
+    setTimeout(() => {
+      toast.addClass("opacity-0");
+      setTimeout(() => toast.remove(), 500); // Xóa phần tử khỏi DOM sau khi ẩn
+    }, 3000);
+
+    // Ẩn thông báo khi nhấn vào
+    toast.click(() => {
+      toast.addClass("opacity-0");
+      setTimeout(() => toast.remove(), 500);
+    });
+  }
+</script>
+<script type="module" src="/js/logout.js"></script>
+
+    </div>
+    <script type="module" src="/js/ManagerUser.js"></script>
+  </head>
+
+  <body class="bg-gray-100 font-family-karla flex">
+    <!-- side bar -->
+    <div id="sidebar-placeholder"><!-- AlpineJS -->
+<script
+  src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"
+  defer
+></script>
+<!-- Font Awesome -->
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"
+  integrity="sha256-KzZiKy0DWYsnwMF+X1DvQngQ2/FxF7MF3Ff72XcpuPs="
+  crossorigin="anonymous"
+></script>
+<script type="module" src="/js/logout.js"></script>
+
+<aside
+  id="adminPage"
+  class="flex flex-col w-52 h-screen px-5 py-8 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l dark:bg-gray-900 dark:border-gray-700 no-scrollbar"
+>
+  <a href="/dashboard">
+    <img
+      id="logoAdmin"
+      class="w-44 h-auto"
+      src="https://storage.googleapis.com/jewelrystore-2ks1dotnet.appspot.com/User/82041f19-65b4-4d0d-9130-2748b6fde039_2024-07-12"
+      alt="logo"
+    />
+  </a>
+
+  <div class="flex flex-col justify-between flex-1 mt-6">
+    <nav class="-mx-3 space-y-6">
+      <div class="space-y-3">
+        <label class="px-3 text-xs text-gray-500 uppercase dark:text-gray-400"
+          >Profile</label
+        >
+
+        <a
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          id="profileAdmin"
+          href="#"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M8 21h8a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-3l-1-2H8a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2z"
+            />
+            <line x1="8" y1="13" x2="16" y2="13" />
+            <line x1="8" y1="17" x2="16" y2="17" />
+            <polyline points="10 9 10 13 8 13" />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Account</span>
+        </a>
+        <a
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          id="updateGoldPrice"
+          href="#"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M8 21h8a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-3l-1-2H8a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2z"
+            />
+            <line x1="8" y1="13" x2="16" y2="13" />
+            <line x1="8" y1="17" x2="16" y2="17" />
+            <polyline points="10 9 10 13 8 13" />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Update gold price</span>
+        </a>
+      </div>
+      <div class="space-y-3">
+        <label class="px-3 text-xs text-gray-500 uppercase dark:text-gray-400"
+          >Manage</label
+        >
+
+        <a
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          href="/counterManager"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+            stroke="currentColor"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path stroke="none" d="M0 0h24v24H0z" />
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <path d="M3 8h18M8 8v8m8-8v8m-12 0h16" />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Counter</span>
+        </a>
+
+        <a
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          href="/productManager"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polygon points="9.9 2 2 9.9 12 22 22 9.9 14.1 2 9.9 2" />
+            <line x1="12" y1="22" x2="9.9" y2="2" />
+            <line x1="2" y1="9.9" x2="22" y2="9.9" />
+            <line x1="14.1" y1="2" x2="12" y2="22" />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Product</span>
+        </a>
+
+        <a
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          href="/employeeManager"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M12 14c4.418 0 8-1.791 8-4s-3.582-4-8-4-8 1.791-8 4 3.582 4 8 4z"
+            />
+            <path
+              d="M12 14c-4.418 0-8 1.791-8 4s3.582 4 8 4 8-1.791 8-4-3.582-4-8-4z"
+            />
+            <path d="M12 14v7m-6-7v4m12-4v4" />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Employee</span>
+        </a>
+
+        <a
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          href="/customerManager"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M12 11c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM12 13c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"
+            />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Customer</span>
+        </a>
+
+        <a
+          id="scheStaff"
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          href="/scheduleManager"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+            stroke="currentColor"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path stroke="none" d="M0 0h24v24H0z" />
+            <rect x="4" y="5" width="16" height="16" rx="2" />
+            <line x1="16" y1="3" x2="16" y2="7" />
+            <line x1="8" y1="3" x2="8" y2="7" />
+            <line x1="4" y1="11" x2="20" y2="11" />
+            <rect x="8" y="15" width="2" height="2" />
+          </svg>
+
+          <span class="mx-2 text-sm font-medium">Work schedule </span>
+        </a>
+      </div>
+
+      <div class="space-y-3">
+        <label class="px-3 text-xs text-gray-500 uppercase dark:text-gray-400"
+          >Policy & Promotion</label
+        >
+
+        <a
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          href="/policyManager"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M8 21h8a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-3l-1-2H8a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2z"
+            />
+            <line x1="8" y1="13" x2="16" y2="13" />
+            <line x1="8" y1="17" x2="16" y2="17" />
+            <polyline points="10 9 10 13 8 13" />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Policy</span>
+        </a>
+      </div>
+      <div class="space-y-3">
+        <label class="px-3 text-xs text-gray-500 uppercase dark:text-gray-400"
+          >AUTHEN</label
+        >
+        <!-- HTML -->
+        <a
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          href="/defaultInvoice"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3m9 14V5a2 2 0 00-2-2H6a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2z"
+            />
+          </svg>
+
+          <span class="mx-2 text-sm font-medium">Sale Screen</span>
+        </a>
+
+        <a
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          id="logout"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+            <polyline points="10 17 15 12 10 7" />
+            <line x1="15" y1="12" x2="3" y2="12" />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Logout</span>
+        </a>
+      </div>
+    </nav>
+  </div>
+  <div
+    id="viewProfileModal"
+    class="fixed inset-0 z-40 flex items-center justify-center z-45 hidden bg-gray-800 bg-opacity-75"
+  >
+    <div class="bg-white rounded-lg shadow-lg w-2/3">
+      <div
+        class="px-4 py-2 flex justify-between items-center bg-gray-800 text-white rounded-t-lg"
+      >
+        <h2 id="profileIDemp" class="text-lg">View Employee</h2>
+        <button id="closeProfileModal" class="text-white">&times;</button>
+      </div>
+      <div class="p-4">
+        <div class="flex space-x-4">
+          <div class="w-1/3 border-r-4 border-gray-100 mr-2 pr-2">
+            <div class="relative group">
+              <div id="profileImagePlaceHolder"></div>
+              <img
+                id="imgProfileDetail"
+                class="w-64 h-64 object-cover mx-auto border border-gray-300 rounded-md"
+                src=""
+                onerror="this.src='https\://picsum.photos/180/100';"
+                alt=""
+              />
+
+              <label
+                for="profileImgUpdate"
+                class="absolute inset-0 bg-gray-300 bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                edit
+              </label>
+              <input id="profileImgUpdate" type="file" class="hidden" />
+            </div>
+          </div>
+          <div class="w-2/3">
+            <form id="viewProfileForm">
+              <input type="hidden" id="viewProfileId" name="id" />
+              <div class="mb-4 flex space-x-4">
+                <div class="w-full">
+                  <label for="viewProfileFirstName" class="block text-gray-700"
+                    >First Name</label
+                  >
+                  <input
+                    type="text"
+                    id="viewProfileFirstName"
+                    name="firstName"
+                    class="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div class="w-full">
+                  <label for="viewProfileLastName" class="block text-gray-700"
+                    >Last Name</label
+                  >
+                  <input
+                    type="text"
+                    id="viewProfileLastName"
+                    name="lastName"
+                    class="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+              </div>
+              <div class="mb-4">
+                <label for="viewProfilePhoneNumber" class="block text-gray-700"
+                  >Phone Number</label
+                >
+                <input
+                  type="text"
+                  id="viewProfilePhoneNumber"
+                  name="phoneNumber"
+                  class="w-full px-3 py-2 border rounded"
+                />
+              </div>
+              <div class="mb-4">
+                <label for="viewProfileEmail" class="block text-gray-700"
+                  >Email</label
+                >
+                <input
+                  type="text"
+                  id="viewProfileEmail"
+                  name="email"
+                  class="w-full px-3 py-2 border rounded"
+                />
+              </div>
+              <div id="changePASS" class="mb-4 hidden">
+                <label for="viewProfilePincode" class="block text-gray-700"
+                  >Change pinCode</label
+                >
+                <input
+                  type="password"
+                  id="viewProfilePincode"
+                  name="pinCode"
+                  class="w-full px-3 py-2 border rounded"
+                />
+              </div>
+              <div id="ConfirmchangePASS" class="mb-4 hidden">
+                <label
+                  for="viewConfirmProfilePincode"
+                  class="block text-gray-700"
+                  >Confirm change pinCode</label
+                >
+                <input
+                  type="password"
+                  id="viewConfirmProfilePincode"
+                  name="pinCode"
+                  class="w-full px-3 py-2 border rounded"
+                />
+              </div>
+              <div class="flex justify-end space-x-4">
+                <button
+                  type="button"
+                  id="changePincodeProfileBtn"
+                  class="bg-blue-500 text-white px-4 py-2 rounded"
+                >
+                  Change pinCode
+                </button>
+                <button
+                  type="button"
+                  id="updateProfileBtn"
+                  class="bg-blue-500 text-white px-4 py-2 rounded"
+                >
+                  Update
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</aside>
+<script>
+  $("#logoAdmin").attr(
+    "src",
+    sessionStorage.getItem("userRole") === "ADMIN"
+      ? "https://storage.googleapis.com/jewelrystore-2ks1dotnet.appspot.com/User/3f430e74-605f-4288-948d-5e38fbdff560_2024-07-16"
+      : "https://storage.googleapis.com/jewelrystore-2ks1dotnet.appspot.com/User/d5998acc-0d7b-4e9b-9340-caedc2e4467d_2024-07-16"
+  );
+</script>
+</div>
+
+    <div class="relative w-full flex flex-col h-screen overflow-y-hidden">
+      <!-- Desktop Header -->
+      <div id="header-placeholder"></div>
+
+      <!-- Mobile Header & Nav -->
+      <header
+        x-data="{ isOpen: false }"
+        class="w-full bg-sidebar py-5 px-6 sm:hidden"
+      >
+        <div class="flex items-center justify-between">
+          <a
+            href="index.html"
+            class="text-white text-3xl font-semibold uppercase hover:text-gray-300"
+            >Admin</a
+          >
+          <button
+            @click="isOpen = !isOpen"
+            class="text-white text-3xl focus:outline-none"
+          >
+            <i x-show="!isOpen" class="fas fa-bars"></i>
+            <i x-show="isOpen" class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <!-- Dropdown Nav -->
+        <nav :class="isOpen ? 'flex': 'hidden'" class="flex flex-col pt-4">
+          <a
+            href="index.html"
+            class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item"
+          >
+            <i class="fas fa-tachometer-alt mr-3"></i>
+            Dashboard
+          </a>
+          <a
+            href="blank.html"
+            class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item"
+          >
+            <i class="fas fa-sticky-note mr-3"></i>
+            Blank Page
+          </a>
+          <a
+            href="tables.html"
+            class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item"
+          >
+            <i class="fas fa-table mr-3"></i>
+            Tables
+          </a>
+          <a
+            href="forms.html"
+            class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item"
+          >
+            <i class="fas fa-align-left mr-3"></i>
+            Forms
+          </a>
+          <a
+            href="tabs.html"
+            class="flex items-center active-nav-link text-white py-2 pl-4 nav-item"
+          >
+            <i class="fas fa-tablet-alt mr-3"></i>
+            Tabbed Content
+          </a>
+          <a
+            href="calendar.html"
+            class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item"
+          >
+            <i class="fas fa-calendar mr-3"></i>
+            Calendar
+          </a>
+          <a
+            href="#"
+            class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item"
+          >
+            <i class="fas fa-cogs mr-3"></i>
+            Support
+          </a>
+          <a
+            href="#"
+            class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item"
+          >
+            <i class="fas fa-user mr-3"></i>
+            My Account
+          </a>
+          <a
+            href="#"
+            class="flex items-center text-white opacity-75 hover:opacity-100 py-2 pl-4 nav-item"
+          >
+            <i class="fas fa-sign-out-alt mr-3"></i>
+            Sign Out
+          </a>
+          <button
+            class="w-full bg-white cta-btn font-semibold py-2 mt-3 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-300 flex items-center justify-center"
+          >
+            <i class="fas fa-arrow-circle-up mr-3"></i> Upgrade to Pro!
+          </button>
+        </nav>
+        <!-- <button class="w-full bg-white cta-btn font-semibold py-2 mt-5 rounded-br-lg rounded-bl-lg rounded-tr-lg shadow-lg hover:shadow-xl hover:bg-gray-300 flex items-center justify-center">
+                <i class="fas fa-plus mr-3"></i> New Report
+            </button> -->
+      </header>
+
+      <div class="w-full h-screen overflow-x-hidden border-t flex flex-col">
+        <main class="w-full flex-grow p-6">
+          <div class="flex justify-between items-center">
+            <h1 class="text-3xl text-black pb-6">Manager User Information</h1>
+            <button
+              id="managerRank"
+              class="flex items-center px-6 py-2 transition ease-in duration-200 uppercase rounded-full hover:bg-gray-800 hover:text-white border-2 border-gray-900 focus:outline-none"
+            >
+              <svg
+                width="20"
+                height="20"
+                fill="currentColor"
+                viewBox="0 0 2304 1792"
+                class="mr-4"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M1728 448l-384 704h768zm-1280 0l-384 704h768zm821-192q-14 40-45.5 71.5t-71.5 45.5v1291h608q14 0 23 9t9 23v64q0 14-9 23t-23 9h-1344q-14 0-23-9t-9-23v-64q0-14 9-23t23-9h608v-1291q-40-14-71.5-45.5t-45.5-71.5h-491q-14 0-23-9t-9-23v-64q0-14 9-23t23-9h491q21-57 70-92.5t111-35.5 111 35.5 70 92.5h491q14 0 23 9t9 23v64q0 14-9 23t-23 9h-491zm-181 16q33 0 56.5-23.5t23.5-56.5-23.5-56.5-56.5-23.5-56.5 23.5-23.5 56.5 23.5 56.5 56.5 23.5zm1088 880q0 73-46.5 131t-117.5 91-144.5 49.5-139.5 16.5-139.5-16.5-144.5-49.5-117.5-91-46.5-131q0-11 35-81t92-174.5 107-195.5 102-184 56-100q18-33 56-33t56 33q4 7 56 100t102 184 107 195.5 92 174.5 35 81zm-1280 0q0 73-46.5 131t-117.5 91-144.5 49.5-139.5 16.5-139.5-16.5-144.5-49.5-117.5-91-46.5-131q0-11 35-81t92-174.5 107-195.5 102-184 56-100q18-33 56-33t56 33q4 7 56 100t102 184 107 195.5 92 174.5 35 81z"
+                ></path>
+              </svg>
+              Manager Rank
+            </button>
+          </div>
+
+          <div class="w-full mt-6">
+            <div>
+              <ul id="role-tabs" class="flex border-b">
+                <!-- Tabs will be dynamically added here -->
+              </ul>
+              <!-- Thêm vào bên dưới danh sách các tabs -->
+            </div>
+
+            <div id="tab-contents" class="bg-white p-6">
+              <!-- Tab contents will be dynamically added here -->
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Modal for updating user information -->
+    <div
+      id="updateUserModal"
+      class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden"
+    >
+      <div class="bg-white rounded-lg p-6 w-2/3">
+        <div class="flex justify-between items-center">
+          <h2 class="text-2xl font-bold mb-4">Update User Information</h2>
+          <button
+            id="close-update-modal"
+            class="text-gray-500 hover:text-gray-700"
+          >
+            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fill-rule="evenodd"
+                d="M10 8.586L15.657 2.93a1 1 0 011.414 1.414L11.414 10l5.657 5.657a1 1 0 01-1.414 1.414L10 11.414l-5.657 5.657a1 1 0 01-1.414 1.414L8.586 10 2.93 4.343A1 1 0 014.343 2.93L10 8.586z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </button>
+        </div>
+        <form id="update-user-form" enctype="multipart/form-data">
+          <input type="hidden" id="update-id" name="id" />
+          <div class="flex">
+            <div class="w-1/3 border-r-4 border-gray-100 mr-2 pr-4">
+              <div class="flex flex-col items-center justify-center">
+                <img
+                  id="updateEmployeeImagePreview"
+                  src="#"
+                  alt="Employee Image"
+                  class="w-64 h-64 object-cover border border-gray-300 rounded-md mb-4"
+                />
+                <div class="flex items-center justify-center w-full">
+                  <label
+                    for="updateEmployeeImageFile"
+                    class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50"
+                  >
+                    <div
+                      class="flex flex-col items-center justify-center pt-5 pb-6"
+                    >
+                      <svg
+                        class="w-8 h-8 mb-4 text-gray-500"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 20 16"
+                      >
+                        <path
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                        />
+                      </svg>
+                      <p class="mb-2 text-sm text-gray-500">
+                        <span class="font-semibold">Click to upload</span> or
+                        drag and drop
+                      </p>
+                      <p class="text-xs text-gray-500">
+                        SVG, PNG, JPG or GIF (MAX. 800x400px)
+                      </p>
+                    </div>
+                    <input
+                      id="updateEmployeeImageFile"
+                      type="file"
+                      name="file"
+                      class="hidden"
+                      accept="image/*"
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="w-2/3 pl-4">
+              <div class="mb-4">
+                <label
+                  for="update-fullname"
+                  class="block text-gray-700 font-bold mb-2"
+                  >Full Name:</label
+                >
+                <input
+                  type="text"
+                  id="update-fullname"
+                  name="fullName"
+                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                />
+              </div>
+              <div class="mb-4">
+                <label
+                  for="update-phone"
+                  class="block text-gray-700 font-bold mb-2"
+                  >Phone Number:</label
+                >
+                <input
+                  type="text"
+                  id="update-phone"
+                  name="phoneNumber"
+                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                />
+              </div>
+              <div class="mb-4">
+                <label
+                  for="update-email"
+                  class="block text-gray-700 font-bold mb-2"
+                  >Email:</label
+                >
+                <input
+                  type="email"
+                  id="update-email"
+                  name="email"
+                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                />
+              </div>
+              <div class="mb-4">
+                <label
+                  for="update-address"
+                  class="block text-gray-700 font-bold mb-2"
+                  >Address:</label
+                >
+                <input
+                  type="text"
+                  id="update-address"
+                  name="address"
+                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                />
+              </div>
+              <div class="mb-4">
+                <label
+                  for="update-role"
+                  class="block text-gray-700 font-bold mb-2"
+                  >Role:</label
+                >
+                <select
+                  id="update-role"
+                  name="roleId"
+                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                >
+                  <!-- Options will be dynamically populated -->
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-end">
+            <button
+              type="submit"
+              class="bg-black hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+            >
+              Update User Information
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Insert User Modal -->
+    <div
+      id="insertUserModal"
+      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden"
+    >
+      <div class="bg-white rounded-lg shadow-lg w-full max-w-4xl">
+        <div class="bg-black text-white py-2 px-4 rounded-t-lg">
+          <h2 class="text-2xl font-semibold text-center">Insert User</h2>
+        </div>
+        <div class="p-6 flex">
+          <div class="w-1/3 pr-4 border-r-4 border-gray-100 mr-2 pr-2">
+            <div class="flex flex-col items-center justify-center">
+              <img
+                id="insertEmployeeImagePreview"
+                src="#"
+                alt="Employee Image"
+                class="w-64 h-64 object-cover border border-gray-300 rounded-md mb-4"
+              />
+              <div class="flex items-center justify-center w-full">
+                <label
+                  for="insert-file"
+                  class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50"
+                >
+                  <div
+                    class="flex flex-col items-center justify-center pt-5 pb-6"
+                  >
+                    <svg
+                      class="w-8 h-8 mb-4 text-gray-500"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 20 16"
+                    >
+                      <path
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                      />
+                    </svg>
+                    <p class="mb-2 text-sm text-gray-500">
+                      <span class="font-semibold">Click to upload</span> or drag
+                      and drop
+                    </p>
+                    <p class="text-xs text-gray-500">
+                      SVG, PNG, JPG or GIF (MAX. 800x400px)
+                    </p>
+                  </div>
+                  <input
+                    id="insert-file"
+                    type="file"
+                    name="file"
+                    class="hidden"
+                    accept="image/*"
+                  />
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="w-2/3 pl-4">
+            <form
+              id="insert-user-form"
+              enctype="multipart/form-data"
+              class="space-y-4"
+            >
+              <div>
+                <label
+                  for="insert-fullName"
+                  class="block text-sm font-medium text-gray-700"
+                  >Full Name</label
+                >
+                <input
+                  type="text"
+                  id="insert-fullName"
+                  name="fullName"
+                  class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              <div>
+                <label
+                  for="insert-phoneNumber"
+                  class="block text-sm font-medium text-gray-700"
+                  >Phone Number</label
+                >
+                <input
+                  type="text"
+                  id="insert-phoneNumber"
+                  name="phoneNumber"
+                  class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              <div>
+                <label
+                  for="insert-email"
+                  class="block text-sm font-medium text-gray-700"
+                  >Email</label
+                >
+                <input
+                  type="email"
+                  id="insert-email"
+                  name="email"
+                  class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              <div>
+                <label
+                  for="insert-role"
+                  class="block text-sm font-medium text-gray-700"
+                  >Role</label
+                >
+                <select
+                  id="insert-role"
+                  name="roleId"
+                  class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                ></select>
+              </div>
+              <div>
+                <label
+                  for="insert-address"
+                  class="block text-sm font-medium text-gray-700"
+                  >Address</label
+                >
+                <input
+                  type="text"
+                  id="insert-address"
+                  name="address"
+                  class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              <div class="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  id="close-insert-modal"
+                  class="bg-black hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  class="bg-black hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
+                >
+                  Insert
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customer Type Modal -->
+    <div
+      class="modal hidden fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center"
+      id="customerTypeModal"
+    >
+      <div
+        class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full"
+      >
+        <!-- Modal Header -->
+        <div class="bg-gray-800 px-4 py-2 flex justify-between items-center">
+          <h4 class="text-white text-lg">Rank Information</h4>
+          <button
+            type="button"
+            class="close text-white"
+            id="closeCustomerTypeModal"
+          >
+            &times;
+          </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="p-4">
+          <table class="table-auto w-full">
+            <thead>
+              <tr>
+                <th class="px-4 py-2 border">ID</th>
+                <th class="px-4 py-2 border">Type</th>
+                <th class="px-4 py-2 border">Point Condition</th>
+              </tr>
+            </thead>
+            <tbody id="rankTableBody">
+              <!-- Data will be appended here via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="bg-gray-200 px-4 py-2 flex justify-end">
+          <!-- Add Customer Type Button -->
+          <button
+            id="addCustomerType"
+            class="flex items-center px-6 py-2 transition ease-in duration-200 uppercase rounded-full hover:bg-gray-800 hover:text-white border-2 border-gray-900 focus:outline-none"
+          >
+            Add Customer Type
+          </button>
+          <button
+            type="button"
+            id="closeCustomerTypeModalFooter"
+            class="flex items-center px-6 py-2 transition ease-in duration-200 uppercase rounded-full hover:bg-gray-800 hover:text-white border-2 border-gray-900 focus:outline-none"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Update Customer Type Modal -->
+    <div
+      class="modal hidden fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center"
+      id="updateCustomerTypeModal"
+    >
+      <div
+        class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full"
+      >
+        <!-- Modal Header -->
+        <div class="bg-gray-800 px-4 py-2 flex justify-between items-center">
+          <h4 class="text-white text-lg">Update Customer Type</h4>
+          <button
+            type="button"
+            class="close text-white"
+            id="closeUpdateCustomerTypeModal"
+          >
+            &times;
+          </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="p-4">
+          <form id="updateCustomerTypeForm">
+            <input type="hidden" id="updateUniqueId" name="id" />
+            <div class="mb-4">
+              <label
+                for="updateUniqueType"
+                class="block text-gray-700 text-sm font-bold mb-2"
+                >Type:</label
+              >
+              <input
+                type="text"
+                id="updateUniqueType"
+                name="type"
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              />
+            </div>
+            <div class="mb-4">
+              <label
+                for="updateUniquePointCondition"
+                class="block text-gray-700 text-sm font-bold mb-2"
+                >Point Condition:</label
+              >
+              <input
+                type="number"
+                id="updateUniquePointCondition"
+                name="pointCondition"
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              />
+            </div>
+            <div class="flex justify-between">
+              <button
+                type="submit"
+                class="flex items-center px-6 py-2 transition ease-in duration-200 uppercase rounded-full hover:bg-gray-800 hover:text-white border-2 border-gray-900 focus:outline-none"
+              >
+                Update
+              </button>
+              <button
+                type="button"
+                id="deleteCustomerType"
+                class="flex items-center px-6 py-2 transition ease-in duration-200 uppercase rounded-full hover:bg-gray-800 hover:text-white border-2 border-gray-900 focus:outline-none ml-2"
+              >
+                Delete
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Customer Type Modal -->
+    <div
+      class="modal hidden fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center"
+      id="addCustomerTypeModal"
+    >
+      <div
+        class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full"
+      >
+        <!-- Modal Header -->
+        <div class="bg-gray-800 px-4 py-2 flex justify-between items-center">
+          <h4 class="text-white text-lg">Add Customer Type</h4>
+          <button
+            type="button"
+            class="close text-white"
+            id="closeAddCustomerTypeModal"
+          >
+            &times;
+          </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="p-4">
+          <form id="addCustomerTypeForm">
+            <div class="mb-4">
+              <label
+                for="addType"
+                class="block text-gray-700 text-sm font-bold mb-2"
+                >Type:</label
+              >
+              <input
+                type="text"
+                id="addType"
+                name="type"
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              />
+            </div>
+            <div class="mb-4">
+              <label
+                for="addPointCondition"
+                class="block text-gray-700 text-sm font-bold mb-2"
+                >Point Condition:</label
+              >
+              <input
+                type="number"
+                id="addPointCondition"
+                name="pointCondition"
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              />
+            </div>
+            <button
+              type="submit"
+              class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            >
+              Add
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

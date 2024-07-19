@@ -72,6 +72,8 @@ public class MaterialController {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_XML);
             headers.set(HttpHeaders.CONTENT_TYPE, "application/xml; charset=UTF-8");
+            headers.set("X-Frame-Options", "ALLOWALL");
+            headers.set("Content-Security-Policy", "frame-ancestors 'self' *");
             return new ResponseEntity<>(response, headers, HttpStatus.OK);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

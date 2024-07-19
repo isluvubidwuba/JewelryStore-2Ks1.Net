@@ -57,7 +57,7 @@ public class EmployeeService implements IEmployeeService {
    public ResponseData myProfile() {
       ResponseData response = new ResponseData();
       try {
-         String id = jwtUtilsHelper.getAuthorizationByTokenType("at").getSubject();
+         String id = jwtUtilsHelper.getAuthorizationByTokenType("rt").getSubject();
          Employee employee = iEmployeeRepository.findById(id).orElseThrow(
                () -> new ApplicationException("User not exist!", HttpStatus.NOT_FOUND));
          EmployeeDTO emp = employee.getDTO();
@@ -310,7 +310,8 @@ public class EmployeeService implements IEmployeeService {
                break;
 
             case "role":
-               employeePage = iEmployeeRepository.findByRoleNameContainingIgnoreCase(query, pageRequest);
+               employeePage =
+                     iEmployeeRepository.findByRoleNameContainingIgnoreCase(query, pageRequest);
                break;
 
             case "status":

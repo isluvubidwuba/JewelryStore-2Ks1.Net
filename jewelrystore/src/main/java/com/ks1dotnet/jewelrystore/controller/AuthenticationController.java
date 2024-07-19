@@ -50,13 +50,11 @@ public class AuthenticationController {
             if (dataMap != null && dataMap.containsKey("rt")) {
                 String refreshToken = dataMap.get("rt");
                 Cookie newCookie = new Cookie("rt", refreshToken);
-                newCookie.setHttpOnly(true);
+                // newCookie.setHttpOnly(true);
                 newCookie.setPath("/");
-                newCookie.setSecure(true);
                 newCookie.setMaxAge(7 * 24 * 60 * 60); // 1 week
-                String cookieHeaderValue =
-                        String.format("%s=%s; HttpOnly; Path=/; Max-Age=%d; SameSite=none; Secure",
-                                newCookie.getName(), newCookie.getValue(), newCookie.getMaxAge());
+                String cookieHeaderValue = String.format("%s=%s; Path=/; Max-Age=%d",
+                        newCookie.getName(), newCookie.getValue(), newCookie.getMaxAge());
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.add(HttpHeaders.SET_COOKIE, cookieHeaderValue);

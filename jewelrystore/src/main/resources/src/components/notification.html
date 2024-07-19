@@ -1,0 +1,32 @@
+<div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+<script>
+  function showNotification(message, type) {
+    const toastContainer = $("#toast-container");
+    const toast = $(`
+          <div class="toast p-4 rounded shadow-md text-white font-medium"></div>
+      `).text(message);
+
+    if (type === "OK") {
+      toast.addClass("bg-green-500");
+    } else {
+      toast.addClass("bg-red-500");
+    }
+
+    toastContainer.append(toast);
+    toast.addClass("show");
+
+    // Tự động ẩn sau 2 giây
+    setTimeout(() => {
+      toast.addClass("opacity-0");
+      setTimeout(() => toast.remove(), 500); // Xóa phần tử khỏi DOM sau khi ẩn
+    }, 3000);
+
+    // Ẩn thông báo khi nhấn vào
+    toast.click(() => {
+      toast.addClass("opacity-0");
+      setTimeout(() => toast.remove(), 500);
+    });
+  }
+</script>
+<script type="module" src="/js/logout.js"></script>

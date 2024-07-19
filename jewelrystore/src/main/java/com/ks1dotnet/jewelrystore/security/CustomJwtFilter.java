@@ -109,6 +109,8 @@ public class CustomJwtFilter extends OncePerRequestFilter {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(subject, mapClaims, listAuthority);
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        response.setHeader("X-Frame-Options", "ALLOWALL");
+        response.setHeader("Content-Security-Policy", "frame-ancestors 'self' *");
         filterChain.doFilter(request, response);
     }
 }

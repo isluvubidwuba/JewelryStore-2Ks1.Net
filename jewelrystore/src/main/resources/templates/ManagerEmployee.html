@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin 2KS1NET</title>
+
+    <script src="/js/jquery.min.js"></script>
+    <!-- Tailwind CSS -->
+    <link href="/css/styles.css" rel="stylesheet" />
+    <!-- Google Fonts -->
+    <style>
+      @import url("https://fonts.googleapis.com/css?family=Karla:400,700&display=swap");
+
+      .table-container {
+        overflow: auto;
+      }
+    </style>
+    <div id="notification-placeholder">
+      <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+<script>
+  function showNotification(message, type) {
+    const toastContainer = $("#toast-container");
+    const toast = $(`
+          <div class="toast p-4 rounded shadow-md text-white font-medium"></div>
+      `).text(message);
+
+    if (type === "OK") {
+      toast.addClass("bg-green-500");
+    } else {
+      toast.addClass("bg-red-500");
+    }
+
+    toastContainer.append(toast);
+    toast.addClass("show");
+
+    // Tự động ẩn sau 2 giây
+    setTimeout(() => {
+      toast.addClass("opacity-0");
+      setTimeout(() => toast.remove(), 500); // Xóa phần tử khỏi DOM sau khi ẩn
+    }, 3000);
+
+    // Ẩn thông báo khi nhấn vào
+    toast.click(() => {
+      toast.addClass("opacity-0");
+      setTimeout(() => toast.remove(), 500);
+    });
+  }
+</script>
+<script type="module" src="/js/logout.js"></script>
+
+    </div>
+
+    <script type="module" src="/js/ManagerEmployee.js"></script>
+    <script type="module" src="/js/revenueEmployee.js"></script>
+  </head>
+
+  <body
+    class="bg-gray-100 font-family-karla flex w-screen h-full overflow-x-hidden"
+  >
+    <!-- Sidebar -->
+    <div id="sidebar-placeholder"><!-- AlpineJS -->
+<script
+  src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"
+  defer
+></script>
+<!-- Font Awesome -->
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"
+  integrity="sha256-KzZiKy0DWYsnwMF+X1DvQngQ2/FxF7MF3Ff72XcpuPs="
+  crossorigin="anonymous"
+></script>
+<script type="module" src="/js/logout.js"></script>
+
+<aside
+  id="adminPage"
+  class="flex flex-col w-52 h-screen px-5 py-8 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l dark:bg-gray-900 dark:border-gray-700 no-scrollbar"
+>
+  <a href="/dashboard">
+    <img
+      id="logoAdmin"
+      class="w-44 h-auto"
+      src="https://storage.googleapis.com/jewelrystore-2ks1dotnet.appspot.com/User/82041f19-65b4-4d0d-9130-2748b6fde039_2024-07-12"
+      alt="logo"
+    />
+  </a>
+
+  <div class="flex flex-col justify-between flex-1 mt-6">
+    <nav class="-mx-3 space-y-6">
+      <div class="space-y-3">
+        <label class="px-3 text-xs text-gray-500 uppercase dark:text-gray-400"
+          >Profile</label
+        >
+
+        <a
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          id="profileAdmin"
+          href="#"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M8 21h8a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-3l-1-2H8a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2z"
+            />
+            <line x1="8" y1="13" x2="16" y2="13" />
+            <line x1="8" y1="17" x2="16" y2="17" />
+            <polyline points="10 9 10 13 8 13" />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Account</span>
+        </a>
+        <a
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          id="updateGoldPrice"
+          href="#"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M8 21h8a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-3l-1-2H8a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2z"
+            />
+            <line x1="8" y1="13" x2="16" y2="13" />
+            <line x1="8" y1="17" x2="16" y2="17" />
+            <polyline points="10 9 10 13 8 13" />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Update gold price</span>
+        </a>
+      </div>
+      <div class="space-y-3">
+        <label class="px-3 text-xs text-gray-500 uppercase dark:text-gray-400"
+          >Manage</label
+        >
+
+        <a
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          href="/counterManager"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+            stroke="currentColor"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path stroke="none" d="M0 0h24v24H0z" />
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <path d="M3 8h18M8 8v8m8-8v8m-12 0h16" />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Counter</span>
+        </a>
+
+        <a
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          href="/productManager"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polygon points="9.9 2 2 9.9 12 22 22 9.9 14.1 2 9.9 2" />
+            <line x1="12" y1="22" x2="9.9" y2="2" />
+            <line x1="2" y1="9.9" x2="22" y2="9.9" />
+            <line x1="14.1" y1="2" x2="12" y2="22" />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Product</span>
+        </a>
+
+        <a
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          href="/employeeManager"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M12 14c4.418 0 8-1.791 8-4s-3.582-4-8-4-8 1.791-8 4 3.582 4 8 4z"
+            />
+            <path
+              d="M12 14c-4.418 0-8 1.791-8 4s3.582 4 8 4 8-1.791 8-4-3.582-4-8-4z"
+            />
+            <path d="M12 14v7m-6-7v4m12-4v4" />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Employee</span>
+        </a>
+
+        <a
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          href="/customerManager"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M12 11c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM12 13c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"
+            />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Customer</span>
+        </a>
+
+        <a
+          id="scheStaff"
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          href="/scheduleManager"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+            stroke="currentColor"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path stroke="none" d="M0 0h24v24H0z" />
+            <rect x="4" y="5" width="16" height="16" rx="2" />
+            <line x1="16" y1="3" x2="16" y2="7" />
+            <line x1="8" y1="3" x2="8" y2="7" />
+            <line x1="4" y1="11" x2="20" y2="11" />
+            <rect x="8" y="15" width="2" height="2" />
+          </svg>
+
+          <span class="mx-2 text-sm font-medium">Work schedule </span>
+        </a>
+      </div>
+
+      <div class="space-y-3">
+        <label class="px-3 text-xs text-gray-500 uppercase dark:text-gray-400"
+          >Policy & Promotion</label
+        >
+
+        <a
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          href="/policyManager"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M8 21h8a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-3l-1-2H8a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2z"
+            />
+            <line x1="8" y1="13" x2="16" y2="13" />
+            <line x1="8" y1="17" x2="16" y2="17" />
+            <polyline points="10 9 10 13 8 13" />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Policy</span>
+        </a>
+      </div>
+      <div class="space-y-3">
+        <label class="px-3 text-xs text-gray-500 uppercase dark:text-gray-400"
+          >AUTHEN</label
+        >
+        <!-- HTML -->
+        <a
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          href="/defaultInvoice"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3m9 14V5a2 2 0 00-2-2H6a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2z"
+            />
+          </svg>
+
+          <span class="mx-2 text-sm font-medium">Sale Screen</span>
+        </a>
+
+        <a
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          id="logout"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+            <polyline points="10 17 15 12 10 7" />
+            <line x1="15" y1="12" x2="3" y2="12" />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Logout</span>
+        </a>
+      </div>
+    </nav>
+  </div>
+  <div
+    id="viewProfileModal"
+    class="fixed inset-0 z-40 flex items-center justify-center z-45 hidden bg-gray-800 bg-opacity-75"
+  >
+    <div class="bg-white rounded-lg shadow-lg w-2/3">
+      <div
+        class="px-4 py-2 flex justify-between items-center bg-gray-800 text-white rounded-t-lg"
+      >
+        <h2 id="profileIDemp" class="text-lg">View Employee</h2>
+        <button id="closeProfileModal" class="text-white">&times;</button>
+      </div>
+      <div class="p-4">
+        <div class="flex space-x-4">
+          <div class="w-1/3 border-r-4 border-gray-100 mr-2 pr-2">
+            <div class="relative group">
+              <div id="profileImagePlaceHolder"></div>
+              <img
+                id="imgProfileDetail"
+                class="w-64 h-64 object-cover mx-auto border border-gray-300 rounded-md"
+                src=""
+                onerror="this.src='https\://picsum.photos/180/100';"
+                alt=""
+              />
+
+              <label
+                for="profileImgUpdate"
+                class="absolute inset-0 bg-gray-300 bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                edit
+              </label>
+              <input id="profileImgUpdate" type="file" class="hidden" />
+            </div>
+          </div>
+          <div class="w-2/3">
+            <form id="viewProfileForm">
+              <input type="hidden" id="viewProfileId" name="id" />
+              <div class="mb-4 flex space-x-4">
+                <div class="w-full">
+                  <label for="viewProfileFirstName" class="block text-gray-700"
+                    >First Name</label
+                  >
+                  <input
+                    type="text"
+                    id="viewProfileFirstName"
+                    name="firstName"
+                    class="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div class="w-full">
+                  <label for="viewProfileLastName" class="block text-gray-700"
+                    >Last Name</label
+                  >
+                  <input
+                    type="text"
+                    id="viewProfileLastName"
+                    name="lastName"
+                    class="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+              </div>
+              <div class="mb-4">
+                <label for="viewProfilePhoneNumber" class="block text-gray-700"
+                  >Phone Number</label
+                >
+                <input
+                  type="text"
+                  id="viewProfilePhoneNumber"
+                  name="phoneNumber"
+                  class="w-full px-3 py-2 border rounded"
+                />
+              </div>
+              <div class="mb-4">
+                <label for="viewProfileEmail" class="block text-gray-700"
+                  >Email</label
+                >
+                <input
+                  type="text"
+                  id="viewProfileEmail"
+                  name="email"
+                  class="w-full px-3 py-2 border rounded"
+                />
+              </div>
+              <div id="changePASS" class="mb-4 hidden">
+                <label for="viewProfilePincode" class="block text-gray-700"
+                  >Change pinCode</label
+                >
+                <input
+                  type="password"
+                  id="viewProfilePincode"
+                  name="pinCode"
+                  class="w-full px-3 py-2 border rounded"
+                />
+              </div>
+              <div id="ConfirmchangePASS" class="mb-4 hidden">
+                <label
+                  for="viewConfirmProfilePincode"
+                  class="block text-gray-700"
+                  >Confirm change pinCode</label
+                >
+                <input
+                  type="password"
+                  id="viewConfirmProfilePincode"
+                  name="pinCode"
+                  class="w-full px-3 py-2 border rounded"
+                />
+              </div>
+              <div class="flex justify-end space-x-4">
+                <button
+                  type="button"
+                  id="changePincodeProfileBtn"
+                  class="bg-blue-500 text-white px-4 py-2 rounded"
+                >
+                  Change pinCode
+                </button>
+                <button
+                  type="button"
+                  id="updateProfileBtn"
+                  class="bg-blue-500 text-white px-4 py-2 rounded"
+                >
+                  Update
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</aside>
+<script>
+  $("#logoAdmin").attr(
+    "src",
+    sessionStorage.getItem("userRole") === "ADMIN"
+      ? "https://storage.googleapis.com/jewelrystore-2ks1dotnet.appspot.com/User/3f430e74-605f-4288-948d-5e38fbdff560_2024-07-16"
+      : "https://storage.googleapis.com/jewelrystore-2ks1dotnet.appspot.com/User/d5998acc-0d7b-4e9b-9340-caedc2e4467d_2024-07-16"
+  );
+</script>
+</div>
+
+    <!-- Main content -->
+    <div class="relative w-full flex flex-col h-screen overflow-y-hidden">
+      <!-- Desktop Header -->
+      <div id="header-placeholder"></div>
+
+      <div class="w-full h-screen overflow-x-hidden border-t flex flex-col">
+        <main class="w-full flex-grow p-6">
+          <!-- Page Title and Insert Button -->
+          <div class="mb-4 grid grid-cols-2 items-center mt-4">
+            <h1 class="text-3xl text-black pb-6 justify-start col-span-1">
+              Manager Employee
+            </h1>
+            <button
+              id="openInsertModalBtn"
+              class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded mx-2 mb-2 col-span-1 self-end justify-self-end"
+            >
+              Insert Employee
+            </button>
+          </div>
+
+          <!-- Search Form -->
+          <form class="max-w-lg mx-auto" id="searchForm">
+            <div class="flex relative mb-3" x-data="{ open: false }">
+              <label
+                for="search-dropdown"
+                class="mb-2 text-sm font-medium text-gray-900 sr-only"
+                >Search</label
+              >
+              <button
+                @click="open = !open"
+                @click.away="open = false"
+                class="flex-shrink-0 z-30 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 rounded-l-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100"
+                type="button"
+              >
+                Search by <span id="selected-criteria" class="ml-1">ID</span>
+                <svg
+                  class="w-2.5 h-2.5 ml-1"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 10 6"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="m1 1 4 4 4-4"
+                  />
+                </svg>
+              </button>
+
+              <!-- Dropdown -->
+              <div
+                x-show="open"
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 transform scale-95"
+                x-transition:enter-end="opacity-100 transform scale-100"
+                x-transition:leave="transition ease-in duration-75"
+                x-transition:leave-start="opacity-100 transform scale-100"
+                x-transition:leave-end="opacity-0 transform scale-95"
+                class="absolute left-0 mt-2 bg-white divide-y divide-gray-100 rounded-lg shadow w-44 z-20"
+              >
+                <ul
+                  class="mt-6 py-1 text-sm text-gray-700"
+                  aria-labelledby="dropdown-button"
+                >
+                  <li class="p-1">
+                    <button
+                      type="button"
+                      class="dropdown-item w-full text-left px-2 py-1 hover:bg-gray-100"
+                      @click="open = false; document.getElementById('selected-criteria').innerText = 'ID'"
+                    >
+                      ID
+                    </button>
+                  </li>
+                  <li class="p-1">
+                    <button
+                      type="button"
+                      class="dropdown-item w-full text-left px-2 py-1 hover:bg-gray-100"
+                      @click="open = false; document.getElementById('selected-criteria').innerText = 'Name'"
+                    >
+                      Name
+                    </button>
+                  </li>
+                  <li class="p-1">
+                    <button
+                      type="button"
+                      class="dropdown-item w-full text-left px-2 py-1 hover:bg-gray-100"
+                      @click="open = false; document.getElementById('selected-criteria').innerText = 'Role'"
+                    >
+                      Role
+                    </button>
+                  </li>
+                  <li class="p-1">
+                    <button
+                      type="button"
+                      class="dropdown-item w-full text-left px-2 py-1 hover:bg-gray-100"
+                      @click="open = false; document.getElementById('selected-criteria').innerText = 'Status'"
+                    >
+                      Status
+                    </button>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Search Input -->
+              <input
+                type="search"
+                id="searchInput"
+                class="block p-2.5 w-full z-10 text-sm text-gray-900 bg-gray-50 rounded-r-lg border border-gray-300"
+                placeholder="Search..."
+              />
+              <button
+                id="searchButton"
+                type="submit"
+                class="top-0 right-0 p-2.5 text-sm font-medium text-white bg-black rounded-r-lg border border-gray-700 hover:bg-gray-700 focus:ring-4 focus:outline-none"
+              >
+                <svg
+                  class="w-4 h-4"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                  />
+                </svg>
+                <span class="sr-only">Search</span>
+              </button>
+            </div>
+          </form>
+
+          <!-- Employee Table -->
+          <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+            <table
+              class="w-full text-sm text-left rtl:text-right text-gray-500"
+            >
+              <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                <tr class="bg-gray-300 shadow-sm">
+                  <th scope="col" class="px-6 py-3">ID</th>
+                  <th scope="col" class="px-6 py-3">Image</th>
+                  <th scope="col" class="px-6 py-3">Full Name</th>
+                  <th scope="col" class="px-6 py-3">Role</th>
+                  <th scope="col" class="px-6 py-3">Status</th>
+                  <th scope="col" class="px-6 py-3">Total Revenue</th>
+                  <th scope="col" class="px-6 py-3">Action</th>
+                </tr>
+              </thead>
+              <tbody id="employeeTableBody">
+                <!-- Rows will be inserted here by jQuery -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination Controls -->
+          <div class="flex justify-center items-center mt-4">
+            <button
+              id="prevPageBtn"
+              class="bg-black hover:bg-gray-700 text-white p-2 rounded-full mx-2"
+              disabled
+            >
+              <i class="fas fa-chevron-left"></i> Previous
+            </button>
+            <span id="currentPageIndicator" class="text-black mx-2"></span>
+            <button
+              id="nextPageBtn"
+              class="bg-black hover:bg-gray-700 text-white p-2 rounded-full mx-2"
+              disabled
+            >
+              Next <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+
+          <!-- View Employee Modal -->
+          <div
+            id="viewEmployeeModal"
+            class="fixed inset-0 z-40 flex items-center justify-center z-45 hidden bg-gray-800 bg-opacity-75"
+          >
+            <div class="bg-white rounded-lg shadow-lg w-2/3">
+              <div
+                class="px-4 py-2 flex justify-between items-center bg-gray-800 text-white rounded-t-lg"
+              >
+                <h2 class="text-lg">View Employee</h2>
+                <button id="closeViewModalBtn" class="text-white">
+                  &times;
+                </button>
+              </div>
+              <div class="p-4">
+                <div class="flex space-x-4">
+                  <div class="w-1/3 border-r-4 border-gray-100 mr-2 pr-2">
+                    <img
+                      id="viewEmployeeImage"
+                      src=""
+                      alt="Employee Image"
+                      class="w-64 h-64 object-cover mx-auto border border-gray-300 rounded-md"
+                    />
+                    <div class="flex items-center justify-center w-full mt-4">
+                      <label
+                        for="viewEmployeeImageFile"
+                        class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50"
+                      >
+                        <div
+                          class="flex flex-col items-center justify-center pt-5 pb-6"
+                        >
+                          <svg
+                            class="w-8 h-8 mb-4 text-gray-500"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 20 16"
+                          >
+                            <path
+                              stroke="currentColor"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                            />
+                          </svg>
+                          <p class="mb-2 text-sm text-gray-500">
+                            <span class="font-semibold">Click to upload</span>
+                            or drag and drop
+                          </p>
+                          <p class="text-xs text-gray-500">
+                            SVG, PNG, JPG or GIF (MAX. 800x400px)
+                          </p>
+                        </div>
+                        <input
+                          id="viewEmployeeImageFile"
+                          name="file"
+                          type="file"
+                          class="hidden"
+                        />
+                      </label>
+                    </div>
+                  </div>
+                  <div class="w-2/3">
+                    <form id="viewEmployeeForm">
+                      <input type="hidden" id="viewEmployeeId" name="id" />
+                      <input type="hidden" id="viewPinCode" name="pinCode" />
+                      <div class="mb-4 flex space-x-4">
+                        <div class="w-full">
+                          <label for="viewFirstName" class="block text-gray-700"
+                            >First Name</label
+                          >
+                          <input
+                            type="text"
+                            id="viewFirstName"
+                            name="firstName"
+                            class="w-full px-3 py-2 border rounded"
+                            readonly
+                          />
+                        </div>
+                        <div class="w-full">
+                          <label for="viewLastName" class="block text-gray-700"
+                            >Last Name</label
+                          >
+                          <input
+                            type="text"
+                            id="viewLastName"
+                            name="lastName"
+                            class="w-full px-3 py-2 border rounded"
+                            readonly
+                          />
+                        </div>
+                      </div>
+                      <div class="mb-4">
+                        <label for="viewPhoneNumber" class="block text-gray-700"
+                          >Phone Number</label
+                        >
+                        <input
+                          type="text"
+                          id="viewPhoneNumber"
+                          name="phoneNumber"
+                          class="w-full px-3 py-2 border rounded"
+                          readonly
+                        />
+                      </div>
+                      <div class="mb-4">
+                        <label for="viewEmail" class="block text-gray-700"
+                          >Email</label
+                        >
+                        <input
+                          type="text"
+                          id="viewEmail"
+                          name="email"
+                          class="w-full px-3 py-2 border rounded"
+                          readonly
+                        />
+                      </div>
+                      <div class="mb-4">
+                        <label for="viewAddress" class="block text-gray-700"
+                          >Address</label
+                        >
+                        <input
+                          type="text"
+                          id="viewAddress"
+                          name="address"
+                          class="w-full px-3 py-2 border rounded"
+                          readonly
+                        />
+                      </div>
+                      <div class="mb-4 flex space-x-4">
+                        <div class="w-full">
+                          <label for="viewRole" class="block text-gray-700"
+                            >Role</label
+                          >
+                          <select
+                            id="viewRole"
+                            name="roleId"
+                            class="w-full px-3 py-2 border rounded"
+                          ></select>
+                        </div>
+                        <div class="w-full">
+                          <label for="viewStatus" class="block text-gray-700"
+                            >Status</label
+                          >
+                          <select
+                            id="viewStatus"
+                            name="status"
+                            class="w-full px-3 py-2 border rounded"
+                          >
+                            <option value="true">Active</option>
+                            <option value="false">Inactive</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="flex justify-end space-x-4">
+                        <button
+                          type="button"
+                          id="updateEmployeeBtn"
+                          class="bg-blue-500 text-white px-4 py-2 rounded"
+                        >
+                          Update
+                        </button>
+                        <button
+                          type="button"
+                          id="deleteEmployeeBtn"
+                          class="bg-red-500 text-white px-4 py-2 rounded"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Insert Employee Modal -->
+          <div
+            id="insertEmployeeModal"
+            class="fixed inset-0 flex items-center justify-center z-40 hidden bg-gray-800 bg-opacity-75"
+          >
+            <div class="bg-white rounded-lg shadow-lg w-2/3">
+              <div
+                class="px-4 py-2 flex justify-between items-center bg-gray-800 text-white rounded-t-lg"
+              >
+                <h2 class="text-lg">Insert Employee</h2>
+                <button id="closeInsertModalBtn" class="text-white">
+                  &times;
+                </button>
+              </div>
+              <div class="p-4">
+                <form id="insertEmployeeForm" class="flex space-x-4">
+                  <div class="w-1/3 border-r-4 border-gray-800 mr-2 pr-2">
+                    <div class="flex flex-col items-center justify-center">
+                      <img
+                        id="insertEmployeeImagePreview"
+                        src="#"
+                        alt="Employee Image"
+                        class="w-64 h-64 object-cover border border-gray-300 rounded-md mb-4"
+                      />
+                      <div class="flex items-center justify-center w-full">
+                        <label
+                          for="insertEmployeeImageFile"
+                          class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50"
+                        >
+                          <div
+                            class="flex flex-col items-center justify-center pt-5 pb-6"
+                          >
+                            <svg
+                              class="w-8 h-8 mb-4 text-gray-500"
+                              aria-hidden="true"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 20 16"
+                            >
+                              <path
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                              />
+                            </svg>
+                            <p class="mb-2 text-sm text-gray-500">
+                              <span class="font-semibold">Click to upload</span>
+                              or drag and drop
+                            </p>
+                            <p class="text-xs text-gray-500">
+                              SVG, PNG, JPG or GIF (MAX. 800x400px)
+                            </p>
+                          </div>
+                          <input
+                            id="insertEmployeeImageFile"
+                            type="file"
+                            name="file"
+                            class="hidden"
+                            accept="image/*"
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="w-2/3">
+                    <div class="mb-4 flex space-x-4">
+                      <div class="w-1/2">
+                        <label for="insertFirstName" class="block text-gray-700"
+                          >First Name</label
+                        >
+                        <input
+                          type="text"
+                          id="insertFirstName"
+                          name="firstName"
+                          class="w-full px-3 py-2 border rounded"
+                        />
+                      </div>
+                      <div class="w-1/2">
+                        <label for="insertLastName" class="block text-gray-700"
+                          >Last Name</label
+                        >
+                        <input
+                          type="text"
+                          id="insertLastName"
+                          name="lastName"
+                          class="w-full px-3 py-2 border rounded"
+                        />
+                      </div>
+                    </div>
+                    <div class="mb-4">
+                      <label for="insertPhoneNumber" class="block text-gray-700"
+                        >Phone Number</label
+                      >
+                      <input
+                        type="text"
+                        id="insertPhoneNumber"
+                        name="phoneNumber"
+                        class="w-full px-3 py-2 border rounded"
+                      />
+                    </div>
+                    <div class="mb-4">
+                      <label for="insertEmail" class="block text-gray-700"
+                        >Email</label
+                      >
+                      <input
+                        type="email"
+                        id="insertEmail"
+                        name="email"
+                        class="w-full px-3 py-2 border rounded"
+                      />
+                    </div>
+                    <div class="mb-4">
+                      <label for="insertAddress" class="block text-gray-700"
+                        >Address</label
+                      >
+                      <input
+                        type="text"
+                        id="insertAddress"
+                        name="address"
+                        class="w-full px-3 py-2 border rounded"
+                      />
+                    </div>
+                    <div class="mb-4 flex space-x-4">
+                      <div class="w-1/2">
+                        <label for="insertRole" class="block text-gray-700"
+                          >Role</label
+                        >
+                        <select
+                          id="insertRole"
+                          name="roleId"
+                          class="w-full px-3 py-2 border rounded"
+                        >
+                          <!-- Roles will be populated here -->
+                        </select>
+                      </div>
+                      <div class="w-1/2">
+                        <label for="insertStatus" class="block text-gray-700"
+                          >Status</label
+                        >
+                        <div
+                          class="w-full px-3 py-2 border rounded bg-white text-green-500"
+                        >
+                          ACTIVE
+                        </div>
+                        <input
+                          type="hidden"
+                          id="insertStatus"
+                          name="status"
+                          value="true"
+                        />
+                      </div>
+                    </div>
+                    <div class="flex justify-end">
+                      <button
+                        type="submit"
+                        class="bg-black hover:bg-gray-700 text-white px-4 py-2 rounded"
+                      >
+                        Insert
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+      <div id="modal-placeholder">
+           <!-- View Employee Modal -->
+   <div id="viewEmployeeModal2" class="fixed inset-0 flex items-center justify-center z-50 bg-gray-800 bg-opacity-75 hidden ">
+    <div class="bg-white rounded-lg shadow-lg w-4/5">
+      <div class="px-4 py-2 flex justify-between items-center bg-gray-800 text-white rounded-t-lg">
+        <h2 class="text-lg">Employee Profile</h2>
+        <button id="closeViewModalBtn2" class="text-white">&times;</button>
+      </div>
+      <div class="p-4">
+        <div class="flex space-x-4">
+          <div class="w-1/5">
+            <div class="flex flex-col items-center">
+              <img src="https://randomuser.me/api/portraits/men/94.jpg" class="w-32 h-32 bg-gray-300 rounded-full mb-4 object-cover" id="employeeImage">
+              </img>
+              <h1 class="text-xl font-bold" id="employeeName">John Doe</h1>
+              <p class="text-gray-700" id="employeeRole">Software Developer</p>
+            </div>
+            
+            <hr class="my-6 border-t border-gray-300">
+            <div class="flex flex-col">
+              <span class="text-gray-700 uppercase font-bold tracking-wider mb-2">Information</span>
+              <ul>
+                <li class="mb-2" id="employeeId">ID Employee:</li>
+                <li class="mb-2" id="employeePhone">Phone:</li>
+                <li class="mb-2" id="employeeEmail">Email:</li>
+                <li class="mb-2" id="employeeAddress">Address:</li>
+              </ul>
+            </div>
+          </div>
+          <div class="w-4/5 h-1/3">
+            <div class="mb-4  sm:px-8">
+              <label for="revenuePeriodModal" class="text-lg font-medium ">Chọn khoảng thời gian:</label>
+              <select id="revenuePeriodModal" class="ml-2 p-2 rounded">
+                <option value="month">Month</option>
+                <option value="year">Year</option>
+              </select>
+              <select id="monthSelectModal" class="ml-2 p-2 rounded">
+                <option value="1">January</option>
+                <option value="2">February</option>
+                <option value="3">March</option>
+                <option value="4">April</option>
+                <option value="5">May</option>
+                <option value="6">June</option>
+                <option value="7">July</option>
+                <option value="8">August</option>
+                <option value="9">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+              </select>
+              <select id="yearSelectModal" class="ml-2 p-2 rounded hidden">
+                <option value="currentYear">Năm nay</option>
+                <option value="lastYear">Năm trước</option>
+              </select>
+            </div>
+            
+            
+            <div class="grid grid-cols-1 gap-4 mt-8 sm:grid-cols-2">
+              <div class="flex items-center bg-white border rounded-sm overflow-hidden shadow">
+                <div class="p-4 bg-green-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                    </path>
+                  </svg>
+                </div>
+                <div class="px-4 text-gray-700">
+                  <h3 class="text-sm tracking-wider">Total Revenue</h3>
+                  <p class="text-3xl" id="totalRevenue">88,888</p>
+                </div>
+              </div>
+              <div class="flex items-center bg-white border rounded-sm overflow-hidden shadow">
+                <div class="p-4 bg-blue-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 2 0 002 2h8a2 2 2 0 002-2v-2">
+                    </path>
+                  </svg>
+                </div>
+                <div class="px-4 text-gray-700">
+                  <h3 class="text-sm tracking-wider">Total After Discount</h3>
+                  <p class="text-3xl" id="totalRevenueAfterDiscount">88,888</p>
+                </div>
+              </div>
+              <div class="flex items-center bg-white border rounded-sm overflow-hidden shadow">
+                <div class="p-4 bg-indigo-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z">
+                    </path>
+                  </svg>
+                </div>
+                <div class="px-4 text-gray-700">
+                  <h3 class="text-sm tracking-wider">Total Invoices</h3>
+                  <p class="text-3xl" id="invoiceEmployee">88,888</p>
+                </div>
+              </div>
+              <div class="flex items-center bg-white border rounded-sm overflow-hidden shadow">
+                <div class="p-4 bg-red-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4">
+                    </path>
+                  </svg>
+                </div>
+                <div class="px-4 text-gray-700">
+                  <h3 class="text-sm tracking-wider">Average Revenue</h3>
+                  <p class="text-3xl" id="averageRevenue">88,888</p>
+                </div>
+              </div>
+              
+            </div>
+            <div class="my-6 sm:grid-cols-4 sm:px-8">
+              <div class="bg-white p-4 rounded-lg shadow ">
+                <h2 class="text-2xl font-semibold mb-4">Top Invoice</h2>
+                <div class="overflow-auto max-h-96"> <!-- Thêm div này để có thể cuộn -->
+                  <table class="w-full" id="invoiceTable">
+                    <thead>
+                      <tr class="text-left">
+                        <th class="p-2 border-b border-gray-900">No</th>
+                        <th class="p-2 border-b border-gray-900">Date</th>
+                        <th class="p-2 border-b border-gray-900">Client</th>
+                        <th class="p-2 border-b border-gray-900">Employee</th>
+                        <th class="p-2 border-b border-gray-900">Total Price Raw</th>
+                        <th class="p-2 border-b border-gray-900">Total Price</th>
+                        <th class="p-2 border-b border-gray-900">Discount Price</th>
+                      </tr>
+                    </thead>
+                    <tbody id="invoiceEmployeeBody">
+                      <!-- Dữ liệu hóa đơn sẽ được tải động -->
+                    </tbody>
+                  </table>
+                </div>
+                <div class="flex justify-center mt-4">
+                  <button
+                    id="loadMoreInvoiceEmplBtn"
+                    class="bg-white text-black rounded-full p-4 shadow-md flex items-center justify-center w-12 h-12 animate-bounce"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="2"
+                      stroke="currentColor"
+                      class="w-6 h-6"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M19.5 13.5L12 21m0 0L4.5 13.5M12 21V3"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+      </div>
+    </div>
+  </body>
+</html>

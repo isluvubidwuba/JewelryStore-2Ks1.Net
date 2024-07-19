@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gold Prices</title>
+    <link href="/css/styles.css" rel="stylesheet" />
+    <script src="/js/jquery.min.js"></script>
+    <style>
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        border: 1px solid black;
+        padding: 8px;
+        text-align: left;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      class="w-full h-screen overflow-x-hidden border-t flex flex-col bg-white"
+    >
+      <main class="w-full flex-grow p-6">
+        <img
+          id="logoAdmin"
+          class="w-32 h-auto"
+          src="https://storage.googleapis.com/jewelrystore-2ks1dotnet.appspot.com/User/c3b3e699-1466-48cf-b1ae-1db13264e44e_2024-07-12"
+          alt="logo"
+        />
+        <a
+          class="flex items-center px-3 py-2 text-black transition duration-300 transform rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700 w-fit bg-gray-200"
+          href="/login"
+        >
+          <span class="mx-2 text-l font-bold">Back</span>
+        </a>
+        <div class="w-full mt-6">
+          <p class="pt-3 text-gray-600">
+            Updated:
+            <i id="day-update">dd/MM/YYYY</i>
+          </p>
+          <div class="bg-white overflow-auto">
+            <table class="min-w-full bg-white">
+              <thead class="bg-gray-800 text-white">
+                <tr>
+                  <th
+                    class="w-1/3 text-left py-3 px-4 uppercase font-semibold text-sm"
+                  >
+                    Type
+                  </th>
+                  <th
+                    class="w-1/3 text-left py-3 px-4 uppercase font-semibold text-sm"
+                  >
+                    Buy
+                  </th>
+                  <th
+                    class="text-left py-3 px-4 uppercase font-semibold text-sm"
+                  >
+                    Sell
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="tbody-table-price" class="text-gray-700"></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script type="module" src="js/goldPrice.js"></script>
+  </body>
+</html>

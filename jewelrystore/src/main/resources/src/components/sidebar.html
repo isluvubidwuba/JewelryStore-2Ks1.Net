@@ -1,0 +1,413 @@
+<!-- AlpineJS -->
+<script
+  src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"
+  defer
+></script>
+<!-- Font Awesome -->
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"
+  integrity="sha256-KzZiKy0DWYsnwMF+X1DvQngQ2/FxF7MF3Ff72XcpuPs="
+  crossorigin="anonymous"
+></script>
+<script type="module" src="/js/logout.js"></script>
+
+<aside
+  id="adminPage"
+  class="flex flex-col w-52 h-screen px-5 py-8 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l dark:bg-gray-900 dark:border-gray-700 no-scrollbar"
+>
+  <a href="/dashboard">
+    <img
+      id="logoAdmin"
+      class="w-44 h-auto"
+      src="https://storage.googleapis.com/jewelrystore-2ks1dotnet.appspot.com/User/82041f19-65b4-4d0d-9130-2748b6fde039_2024-07-12"
+      alt="logo"
+    />
+  </a>
+
+  <div class="flex flex-col justify-between flex-1 mt-6">
+    <nav class="-mx-3 space-y-6">
+      <div class="space-y-3">
+        <label class="px-3 text-xs text-gray-500 uppercase dark:text-gray-400"
+          >Profile</label
+        >
+
+        <a
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          id="profileAdmin"
+          href="#"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M8 21h8a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-3l-1-2H8a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2z"
+            />
+            <line x1="8" y1="13" x2="16" y2="13" />
+            <line x1="8" y1="17" x2="16" y2="17" />
+            <polyline points="10 9 10 13 8 13" />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Account</span>
+        </a>
+        <a
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          id="updateGoldPrice"
+          href="#"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M8 21h8a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-3l-1-2H8a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2z"
+            />
+            <line x1="8" y1="13" x2="16" y2="13" />
+            <line x1="8" y1="17" x2="16" y2="17" />
+            <polyline points="10 9 10 13 8 13" />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Update gold price</span>
+        </a>
+      </div>
+      <div class="space-y-3">
+        <label class="px-3 text-xs text-gray-500 uppercase dark:text-gray-400"
+          >Manage</label
+        >
+
+        <a
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          href="/counterManager"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+            stroke="currentColor"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path stroke="none" d="M0 0h24v24H0z" />
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <path d="M3 8h18M8 8v8m8-8v8m-12 0h16" />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Counter</span>
+        </a>
+
+        <a
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          href="/productManager"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polygon points="9.9 2 2 9.9 12 22 22 9.9 14.1 2 9.9 2" />
+            <line x1="12" y1="22" x2="9.9" y2="2" />
+            <line x1="2" y1="9.9" x2="22" y2="9.9" />
+            <line x1="14.1" y1="2" x2="12" y2="22" />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Product</span>
+        </a>
+
+        <a
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          href="/employeeManager"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M12 14c4.418 0 8-1.791 8-4s-3.582-4-8-4-8 1.791-8 4 3.582 4 8 4z"
+            />
+            <path
+              d="M12 14c-4.418 0-8 1.791-8 4s3.582 4 8 4 8-1.791 8-4-3.582-4-8-4z"
+            />
+            <path d="M12 14v7m-6-7v4m12-4v4" />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Employee</span>
+        </a>
+
+        <a
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          href="/customerManager"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M12 11c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM12 13c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"
+            />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Customer</span>
+        </a>
+
+        <a
+          id="scheStaff"
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          href="/scheduleManager"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+            stroke="currentColor"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path stroke="none" d="M0 0h24v24H0z" />
+            <rect x="4" y="5" width="16" height="16" rx="2" />
+            <line x1="16" y1="3" x2="16" y2="7" />
+            <line x1="8" y1="3" x2="8" y2="7" />
+            <line x1="4" y1="11" x2="20" y2="11" />
+            <rect x="8" y="15" width="2" height="2" />
+          </svg>
+
+          <span class="mx-2 text-sm font-medium">Work schedule </span>
+        </a>
+      </div>
+
+      <div class="space-y-3">
+        <label class="px-3 text-xs text-gray-500 uppercase dark:text-gray-400"
+          >Policy & Promotion</label
+        >
+
+        <a
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          href="/policyManager"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M8 21h8a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-3l-1-2H8a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2z"
+            />
+            <line x1="8" y1="13" x2="16" y2="13" />
+            <line x1="8" y1="17" x2="16" y2="17" />
+            <polyline points="10 9 10 13 8 13" />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Policy</span>
+        </a>
+      </div>
+      <div class="space-y-3">
+        <label class="px-3 text-xs text-gray-500 uppercase dark:text-gray-400"
+          >AUTHEN</label
+        >
+        <!-- HTML -->
+        <a
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          href="/defaultInvoice"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3m9 14V5a2 2 0 00-2-2H6a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2z"
+            />
+          </svg>
+
+          <span class="mx-2 text-sm font-medium">Sale Screen</span>
+        </a>
+
+        <a
+          class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          id="logout"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+            <polyline points="10 17 15 12 10 7" />
+            <line x1="15" y1="12" x2="3" y2="12" />
+          </svg>
+          <span class="mx-2 text-sm font-medium">Logout</span>
+        </a>
+      </div>
+    </nav>
+  </div>
+  <div
+    id="viewProfileModal"
+    class="fixed inset-0 z-40 flex items-center justify-center z-45 hidden bg-gray-800 bg-opacity-75"
+  >
+    <div class="bg-white rounded-lg shadow-lg w-2/3">
+      <div
+        class="px-4 py-2 flex justify-between items-center bg-gray-800 text-white rounded-t-lg"
+      >
+        <h2 id="profileIDemp" class="text-lg">View Employee</h2>
+        <button id="closeProfileModal" class="text-white">&times;</button>
+      </div>
+      <div class="p-4">
+        <div class="flex space-x-4">
+          <div class="w-1/3 border-r-4 border-gray-100 mr-2 pr-2">
+            <div class="relative group">
+              <div id="profileImagePlaceHolder"></div>
+              <img
+                id="imgProfileDetail"
+                class="w-64 h-64 object-cover mx-auto border border-gray-300 rounded-md"
+                src=""
+                onerror="this.src='https\://picsum.photos/180/100';"
+                alt=""
+              />
+
+              <label
+                for="profileImgUpdate"
+                class="absolute inset-0 bg-gray-300 bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                edit
+              </label>
+              <input id="profileImgUpdate" type="file" class="hidden" />
+            </div>
+          </div>
+          <div class="w-2/3">
+            <form id="viewProfileForm">
+              <input type="hidden" id="viewProfileId" name="id" />
+              <div class="mb-4 flex space-x-4">
+                <div class="w-full">
+                  <label for="viewProfileFirstName" class="block text-gray-700"
+                    >First Name</label
+                  >
+                  <input
+                    type="text"
+                    id="viewProfileFirstName"
+                    name="firstName"
+                    class="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div class="w-full">
+                  <label for="viewProfileLastName" class="block text-gray-700"
+                    >Last Name</label
+                  >
+                  <input
+                    type="text"
+                    id="viewProfileLastName"
+                    name="lastName"
+                    class="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+              </div>
+              <div class="mb-4">
+                <label for="viewProfilePhoneNumber" class="block text-gray-700"
+                  >Phone Number</label
+                >
+                <input
+                  type="text"
+                  id="viewProfilePhoneNumber"
+                  name="phoneNumber"
+                  class="w-full px-3 py-2 border rounded"
+                />
+              </div>
+              <div class="mb-4">
+                <label for="viewProfileEmail" class="block text-gray-700"
+                  >Email</label
+                >
+                <input
+                  type="text"
+                  id="viewProfileEmail"
+                  name="email"
+                  class="w-full px-3 py-2 border rounded"
+                />
+              </div>
+              <div id="changePASS" class="mb-4 hidden">
+                <label for="viewProfilePincode" class="block text-gray-700"
+                  >Change pinCode</label
+                >
+                <input
+                  type="password"
+                  id="viewProfilePincode"
+                  name="pinCode"
+                  class="w-full px-3 py-2 border rounded"
+                />
+              </div>
+              <div id="ConfirmchangePASS" class="mb-4 hidden">
+                <label
+                  for="viewConfirmProfilePincode"
+                  class="block text-gray-700"
+                  >Confirm change pinCode</label
+                >
+                <input
+                  type="password"
+                  id="viewConfirmProfilePincode"
+                  name="pinCode"
+                  class="w-full px-3 py-2 border rounded"
+                />
+              </div>
+              <div class="flex justify-end space-x-4">
+                <button
+                  type="button"
+                  id="changePincodeProfileBtn"
+                  class="bg-blue-500 text-white px-4 py-2 rounded"
+                >
+                  Change pinCode
+                </button>
+                <button
+                  type="button"
+                  id="updateProfileBtn"
+                  class="bg-blue-500 text-white px-4 py-2 rounded"
+                >
+                  Update
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</aside>
+<script>
+  $("#logoAdmin").attr(
+    "src",
+    sessionStorage.getItem("userRole") === "ADMIN"
+      ? "https://storage.googleapis.com/jewelrystore-2ks1dotnet.appspot.com/User/3f430e74-605f-4288-948d-5e38fbdff560_2024-07-16"
+      : "https://storage.googleapis.com/jewelrystore-2ks1dotnet.appspot.com/User/d5998acc-0d7b-4e9b-9340-caedc2e4467d_2024-07-16"
+  );
+</script>
