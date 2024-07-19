@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import com.ks1dotnet.jewelrystore.Enum.PageTemplate;
 import com.ks1dotnet.jewelrystore.dto.EmployeeDTO;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IEmployeeService;
-import com.ks1dotnet.jewelrystore.utils.JwtUtilsHelper;
 
 @Controller
 public class ViewController {
@@ -19,15 +18,22 @@ public class ViewController {
     public String home(@PathVariable(required = false) String page) {
         if (page == null)
             page = "login";
+        String template = null;
         try {
 
             String role =
                     ((EmployeeDTO) iEmployeeService.myProfile().getData()).getRole().getName();
-            System.out.println(role);
-            String template = PageTemplate.getTemplate(page, role);
+            if (page.equals("login") && role.equals("STAFF"))
+                page = "home";
+            else if (page.equals("login"))
+                page = "dashboard";
+            template = PageTemplate.getTemplate(page, role);
             return template;
         } catch (Exception e) {
-            String template = PageTemplate.getTemplate(page);
+            if (page.equals("goldPrice") || page.equals("login"))
+                template = PageTemplate.getTemplate(page);
+            else
+                template = PageTemplate.getTemplate("404");
             return template;
         }
     }
