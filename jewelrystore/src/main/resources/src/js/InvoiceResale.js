@@ -184,8 +184,8 @@ $(document).ready(function () {
     );
     userInfoDiv.append(
       "<p><strong>Phone Number:</strong> " +
-        userInfo.phoneNumber.trim() +
-        "</p>"
+      userInfo.phoneNumber.trim() +
+      "</p>"
     );
     userInfoDiv.append("<p><strong>Email:</strong> " + userInfo.email + "</p>");
     $("#selected-user-info").removeClass("hidden");
@@ -193,6 +193,7 @@ $(document).ready(function () {
 
   function addProductToSidebar(data, availableReturnQuantity, detailId) {
     // Hiển thị các chi tiết sản phẩm trong sidebar
+    console.log("check price for resale: " + data.totalPrice);
     var selectedProductsContainer = $("#selected-products");
     var row =
       '<tr data-barcode="' +
@@ -210,7 +211,7 @@ $(document).ready(function () {
       data.productDTO.productCode +
       "</td>" +
       '<td class="px-4 py-2 product-price">' +
-      formatCurrency(data.price * data.quantity) +
+      formatCurrency(data.totalPrice * data.quantity) +
       "</td>" +
       '<td class="px-4 py-2">' +
       '<input type="number" class="product-quantity-input border p-1" value="' +
@@ -223,7 +224,7 @@ $(document).ready(function () {
       '<button class="remove-product-button bg-red-500 hover:bg-red-700 text-white p-2">Xóa</button>' +
       "</td>" +
       '<td class="px-4 py-2 product-price-unit" style="display:none">' +
-      data.price +
+      data.totalPrice +
       "</td>" +
       '<td class="px-4 py-2 product-available-quantity" style="display:none">' +
       availableReturnQuantity +
@@ -330,21 +331,21 @@ $(document).ready(function () {
                     </thead>
                     <tbody>
                     ${selectedProducts
-                      .map((index, product) => {
-                        var productName = $(product)
-                          .find("td:nth-child(2)")
-                          .text();
-                        var productQuantity = $(product)
-                          .find(".product-quantity-input")
-                          .val();
-                        return `
+        .map((index, product) => {
+          var productName = $(product)
+            .find("td:nth-child(2)")
+            .text();
+          var productQuantity = $(product)
+            .find(".product-quantity-input")
+            .val();
+          return `
                         <tr>
                             <td class="py-4 text-gray-700">${productName}</td>
                             <td class="py-4 text-gray-700">${productQuantity}</td>
                         </tr>`;
-                      })
-                      .get()
-                      .join("")}
+        })
+        .get()
+        .join("")}
                     </tbody>
                 </table>
             </div>
@@ -431,31 +432,26 @@ $(document).ready(function () {
                               <div class="text-gray-700 text-right">
                                   <div class="font-bold text-xl mb-2">INVOICE</div>
                                   <div class="text-sm">Date: ${new Date(
-                                    invoiceData.date
-                                  ).toLocaleDateString()}</div>
-                                  <div class="text-sm">Invoice #: ${
-                                    invoiceData.id
-                                  }</div>
+            invoiceData.date
+          ).toLocaleDateString()}</div>
+                                  <div class="text-sm">Invoice #: ${invoiceData.id
+            }</div>
                               </div>
                           </div>
                           <div class="border-b-2 border-gray-300 pb-8 mb-8">
                               <h2 class="text-2xl font-bold mb-4">Customer and Employee Information</h2>
                               <div class="grid grid-cols-2 gap-4">
                                   <div>
-                                      <div class="text-gray-700 mb-2"><strong>Customer: </strong> ${
-                                        userInfo.fullName
-                                      }</div>
-                                      <div class="text-gray-700 mb-2"><strong>ID: </strong> ${
-                                        userInfo.id
-                                      }</div>
+                                      <div class="text-gray-700 mb-2"><strong>Customer: </strong> ${userInfo.fullName
+            }</div>
+                                      <div class="text-gray-700 mb-2"><strong>ID: </strong> ${userInfo.id
+            }</div>
                                   </div>
                                   <div>
-                                      <div class="text-gray-700 mb-2"><strong>STAFF: </strong> ${
-                                        employeeInfo.firstName
-                                      } ${employeeInfo.lastName}</div>
-                                      <div class="text-gray-700 mb-2"><strong>ID: </strong> ${
-                                        employeeInfo.id
-                                      }</div>
+                                      <div class="text-gray-700 mb-2"><strong>STAFF: </strong> ${employeeInfo.firstName
+            } ${employeeInfo.lastName}</div>
+                                      <div class="text-gray-700 mb-2"><strong>ID: </strong> ${employeeInfo.id
+            }</div>
                                   </div>
                               </div>
                           </div>
@@ -470,43 +466,40 @@ $(document).ready(function () {
                               </thead>
                               <tbody>
                                   ${orderDetails
-                                    .map(
-                                      (order) => `
+              .map(
+                (order) => `
                                   <tr>
-                                      <td class="py-4 text-gray-700">${
-                                        order.productDTO.productCode
-                                      }</td>
-                                      <td class="py-4 text-gray-700">${
-                                        order.productDTO.name
-                                      }</td>
-                                      <td class="py-4 text-gray-700">${
-                                        order.quantity
-                                      }</td>
+                                      <td class="py-4 text-gray-700">${order.productDTO.productCode
+                  }</td>
+                                      <td class="py-4 text-gray-700">${order.productDTO.name
+                  }</td>
+                                      <td class="py-4 text-gray-700">${order.quantity
+                  }</td>
                                       <td class="py-4 text-gray-700">${new Intl.NumberFormat(
-                                        "vi-VN",
-                                        { style: "currency", currency: "VND" }
-                                      ).format(order.totalPrice)}</td>
+                    "vi-VN",
+                    { style: "currency", currency: "VND" }
+                  ).format(order.totalPrice)}</td>
                                   </tr>`
-                                    )
-                                    .join("")}
+              )
+              .join("")}
                               </tbody>
                           </table>
                           <div class="grid grid-cols-2 gap-4">
                               <div class="text-gray-700">Total original price: </div>
                               <div class="text-gray-700 text-right">${new Intl.NumberFormat(
-                                "vi-VN",
-                                { style: "currency", currency: "VND" }
-                              ).format(invoiceData.totalPriceRaw)}</div>
+                "vi-VN",
+                { style: "currency", currency: "VND" }
+              ).format(invoiceData.totalPriceRaw)}</div>
                               <div class="text-gray-700">Reduced price: </div>
                               <div class="text-gray-700 text-right">${new Intl.NumberFormat(
-                                "vi-VN",
-                                { style: "currency", currency: "VND" }
-                              ).format(invoiceData.discountPrice)}</div>
+                "vi-VN",
+                { style: "currency", currency: "VND" }
+              ).format(invoiceData.discountPrice)}</div>
                               <div class="text-gray-700 font-bold text-xl">Total price:</div>
                               <div class="text-gray-700 font-bold text-xl text-right">${new Intl.NumberFormat(
-                                "vi-VN",
-                                { style: "currency", currency: "VND" }
-                              ).format(invoiceData.totalPrice)}</div>
+                "vi-VN",
+                { style: "currency", currency: "VND" }
+              ).format(invoiceData.totalPrice)}</div>
                           </div>
                           <div class="flex items-center justify-center font-playwrite text-2xl text-center">
                           THANK YOU
