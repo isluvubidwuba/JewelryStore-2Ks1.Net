@@ -91,8 +91,7 @@ function populateInvoice(data) {
   console.log("Check ngay  : " + formattedDateTime);
   var checkCancel = true;
   var content = `
-    <div id="invoice-details" data-invoice-id="${
-      data.id
+    <div id="invoice-details" data-invoice-id="${data.id
     }" class="text-center mb-8 py-10">
         <div class="flex justify-between items-center ">
             <div class="text-left ">
@@ -104,15 +103,12 @@ function populateInvoice(data) {
 
     <div class="flex justify-between mb-4">
         <div class="p-4">
-            <p class="text-sm"><strong>Customer Name:</strong> ${
-              data.userInfoDTO.fullName
-            }</p>
-            <p class="text-sm"><strong>Customer Phone:</strong> ${
-              data.userInfoDTO.phoneNumber
-            }</p>
-            <p class="text-sm"><strong>Customer Address:</strong> ${
-              data.userInfoDTO.address
-            }</p>
+            <p class="text-sm"><strong>Customer Name:</strong> ${data.userInfoDTO.fullName
+    }</p>
+            <p class="text-sm"><strong>Customer Phone:</strong> ${data.userInfoDTO.phoneNumber
+    }</p>
+            <p class="text-sm"><strong>Customer Address:</strong> ${data.userInfoDTO.address
+    }</p>
         </div>
 
         
@@ -125,48 +121,50 @@ function populateInvoice(data) {
                 <th class="p-2">PRODUCT</th>
                 <th class="p-2">QUANTITY</th>
                 <th class="p-2">UNIT PRICE</th>
+                <th class="p-2">DISCOUNT PRODUCT</th>
                 <th class="p-2">TOTAL PRICE</th>
             </tr>
         </thead>
         <tbody>
             ${data.listOrderInvoiceDetail
-              .map(
-                (item) => `
-                <tr class="text-center product" data-product-id="${
-                  item.productDTO.id
-                }" data-barcode="${item.productDTO.barCode}">
-                    <td class="p-2 border border-zinc-300">${
-                      item.productDTO.name
-                    }</td>
+      .map(
+        (item) => `
+                <tr class="text-center product" data-product-id="${item.productDTO.id
+          }" data-barcode="${item.productDTO.barCode}">
+                    <td class="p-2 border border-zinc-300">${item.productDTO.name
+          }</td>
                     <td class="p-2 border border-zinc-300">${item.quantity}</td>
                     <td class="p-2 border border-zinc-300">${new Intl.NumberFormat(
-                      "vi-VN",
-                      { style: "currency", currency: "VND" }
-                    ).format(item.price)}</td>
+            "vi-VN",
+            { style: "currency", currency: "VND" }
+          ).format(item.price)}</td>
                     <td class="p-2 border border-zinc-300">${new Intl.NumberFormat(
-                      "vi-VN",
-                      { style: "currency", currency: "VND" }
-                    ).format(item.totalPrice)}</td>
+            "vi-VN",
+            { style: "currency", currency: "VND" }
+          ).format(item.price - item.totalPrice)}</td>
+                    <td class="p-2 border border-zinc-300">${new Intl.NumberFormat(
+            "vi-VN",
+            { style: "currency", currency: "VND" }
+          ).format(item.totalPrice)}</td>
                 </tr>
             `
-              )
-              .join("")}
+      )
+      .join("")}
         </tbody>
     </table>
 
     <div class="flex justify-between mb-8">
         <div class="p-4">
-            <p><strong>Biller:</strong> ${data.employeeDTO.firstName} ${
-    data.employeeDTO.lastName
-  }</p>
+            <p><strong>Biller:</strong> ${data.employeeDTO.firstName} ${data.employeeDTO.lastName
+    }</p>
             <p><strong>Invoice Date:</strong> ${formattedDateTime}</p>
             <p><strong>Payment Method:</strong> ${data.payment.trim()}</p>
         </div>
         <div class="text-right mx-10">
             <p class="font-bold text-xl">Total: ${new Intl.NumberFormat(
-              "vi-VN",
-              { style: "currency", currency: "VND" }
-            ).format(data.totalPrice)}</p>
+      "vi-VN",
+      { style: "currency", currency: "VND" }
+    ).format(data.totalPrice)}</p>
       
         </div>
         

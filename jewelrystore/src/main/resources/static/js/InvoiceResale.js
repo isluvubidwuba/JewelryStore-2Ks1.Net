@@ -87,7 +87,7 @@ $(document).ready(function () {
         detail.productDTO.name +
         "</td>" +
         '<td class="px-4 py-2">' +
-        formatCurrency(detail.price) +
+        formatCurrency(detail.totalPrice) +
         "</td>" +
         '<td class="px-4 py-2">' +
         '<button class="add-product-button bg-green-500 hover:bg-green-700 text-white p-2" data-barcode="' +
@@ -95,7 +95,7 @@ $(document).ready(function () {
         '" data-available-return-quantity="' +
         detail.availableReturnQuantity +
         '" data-price="' +
-        detail.price +
+        detail.totalPrice +
         '" data-detail-id="' +
         detail.id +
         '">Add</button>' +

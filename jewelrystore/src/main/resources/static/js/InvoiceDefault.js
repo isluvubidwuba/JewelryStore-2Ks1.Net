@@ -67,7 +67,7 @@ $(document).ready(function () {
           return;
         }
         if (parseIntWithPrefix(this.inputString, "893171831"))
-          addProductByBarcode(this.inputString); // Call the addProductByBarcode function
+          addProductByBarcode(this.inputString.trim()); // Call the addProductByBarcode function
         this.inputString = "";
       }, 100);
     };
