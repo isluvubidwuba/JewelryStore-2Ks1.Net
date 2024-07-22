@@ -112,30 +112,27 @@ function showEmployeeInfo(data) {
 // Hàm hiển thị danh sách hóa đơn
 function showInvoiceList(invoices) {
   const invoiceBody = document.getElementById("invoiceEmployeeBody");
-  const startIndex = currentPage2 * pageSize2; // Tính toán số thứ tự bắt đầu của trang hiện tại
-  invoices.forEach((invoice, index) => {
+  invoices.forEach((invoice) => {
     const row = document.createElement("tr");
 
     row.innerHTML = `
-        <td class="p-2 border-b border-gray-300">${startIndex + index + 1}</td>
+        <td class="p-2 border-b border-gray-300">${invoice.id}</td>
         <td class="p-2 border-b border-gray-300">${new Date(
-          invoice.date
-        ).toLocaleDateString("vi-VN")}</td>
-        <td class="p-2 border-b border-gray-300">${
-          invoice.userInfoDTO.fullName
-        }</td>
-        <td class="p-2 border-b border-gray-300">${
-          invoice.employeeDTO.firstName
-        } ${invoice.employeeDTO.lastName}</td>
+      invoice.date
+    ).toLocaleDateString("vi-VN")}</td>
+        <td class="p-2 border-b border-gray-300">${invoice.userInfoDTO.fullName
+      }</td>
+        <td class="p-2 border-b border-gray-300">${invoice.employeeDTO.firstName
+      } ${invoice.employeeDTO.lastName}</td>
         <td class="p-2 border-b border-gray-300">${formatCurrency(
-          invoice.totalPriceRaw
-        )}</td>
+        invoice.totalPriceRaw
+      )}</td>
         <td class="p-2 border-b border-gray-300">${formatCurrency(
-          invoice.totalPrice
-        )}</td>
+        invoice.totalPrice
+      )}</td>
         <td class="p-2 border-b border-gray-300">${formatCurrency(
-          invoice.discountPrice
-        )}</td>
+        invoice.discountPrice
+      )}</td>
       `;
 
     invoiceBody.appendChild(row);
