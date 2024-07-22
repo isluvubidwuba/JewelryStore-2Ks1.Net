@@ -64,9 +64,8 @@ function getInvoiceData(invoice) {
       }
     })
     .catch((xhr) => {
-      if (xhr.status === 400) {
-        var response = JSON.parse(xhr.responseText);
-        showNotification(response.desc, "error");
+      if (xhr.responseJSON) {
+        showNotification(xhr.responseJSON.desc, "error");
       } else {
         showNotification(
           "An error occurred while calling the API !!!",
@@ -76,7 +75,6 @@ function getInvoiceData(invoice) {
     });
 }
 function populateInvoice(data) {
-  console.log("ban da chay toi dong nay :");
   const dateUpdate = new Date(data.date);
 
   const offSetDate = new Date(dateUpdate.getTime() + 7 * 60 * 60 * 1000);
@@ -88,8 +86,16 @@ function populateInvoice(data) {
 
   // Kết hợp ngày, giờ và phút
   const formattedDateTime = `${formatDate} ${hours}:${minutes}`;
-  console.log("Check ngay  : " + formattedDateTime);
   var checkCancel = true;
+  //Tinh discount price:
+
+  let promotionPriceForUser = 0;
+  if (data.listPromotionOnInvoice && data.listPromotionOnInvoice.length > 0) {
+    promotionPriceForUser = data.listPromotionOnInvoice[0].value;
+  }
+  console.log("Check gia tien lay tu data : " + promotionPriceForUser);
+
+
   var content = `
     <div id="invoice-details" data-invoice-id="${data.id
     }" class="text-center mb-8 py-10">
@@ -161,6 +167,14 @@ function populateInvoice(data) {
             <p><strong>Payment Method:</strong> ${data.payment.trim()}</p>
         </div>
         <div class="text-right mx-10">
+            <p class="font-bold text-xl">User Discount(${data.listPromotionOnInvoice[0].value}%): ${new Intl.NumberFormat(
+      "vi-VN",
+      { style: "currency", currency: "VND" }
+    ).format((data.totalPrice * promotionPriceForUser) / 100)}</p>
+            <p class="font-bold text-xl">Total Discount: ${new Intl.NumberFormat(
+      "vi-VN",
+      { style: "currency", currency: "VND" }
+    ).format(data.discountPrice)}</p>
             <p class="font-bold text-xl">Total: ${new Intl.NumberFormat(
       "vi-VN",
       { style: "currency", currency: "VND" }

@@ -133,62 +133,20 @@ public class MailService {
                 }
         }
 
-        public ResponseData sendInvoiceEmail(String email, String username) {
-                MimeMessage mimeMessage = mailSender.createMimeMessage();
-                try {
-                        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-                        helper.setFrom("your-email@example.com");
-                        helper.setTo(email);
-                        helper.setSubject("Hóa đơn thanh toán của bạn");
-
-                        StringBuilder message = new StringBuilder();
-                        message.append("<html><body>");
-
-                        // Banner
-                        message.append("<div style='text-align: center; background-color: #f2f2f2; padding: 20px;'>");
-                        message.append("<h1 style='color: #333;'>Công ty 2ks1dotnet</h1>");
-                        message.append("<p style='color: #666;'>Dịch vụ trang sức hàng đầu</p>");
-                        message.append("</div>");
-
-                        // Nội dung chính
-                        message.append("<div style='padding: 20px; text-align: center;'>");
-                        message.append("<p>Kính gửi ").append(username).append(",</p>");
-                        message.append("<p>Dưới đây là chi tiết hóa đơn thanh toán cho dịch vụ của bạn:</p>");
-
-                        // Thêm nội dung hóa đơn HTML tại đây
-                        message.append("<table style='width:100%;'>");
-                        message.append("<tr><th>Mặt hàng</th><th>Số lượng</th><th>Đơn giá</th><th>Thành tiền</th></tr>");
-                        message.append("<tr><td>Trang sức ngọc trai</td><td>1</td><td>$200</td><td>$200</td></tr>");
-                        message.append("</table>");
-
-                        message.append("<p>Trân trọng,</p>");
-                        message.append("<p>Đội ngũ hỗ trợ kỹ thuật</p>");
-                        message.append("</div>");
-
-                        // Footer
-                        message.append("<div style='text-align: center; background-color: #f2f2f2; padding: 20px;'>");
-                        message.append("<p style='color: #666;'>Công ty 2ks1dotnet</p>");
-                        message.append("<p style='color: #666;'>Địa chỉ: Số 123, Đường ABC, Thành phố XYZ</p>");
-                        message.append("<p style='color: #666;'>Email: support@2ks1dotnet.com | Điện thoại: 0123 456 789</p>");
-                        message.append("</div>");
-
-                        message.append("</body></html>");
-
-                        helper.setText(message.toString(), true);
-
-                        mailSender.send(mimeMessage);
-                        return new ResponseData(HttpStatus.OK,
-                                        "Invoice sent to " + username + " successfully", null);
-                } catch (MessagingException e) {
-                        e.printStackTrace();
-                        return new ResponseData(HttpStatus.INTERNAL_SERVER_ERROR,
-                                        "Failed to send invoice to " + username, null);
-                }
-        }
-
         public ResponseData sendInvoiceEmail(String email, String username, int invoiceId) {
                 MimeMessage mimeMessage = mailSender.createMimeMessage();
                 Invoice invoiceData = invoiceRepository.findById(invoiceId).get();
+                // Định dạng ngày
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+                // Lấy ngày từ invoiceData
+                Date originalDate = invoiceData.getDate();
+
+                // Sử dụng Calendar để cộng thêm 1 năm
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(originalDate);
+                calendar.add(Calendar.YEAR, 1);
+                Date datePlusOneYear = calendar.getTime();
                 try {
                         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
                         helper.setFrom("your-email@example.com");
@@ -279,8 +237,25 @@ public class MailService {
                                         .append("</div>");
                         message.append("</div>");
 
+                        // Footer Section
+                        message.append("<div class='mt-8 flex justify-center'>"); // Start of footer section
+                        message.append("<div class='flex items-center justify-center font-playwrite text-2xl text-center border-r-2 border-black pr-5'>");
+                        message.append("THANK YOU");
                         message.append("</div>");
+                        message.append("<div class='text-gray-700 text-left ml-4'>");
+                        message.append("<h1 class='font-bold text-red-500'>Warranty</h1>");
+                        message.append("<p class='font-semibold'>For any warranty issues, please contact our customer service</p>");
+                        message.append("<p class='font-semibold'>Expiration date from ")
+                                        .append(sdf.format(originalDate))
+                                        .append(" to ")
+                                        .append(sdf.format(datePlusOneYear))
+                                        .append("</p>");
+                        message.append("<p class='font-semibold'>Phone: 0399189976 | Email: 2ks1net@gmail.com</p>");
+                        message.append("<p class='font-semibold'>*The store only accepts invoice cancellations within 24 hours from the time the invoice is printed.*</p>");
+                        message.append("</div>");
+                        message.append("</div>"); // End of footer section
 
+                        message.append("</div>");
                         message.append("</body></html>");
 
                         helper.setText(message.toString(), true);
