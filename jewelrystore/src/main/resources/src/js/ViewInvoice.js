@@ -75,19 +75,8 @@ function getInvoiceData(invoice) {
     });
 }
 function populateInvoice(data) {
-  const dateUpdate = new Date(data.date);
-
-  const offSetDate = new Date(dateUpdate.getTime());
-  const formatDate = offSetDate.toISOString().split("T")[0];
-
-  // Lấy giờ và phút
-  const hours = offSetDate.getHours().toString().padStart(2, "0");
-  const minutes = offSetDate.getMinutes().toString().padStart(2, "0");
-
-  // Kết hợp ngày, giờ và phút
-  const formattedDateTime = `${formatDate} ${hours}:${minutes}`;
-  var checkCancel = true;
-  //Tinh discount price:
+  const dateUpdate = new Date(data.date).toLocaleString();
+  
 
   let promotionPriceForUser = 0;
   if (data.listPromotionOnInvoice && data.listPromotionOnInvoice.length > 0) {
@@ -163,7 +152,7 @@ function populateInvoice(data) {
         <div class="p-4">
             <p><strong>Biller:</strong> ${data.employeeDTO.firstName} ${data.employeeDTO.lastName
     }</p>
-            <p><strong>Invoice Date:</strong> ${formattedDateTime}</p>
+            <p><strong>Invoice Date:</strong> ${dateUpdate}</p>
             <p><strong>Payment Method:</strong> ${data.payment.trim()}</p>
         </div>
         <div class="text-right mx-10">
