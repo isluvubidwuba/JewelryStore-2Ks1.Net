@@ -77,7 +77,7 @@ function getInvoiceData(invoice) {
 function populateInvoice(data) {
   const dateUpdate = new Date(data.date);
 
-  const offSetDate = new Date(dateUpdate.getTime() + 7 * 60 * 60 * 1000);
+  const offSetDate = new Date(dateUpdate.getTime());
   const formatDate = offSetDate.toISOString().split("T")[0];
 
   // Lấy giờ và phút
