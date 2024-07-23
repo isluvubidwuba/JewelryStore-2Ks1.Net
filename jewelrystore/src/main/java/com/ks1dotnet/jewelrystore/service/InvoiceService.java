@@ -51,6 +51,7 @@ import com.ks1dotnet.jewelrystore.service.serviceImp.IInvoiceService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IInvoiceTypeService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IPromotionService;
 import com.ks1dotnet.jewelrystore.service.serviceImp.IUserInfoService;
+import com.ks1dotnet.jewelrystore.utils.JwtUtilsHelper;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -134,8 +135,9 @@ public class InvoiceService implements IInvoiceService {
                         }
 
                         InvoiceType invoiceType = invoiceTypeService.findById(invoiceTypeId);
-                        List<Promotion> promotions = promotionService.getAllPromotionByProductAndInvoiceType(
-                                        product, invoiceType.getId());
+                        List<Promotion> promotions =
+                                        promotionService.getAllPromotionByProductAndInvoiceType(
+                                                        product, invoiceType.getId());
 
                         return calculateInvoiceDetail(product, quantity, promotions, invoiceType);
                 } catch (ApplicationException e) {
@@ -176,9 +178,9 @@ public class InvoiceService implements IInvoiceService {
                                                         .equals("category"))
                                         .findFirst().orElse(null);
 
-                        Double priceAtTime = invoiceType.getId() == Sell ? product.getMaterial().getPriceAtTime()
-                                        : product.getMaterial().getPriceBuyAtTime();
-                        ;
+                        Double priceAtTime = invoiceType.getId() == Sell
+                                        ? product.getMaterial().getPriceAtTime()
+                                        : product.getMaterial().getPriceBuyAtTime();;
                         float weight = product.getWeight();
                         double materialPrice = priceAtTime * weight;
 
@@ -365,8 +367,10 @@ public class InvoiceService implements IInvoiceService {
                                 invoiceDetail.setPrice(detailDTO.getPrice());
                                 invoiceDetail.setPriceMaterialAtTime(
                                                 invoice.getInvoiceType().getId() == Sell
-                                                                ? product.getMaterial().getPriceAtTime()
-                                                                : product.getMaterial().getPriceBuyAtTime());
+                                                                ? product.getMaterial()
+                                                                                .getPriceAtTime()
+                                                                : product.getMaterial()
+                                                                                .getPriceBuyAtTime());
                                 invoiceDetail.setTotalPrice(detailDTO.getTotalPrice());
                                 invoiceDetail.setInvoice(invoice);
                                 invoiceDetail.setCounter(product.getCounter());
@@ -422,7 +426,8 @@ public class InvoiceService implements IInvoiceService {
         @Override
         public int convertDoubleToInt(double input) {
                 try {
-                        BigDecimal bigDecimal = new BigDecimal(input).setScale(0, RoundingMode.HALF_UP);
+                        BigDecimal bigDecimal =
+                                        new BigDecimal(input).setScale(0, RoundingMode.HALF_UP);
                         return bigDecimal.intValue();
                 } catch (Exception e) {
                         throw new ApplicationException(
@@ -474,10 +479,11 @@ public class InvoiceService implements IInvoiceService {
                                 int quantity = Integer.parseInt(entry.getValue());
                                 double price = barcodePriceMap.get(barcode);
                                 if (quantity <= 0 || price <= 0) {
-                                        throw new ApplicationException(
-                                                        (quantity <= 0 ? "Quantity cannot be negative numbers: "
+                                        throw new ApplicationException((quantity <= 0
+                                                        ? "Quantity cannot be negative numbers: "
                                                                         + quantity
-                                                                        : "Qrice cannot be negative numbers: " + price),
+                                                        : "Qrice cannot be negative numbers: "
+                                                                        + price),
                                                         HttpStatus.BAD_REQUEST);
                                 }
                                 Product product = iProductRepository.findByBarCode(barcode);
@@ -576,9 +582,9 @@ public class InvoiceService implements IInvoiceService {
 
                                 iInventoryRepository.save(inventory);
                         }
-
+                        String id = JwtUtilsHelper.getAuthorizationByTokenType("at").getSubject();
                         invoice.setStatus(false);
-                        invoice.setNote(note);
+                        invoice.setNote(note.trim() + " Canceled by " + id);
                         invoiceRepository.save(invoice);
                 } catch (ApplicationException e) {
                         throw new ApplicationException(
@@ -618,7 +624,8 @@ public class InvoiceService implements IInvoiceService {
         @Override
         public List<InvoiceDTO> getInvoicesByDateRange(Date startDate, Date endDate) {
                 try {
-                        List<Invoice> invoices = invoiceRepository.findByDateBetween(startDate, endDate);
+                        List<Invoice> invoices =
+                                        invoiceRepository.findByDateBetween(startDate, endDate);
                         return invoices.stream().map(Invoice::getDTO).collect(Collectors.toList());
                 } catch (Exception e) {
                         throw new ApplicationException(
@@ -1146,8 +1153,9 @@ public class InvoiceService implements IInvoiceService {
                                                                                                     // 5
                                                                                                     // kết
                                                                                                     // quả
-                Page<Invoice> invoices = invoiceRepository.findByEmployeeIdAndInvoiceTypeIdAndStatus(
-                                employeeId, Sell, true, pageable);
+                Page<Invoice> invoices =
+                                invoiceRepository.findByEmployeeIdAndInvoiceTypeIdAndStatus(
+                                                employeeId, Sell, true, pageable);
                 return invoices.map(Invoice::getDTO);
         }
 

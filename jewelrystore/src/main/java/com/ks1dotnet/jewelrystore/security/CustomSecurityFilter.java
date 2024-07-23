@@ -54,9 +54,9 @@ public class CustomSecurityFilter {
                                 .sessionManagement(session -> session.sessionCreationPolicy(
                                                 SessionCreationPolicy.STATELESS))
                                 .authorizeHttpRequests(authz -> authz
-                                                .requestMatchers(WHITE_LIST_URL).permitAll()
-                                                .requestMatchers(PUBLIC_API).permitAll()
-                                                .requestMatchers("/api/**")
+                                                .requestMatchers(WHITE_LIST_URL)
+                                                .hasAuthority("ADMIN").requestMatchers(PUBLIC_API)
+                                                .permitAll().requestMatchers("/api/**")
                                                 .hasAuthority("ACCESS_TOKEN").anyRequest()
                                                 .permitAll())
                                 .exceptionHandling(exception -> exception

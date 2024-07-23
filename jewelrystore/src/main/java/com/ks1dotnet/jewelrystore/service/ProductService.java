@@ -295,7 +295,7 @@ public class ProductService implements IProductService {
 
     @Override
     public ResponseData getProductByBarCode(String barCode) {
-        Product product = iProductRepository.findByBarCode(barCode);
+        Product product = iProductRepository.findByBarCode(barCode.trim());
         ResponseData responseData = new ResponseData();
         responseData.setStatus(HttpStatus.OK);
         responseData.setData(product.getDTO());

@@ -111,6 +111,7 @@ function loadMoreInvoices() {
             <td class="text-left p-2">${new Date(
               invoice.date
             ).toLocaleString()}</td>
+            <td class="text-left p-2">${invoice.id}</td>
             <td class="text-left p-2">${invoice.userInfoDTO.fullName}</td>
             <td class="text-left p-2">${invoice.employeeDTO.firstName} ${
           invoice.employeeDTO.lastName
